@@ -4,7 +4,7 @@
 
 ## 실행
 
-- 로컬: 폴더에서 `python3 -m http.server` 후 http://localhost:8000 접속
+- 로컬: 폴더에서 `python3 -m http.server` 후 http://localhost:8000 접속 (`index.html`을 파일로 직접 열면 `story.json`을 못 읽어 대화 없이 시작됨)
 - GitHub Pages: 저장소 Settings → Pages → Source를 `Deploy from a branch`, 브랜치/루트(`/`) 선택
 
 ## 조작
@@ -45,6 +45,20 @@
 - **근접 검사**: 쫓아와서 0.4초 동안 빨간 예고 영역과 `!`를 띄운 뒤 벤다. 예고 중에 때리면 공격이 끊긴다.
 - **원거리 투척병**: 플레이어를 향해 수리검을 던진다. 가까이 가면 뒤로 물러난다.
   - 수리검은 기본 공격(J)으로 쳐낼 수 있고, 발도 패링 구간에 맞으면 던진 적에게 되돌아간다.
+- **교주 아마테루 (보스, 임시)**: 근접 검사 AI를 크게 키우고 수리검 3개를 부채꼴로 던진다. 맞아도 공격이 끊기지 않는다. 수치는 `config.js`의 `boss`.
+
+## 스토리
+
+에도 막부 시대. 적안 흑발 고양이귀 소녀 **아카네**가 부모를 잃고, 그 원인인 사이비 사무라이 집단 **카미사마**에게 복수하러 간다.
+
+프롤로그(게임 시작) → 스테이지 2 진입 → 스테이지 3 진입 → 보스전 직전 → 엔딩(보스 처치 후)
+
+- 대사·캐릭터는 모두 `story.json`에 있다. `scenes`의 각 장면은 `lines: [{ speaker, text }]`, `speaker`가 `narration`이면 초상화 없는 내레이션.
+- `title`/`subtitle`이 있으면 대화가 끝난 뒤 화면 가운데에 장면 제목이 뜬다.
+- 대화가 시작되는 위치는 `js/level.js`의 `storyTriggers`.
+- 초상화는 `portrait` 설정으로 도형을 그린다. 그림이 생기면 캐릭터에 `"image": "assets/akane.png"`를 넣으면 그 이미지를 쓴다.
+- 대화 중 게임은 멈춘다. Space·J·Enter·화면 탭으로 넘기고(글자가 나오는 중이면 한 줄을 바로 완성), Esc로 장면 전체를 건너뛴다.
+- 글자 속도는 `js/config.js`의 `dialogue`.
 
 ## 파일 구성
 
@@ -53,6 +67,8 @@
 - `js/controls.js` — 키보드 + 터치 입력 통합
 - `js/skills.js` — 대쉬베기, 발도, 벚꽃 스택
 - `js/tree.js` — 벚꽃나무(체크포인트)
+- `story.json` — 대사, 캐릭터, 초상화 설정
+- `js/dialogue.js` / `js/portraits.js` / `js/boot-scene.js` — 대화창, 초상화 그리기, story.json 로딩
 - `js/player.js` / `js/enemy.js` — 주인공, 적
 - `js/level.js` — 땅·발판·적 배치 데이터
 - `js/game-scene.js` — 충돌, 전투, 카메라, HUD

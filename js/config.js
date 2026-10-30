@@ -78,6 +78,30 @@ window.TUNING = {
     retreatSpeed: 110,
   },
 
+  // 보스: 근접 검사 AI + 부채꼴 수리검. 맞아도 공격이 끊기지 않음(슈퍼아머)
+  boss: {
+    hp: 24,
+    patrolSpeed: 0,
+    chaseSpeed: 170,
+    aggroRange: 1400,
+    attackRange: 100,
+    windup: 0.5,
+    activeTime: 0.12,
+    recover: 0.5,
+    cooldown: 0.5,
+    reach: 112,
+    height: 80,
+    lunge: 260,
+    throwCooldown: 2.4,  // 수리검 3개를 부채꼴로 던지는 간격
+    superArmor: true,
+  },
+
+  // 대화
+  dialogue: {
+    charsPerSecond: 32,
+    punctuationPause: 0.12, // 문장부호 뒤 잠깐 멈춤
+  },
+
   shuriken: {
     speed: 420,
     life: 3,

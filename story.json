@@ -1,0 +1,111 @@
+{
+  "characters": {
+    "narration": { "name": "" },
+    "akane": {
+      "name": "아카네",
+      "color": "#ff6b7a",
+      "portrait": { "style": "catgirl", "hair": "#141414", "eyes": "#d62828", "skin": "#f4dfcc", "clothes": "#7a1f2b", "bg": "#3a2228" }
+    },
+    "genjiro": {
+      "name": "겐지로",
+      "color": "#c9a66b",
+      "portrait": { "style": "topknot", "hair": "#2b2b2b", "eyes": "#1a1a1a", "skin": "#e2c2a2", "clothes": "#3d4a5c", "bg": "#2a2a30" }
+    },
+    "oyuki": {
+      "name": "오유키",
+      "color": "#ffb7c5",
+      "portrait": { "style": "bun", "hair": "#2a1d17", "eyes": "#1a1a1a", "skin": "#f2dccb", "clothes": "#b05a78", "bg": "#33262c" }
+    },
+    "dogen": {
+      "name": "도겐",
+      "color": "#b8b8a0",
+      "portrait": { "style": "monk", "skin": "#d8b494", "clothes": "#6b6b60", "bg": "#2b2b26" }
+    },
+    "samurai": {
+      "name": "카미사마 무사",
+      "color": "#ff4d4d",
+      "portrait": { "style": "masked", "armor": "#a31b1b", "skin": "#c41f1f", "clothes": "#5a0f0f", "bg": "#241414" }
+    },
+    "amateru": {
+      "name": "교주 아마테루",
+      "color": "#ffd166",
+      "portrait": { "style": "godmask", "hair": "#efefef", "skin": "#fafafa", "clothes": "#e8e2d0", "bg": "#2a2410" }
+    }
+  },
+
+  "scenes": {
+    "prologue": {
+      "title": "스테이지 1",
+      "subtitle": "잿빛 산길",
+      "lines": [
+        { "speaker": "narration", "text": "에도 막부 시대. 산골 마을 어귀, 대장간 '겐야'." },
+        { "speaker": "narration", "text": "그 집에는 붉은 눈에 검은 머리, 고양이 귀를 가진 소녀가 살았다." },
+        { "speaker": "samurai", "text": "대장장이 겐지로. 카미사마께서 칼 백 자루를 원하신다." },
+        { "speaker": "genjiro", "text": "사람을 베기 위한 칼은 벼리지 않소. 돌아들 가시오." },
+        { "speaker": "samurai", "text": "신의 뜻을 거스르는 자는… 정화될 뿐이다." },
+        { "speaker": "narration", "text": "그날 밤, 마을에 불이 붙었다." },
+        { "speaker": "oyuki", "text": "아카네, 벚꽃나무 아래 사당에 숨어 있으렴. 무슨 소리가 나도 나오면 안 돼." },
+        { "speaker": "akane", "text": "엄마는? 아빠는…?" },
+        { "speaker": "oyuki", "text": "…벚꽃이 피는 곳이라면, 너는 몇 번이고 다시 일어설 수 있어. 약속해." },
+        { "speaker": "narration", "text": "새벽. 대장간은 재가 되었고, 아버지가 마지막으로 벼린 칼 한 자루만이 남아 있었다." },
+        { "speaker": "akane", "text": "카미사마… 너희가 신이라면, 나는 신을 베겠어." }
+      ]
+    },
+
+    "stage2": {
+      "title": "스테이지 2",
+      "subtitle": "강변 역참",
+      "lines": [
+        { "speaker": "dogen", "text": "그 귀, 그 눈… 겐야의 딸이로구나." },
+        { "speaker": "akane", "text": "누구야. 카미사마 쪽이라면 벤다." },
+        { "speaker": "dogen", "text": "진정해라. 나는 떠돌이 중 도겐. 네 아비와는 술친구였지." },
+        { "speaker": "dogen", "text": "카미사마는 '정화'를 핑계로 마을을 불태우고 재물을 긁어모으는 사이비 무리다. 막부도 뇌물에 눈을 감았고." },
+        { "speaker": "akane", "text": "두목은 어디 있어?" },
+        { "speaker": "dogen", "text": "강 건너 역참을 지나 산 위의 사원. 교주는 스스로를 '아마테루'라 부른다." },
+        { "speaker": "dogen", "text": "하나만 일러 주마. 놈들의 검사는 칼을 휘두르기 전 숨을 들이쉰다. 붉은 살기가 보이면 물러서거나, 먼저 베어라." },
+        { "speaker": "akane", "text": "…고마워. 아버지 술값은 내가 갚을게." }
+      ]
+    },
+
+    "stage3": {
+      "title": "스테이지 3",
+      "subtitle": "신사의 돌계단",
+      "lines": [
+        { "speaker": "samurai", "text": "멈춰라, 요괴 계집! 아마테루 님은 진짜 신이시다!" },
+        { "speaker": "akane", "text": "신이 사람을 불태워?" },
+        { "speaker": "samurai", "text": "…정화를 거부한 자들이었다. 그렇게 배웠다." },
+        { "speaker": "akane", "text": "우리 엄마는 아무것도 거부하지 않았어. 그냥 나를 숨겼을 뿐이야." },
+        { "speaker": "narration", "text": "무사의 칼끝이 흔들리다, 천천히 내려갔다." },
+        { "speaker": "samurai", "text": "…종이 세 번 울리면 교주는 본전에 홀로 있다. 가라." },
+        { "speaker": "akane", "text": "네가 벤 사람들 몫까지, 살아서 갚아." }
+      ]
+    },
+
+    "boss_intro": {
+      "title": "최종장",
+      "subtitle": "교주 아마테루",
+      "lines": [
+        { "speaker": "narration", "text": "종이 세 번 울렸다." },
+        { "speaker": "amateru", "text": "오오, 고양이 귀의 아이. 그 붉은 눈… 요괴의 피로구나." },
+        { "speaker": "akane", "text": "겐야의 대장간을 기억해?" },
+        { "speaker": "amateru", "text": "기억하지 않는다. 신은 태운 장작의 이름을 세지 않는 법." },
+        { "speaker": "akane", "text": "그럼 기억하게 해 줄게. 아버지가 벼린 마지막 칼로." },
+        { "speaker": "amateru", "text": "신에게 칼을 겨누는가. 좋다… 정화해 주마!" }
+      ]
+    },
+
+    "ending": {
+      "lines": [
+        { "speaker": "narration", "text": "교주의 가면이 갈라졌다. 그 아래에는 평범한 늙은 남자의 얼굴이 있었다." },
+        { "speaker": "amateru", "text": "신이란… 모두가 그렇다고 믿으면… 되는 것이었는데…" },
+        { "speaker": "akane", "text": "이제 아무도 안 믿어." },
+        { "speaker": "narration", "text": "사원의 종이 다시 울렸다. 갇혀 있던 마을 사람들이 하나둘 빛 속으로 걸어 나왔다." },
+        { "speaker": "dogen", "text": "끝났구나, 아카네." },
+        { "speaker": "akane", "text": "아직. 대장간을 다시 세울 거야. 사람을 베는 칼 말고, 지키는 칼을 벼리는 곳으로." },
+        { "speaker": "dogen", "text": "네 아비가 들었으면 술을 한 동이는 비웠겠구나." },
+        { "speaker": "narration", "text": "이듬해 봄. 새 대장간 앞에 벚꽃이 피었다." },
+        { "speaker": "akane", "text": "엄마, 아빠. 나… 다시 일어섰어." }
+      ]
+    }
+  }
+}

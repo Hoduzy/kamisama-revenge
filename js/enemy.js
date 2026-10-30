@@ -9,8 +9,9 @@ class Enemy {
     this.cfg = TUNING[data.type];
     this.minX = data.minX;
     this.maxX = data.maxX;
-    this.w = data.type === 'thrower' ? 28 : 30;
-    this.h = data.type === 'thrower' ? 36 : 44;
+    const sizes = { swordsman: [30, 44], thrower: [28, 36], boss: [48, 72] };
+    [this.w, this.h] = sizes[data.type];
+    this.dormant = !!data.dormant; // true 면 깨어날 때까지 가만히 있음
 
     this.obj = scene.add.rectangle(data.x, data.y, this.w, this.h, COLORS.enemy);
     this.obj.enemy = this;
@@ -25,6 +26,7 @@ class Enemy {
     this.stun = 0;
     this.flash = 0;
     this.parryImmune = 0; // 한 번 패링당한 뒤 같은 공격으로 연속 패링되지 않게
+    this.throwTimer = this.cfg.throwCooldown || 0;
     this.dead = false;
 
     // 예고 표시
@@ -48,9 +50,11 @@ class Enemy {
     this.parryImmune -= dt;
     this.cooldown -= dt;
 
-    if (this.stun > 0) {
+    if (this.dormant) {
+      body.setVelocityX(0);
+    } else if (this.stun > 0) {
       if (this.grounded) body.setVelocityX(body.velocity.x * Math.max(0, 1 - dt * 10));
-    } else if (this.type === 'swordsman') {
+    } else if (this.type === 'swordsman' || this.type === 'boss') {
       this.updateSwordsman(dt, player);
     } else {
       this.updateThrower(dt, player);
@@ -96,6 +100,14 @@ class Enemy {
       }
       case 'chase': {
         this.facing = Math.sign(dx) || this.facing;
+        // 보스: 멀리 있으면 수리검을 부채꼴로 던짐
+        if (S.throwCooldown) {
+          this.throwTimer -= dt;
+          if (this.throwTimer <= 0 && Math.abs(dx) > 160) {
+            this.throwTimer = S.throwCooldown;
+            for (const off of [-0.2, 0, 0.2]) this.scene.spawnShuriken(this, player, off);
+          }
+        }
         if (!this.sees(player, S.aggroRange * 1.3, 120)) {
           this.setState('patrol');
         } else if (Math.abs(dx) <= S.attackRange && this.cooldown <= 0 && this.grounded) {
@@ -175,6 +187,12 @@ class Enemy {
     if (this.dead) return;
     this.hp -= damage;
     this.flash = 0.08;
+    if (this.cfg.superArmor) {
+      // 공격이 끊기지 않고 살짝만 밀림
+      this.body.setVelocityX(dir * 80);
+      if (this.hp <= 0) this.kill(true);
+      return;
+    }
     this.stun = 0.28;
     // 맞으면 공격이 끊긴다
     if (this.state === 'windup' || this.state === 'attack') {
@@ -188,7 +206,7 @@ class Enemy {
   kill(withEffect) {
     if (this.dead) return;
     this.dead = true;
-    if (withEffect) this.scene.spawnBurst(this.body.center.x, this.body.center.y, COLORS.enemy);
+    if (withEffect) this.scene.spawnBurst(this.body.center.x, this.body.center.y, COLORS.enemy, this.type === 'boss' ? 40 : 10);
     // 충돌 콜백 도중일 수 있으므로 바로 지우지 않고 비활성화 후 다음 틱에 제거
     this.body.enable = false;
     this.obj.setVisible(false);
@@ -208,7 +226,7 @@ class Enemy {
     this.alert.setVisible(winding);
     this.alert.setPosition(b.center.x, b.top - 4);
 
-    const showRect = winding && this.type === 'swordsman';
+    const showRect = winding && this.type !== 'thrower';
     this.telegraph.setVisible(showRect);
     if (showRect) {
       const r = this.getSwordRect();

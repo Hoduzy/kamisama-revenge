@@ -34,12 +34,6 @@ class GameScene extends Phaser.Scene {
       rect.body.checkCollision.right = false;
     }
 
-    // 골
-    const g = L.goal;
-    this.add.rectangle(g.x, g.y - 70, 6, 140, 0x444444);
-    this.add.rectangle(g.x + 22, g.y - 125, 40, 26, 0x444444);
-    this.goalZone = new Phaser.Geom.Rectangle(g.x - 30, g.y - 160, 60, 160);
-
     // 벚꽃나무 (첫 나무는 처음부터 만개)
     this.trees = L.trees.map((t) => new CherryTree(this, t.x, t.y));
     this.trees[0].bloom(false);
@@ -68,7 +62,22 @@ class GameScene extends Phaser.Scene {
     cam.setDeadzone(60, 90);
     this.lookAhead = 0;
 
+    this.boss = this.enemies.find((e) => e.type === 'boss');
     this.createHud();
+
+    // 스토리
+    this.story = this.cache.json.get('story');
+    this.dialogue = new DialogueBox(this);
+    this.firedTriggers = new Set();
+    this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+    this.escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    this.tapped = false;
+    this.input.on('pointerdown', () => { this.tapped = true; });
+    // 프롤로그는 처음 한 번만 (R 재시작 시엔 생략)
+    if (!this.registry.get('prologueSeen')) {
+      this.registry.set('prologueSeen', true);
+      this.startStory('prologue');
+    }
 
     this.input.keyboard.on('keydown-R', () => this.scene.restart());
     const sync = () => {
@@ -149,6 +158,15 @@ class GameScene extends Phaser.Scene {
 
     this.createSkillHud();
 
+    // 보스 체력바 (보스가 깨어나면 표시)
+    this.bossBar = this.add.container(GAME_WIDTH / 2, 30).setScrollFactor(0).setDepth(100).setVisible(false);
+    this.bossBarFill = this.add.rectangle(-180, 14, 360, 10, COLORS.enemy).setOrigin(0, 0.5);
+    this.bossBar.add([
+      this.add.text(0, -6, '교주 아마테루', { ...style, fontSize: '16px', fontStyle: 'bold' }).setOrigin(0.5),
+      this.add.rectangle(0, 14, 364, 14, 0x222222),
+      this.bossBarFill,
+    ]);
+
     this.bannerBg = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, 520, 260, 0xffffff, 0.82)
       .setScrollFactor(0).setDepth(100).setVisible(false);
     this.banner = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, '',
@@ -214,6 +232,9 @@ class GameScene extends Phaser.Scene {
 
   updateHud() {
     this.deathText.setText('사망 ' + this.deaths);
+    const boss = this.boss;
+    this.bossBar.setVisible(!!boss && !boss.dormant && !boss.dead);
+    if (boss && !boss.dead) this.bossBarFill.setSize(360 * Math.max(0, boss.hp) / boss.cfg.hp, 10);
     this.koText.setText('KO ' + this.kills);
 
     const sk = this.player.skills;
@@ -244,10 +265,20 @@ class GameScene extends Phaser.Scene {
     if (this.hitStopTimer > 0) {
       this.hitStopTimer -= dt;
       if (this.hitStopTimer > 0) return;
-      this.physics.world.resume();
+      if (!this.dialogue.active) this.physics.world.resume();
     }
 
     this.controls.update();
+    const tapped = this.tapped;
+    this.tapped = false;
+
+    // 대화 중엔 게임이 멈춘다
+    if (this.dialogue.active) {
+      const c = this.controls.state;
+      const advance = c.jump.pressed || c.attack.pressed || tapped || Phaser.Input.Keyboard.JustDown(this.enterKey);
+      this.dialogue.update(dt, advance, Phaser.Input.Keyboard.JustDown(this.escKey));
+      return;
+    }
 
     if (this.cleared) {
       const c = this.controls.state;
@@ -275,8 +306,14 @@ class GameScene extends Phaser.Scene {
     // 낙사
     if (player.body.top > LEVEL.height + 60) this.killPlayer();
 
-    // 골
-    if (Phaser.Geom.Rectangle.Overlaps(this.goalZone, this.bodyRect(player.body))) this.triggerClear();
+    // 스토리 트리거
+    for (const t of LEVEL.storyTriggers) {
+      if (!this.firedTriggers.has(t.scene) && player.body.center.x >= t.x && !player.dead) {
+        this.firedTriggers.add(t.scene);
+        this.startStory(t.scene, t.scene === 'boss_intro' ? () => this.wakeBoss() : null);
+        break;
+      }
+    }
 
     // 카메라 룩어헤드: 바라보는 방향을 더 보여줌
     this.lookAhead += (-player.facing * 90 - this.lookAhead) * Math.min(1, dt * 3);
@@ -360,11 +397,11 @@ class GameScene extends Phaser.Scene {
 
   // ───────── 수리검 ─────────
 
-  spawnShuriken(enemy, player) {
+  spawnShuriken(enemy, player, angleOffset = 0) {
     const S = TUNING.shuriken;
     const x = enemy.body.center.x + enemy.facing * 14;
     const y = enemy.body.center.y - 6;
-    const angle = Math.atan2(player.body.center.y - y, player.body.center.x - x);
+    const angle = Math.atan2(player.body.center.y - y, player.body.center.x - x) + angleOffset;
     const img = this.add.image(x, y, 'shuriken').setDepth(14);
     this.shurikens.push({
       img, x, y, vx: Math.cos(angle) * S.speed, vy: Math.sin(angle) * S.speed,
@@ -471,6 +508,43 @@ class GameScene extends Phaser.Scene {
 
   onEnemyKilled(enemy, byPlayer) {
     if (byPlayer) this.kills += 1;
+    if (enemy.type === 'boss') {
+      this.doHitStop(0.25);
+      this.cameras.main.shake(400, 0.015);
+      this.spawnPetals(enemy.body.center.x, enemy.body.center.y, 60, 200);
+      this.time.delayedCall(1200, () => this.startStory('ending', () => this.triggerClear()));
+    }
+  }
+
+  // story.json 의 장면을 재생. 끝나면 장면 제목을 띄우고 onDone 호출
+  startStory(id, onDone) {
+    const sceneData = this.story && this.story.scenes && this.story.scenes[id];
+    if (!sceneData) {
+      if (onDone) onDone();
+      return;
+    }
+    this.physics.world.pause();
+    this.dialogue.start(sceneData, this.story.characters, () => {
+      this.physics.world.resume();
+      if (sceneData.title) this.showStageTitle(sceneData.title, sceneData.subtitle);
+      if (onDone) onDone();
+    });
+  }
+
+  showStageTitle(title, subtitle) {
+    const font = 'system-ui, -apple-system, sans-serif';
+    const t1 = this.add.text(GAME_WIDTH / 2, 190, title, { fontFamily: font, fontSize: '40px', fontStyle: 'bold', color: '#111' });
+    const t2 = this.add.text(GAME_WIDTH / 2, 240, subtitle || '', { fontFamily: font, fontSize: '22px', color: '#d6336c' });
+    for (const t of [t1, t2]) {
+      t.setOrigin(0.5).setScrollFactor(0).setDepth(150).setAlpha(0);
+      this.tweens.add({ targets: t, alpha: 1, duration: 300, hold: 1400, yoyo: true, onComplete: () => t.destroy() });
+    }
+  }
+
+  wakeBoss() {
+    if (!this.boss || this.boss.dead) return;
+    this.boss.dormant = false;
+    this.boss.setState('chase');
   }
 
   doHitStop(seconds) {
@@ -481,7 +555,7 @@ class GameScene extends Phaser.Scene {
   triggerClear() {
     this.cleared = true;
     this.physics.world.pause();
-    this.banner.setText('CLEAR!\nKO ' + this.kills + '\n\n점프 / 공격으로 다시 시작');
+    this.banner.setText('끝\n\n처치 ' + this.kills + '  ·  사망 ' + this.deaths + '\n\n점프 / 공격으로 다시 시작');
     this.banner.setFontSize(40);
     this.allowRestartSoon();
   }

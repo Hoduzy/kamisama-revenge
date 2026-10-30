@@ -97,3 +97,8 @@ body.touch #touch-controls {
 .btn.skill.cooldown {
   opacity: 0.4;
 }
+
+/* 대화 중엔 버튼을 숨기고 화면 어디든 탭해서 넘긴다 */
+body.in-dialogue #touch-controls .pad {
+  visibility: hidden;
+}

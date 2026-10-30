@@ -19,5 +19,5 @@ window.game = new Phaser.Game({
   input: {
     activePointers: 4,
   },
-  scene: [GameScene],
+  scene: [BootScene, GameScene],
 });
