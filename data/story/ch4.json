@@ -637,7 +637,7 @@
       "title": "타누키치 체크포인트 한마디 (4장)",
       "trigger": "checkpointBloom",
       "mode": "random",
-      "chance": 1.0,
+      "chance": 0.5,
       "lines": [
         {
           "cmd": "say",
@@ -674,7 +674,16 @@
           "text": "겐카이는 세 번 연속 휘두르는데, 세 번 다 막아야 반격할 수 있대. 두 번 막고 세 번째 맞으면… 응, 그렇지.",
           "side": "right"
         }
-      ]
+      ],
+      "firstCheckpointOfStage": 1.0,
+      "noRepeat": true,
+      "yieldTo": [
+        "haru_voice",
+        "ch6_haru_voice"
+      ],
+      "display": "bubble",
+      "duration": 3,
+      "pause": false
     }
   ],
   "meta": {

@@ -639,7 +639,7 @@
       "title": "타누키치 체크포인트 한마디 (2장)",
       "trigger": "checkpointBloom",
       "mode": "random",
-      "chance": 1.0,
+      "chance": 0.5,
       "lines": [
         {
           "cmd": "say",
@@ -676,7 +676,16 @@
           "text": "누나 아까 웃었지? 만두 먹을 때. 나 봤어.",
           "side": "right"
         }
-      ]
+      ],
+      "firstCheckpointOfStage": 1.0,
+      "noRepeat": true,
+      "yieldTo": [
+        "haru_voice",
+        "ch6_haru_voice"
+      ],
+      "display": "bubble",
+      "duration": 3,
+      "pause": false
     },
     {
       "id": "haru_voice",
@@ -717,7 +726,10 @@
         }
       ],
       "fromChapter": 2,
-      "afterScene": "S2-4"
+      "afterScene": "S2-4",
+      "display": "voice",
+      "duration": 3,
+      "pause": false
     }
   ],
   "meta": {

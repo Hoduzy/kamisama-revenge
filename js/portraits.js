@@ -1,5 +1,5 @@
-// 대화창 초상화. 아직 그림 파일이 없으므로 story.json 의 portrait 설정으로 도형을 그려 텍스처로 만든다.
-// story.json 에서 캐릭터에 "image": "assets/xxx.png" 를 넣으면 그 그림을 대신 쓴다 (boot-scene.js 에서 로드).
+// 대화창 초상화. 아직 그림 파일이 없으므로 data/story/characters.json 의 portrait 설정으로 도형을 그려 텍스처로 만든다.
+// characters.json 에서 인물에 "image": "assets/xxx.png" 를 넣으면 그 그림을 대신 쓴다 (boot-scene.js 에서 로드).
 const PORTRAIT_SIZE = 128;
 
 const Portraits = (function () {
@@ -91,7 +91,7 @@ const Portraits = (function () {
   };
 
   return {
-    // story.json 의 캐릭터마다 'portrait-<id>' 텍스처를 준비
+    // characters.json 의 인물마다 'portrait-<id>' 텍스처를 준비
     generate(scene, characters) {
       for (const [id, ch] of Object.entries(characters || {})) {
         const key = 'portrait-' + id;

@@ -1,7 +1,11 @@
 // 대화창 (HTML 레이어 #ui 안). 에도 시대풍: 짙은 남색 반투명 패널 + 얇은 금색 테두리 + 모서리 벚꽃,
 // 패널 위 왼쪽 빨간 이름표, 패널 위로 크게 튀어나온 초상화(말하는 쪽 왼/오른쪽, 안 말하는 쪽은 어둡게).
-// 넘기기: Space / J / Enter / 화면 탭. 건너뛰기: Esc.
-// story.json 캐릭터 설정: side('left'|'right', 기본 right), sprite(도트 초상화 시트 + 표정), image, portrait(도형)
+// 한 줄씩 보여 주는 방식: open() → line(명령) 을 await → close(). 연출 엔진(js/story-engine.js)이 부른다.
+//   say   : 초상화 + 이름표 + 대사
+//   think : 아카네 속마음. 초상화 반투명, 글자 회색
+//   voice : 초상화·이름표 없이 글자만. style pink(하루) / goldTremble(하쿠야, 떨리는 금색) / plain
+// 넘기기: Space / J / Enter / 화면 탭 (조작 가능 컷신에서는 Enter·탭 또는 자동으로 넘어감).
+// 인물 설정(data/story/characters.json): sprite(도트 초상화 시트 + 표정), image, portrait(도형), color
 const SAKURA_SVG = `<svg viewBox="-10 -10 20 20" aria-hidden="true">${[0, 72, 144, 216, 288]
   .map((a) => `<ellipse cx="0" cy="-5" rx="3.6" ry="5" transform="rotate(${a})"/>`).join('')}<circle r="2" class="c"/></svg>`;
 
@@ -30,25 +34,37 @@ class DialogueBox {
     this.nameEl = root.querySelector('.dlg-name');
     this.textEl = root.querySelector('.dlg-text');
     this.nextEl = root.querySelector('.dlg-next');
+    this.hintEl = root.querySelector('.dlg-hint');
     root.classList.remove('show', 'open');
+    this.pending = null;
   }
 
-  // sceneData: story.json 의 scenes[id], characters: story.json 의 characters
-  start(sceneData, characters, onDone) {
-    this.lines = sceneData.lines || [];
+  // characters: data/story/characters.json. controllable: 플레이어가 움직이는 컷신(자동 넘김, Space/J 는 게임 조작)
+  open(characters, { controllable = false } = {}) {
     this.characters = characters || {};
-    this.onDone = onDone;
-    this.index = -1;
+    this.controllable = controllable;
     this.sideSpeaker = { left: null, right: null };
     for (const p of Object.values(this.portraits)) {
-      p.className = p.className.replace(/\b(speaking|filled)\b/g, '').trim();
+      p.className = p.className.replace(/\b(speaking|filled|boxed|thinking|enter)\b/g, '').replace(/\s+/g, ' ').trim();
       p.style.backgroundImage = '';
     }
+    this.textEl.innerHTML = '';
+    this.nameEl.style.display = 'none';
+    this.hintEl.textContent = controllable ? 'Enter · 탭 넘기기 (자동으로도 넘어감)' : 'Space · J · 탭 넘기기  ·  Esc 건너뛰기';
+    this.root.classList.toggle('controllable', controllable);
     this.active = true;
     this.root.classList.add('open');
     requestAnimationFrame(() => this.root.classList.add('show')); // 아래에서 살짝 올라오며 나타남
-    document.body.classList.add('in-dialogue');
-    this.nextLine();
+    if (!controllable) document.body.classList.add('in-dialogue');
+  }
+
+  close() {
+    if (!this.active) return;
+    this.active = false;
+    this.resolvePending();
+    document.body.classList.remove('in-dialogue');
+    this.root.classList.remove('show');
+    setTimeout(() => { if (!this.active) this.root.classList.remove('open'); }, 250);
   }
 
   // 초상화 그림: 도트 시트(표정) → image → 도형으로 만든 텍스처
@@ -73,23 +89,19 @@ class DialogueBox {
     return { boxed: true, backgroundImage: `url(${this.dataUrls[key]})`, backgroundSize: '100% 100%', backgroundPosition: '0 0', width: '200px', height: '200px' };
   }
 
-  nextLine() {
-    this.index++;
-    if (this.index >= this.lines.length) {
-      this.finish();
-      return;
-    }
-    const line = this.lines[this.index];
-    const ch = this.characters[line.speaker] || {};
-    const narration = !line.speaker || line.speaker === 'narration';
+  // 한 줄 보여 주고, 넘길 때 끝나는 Promise
+  line(c) {
+    this.resolvePending();
+    const ch = this.characters[c.speaker] || {};
+    const kind = c.cmd; // say | think | voice
+    const side = kind === 'voice' ? null : (c.side || (c.speaker === 'akane' ? 'left' : 'right'));
+    const showPortrait = side && c.portrait !== false;
 
-    // 초상화: 말하는 사람 쪽에 놓고 밝게, 반대쪽은 어둡게
-    const side = narration ? null : (ch.side === 'left' ? 'left' : 'right');
-    if (side) {
+    if (showPortrait) {
       const el = this.portraits[side];
-      const style = this.portraitStyle(line.speaker, ch, line.face);
+      const style = this.portraitStyle(c.speaker, ch, c.face);
       if (style) {
-        const changed = this.sideSpeaker[side] !== line.speaker;
+        const changed = this.sideSpeaker[side] !== c.speaker;
         const { boxed, ...css } = style;
         Object.assign(el.style, css);
         el.classList.add('filled');
@@ -99,74 +111,79 @@ class DialogueBox {
           void el.offsetWidth;
           el.classList.add('enter'); // 새 사람이면 옆에서 미끄러져 들어옴
         }
-        this.sideSpeaker[side] = line.speaker;
+        this.sideSpeaker[side] = c.speaker;
       }
     }
-    for (const [s, el] of Object.entries(this.portraits)) el.classList.toggle('speaking', s === side);
+    for (const [s, el] of Object.entries(this.portraits)) {
+      el.classList.toggle('speaking', s === side && showPortrait);
+      el.classList.toggle('thinking', s === side && kind === 'think');
+    }
 
-    this.nameEl.textContent = narration ? '' : (ch.name || line.speaker);
-    this.nameEl.style.display = narration ? 'none' : '';
-    this.root.classList.toggle('narration', narration);
-    this.root.classList.toggle('speaker-right', side === 'right');
+    // 이름표: 목소리는 이름 없이 글자만
+    const name = ch.name || c.speaker || '';
+    this.nameEl.textContent = kind === 'think' ? `${name} · 속마음` : name;
+    this.nameEl.style.display = kind === 'voice' || !name ? 'none' : '';
+    this.root.classList.toggle('narration', false);
+    this.textEl.className = 'dlg-text' + (kind === 'think' ? ' think' : '') +
+      (kind === 'voice' ? ` voice voice-${c.style || 'plain'}` : '');
+    if (c.manner) this.nameEl.textContent += ` (${c.manner})`;
 
     // 글자를 미리 다 깔아 두고(숨김) 하나씩 보이게 → 줄바꿈 위치가 도중에 바뀌지 않는다
     this.textEl.innerHTML = '';
-    this.chars = [...line.text].map((c) => {
+    this.chars = [...c.text].map((t, i) => {
       const span = document.createElement('span');
-      span.textContent = c;
+      span.textContent = t;
       span.className = 'h';
+      if (c.style === 'goldTremble') span.style.animationDelay = `${-(i * 97) % 600}ms`;
       this.textEl.append(span);
       return span;
     });
-    this.full = line.text;
     this.shown = 0;
     this.wait = 0;
+    this.readTimer = 0;
     this.nextEl.classList.remove('on');
+    return new Promise((resolve) => { this.pending = resolve; });
+  }
+
+  resolvePending() {
+    const p = this.pending;
+    this.pending = null;
+    if (p) p();
   }
 
   get typing() {
-    return this.shown < this.chars.length;
+    return this.chars && this.shown < this.chars.length;
   }
 
   reveal(n) {
-    while (this.shown < n) this.chars[this.shown++].className = '';
+    while (this.shown < n) this.chars[this.shown].className = this.chars[this.shown++].className.replace('h', '').trim();
   }
 
-  update(dt, advance, skip) {
-    if (!this.active) return;
-    if (skip) {
-      this.finish();
-      return;
-    }
+  // 매 프레임 (연출 엔진이 부른다). advance: 넘기기 입력
+  update(dt, advance) {
+    if (!this.active || !this.pending) return;
     if (advance) {
       if (this.typing) {
         this.reveal(this.chars.length);
       } else {
-        this.nextLine();
-        if (!this.active) return;
+        this.resolvePending();
+        return;
       }
     }
-
     if (this.typing) {
       const D = TUNING.dialogue;
       this.wait -= dt;
       let n = this.shown;
       while (this.wait <= 0 && n < this.chars.length) {
-        const c = this.chars[n++].textContent;
-        this.wait += 1 / D.charsPerSecond + ('.!?…,'.includes(c) ? D.punctuationPause : 0);
+        const ch = this.chars[n++].textContent;
+        this.wait += 1 / D.charsPerSecond + ('.!?…,'.includes(ch) ? D.punctuationPause : 0);
       }
       this.reveal(n);
+    } else if (this.controllable) {
+      // 조작 가능 컷신: 다 읽을 시간이 지나면 자동으로 넘어간다
+      this.readTimer += dt;
+      if (this.readTimer > TUNING.story.autoAdvanceBase + this.chars.length * TUNING.story.autoAdvancePerChar) this.resolvePending();
     }
     this.nextEl.classList.toggle('on', !this.typing); // 다 나오면 ▼ 깜빡임
-  }
-
-  finish() {
-    this.active = false;
-    document.body.classList.remove('in-dialogue');
-    this.root.classList.remove('show');
-    setTimeout(() => { if (!this.active) this.root.classList.remove('open'); }, 250);
-    const done = this.onDone;
-    this.onDone = null;
-    if (done) done();
   }
 }

@@ -4,7 +4,7 @@
 
 ## 실행
 
-- 로컬: 폴더에서 `python3 -m http.server` 후 http://localhost:8000 접속 (`index.html`을 파일로 직접 열면 `story.json`을 못 읽어 대화 없이 시작됨)
+- 로컬: 폴더에서 `python3 -m http.server` 후 http://localhost:8000 접속 (`index.html`을 파일로 직접 열면 `data/story/*.json`을 못 읽어 대화 없이 시작됨)
 - GitHub Pages: 저장소 Settings → Pages → Source를 `Deploy from a branch`, 브랜치/루트(`/`) 선택
 
 ## 조작
@@ -51,17 +51,31 @@
 
 에도 막부 시대. 적안 흑발 고양이귀 소녀 **아카네**가 부모를 잃고, 그 원인인 사이비 사무라이 집단 **카미사마**에게 복수하러 간다.
 
-프롤로그(게임 시작) → 스테이지 2 진입 → 스테이지 3 진입 → 보스전 직전 → 엔딩(보스 처치 후)
+### 대본 데이터 (`data/story/`)
 
-- 대사·캐릭터는 모두 `story.json`에 있다. `scenes`의 각 장면은 `lines: [{ speaker, text }]`, `speaker`가 `narration`이면 초상화 없는 내레이션.
-- `title`/`subtitle`이 있으면 대화가 끝난 뒤 화면 가운데에 장면 제목이 뜬다.
-- 대화가 시작되는 위치는 `js/level.js`의 `storyTriggers`.
-- 초상화는 `portrait` 설정으로 도형을 그린다. 그림이 생기면 캐릭터에 `"image": "assets/akane.png"`를 넣으면 그 이미지를 쓴다.
-- 대화 중 게임은 멈춘다. Space·J·Enter·화면 탭으로 넘기고(글자가 나오는 중이면 한 줄을 바로 완성), Esc로 장면 전체를 건너뛴다.
-- 글자 속도는 `js/config.js`의 `dialogue`.
-- 대화창·HUD 글자는 캔버스 위 HTML 레이어(`js/ui.js`, `#ui`)에 그려 도트 설정과 무관하게 매끈하다. 폰트: Gowun Batang(대사), Noto Sans KR(UI).
-- 캐릭터의 `side`(`left`/`right`)로 초상화 위치를 정한다. 아카네는 왼쪽, 나머지는 오른쪽.
-- **대화창 테스트:** `index.html?story=test_dialogue` (다른 장면 이름도 가능, 예: `?story=boss_intro`)
+- 대본 원고(`docs/*.md`)를 `python3 tools/convert_story.py`로 변환한 JSON. 장마다 한 파일: `prologue`, `ch1`~`ch6`, `epilogue`, `memories`, 인물은 `characters.json`. 변환 결과 요약은 `_report.md`.
+- 장면 = `{ id, place, trigger, controllable, commands }`. 명령: `say`(대사) `think`(속마음) `voice`(목소리) `caption`(붓 자막) `fadeOut/fadeIn` `letterbox` `shake` `flash` `slowmo` `bgm` `sfx` `cg` `titleCard` `bossName` `giveItem` `wait` `cameraPan` `condition` `choice` `setFlag` `include` `note`(연출 메모).
+- 풀(pools): 체크포인트 한마디. 타누키치는 50%(스테이지 첫 체크포인트는 확정), 장 안에서 다 쓸 때까지 반복 없음, 하루 목소리가 나오면 생략, 3초 말풍선. 하루 목소리는 10%(6장은 확정).
+
+### 연출 엔진 (`js/story-engine.js`)
+
+- 트리거: 장 시작·첫 스테이지는 게임 시작 때, 체크포인트 n번째 벚꽃나무, 스테이지 시작·보스 전은 `js/level.js`의 `storyTriggers`, 보스 체력 조건, 보스 후·장 끝은 보스 처치 후.
+- 일반 컷신은 게임을 멈춘다. Space·J·Enter·탭으로 넘기고 Esc로 장면 전체를 건너뛴다(선택지는 꼭 골라야 함).
+- `controllable` 컷신은 게임이 계속 돌고 대사가 자동으로 넘어간다(Enter·탭으로 빨리 넘기기).
+- 소리 파일이 아직 없어서 BGM·효과음은 화면 오른쪽 위에 이름만 표시(`config.js`의 `story.showAudioCues`).
+- CG는 `assets/cg/cg번호.png`가 있으면 그 그림, 없으면 번호·설명 자리표시.
+- H 키(판정 표시)를 켜면 연출 메모(note)도 왼쪽 위에 보인다.
+- 플래그·선택·재생 기록·아이템은 registry(`storyFlags`, `storyPlayed`, `items`)에 저장.
+- 아카네 초상화는 도트 시트 3장(기본/화남/슬픔)에 표정을 대응. 다른 인물은 도형 임시 초상화.
+
+### 테스트용 주소
+
+- `index.html?scene=TEST` — 모든 연출 명령 시연 (`data/story/test.json`)
+- `index.html?scene=S0-7` — 아무 장면 하나만 재생 (장면 id는 `_report.md` 참고)
+- `index.html?chapter=ch3` — 그 장으로 시작 (기본 ch1)
+- `index.html?scene=E-5&memories=18` — 기억 조각 개수 조건 시험
+
+글자 속도는 `config.js`의 `dialogue`, 조작 가능 컷신 자동 넘김은 `story`.
 
 ## 그림 (스프라이트)
 
@@ -77,8 +91,10 @@
 - `js/controls.js` — 키보드 + 터치 입력 통합
 - `js/skills.js` — 대쉬베기, 발도, 벚꽃 스택
 - `js/tree.js` — 벚꽃나무(체크포인트)
-- `story.json` — 대사, 캐릭터, 초상화 설정
-- `js/dialogue.js` / `js/portraits.js` / `js/boot-scene.js` — 대화창, 초상화 그리기, story.json·스프라이트 로딩
+- `data/story/` — 대본 JSON (`tools/convert_story.py`로 생성)
+- `js/story-engine.js` — 연출 엔진 (장면 재생, 트리거, 풀, 플래그)
+- `js/dialogue.js` / `js/portraits.js` / `js/boot-scene.js` — 대화창, 초상화 그리기, 대본·스프라이트 로딩
+- `js/ui.js` — HTML 글자 레이어 + 컷신 연출(페이드, 레터박스, 자막, CG, 선택지, 말풍선)
 - `js/sprites.js` — 스프라이트 애니메이션·이펙트 도우미
 - `tools/process_sprites.py` — 원본 도트 이미지 전처리
 - `js/player.js` / `js/enemy.js` — 주인공, 적

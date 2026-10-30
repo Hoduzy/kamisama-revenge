@@ -185,17 +185,16 @@
       ]
     },
     {
-      "id": "S6-4",
+      "id": "S6-4a",
       "place": "피의 벚꽃길",
       "trigger": {
         "raw": "체크포인트 2·3 (하쿠야의 목소리)",
         "type": "checkpoint",
-        "n": [
-          2,
-          3
-        ],
+        "n": 2,
         "note": "하쿠야의 목소리"
       },
+      "mode": "sequence",
+      "controllable": true,
       "commands": [
         {
           "cmd": "note",
@@ -206,7 +205,21 @@
           "speaker": "hakuya",
           "text": "누나는 일곱 살에 꽃을 피웠어. 마을 사람들이 누나를 업고 축제를 했지. 나는 그 뒤에서 박수를 쳤어. 열다섯 살까지 매년.",
           "style": "goldTremble"
-        },
+        }
+      ]
+    },
+    {
+      "id": "S6-4b",
+      "place": "피의 벚꽃길",
+      "trigger": {
+        "raw": "체크포인트 2·3 (하쿠야의 목소리)",
+        "type": "checkpoint",
+        "n": 3,
+        "note": "하쿠야의 목소리"
+      },
+      "mode": "sequence",
+      "controllable": true,
+      "commands": [
         {
           "cmd": "voice",
           "speaker": "hakuya",
@@ -227,8 +240,7 @@
           "text": "정말? 너는 지금 복수하러 왔잖아. 나도 그랬어. 나를 버린 세상에 복수하러.",
           "style": "goldTremble"
         }
-      ],
-      "mode": "sequence"
+      ]
     },
     {
       "id": "S6-5",
@@ -1235,7 +1247,10 @@
           "text": "발이 늦으면 칼도 늦어. 하지만 오늘은, 천천히 가도 돼.",
           "style": "pink"
         }
-      ]
+      ],
+      "display": "voice",
+      "duration": 3,
+      "pause": false
     }
   ],
   "meta": {

@@ -1,110 +1,345 @@
 {
   "akane": {
     "name": "아카네",
-    "side": "left"
+    "side": "left",
+    "color": "#ff6b7a",
+    "sprite": {
+      "key": "portraits",
+      "faces": {
+        "neutral": 0,
+        "smile": 0,
+        "serious": 0,
+        "surprised": 0,
+        "angry": 1,
+        "sad": 2,
+        "scared": 2
+      }
+    }
   },
   "haru": {
     "name": "하루",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ffb7c5",
+    "portrait": {
+      "style": "bun",
+      "hair": "#1c1416",
+      "eyes": "#d62828",
+      "skin": "#f2dccb",
+      "clothes": "#7a2a3e",
+      "bg": "#33262c"
+    }
   },
   "soichiro": {
     "name": "소이치로",
-    "side": "auto"
+    "side": "auto",
+    "color": "#c9a66b",
+    "portrait": {
+      "style": "topknot",
+      "hair": "#2b2b2b",
+      "eyes": "#1a1a1a",
+      "skin": "#e2c2a2",
+      "clothes": "#3d4a5c",
+      "bg": "#2a2a30"
+    }
   },
   "tanukichi": {
     "name": "타누키치",
-    "side": "auto"
+    "side": "auto",
+    "color": "#d9a35b",
+    "portrait": {
+      "style": "catgirl",
+      "hair": "#6b4a2b",
+      "eyes": "#3a2a1a",
+      "skin": "#f0d4b8",
+      "clothes": "#5b6b3a",
+      "bg": "#2e2a20"
+    }
   },
   "hakuya": {
     "name": "하쿠야",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ffd166",
+    "portrait": {
+      "style": "godmask",
+      "hair": "#efefef",
+      "skin": "#fafafa",
+      "clothes": "#e8e2d0",
+      "bg": "#2a2410"
+    }
   },
   "hakuya_young": {
     "name": "어린 하쿠야",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ffd166",
+    "portrait": {
+      "style": "topknot",
+      "hair": "#d8d8d8",
+      "eyes": "#1a1a1a",
+      "skin": "#f0dcc8",
+      "clothes": "#6b6b60",
+      "bg": "#2a2a26"
+    }
   },
   "haru_young": {
     "name": "어린 하루",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ffb7c5",
+    "portrait": {
+      "style": "bun",
+      "hair": "#1c1416",
+      "eyes": "#d62828",
+      "skin": "#f6e2d2",
+      "clothes": "#b05a78",
+      "bg": "#3a2a32"
+    }
   },
   "gonzo": {
     "name": "곤조",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ff6b6b",
+    "portrait": {
+      "style": "masked",
+      "armor": "#6b1b1b",
+      "skin": "#8a2a2a",
+      "clothes": "#3a1010",
+      "bg": "#241414"
+    }
   },
   "aoi": {
     "name": "아오이",
-    "side": "auto"
+    "side": "auto",
+    "color": "#8fc1e3",
+    "portrait": {
+      "style": "bun",
+      "hair": "#202830",
+      "eyes": "#1a1a1a",
+      "skin": "#efd8c4",
+      "clothes": "#2f4f5f",
+      "bg": "#1e2a30"
+    }
   },
   "kaede": {
     "name": "카에데",
-    "side": "auto"
+    "side": "auto",
+    "color": "#e3a88f",
+    "portrait": {
+      "style": "bun",
+      "hair": "#302020",
+      "eyes": "#1a1a1a",
+      "skin": "#efd8c4",
+      "clothes": "#6b3a2a",
+      "bg": "#30221e"
+    }
   },
   "tsugumi": {
     "name": "츠구미",
-    "side": "auto"
+    "side": "auto",
+    "color": "#f5d08a",
+    "portrait": {
+      "style": "bun",
+      "hair": "#3a2a20",
+      "eyes": "#1a1a1a",
+      "skin": "#f6e2d2",
+      "clothes": "#c08a4a",
+      "bg": "#33291e"
+    }
   },
   "tsubaki": {
     "name": "츠바키",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ff8fb1",
+    "portrait": {
+      "style": "bun",
+      "hair": "#151015",
+      "eyes": "#1a1a1a",
+      "skin": "#f8e8e0",
+      "clothes": "#a51d2d",
+      "bg": "#2c1820"
+    }
   },
   "genkai": {
     "name": "겐카이",
-    "side": "auto"
+    "side": "auto",
+    "color": "#b8b8a0",
+    "portrait": {
+      "style": "monk",
+      "skin": "#d8b494",
+      "clothes": "#5a5a50",
+      "bg": "#2b2b26"
+    }
   },
   "okamura": {
     "name": "오카무라",
-    "side": "auto"
+    "side": "auto",
+    "color": "#9fb4d6",
+    "portrait": {
+      "style": "topknot",
+      "hair": "#555555",
+      "eyes": "#111111",
+      "skin": "#dcc0a2",
+      "clothes": "#2b3550",
+      "bg": "#1f2433"
+    }
   },
   "cultist": {
     "name": "가면 신도",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ff4d4d",
+    "portrait": {
+      "style": "masked",
+      "armor": "#d8d4cc",
+      "skin": "#f2efe8",
+      "clothes": "#a31b1b",
+      "bg": "#241414"
+    }
   },
   "ninja": {
     "name": "가면 닌자",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ff4d4d",
+    "portrait": {
+      "style": "masked",
+      "armor": "#d8d4cc",
+      "skin": "#f2efe8",
+      "clothes": "#a31b1b",
+      "bg": "#241414"
+    }
   },
   "cult_exec_a": {
     "name": "신도 간부 A",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ff4d4d",
+    "portrait": {
+      "style": "masked",
+      "armor": "#d8d4cc",
+      "skin": "#f2efe8",
+      "clothes": "#a31b1b",
+      "bg": "#241414"
+    }
   },
   "cult_exec_b": {
     "name": "신도 간부 B",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ff4d4d",
+    "portrait": {
+      "style": "masked",
+      "armor": "#d8d4cc",
+      "skin": "#f2efe8",
+      "clothes": "#a31b1b",
+      "bg": "#241414"
+    }
   },
   "warrior_monk": {
     "name": "승병",
-    "side": "auto"
+    "side": "auto",
+    "color": "#b8b8a0",
+    "portrait": {
+      "style": "monk",
+      "skin": "#c9a585",
+      "clothes": "#4a4a42",
+      "bg": "#26261f"
+    }
   },
   "gunner_a": {
     "name": "화승총병 A",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ff4d4d",
+    "portrait": {
+      "style": "masked",
+      "armor": "#d8d4cc",
+      "skin": "#f2efe8",
+      "clothes": "#a31b1b",
+      "bg": "#241414"
+    }
   },
   "gunner_b": {
     "name": "화승총병 B",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ff4d4d",
+    "portrait": {
+      "style": "masked",
+      "armor": "#d8d4cc",
+      "skin": "#f2efe8",
+      "clothes": "#a31b1b",
+      "bg": "#241414"
+    }
   },
   "village_child": {
     "name": "마을 아이",
-    "side": "auto"
+    "side": "auto",
+    "color": "#e8e0d0",
+    "portrait": {
+      "style": "bun",
+      "hair": "#4a3a30",
+      "eyes": "#1a1a1a",
+      "skin": "#e6c8aa",
+      "clothes": "#5a5048",
+      "bg": "#2a2622"
+    }
   },
   "villager": {
     "name": "마을 사람",
-    "side": "auto"
+    "side": "auto",
+    "color": "#e8e0d0",
+    "portrait": {
+      "style": "topknot",
+      "hair": "#4a3a30",
+      "eyes": "#1a1a1a",
+      "skin": "#e6c8aa",
+      "clothes": "#5a5048",
+      "bg": "#2a2622"
+    }
   },
   "village_grandma": {
     "name": "마을 할머니",
-    "side": "auto"
+    "side": "auto",
+    "color": "#e8e0d0",
+    "portrait": {
+      "style": "bun",
+      "hair": "#4a3a30",
+      "eyes": "#1a1a1a",
+      "skin": "#e6c8aa",
+      "clothes": "#5a5048",
+      "bg": "#2a2622"
+    }
   },
   "village_elder": {
     "name": "마을 어른",
-    "side": "auto"
+    "side": "auto",
+    "color": "#e8e0d0",
+    "portrait": {
+      "style": "topknot",
+      "hair": "#4a3a30",
+      "eyes": "#1a1a1a",
+      "skin": "#e6c8aa",
+      "clothes": "#5a5048",
+      "bg": "#2a2622"
+    }
   },
   "rice_seller": {
     "name": "쌀가게 노인",
-    "side": "auto"
+    "side": "auto",
+    "color": "#e8e0d0",
+    "portrait": {
+      "style": "topknot",
+      "hair": "#4a3a30",
+      "eyes": "#1a1a1a",
+      "skin": "#e6c8aa",
+      "clothes": "#5a5048",
+      "bg": "#2a2622"
+    }
   },
   "maid": {
     "name": "하녀",
-    "side": "auto"
+    "side": "auto",
+    "color": "#e8e0d0",
+    "portrait": {
+      "style": "bun",
+      "hair": "#4a3a30",
+      "eyes": "#1a1a1a",
+      "skin": "#e6c8aa",
+      "clothes": "#5a5048",
+      "bg": "#2a2622"
+    }
   }
 }

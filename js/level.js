@@ -74,10 +74,11 @@ window.LEVEL = {
     { x: 5810, y: 620 },
   ],
 
-  // 이 x 를 넘으면 story.json 의 해당 장면 대화가 한 번 시작된다 (프롤로그는 게임 시작 시)
+  // 이 x 를 넘으면 한 번: 스테이지 시작(그 장의 'N-2', 'N-3' 시작 장면) / 보스 전 장면 후 보스가 깨어남
+  // 장 시작·첫 스테이지 장면은 게임 시작 때, 체크포인트 장면은 벚꽃나무가 필 때 나온다
   storyTriggers: [
-    { x: 2200, scene: 'stage2' },
-    { x: 4330, scene: 'stage3' },
-    { x: 5900, scene: 'boss_intro' },
+    { x: 2200, event: 'stageStart', stage: 2 },
+    { x: 4330, event: 'stageStart', stage: 3 },
+    { x: 5900, event: 'bossBefore' },
   ],
 };

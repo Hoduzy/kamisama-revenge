@@ -38,6 +38,33 @@ FACES = {'기본': 'neutral', '웃음': 'smile', '분노': 'angry', '슬픔': 's
          '겁먹음': 'scared', '진지': 'serious'}
 VOICE_STYLE = {'haru': 'pink', 'hakuya': 'goldTremble'}  # 하루 = 분홍 글자, 하쿠야 = 금색 떨리는 글자
 
+# 대화창에서 쓸 초상화·이름 색. 아카네는 도트 초상화 시트(표정 3종: 기본·분노·슬픔)라
+# 다른 표정은 가까운 것으로 대신한다. 나머지는 그림이 생길 때까지 도형 초상화(js/portraits.js 스타일).
+P = lambda style, **kw: {'style': style, **kw}
+PORTRAITS = {
+    'akane': {'color': '#ff6b7a', 'sprite': {'key': 'portraits', 'faces': {
+        'neutral': 0, 'smile': 0, 'serious': 0, 'surprised': 0, 'angry': 1, 'sad': 2, 'scared': 2}}},
+    'haru': {'color': '#ffb7c5', 'portrait': P('bun', hair='#1c1416', eyes='#d62828', skin='#f2dccb', clothes='#7a2a3e', bg='#33262c')},
+    'haru_young': {'color': '#ffb7c5', 'portrait': P('bun', hair='#1c1416', eyes='#d62828', skin='#f6e2d2', clothes='#b05a78', bg='#3a2a32')},
+    'soichiro': {'color': '#c9a66b', 'portrait': P('topknot', hair='#2b2b2b', eyes='#1a1a1a', skin='#e2c2a2', clothes='#3d4a5c', bg='#2a2a30')},
+    'tanukichi': {'color': '#d9a35b', 'portrait': P('catgirl', hair='#6b4a2b', eyes='#3a2a1a', skin='#f0d4b8', clothes='#5b6b3a', bg='#2e2a20')},
+    'hakuya': {'color': '#ffd166', 'portrait': P('godmask', hair='#efefef', skin='#fafafa', clothes='#e8e2d0', bg='#2a2410')},
+    'hakuya_young': {'color': '#ffd166', 'portrait': P('topknot', hair='#d8d8d8', eyes='#1a1a1a', skin='#f0dcc8', clothes='#6b6b60', bg='#2a2a26')},
+    'genkai': {'color': '#b8b8a0', 'portrait': P('monk', skin='#d8b494', clothes='#5a5a50', bg='#2b2b26')},
+    'warrior_monk': {'color': '#b8b8a0', 'portrait': P('monk', skin='#c9a585', clothes='#4a4a42', bg='#26261f')},
+    'okamura': {'color': '#9fb4d6', 'portrait': P('topknot', hair='#555555', eyes='#111111', skin='#dcc0a2', clothes='#2b3550', bg='#1f2433')},
+    'gonzo': {'color': '#ff6b6b', 'portrait': P('masked', armor='#6b1b1b', skin='#8a2a2a', clothes='#3a1010', bg='#241414')},
+    'tsubaki': {'color': '#ff8fb1', 'portrait': P('bun', hair='#151015', eyes='#1a1a1a', skin='#f8e8e0', clothes='#a51d2d', bg='#2c1820')},
+    'aoi': {'color': '#8fc1e3', 'portrait': P('bun', hair='#202830', eyes='#1a1a1a', skin='#efd8c4', clothes='#2f4f5f', bg='#1e2a30')},
+    'kaede': {'color': '#e3a88f', 'portrait': P('bun', hair='#302020', eyes='#1a1a1a', skin='#efd8c4', clothes='#6b3a2a', bg='#30221e')},
+    'tsugumi': {'color': '#f5d08a', 'portrait': P('bun', hair='#3a2a20', eyes='#1a1a1a', skin='#f6e2d2', clothes='#c08a4a', bg='#33291e')},
+}
+for _id in ('cultist', 'ninja', 'cult_exec_a', 'cult_exec_b', 'gunner_a', 'gunner_b'):
+    PORTRAITS[_id] = {'color': '#ff4d4d', 'portrait': P('masked', armor='#d8d4cc', skin='#f2efe8', clothes='#a31b1b', bg='#241414')}
+for _id, st in (('village_child', 'bun'), ('villager', 'topknot'), ('village_grandma', 'bun'), ('village_elder', 'topknot'),
+                ('rice_seller', 'topknot'), ('maid', 'bun')):
+    PORTRAITS[_id] = {'color': '#e8e0d0', 'portrait': P(st, hair='#4a3a30', eyes='#1a1a1a', skin='#e6c8aa', clothes='#5a5048', bg='#2a2622')}
+
 CHAPTERS = [  # (파일 이름, 대본의 장 제목 머리말 시작)
     ('prologue', '## 프롤로그'), ('ch1', '## 1장'), ('ch2', '## 2장'), ('ch3', '## 3장'), ('ch4', '## 4장'),
     ('ch5', '## 5장'), ('ch6', '## 6장'), ('epilogue', '## 에필로그'),
@@ -541,17 +568,41 @@ class Converter:
             ep[sid]['condition'] = {'ending': 'normal'}
         for sid in ('E-5', 'E-6'):
             ep[sid]['condition'] = {'ending': 'true'}
-        # E-5: 'E-3 과 같은 길, 같은 무덤 장면. 칼 이름을 짓는 대사까지 동일' → E-3 을 이름 짓는 줄까지 포함
+        # E-5: E-3 의 앞부분(산길을 걸으며 벚나무가 피고 타누키치와 대화)까지만 같다
+        #      → E-3 을 '마을 도착' 연출 바로 앞까지 포함하고, 그 뒤는 E-5 대사만
         e3 = ep['E-3']['commands']
-        upto = next(k for k, c in enumerate(e3) if c.get('cmd') == 'say' and '하루사쿠라' in c['text'])
+        end = next(k for k, c in enumerate(e3) if c.get('cmd') == 'note' and c['text'].startswith('폐허가 된 사쿠라자와 마을'))
         cmds = ep['E-5']['commands']
-        for k, c in enumerate(cmds):
-            if c.get('cmd') == 'note' and c['text'].startswith('E-3과 같은 길'):
-                cmds[k] = {'cmd': 'include', 'scene': 'E-3', 'toIndex': upto, 'src': c['text']}
-                break
-        # 6장 체크포인트 2·3 의 하쿠야 목소리는 순서대로 하나씩 (랜덤 아님)
-        s64 = next(s for s in chapters['ch6']['scenes'] if s['id'] == 'S6-4')
-        s64['mode'] = 'sequence'
+        out = []
+        for c in cmds:
+            t = c.get('text', '')
+            if c.get('cmd') == 'note' and t.startswith('E-3의 앞부분'):
+                out.append({'cmd': 'include', 'scene': 'E-3', 'endBefore': end, 'src': t})
+            elif c.get('cmd') == 'note' and (t.startswith('마을에 도착한 직후부터') or t.startswith('순서:')):
+                ep['E-5'].setdefault('applied', []).append(t)  # 작가 지시: include 범위로 반영함
+            else:
+                out.append(c)
+        ep['E-5']['commands'] = out
+        # 체크포인트 대사 풀: 타누키치(·5장 아카네 혼잣말)는 너무 잦지 않게
+        for ch in chapters.values():
+            for p in ch['pools']:
+                if p['id'].endswith('_tanukichi') or p['id'] == 'ch5_akane_alone':
+                    p.update(chance=0.5, firstCheckpointOfStage=1.0, noRepeat=True, yieldTo=['haru_voice', 'ch6_haru_voice'],
+                             display='bubble', duration=3, pause=False)
+                elif p['id'] in ('haru_voice', 'ch6_haru_voice'):
+                    p.update(display='voice', duration=3, pause=False)
+        # 6장 체크포인트 2·3 의 하쿠야 목소리: 순서대로 나눈다
+        #   체크포인트 2 → 첫 줄 / 체크포인트 3 → 두 번째 줄 → 아카네 대답 → 세 번째 줄 (조작 가능 컷신, 이어서)
+        scenes = chapters['ch6']['scenes']
+        k = next(i for i, s in enumerate(scenes) if s['id'] == 'S6-4')
+        s64 = scenes[k]
+        lines = [c for c in s64['commands'] if c['cmd'] in ('say', 'voice', 'think')]
+        notes = [c for c in s64['commands'] if c['cmd'] == 'note']
+        a = {'id': 'S6-4a', 'place': s64['place'], 'trigger': {**s64['trigger'], 'n': 2}, 'mode': 'sequence',
+             'controllable': True, 'commands': notes + lines[:1]}
+        b = {'id': 'S6-4b', 'place': s64['place'], 'trigger': {**s64['trigger'], 'n': 3}, 'mode': 'sequence',
+             'controllable': True, 'commands': lines[1:]}
+        scenes[k:k + 1] = [a, b]
 
     def memories(self, L):
         rows, notes, intro = [], [], []
@@ -633,7 +684,8 @@ def main():
     for name, ch in chapters.items():
         (OUT / f'{name}.json').write_text(json.dumps({**ch, 'meta': meta}, ensure_ascii=False, indent=2), encoding='utf-8')
     (OUT / 'memories.json').write_text(json.dumps(memories, ensure_ascii=False, indent=2), encoding='utf-8')
-    chars = {cid: {'name': ko, 'side': 'left' if cid == 'akane' else 'auto'} for ko, cid in CHARACTERS.items()}
+    chars = {cid: {'name': ko, 'side': 'left' if cid == 'akane' else 'auto', **PORTRAITS.get(cid, {})}
+             for ko, cid in CHARACTERS.items()}
     (OUT / 'characters.json').write_text(json.dumps(chars, ensure_ascii=False, indent=2), encoding='utf-8')
     text, tot, notes = report(chapters, memories, conv)
     (OUT / '_report.md').write_text(text, encoding='utf-8')

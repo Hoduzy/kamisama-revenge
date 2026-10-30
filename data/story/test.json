@@ -1,0 +1,59 @@
+{
+  "id": "test",
+  "title": "연출 엔진 테스트",
+  "summary": "모든 명령을 한 번씩 써 보는 장면. index.html?scene=TEST",
+  "scenes": [
+    {
+      "id": "TEST",
+      "place": "테스트",
+      "trigger": { "type": "manual" },
+      "commands": [
+        { "cmd": "fadeOut", "duration": 0.6 },
+        { "cmd": "bgm", "name": "stop" },
+        { "cmd": "sfx", "name": "풍경 소리" },
+        { "cmd": "caption", "text": "연출 엔진 테스트 장면." },
+        { "cmd": "caption", "text": "검은 화면 위에 붓 자막이 한 획씩 써진다." },
+        { "cmd": "fadeIn", "duration": 0.8 },
+        { "cmd": "titleCard", "text": "第一章 · 에도의 밤" },
+        { "cmd": "letterbox", "on": true },
+        { "cmd": "bgm", "name": "잔잔한 피리" },
+        { "cmd": "say", "speaker": "haru", "face": "smile", "text": "늦었네. 또 대장간에서 아빠 망치질 구경했지?", "side": "right" },
+        { "cmd": "say", "speaker": "akane", "face": "neutral", "text": "…구경 아니고 감시. 아빠가 또 손 데일까 봐.", "side": "left" },
+        { "cmd": "think", "speaker": "akane", "text": "속마음은 초상화가 반투명하고 글자가 회색이다.", "side": "left" },
+        { "cmd": "voice", "speaker": "haru", "text": "하루의 목소리는 초상화 없이 분홍 글자.", "style": "pink" },
+        { "cmd": "voice", "speaker": "hakuya", "text": "하쿠야의 목소리는 금색, 글자가 떨린다.", "style": "goldTremble" },
+        { "cmd": "note", "text": "note 는 재생하지 않는다. H 키(판정 표시)를 켜면 화면 왼쪽 위에 연출 메모로 보인다." },
+        { "cmd": "shake", "strength": "weak" },
+        { "cmd": "wait", "seconds": 0.4 },
+        { "cmd": "shake", "strength": "strong" },
+        { "cmd": "flash", "color": "white" },
+        { "cmd": "wait", "seconds": 0.4 },
+        { "cmd": "flash", "color": "red" },
+        { "cmd": "slowmo" },
+        { "cmd": "cameraPan", "dir": "up" },
+        { "cmd": "cameraPan", "zoom": "in" },
+        { "cmd": "say", "speaker": "soichiro", "face": "smile", "text": "딱 맞춰 왔구나. 이거 들어 봐.", "side": "right" },
+        { "cmd": "giveItem", "name": "아카네의 칼 (이름 없음)" },
+        { "cmd": "cg", "no": 1, "desc": "축제 밤의 가족" },
+        { "cmd": "letterbox", "on": false },
+        { "cmd": "bossName", "text": "문지기 · 곤조" },
+        { "cmd": "setFlag", "flag": "testVisited", "value": true },
+        { "cmd": "condition", "when": { "flag": "testVisited", "is": true }, "then": [
+          { "cmd": "say", "speaker": "tanukichi", "face": "smile", "text": "condition 성공. 이제 선택지가 나와.", "side": "right" }
+        ] },
+        { "cmd": "choice", "options": [
+          { "id": "cut", "text": "벤다", "commands": [
+            { "cmd": "say", "speaker": "akane", "face": "angry", "text": "〈벤다〉를 골랐다.", "side": "left" }
+          ] },
+          { "id": "share", "text": "나눈다", "commands": [
+            { "cmd": "say", "speaker": "akane", "face": "sad", "text": "〈나눈다〉를 골랐다.", "side": "left" }
+          ] }
+        ] },
+        { "cmd": "fadeOut", "duration": 0.8 },
+        { "cmd": "titleCard", "text": "第一章 · 끝" },
+        { "cmd": "fadeIn", "duration": 0.8 }
+      ]
+    }
+  ],
+  "pools": []
+}

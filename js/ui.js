@@ -20,7 +20,18 @@ const UI = {
       <div class="skill-labels"></div>
       <div class="floats"></div>
       <div class="stage-title"><div class="t1"></div><div class="t2"></div></div>
-      <div class="banner"></div>`;
+      <div class="banner"></div>
+      <div class="fx-fade"></div>
+      <div class="fx-lb top"></div><div class="fx-lb bottom"></div>
+      <div class="fx-cg"><div class="fx-cg-frame"><img alt=""><div class="fx-cg-ph"></div></div></div>
+      <div class="fx-caption"></div>
+      <div class="fx-title"></div>
+      <div class="fx-bossname"></div>
+      <div class="fx-item"><small>획득</small><b></b></div>
+      <div class="fx-choice"></div>
+      <div class="fx-voice"></div>
+      <div class="fx-audio"></div>
+      <div class="fx-notes"></div>`;
     this.el = (sel) => this.root.querySelector(sel);
     const layout = () => this.layout();
     window.addEventListener('resize', layout);
@@ -49,7 +60,160 @@ const UI = {
     this.boss(false);
     this.banner(null);
     this.el('.stage-title').classList.remove('show');
+    this.fxReset();
     this.layout();
+  },
+
+  // ───────── 컷신 연출 (js/story-engine.js 가 부른다) ─────────
+
+  fxReset() {
+    this.fade(0, 0);
+    this.letterbox(false, true);
+    for (const s of ['.fx-cg', '.fx-caption', '.fx-title', '.fx-bossname', '.fx-item', '.fx-choice', '.fx-voice']) {
+      this.el(s).classList.remove('show');
+    }
+    this.el('.fx-notes').innerHTML = '';
+  },
+
+  // 화면을 검게(1) / 밝게(0). 대사·자막은 검은 화면 위에 보인다
+  fade(to, sec) {
+    const f = this.el('.fx-fade');
+    f.style.transitionDuration = sec + 's';
+    f.style.opacity = to;
+  },
+
+  letterbox(on, instant = false) {
+    for (const b of this.root.querySelectorAll('.fx-lb')) {
+      b.style.transitionDuration = instant ? '0s' : '';
+      b.classList.toggle('on', on);
+    }
+    this.root.classList.toggle('cinema', on); // 레터박스 중엔 HUD 를 숨긴다
+  },
+
+  // 붓 자막: 글자가 한 획씩 써지듯 차례로 번진다. 다 써지는 데 걸리는 ms 를 돌려준다
+  brush(el, text, perChar = 70) {
+    el.innerHTML = '';
+    [...text].forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.textContent = ch;
+      s.style.animationDelay = i * perChar + 'ms';
+      el.append(s);
+    });
+    return text.length * perChar + 450;
+  },
+
+  caption(text) {
+    const el = this.el('.fx-caption');
+    el.classList.add('show');
+    return this.brush(el, text);
+  },
+  hide(sel) { this.el(sel).classList.remove('show'); },
+
+  titleCard(text, { color, style } = {}) {
+    const el = this.el('.fx-title');
+    el.className = 'fx-title show' + (color === 'red' ? ' red' : '') + (style === 'logo' ? ' logo' : '');
+    return this.brush(el, text, 90);
+  },
+
+  bossName(text) {
+    const el = this.el('.fx-bossname');
+    el.classList.add('show');
+    return this.brush(el, text, 80);
+  },
+
+  item(name) {
+    const el = this.el('.fx-item');
+    el.querySelector('b').textContent = name;
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+  },
+
+  // CG: assets/cg/cg번호.png 가 있으면 그 그림, 없으면 번호·설명이 적힌 자리표시
+  cg(no, desc) {
+    const el = this.el('.fx-cg');
+    const img = el.querySelector('img');
+    const ph = el.querySelector('.fx-cg-ph');
+    ph.innerHTML = `<b>CG ${no}</b><span>${desc || ''}</span><small>assets/cg/cg${no}.png 를 넣으면 이 자리에 그림이 나온다</small>`;
+    img.style.display = 'none';
+    ph.style.display = '';
+    img.onload = () => { img.style.display = ''; ph.style.display = 'none'; };
+    img.onerror = () => { img.removeAttribute('src'); };
+    img.src = `assets/cg/cg${no}.png`;
+    el.classList.add('show');
+  },
+
+  // 선택지. 고른 option.id 를 돌려주는 Promise. 키보드는 엔진이 choiceMove/choiceConfirm 으로 넘겨준다
+  choice(options) {
+    const el = this.el('.fx-choice');
+    el.innerHTML = '';
+    this.choiceIndex = 0;
+    this.choiceButtons = options.map((o, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.innerHTML = `<span>〈${o.text}〉</span>`;
+      b.onpointerdown = (e) => { e.stopPropagation(); this.choiceIndex = i; this.choiceConfirm(); };
+      el.append(b);
+      return b;
+    });
+    this.choiceMove(0);
+    el.classList.add('show');
+    return new Promise((resolve) => { this.choiceResolve = (i) => resolve(options[i].id); });
+  },
+  choiceMove(d) {
+    if (!this.choiceButtons) return;
+    const n = this.choiceButtons.length;
+    this.choiceIndex = (this.choiceIndex + d + n) % n;
+    this.choiceButtons.forEach((b, i) => b.classList.toggle('sel', i === this.choiceIndex));
+  },
+  choiceConfirm() {
+    if (!this.choiceResolve) return;
+    const r = this.choiceResolve;
+    this.choiceResolve = null;
+    this.choiceButtons = null;
+    this.hide('.fx-choice');
+    r(this.choiceIndex);
+  },
+
+  // 게임을 멈추지 않는 목소리 (체크포인트에서 하루 목소리 등)
+  voiceToast(text, style, ms = 3000) {
+    const el = this.el('.fx-voice');
+    el.className = `fx-voice voice-${style || 'plain'}`;
+    el.textContent = text;
+    void el.offsetWidth;
+    el.classList.add('show');
+    clearTimeout(this.voiceTimer);
+    this.voiceTimer = setTimeout(() => el.classList.remove('show'), ms);
+  },
+
+  // 효과음·BGM 은 아직 소리 파일이 없어서 화면 오른쪽 아래에 무엇이 나오는지 작게 표시한다
+  audioCue(text) {
+    const el = this.el('.fx-audio');
+    const d = document.createElement('div');
+    d.textContent = text;
+    el.append(d);
+    setTimeout(() => d.remove(), 2200);
+  },
+
+  // 연출 메모(note): 판정 표시(H)를 켰을 때만 왼쪽 위에 보인다
+  note(text) {
+    const el = this.el('.fx-notes');
+    const d = document.createElement('div');
+    d.textContent = '▶ ' + text;
+    el.append(d);
+    while (el.children.length > 4) el.firstChild.remove();
+    setTimeout(() => d.remove(), 6000);
+  },
+
+  // 말풍선: 인물 머리 위를 따라다니며 ms 뒤 사라진다 (게임을 멈추지 않음)
+  bubble(target, text, { name, ms = 3000 } = {}) {
+    const el = document.createElement('div');
+    el.className = 'float bubble';
+    el.innerHTML = `<div class="bubble-box">${name ? `<i>${name}</i>` : ''}${text}</div>`;
+    this.el('.floats').append(el);
+    const f = { el, target, until: performance.now() + ms };
+    this.floats.push(f);
+    this.place(f);
   },
 
   setDeaths(n) { this.el('.deaths').textContent = '사망 ' + n; },
@@ -118,6 +282,7 @@ const UI = {
   place(f) {
     const cam = this.scene && this.scene.cameras.main;
     if (!cam) return;
+    if (f.target) [f.wx, f.wy] = f.target();
     f.el.style.transform = `translate(${Math.round(f.wx - cam.scrollX)}px, ${Math.round(f.wy - cam.scrollY)}px)`;
   },
 

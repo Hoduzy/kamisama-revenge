@@ -667,7 +667,7 @@
       "title": "타누키치 체크포인트 한마디 (3장)",
       "trigger": "checkpointBloom",
       "mode": "random",
-      "chance": 1.0,
+      "chance": 0.5,
       "lines": [
         {
           "cmd": "say",
@@ -704,7 +704,16 @@
           "text": "츠바키 분신은 그림자 있는 게 진짜래. 그림자 없는 건 귀신이고. 귀신은… 못 베나?",
           "side": "right"
         }
-      ]
+      ],
+      "firstCheckpointOfStage": 1.0,
+      "noRepeat": true,
+      "yieldTo": [
+        "haru_voice",
+        "ch6_haru_voice"
+      ],
+      "display": "bubble",
+      "duration": 3,
+      "pause": false
     }
   ],
   "memoryNote": "3장 기억 조각을 모두 얻으면 츠바키가 처음 교단에 들어오던 날(열 살, 비 오는 유곽 뒷골목에서 하쿠야가 우산을 씌워 준 장면)을 볼 수 있다. 하쿠야를 처음으로 \"사람\"으로 보여 주는 조각이다.",

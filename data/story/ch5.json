@@ -705,7 +705,7 @@
       "title": "타누키치 체크포인트 한마디 (5장 — 5-1까지만, 이후 잡혀서 없음)",
       "trigger": "checkpointBloom",
       "mode": "random",
-      "chance": 1.0,
+      "chance": 0.5,
       "lines": [
         {
           "cmd": "say",
@@ -724,14 +724,23 @@
       ],
       "stages": [
         "5-1"
-      ]
+      ],
+      "firstCheckpointOfStage": 1.0,
+      "noRepeat": true,
+      "yieldTo": [
+        "haru_voice",
+        "ch6_haru_voice"
+      ],
+      "display": "bubble",
+      "duration": 3,
+      "pause": false
     },
     {
       "id": "ch5_akane_alone",
       "title": "대신 5-2부터: 타누키치의 빈자리",
       "trigger": "checkpointBloom",
       "mode": "random",
-      "chance": 1.0,
+      "chance": 0.5,
       "lines": [
         {
           "cmd": "think",
@@ -756,7 +765,16 @@
       "stages": [
         "5-2",
         "5-3"
-      ]
+      ],
+      "firstCheckpointOfStage": 1.0,
+      "noRepeat": true,
+      "yieldTo": [
+        "haru_voice",
+        "ch6_haru_voice"
+      ],
+      "display": "bubble",
+      "duration": 3,
+      "pause": false
     }
   ],
   "meta": {
