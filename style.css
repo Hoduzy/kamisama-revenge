@@ -1,0 +1,81 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #1b1b1b;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+}
+
+#touch-controls {
+  display: none;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+body.touch #touch-controls {
+  display: block;
+}
+
+.pad {
+  position: absolute;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  pointer-events: auto;
+}
+
+.pad-left {
+  left: calc(24px + env(safe-area-inset-left));
+}
+
+.pad-right {
+  right: calc(24px + env(safe-area-inset-right));
+}
+
+.btn {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.28);
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  color: rgba(255, 255, 255, 0.9);
+  font: 700 28px/96px system-ui, -apple-system, sans-serif;
+  text-align: center;
+  touch-action: none;
+}
+
+.btn.small {
+  width: 76px;
+  height: 76px;
+  font-size: 15px;
+  line-height: 76px;
+  margin-bottom: 48px;
+}
+
+.btn.big {
+  width: 112px;
+  height: 112px;
+  font-size: 20px;
+  line-height: 112px;
+}
+
+.btn.active {
+  background: rgba(0, 0, 0, 0.55);
+  border-color: #fff;
+  transform: scale(0.94);
+}
