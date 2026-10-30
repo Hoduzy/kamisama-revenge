@@ -23,7 +23,7 @@ const UI = {
       <div class="banner"></div>
       <div class="fx-fade"></div>
       <div class="fx-lb top"></div><div class="fx-lb bottom"></div>
-      <div class="fx-cg"><div class="fx-cg-frame"><img alt=""><div class="fx-cg-ph"></div></div></div>
+      <div class="fx-cg"><img alt=""><div class="fx-cg-ph"></div></div>
       <div class="fx-caption"></div>
       <div class="fx-title"></div>
       <div class="fx-bossname"></div>
@@ -31,7 +31,8 @@ const UI = {
       <div class="fx-choice"></div>
       <div class="fx-voice"></div>
       <div class="fx-audio"></div>
-      <div class="fx-notes"></div>`;
+      <div class="fx-notes"></div>
+      <div class="fx-skip"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" cx="18" cy="18" r="15" pathLength="100"/></svg><span>건너뛰기</span></div>`;
     this.el = (sel) => this.root.querySelector(sel);
     const layout = () => this.layout();
     window.addEventListener('resize', layout);
@@ -64,11 +65,12 @@ const UI = {
     this.layout();
   },
 
-  // ───────── 컷신 연출 (js/story-engine.js 가 부른다) ─────────
+  // ───────── 컷신 연출 (js/story-player.js 가 부른다) ─────────
 
   fxReset() {
     this.fade(0, 0);
     this.letterbox(false, true);
+    this.skipGauge(0);
     for (const s of ['.fx-cg', '.fx-caption', '.fx-title', '.fx-bossname', '.fx-item', '.fx-choice', '.fx-voice']) {
       this.el(s).classList.remove('show');
     }
@@ -129,18 +131,26 @@ const UI = {
     el.classList.add('show');
   },
 
-  // CG: assets/cg/cg번호.png 가 있으면 그 그림, 없으면 번호·설명이 적힌 자리표시
+  // CG: 화면 가득. assets/cg/cg번호.png 가 있으면 그 그림, 없으면 검은 화면에 'CG 번호 + 대본의 설명'
   cg(no, desc) {
     const el = this.el('.fx-cg');
     const img = el.querySelector('img');
     const ph = el.querySelector('.fx-cg-ph');
-    ph.innerHTML = `<b>CG ${no}</b><span>${desc || ''}</span><small>assets/cg/cg${no}.png 를 넣으면 이 자리에 그림이 나온다</small>`;
+    const esc = (t) => String(t).replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
+    ph.innerHTML = `<b>CG ${no}</b><span>${esc(desc || '')}</span><small class="dev-only">assets/cg/cg${no}.png</small>`;
     img.style.display = 'none';
     ph.style.display = '';
     img.onload = () => { img.style.display = ''; ph.style.display = 'none'; };
     img.onerror = () => { img.removeAttribute('src'); };
     img.src = `assets/cg/cg${no}.png`;
     el.classList.add('show');
+  },
+
+  // 길게 눌러 건너뛰기 게이지 (0~1, 0 이면 숨김)
+  skipGauge(r) {
+    const el = this.el('.fx-skip');
+    el.classList.toggle('show', r > 0);
+    el.style.setProperty('--p', Math.min(1, r));
   },
 
   // 선택지. 고른 option.id 를 돌려주는 Promise. 키보드는 엔진이 choiceMove/choiceConfirm 으로 넘겨준다
@@ -186,7 +196,7 @@ const UI = {
     this.voiceTimer = setTimeout(() => el.classList.remove('show'), ms);
   },
 
-  // 효과음·BGM 은 아직 소리 파일이 없어서 화면 오른쪽 아래에 무엇이 나오는지 작게 표시한다
+  // 개발 모드에서만: 지금 나오는 BGM·효과음 이름을 화면 오른쪽 위에 작게
   audioCue(text) {
     const el = this.el('.fx-audio');
     const d = document.createElement('div');
@@ -195,7 +205,7 @@ const UI = {
     setTimeout(() => d.remove(), 2200);
   },
 
-  // 연출 메모(note): 판정 표시(H)를 켰을 때만 왼쪽 위에 보인다
+  // 연출 메모(note): 개발 모드에서만 왼쪽 위 구석에 작게 보인다
   note(text) {
     const el = this.el('.fx-notes');
     const d = document.createElement('div');

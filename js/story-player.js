@@ -1,10 +1,75 @@
-// 연출 엔진: data/story/*.json 의 장면(명령 목록)을 순서대로 재생한다.
+// 컷신 엔진 StoryPlayer: data/story/*.json 의 장면(명령 목록)을 순서대로 재생한다.
 // 대사(say/think/voice)는 대화창, 연출(fade/letterbox/caption/cg …)은 HTML 레이어(UI)와 카메라로.
-// 조작 가능 컷신(controllable)은 게임을 멈추지 않고 대사가 자동으로 넘어간다.
-// 체크포인트 대사 풀(타누키치 한마디, 하루 목소리)도 여기서 고른다.
+//   - 보통 장면(레터박스 장면 포함)은 조작 잠금: 게임이 멈추고 대사를 넘겨 가며 본다
+//   - 조작 가능 컷신(controllable)은 걸으면서 대사가 자동으로 흘러간다 (도중에 레터박스가 켜지면 그동안만 잠금)
+//   - 넘기기: Space·J·Enter·탭 / 길게 누르면(또는 Esc) 장면 전체 건너뛰기 (선택지는 꼭 고른다)
+// 어느 위치에서 어느 장면이 나오는지는 js/level.js 의 story 표, 체크포인트 한마디(풀)도 여기서 고른다.
 const STORY_FILES = ['prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'epilogue', 'test'];
 
-class StoryEngine {
+// BGM·효과음: data/story/audio.json 의 이름 → 파일 표. 파일이 없거나 비어 있으면 조용히 넘어간다
+const StoryAudio = {
+  table: { bgm: {}, sfx: {} },
+  bgm: null,
+  bgmName: null,
+
+  init(table) {
+    if (table) this.table = table;
+  },
+
+  src(kind, name) {
+    return (this.table[kind] || {})[name] || null;
+  },
+
+  play(src, { loop = false, volume = 1 } = {}) {
+    const a = new Audio(src);
+    a.loop = loop;
+    a.volume = volume;
+    a.addEventListener('error', () => {}); // 파일이 없어도 조용히
+    a.play().catch(() => {});
+    return a;
+  },
+
+  playBgm(name) {
+    if (name === 'stop') return this.stopBgm();
+    if (name.startsWith('(')) { // '(현재 곡 작게)'
+      if (this.bgm) this.bgm.volume = TUNING.story.bgmVolume * 0.35;
+      return;
+    }
+    if (name === this.bgmName && this.bgm) {
+      this.bgm.volume = TUNING.story.bgmVolume;
+      return;
+    }
+    this.stopBgm();
+    const src = this.src('bgm', name);
+    if (!src) return;
+    this.bgm = this.play(src, { loop: true, volume: TUNING.story.bgmVolume });
+    this.bgmName = name;
+  },
+
+  stopBgm(sec = 0.8) {
+    const a = this.bgm;
+    this.bgm = null;
+    this.bgmName = null;
+    if (!a) return;
+    const v0 = a.volume;
+    const t0 = performance.now();
+    const step = () => {
+      const k = (performance.now() - t0) / (sec * 1000);
+      if (k >= 1) { a.pause(); return; }
+      a.volume = v0 * (1 - k);
+      requestAnimationFrame(step);
+    };
+    step();
+  },
+
+  playSfx(name, distant) {
+    if (name === 'stop') return;
+    const src = this.src('sfx', name);
+    if (src) this.play(src, { volume: TUNING.story.sfxVolume * (distant ? 0.4 : 1) });
+  },
+};
+
+class StoryPlayer {
   // BootScene 에서 읽어 둔 json 으로 만든다
   constructor(scene) {
     this.scene = scene;
@@ -20,9 +85,13 @@ class StoryEngine {
     }
     this.dialogue = new DialogueBox(scene);
     this.running = null;   // 재생 중인 장면
+    this.locked = false;   // 조작 잠금(게임 멈춤) 중인지
     this.queue = [];
     this.waiters = [];     // 넘기기 입력으로 일찍 끝낼 수 있는 기다림
     this.skipping = false;
+    this.holdTime = 0;     // 길게 누르기 (초)
+    this.holdStart = null;
+    this.holdLatch = false;
     this.context = {};     // condition 판정에 쓰는 실행 중 값 (예: firstDown)
     const reg = scene.registry;
     if (!reg.get('storyFlags')) reg.set('storyFlags', {});
@@ -33,17 +102,29 @@ class StoryEngine {
 
   get flags() { return this.scene.registry.get('storyFlags'); }
   get busy() { return !!this.running; }
-  get blocking() { return !!this.running && !this.running.controllable; }
+  get blocking() { return !!this.running && this.locked; }
   played(id) { return this.scene.registry.get('storyPlayed').includes(id); }
 
-  // 장(chapter) 안에서 트리거가 맞는 장면들 (아직 안 본 것만)
-  find(chapter, test) {
-    const ch = this.chapters[chapter];
-    if (!ch) return [];
-    return ch.scenes.filter((s) => !this.played(s.id) && test(s.trigger || {}, s)).map((s) => s.id);
+  // level.js 의 story 표 항목 → 재생할 장면 id 들. 'S1-1' | ['S0-7', 'S0-8'] | { scene, when }
+  // once: 이미 본 장면은 빼기 (재시작해도 같은 장면이 다시 나오지 않게)
+  resolve(entries, once = true) {
+    const ids = [];
+    for (const e of [].concat(entries || [])) {
+      if (e && typeof e === 'object' && !Array.isArray(e)) {
+        if (!this.test(e.when)) continue;
+        ids.push(...[].concat(e.scene));
+      } else if (e) {
+        ids.push(...[].concat(e));
+      }
+    }
+    return ids.filter((id) => !(once && this.played(id)));
   }
 
-  // 장면 여러 개를 차례로 (앞 장면이 끝나야 다음)
+  // 표 항목을 차례로 재생 (앞 장면이 끝나야 다음)
+  playEntries(entries) {
+    return this.playAll(this.resolve(entries));
+  }
+
   async playAll(ids) {
     for (const id of ids) await this.play(id);
   }
@@ -59,35 +140,44 @@ class StoryEngine {
   }
 
   async runScene(sc) {
-    const scene = this.scene;
     this.running = sc;
     this.skipping = false;
     const controllable = !!sc.controllable;
-    scene.registry.get('storyPlayed').push(sc.id);
-    if (!controllable) {
-      scene.physics.world.pause();
-      scene.cutscene = true;
-    }
+    const played = this.scene.registry.get('storyPlayed');
+    if (!played.includes(sc.id)) played.push(sc.id);
+    if (!controllable) this.lock(true);
     this.dialogue.open(this.characters, { controllable });
     try {
       await this.runList(sc.commands, sc);
     } catch (e) {
       console.error('[story]', sc.id, e);
     }
-    // 정리: 대화창 닫기, 느린 화면·카메라 원래대로, 게임 재개
+    // 정리: 대화창 닫기, 연출 걷기, 느린 화면·카메라 원래대로, 게임 재개
     this.dialogue.close();
-    UI.hide('.fx-cg');
-    UI.hide('.fx-caption');
+    for (const s of ['.fx-cg', '.fx-caption', '.fx-title', '.fx-bossname', '.fx-choice']) UI.hide(s);
+    UI.letterbox(false);
+    if (this.faded) {
+      this.faded = false;
+      UI.fade(0, 0.6);
+    }
+    UI.skipGauge(0);
     this.endSlowmo();
     this.resetCamera();
-    if (!controllable) {
-      scene.physics.world.resume();
-      scene.cutscene = false;
-    }
+    this.lock(false);
     this.running = null;
     this.skipping = false;
     const next = this.queue.shift();
     if (next) next();
+  }
+
+  // 조작 잠금 = 물리를 멈추고 게임 로직을 건너뜀 (GameScene.update 가 blocking 을 본다)
+  lock(on) {
+    if (on === this.locked) return;
+    this.locked = on;
+    const scene = this.scene;
+    scene.cutscene = on;
+    if (on) scene.physics.world.pause();
+    else if (!(scene.hitStopTimer > 0)) scene.physics.world.resume();
   }
 
   async runList(cmds, sc) {
@@ -99,14 +189,16 @@ class StoryEngine {
     const scene = this.scene;
     const cam = scene.cameras.main;
     const skip = this.skipping;
+    const dlg = this.dialogue;
     switch (c.cmd) {
       case 'say':
       case 'think':
       case 'voice':
-        if (!skip) await this.dialogue.line(c);
+        if (!skip) await dlg.line(c);
         break;
       case 'caption': {
         if (skip) break;
+        dlg.hide();
         const ms = UI.caption(c.text);
         await this.wait(ms + 900 + c.text.length * 25, true);
         UI.hide('.fx-caption');
@@ -114,16 +206,21 @@ class StoryEngine {
         break;
       }
       case 'fadeOut':
+        this.faded = true;
+        dlg.hide();
         UI.fade(1, skip ? 0 : c.duration ?? 0.8);
         if (!skip) await this.wait((c.duration ?? 0.8) * 1000);
         break;
       case 'fadeIn':
+        this.faded = false;
         UI.fade(0, skip ? 0 : c.duration ?? 0.8);
         UI.hide('.fx-cg');
         if (!skip) await this.wait((c.duration ?? 0.8) * 1000);
         break;
       case 'letterbox':
         UI.letterbox(c.on, skip);
+        // 조작 가능 컷신이라도 레터박스가 있는 동안은 조작 잠금
+        if (sc.controllable) this.lock(!!c.on);
         break;
       case 'shake':
         if (!skip) cam.shake(c.strength === 'strong' ? 420 : 220, c.strength === 'strong' ? 0.014 : 0.005);
@@ -135,20 +232,24 @@ class StoryEngine {
         if (!skip) this.startSlowmo(c.seconds ?? 1.2, c.scale ?? 0.3);
         break;
       case 'bgm':
-        if (TUNING.story.showAudioCues) UI.audioCue(c.name === 'stop' ? '♪ BGM 멈춤' : `♪ BGM: ${c.name}`);
+        StoryAudio.playBgm(c.name);
+        UI.audioCue(c.name === 'stop' ? '♪ BGM 멈춤' : `♪ BGM: ${c.name}${StoryAudio.src('bgm', c.name) ? '' : ' (파일 없음)'}`);
         break;
       case 'sfx':
-        if (!skip && TUNING.story.showAudioCues) UI.audioCue(c.name === 'stop' ? '효과음 멈춤' : `🔊 ${c.name}`);
+        if (skip) break;
+        StoryAudio.playSfx(c.name, c.distant);
+        UI.audioCue(c.name === 'stop' ? '효과음 멈춤' : `🔊 ${c.name}${StoryAudio.src('sfx', c.name) ? '' : ' (파일 없음)'}`);
         break;
       case 'cg':
+        // 화면 가득. 다음 대사는 CG 위에 나오고, CG 는 페이드인·카메라 이동·다음 CG·장면 끝에서 걷힌다
         if (skip) break;
+        dlg.hide();
         UI.cg(c.no, c.desc);
-        await this.wait(3500, true);
-        UI.hide('.fx-cg');
-        await this.wait(400);
+        await this.wait(1800, true);
         break;
       case 'titleCard': {
         if (skip) break;
+        dlg.hide();
         const ms = UI.titleCard(c.text, c);
         await this.wait(ms + 1300, true);
         UI.hide('.fx-title');
@@ -158,6 +259,7 @@ class StoryEngine {
       case 'bossName': {
         scene.bossDisplayName = c.text; // 보스 체력바 이름도 바뀐다
         if (skip) break;
+        dlg.hide();
         const ms = UI.bossName(c.text);
         await this.wait(ms + 900, true);
         UI.hide('.fx-bossname');
@@ -173,10 +275,15 @@ class StoryEngine {
         break;
       }
       case 'wait':
-        if (!skip) await this.wait(c.seconds * 1000, true);
+        if (skip) break;
+        dlg.hide();
+        await this.wait(c.seconds * 1000, true);
         break;
       case 'cameraPan':
-        if (!skip) await this.pan(c);
+        if (skip) break;
+        dlg.hide();
+        UI.hide('.fx-cg');
+        await this.pan(c);
         break;
       case 'setFlag':
         this.flags[c.flag] = c.value;
@@ -194,9 +301,8 @@ class StoryEngine {
       case 'choice': {
         // 선택은 건너뛰기 중에도 직접 고른다
         this.skipping = false;
-        this.dialogue.root.classList.remove('show');
+        dlg.hide();
         const id = await UI.choice(c.options);
-        this.dialogue.root.classList.add('show');
         this.flags['choice:' + sc.id] = id;
         const opt = c.options.find((o) => o.id === id);
         await this.runList(opt.commands, sc);
@@ -211,6 +317,7 @@ class StoryEngine {
         break;
       }
       case 'note':
+        // 아직 게임으로 옮기지 못한 연출 메모: 개발 모드에서만 화면 구석에 작게 (style.css 의 body.dev-mode)
         if (!skip) UI.note(c.text);
         break;
       case 'section':
@@ -220,13 +327,15 @@ class StoryEngine {
     }
   }
 
-  // condition 의 when: memoriesAtLeast / ending / firstDown / flag+is
-  test(when = {}) {
+  // when: memoriesAtLeast / ending / firstDown / flag + is | not
+  test(when) {
+    if (!when) return true;
     const reg = this.scene.registry;
     if (when.memoriesAtLeast != null && (reg.get('memories') || []).length < when.memoriesAtLeast) return false;
     if (when.ending != null && this.flags.ending !== when.ending) return false;
     if (when.firstDown != null && this.context.firstDown !== when.firstDown) return false;
-    if (when.flag != null && this.flags[when.flag] !== when.is) return false;
+    if (when.flag != null && 'is' in when && this.flags[when.flag] !== when.is) return false;
+    if (when.flag != null && 'not' in when && this.flags[when.flag] === when.not) return false;
     return true;
   }
 
@@ -248,6 +357,14 @@ class StoryEngine {
       w.resolve();
       return false;
     });
+  }
+
+  // 장면 전체 건너뛰기: 남은 명령은 상태(플래그·아이템·레터박스 등)만 반영하고 바로 끝낸다
+  skip() {
+    this.skipping = true;
+    this.flushWaiters(false);
+    this.dialogue.resolvePending();
+    UI.hide('.fx-cg');
   }
 
   // ───────── 카메라 / 느린 화면 ─────────
@@ -294,25 +411,38 @@ class StoryEngine {
   }
 
   // ───────── 매 프레임 입력 ─────────
-  // in: { advance, advanceSoft, skip, left, right, confirm }
-  //   advance     : Space/J/Enter/탭 (멈춘 컷신에서 넘기기)
-  //   advanceSoft : Enter/탭 (조작 가능 컷신에서 넘기기 — Space/J 는 게임 조작)
+  // in: { advance, advanceSoft, hold, holdSoft, skip, left, right, confirm }
+  //   advance / hold         : Space·J·Enter·탭 (잠긴 컷신) — 누르면 넘기기, 계속 누르고 있으면 건너뛰기
+  //   advanceSoft / holdSoft : Enter·탭 (조작 가능 컷신 — Space·J 는 게임 조작)
+  //   skip                   : Esc (바로 건너뛰기)
   update(dt, input) {
+    const held = this.locked ? input.hold : input.holdSoft;
+    if (!held) this.holdLatch = false;
+    // 길게 누르기는 실제 시간으로 잰다 (프레임이 떨어져도 같은 길이)
+    const now = performance.now();
+    if (!this.running || UI.choiceButtons || !held || this.holdLatch) this.holdStart = null;
+    else if (this.holdStart == null) this.holdStart = now;
+    this.holdTime = this.holdStart == null ? 0 : (now - this.holdStart) / 1000;
+    // 게이지는 잠깐 누른 걸로는 안 보이게 (보통 넘기기와 구분)
+    const H = TUNING.story.holdToSkip;
+    const show = 0.2;
+    UI.skipGauge(this.holdTime > show ? (this.holdTime - show) / (H - show) : 0);
     if (!this.running) return;
+
     if (UI.choiceButtons) {
       if (input.left) UI.choiceMove(-1);
       if (input.right) UI.choiceMove(1);
       if (input.confirm) UI.choiceConfirm();
       return;
     }
-    const controllable = this.running.controllable;
-    const advance = controllable ? input.advanceSoft : input.advance;
-    if (input.skip && !controllable) {
-      this.skipping = true;
-      this.flushWaiters(false);
-      this.dialogue.resolvePending();
+    if (input.skip || this.holdTime >= H) {
+      this.holdStart = null;
+      this.holdLatch = true; // 손을 뗄 때까지 다음 장면은 건너뛰지 않음
+      UI.skipGauge(0);
+      this.skip();
       return;
     }
+    const advance = this.locked ? input.advance : input.advanceSoft;
     if (advance) this.flushWaiters(true);
     this.dialogue.update(dt, advance);
   }

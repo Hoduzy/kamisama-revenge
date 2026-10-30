@@ -74,11 +74,100 @@ window.LEVEL = {
     { x: 5810, y: 620 },
   ],
 
-  // 이 x 를 넘으면 한 번: 스테이지 시작(그 장의 'N-2', 'N-3' 시작 장면) / 보스 전 장면 후 보스가 깨어남
-  // 장 시작·첫 스테이지 장면은 게임 시작 때, 체크포인트 장면은 벚꽃나무가 필 때 나온다
-  storyTriggers: [
-    { x: 2200, event: 'stageStart', stage: 2 },
-    { x: 4330, event: 'stageStart', stage: 3 },
-    { x: 5900, event: 'bossBefore' },
-  ],
+  // 스토리 트리거 ↔ 장면 id (data/story/*.json). 맵이 아직 하나라서 장마다 같은 맵 위에 배치한다.
+  //   start      : 장을 시작할 때 차례로 재생. { scene, when } 이면 조건이 맞을 때만
+  //   triggers   : 주인공이 x 를 넘으면 한 번. stage = 여기서 스테이지 번호가 바뀜(타누키치 한마디 풀),
+  //                then: 'wakeBoss'(장면 뒤 보스가 깨어남) | 'clear'(장면 뒤 장 클리어)
+  //   trees      : 벚꽃나무 번호(LEVEL.trees 순서, 0 = 시작 나무) → 그 나무가 필 때 장면. 없으면 한마디(풀)
+  //   boss.hp    : 보스 체력 비율이 below 이하가 되면 / boss.after : 보스를 쓰러뜨린 뒤 → 클리어
+  //   events     : 게임 쪽 사건 이름 → 장면 (scene.storyEvent(이름) 으로 재생. 아직 그 사건이 없는 것들)
+  story: {
+    prologue: {
+      start: ['S0-1', 'S0-2'],
+      triggers: [
+        { x: 900, scene: 'S0-3' },
+        { x: 2200, scene: 'S0-4', stage: 2 },
+        { x: 5900, scene: ['S0-7', 'S0-8'], then: 'clear' },
+      ],
+      trees: { 1: 'S0-5', 2: 'S0-6' },
+    },
+    ch1: {
+      start: ['S1-1', 'S1-2'],
+      triggers: [
+        { x: 2200, scene: 'S1-4', stage: 2 },
+        { x: 4330, scene: 'S1-6', stage: 3 },
+        { x: 5900, scene: 'S1-7', then: 'wakeBoss' },
+      ],
+      trees: { 1: 'S1-3', 2: 'S1-5' },
+      boss: { hp: [{ below: 0.5, scene: 'S1-8' }], after: ['S1-9', 'S1-10'] },
+    },
+    ch2: {
+      start: ['S2-1'],
+      triggers: [
+        { x: 1000, scene: 'S2-2' },
+        { x: 2200, scene: 'S2-3', stage: 2 },
+        { x: 4330, scene: 'S2-5', stage: 3 },
+        { x: 5900, scene: 'S2-6', then: 'wakeBoss' },
+      ],
+      trees: { 2: 'S2-4' },
+      boss: { after: ['S2-8', 'S2-9'] },
+      events: { '한 명 쓰러짐': 'S2-7' },
+    },
+    ch3: {
+      start: ['S3-1'],
+      triggers: [
+        { x: 1000, scene: 'S3-2' },
+        { x: 2200, scene: 'S3-3', stage: 2 },
+        { x: 4330, stage: 3 },
+        { x: 5900, scene: 'S3-6', then: 'wakeBoss' },
+      ],
+      trees: { 2: 'S3-4', 3: 'S3-5' },
+      boss: { hp: [{ below: 0.5, scene: 'S3-7' }], after: ['S3-8', 'S3-9'] },
+    },
+    ch4: {
+      start: ['S4-1'],
+      triggers: [
+        { x: 1000, scene: 'S4-2' },
+        { x: 2200, scene: 'S4-3', stage: 2 },
+        { x: 4330, stage: 3 },
+        { x: 5900, scene: 'S4-5', then: 'wakeBoss' },
+      ],
+      trees: { 3: 'S4-4' },
+      boss: { hp: [{ below: 0.3, scene: 'S4-6' }], after: ['S4-7', 'S4-8'] },
+    },
+    ch5: {
+      start: ['S5-1', 'S5-2'],
+      triggers: [
+        { x: 2050, scene: 'S5-3' },
+        { x: 2200, scene: 'S5-4', stage: 2 },
+        { x: 4330, scene: 'S5-6', stage: 3 },
+        { x: 5900, scene: 'S5-7', then: 'wakeBoss' },
+      ],
+      trees: { 2: 'S5-5' },
+      boss: { after: ['S5-9', 'S5-10'] },
+      events: { '화승총병 전멸': 'S5-8' },
+    },
+    ch6: {
+      start: ['S6-1', 'S6-2'],
+      triggers: [
+        { x: 4330, scene: 'S6-5', stage: 2 },
+        { x: 5200, scene: 'S6-6' },
+        { x: 5900, scene: 'S6-7', stage: 3, then: 'wakeBoss' },
+      ],
+      trees: { 1: 'S6-3', 2: 'S6-4a', 3: 'S6-4b' },
+      boss: { hp: [{ below: 0.5, scene: 'S6-9' }], after: ['S6-10', 'S6-11'] },
+      events: { '1페이즈 종료': 'S6-8' },
+    },
+    // 엔딩: 6장 마지막 선택에서 〈나눈다〉를 골랐으면 진엔딩(E-5, E-6), 아니면 E-3, E-4
+    epilogue: {
+      start: [
+        'E-1', 'E-2',
+        { scene: 'E-3', when: { flag: 'choice:S6-10', not: 'share' } },
+        { scene: 'E-4', when: { flag: 'choice:S6-10', not: 'share' } },
+        { scene: 'E-5', when: { flag: 'choice:S6-10', is: 'share' } },
+        { scene: 'E-6', when: { flag: 'choice:S6-10', is: 'share' } },
+      ],
+      then: 'clear',
+    },
+  },
 };

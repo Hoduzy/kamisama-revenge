@@ -39,7 +39,7 @@ FACES = {'기본': 'neutral', '웃음': 'smile', '분노': 'angry', '슬픔': 's
 VOICE_STYLE = {'haru': 'pink', 'hakuya': 'goldTremble'}  # 하루 = 분홍 글자, 하쿠야 = 금색 떨리는 글자
 
 # 대화창에서 쓸 초상화·이름 색. 아카네는 도트 초상화 시트(표정 3종: 기본·분노·슬픔)라
-# 다른 표정은 가까운 것으로 대신한다. 나머지는 그림이 생길 때까지 도형 초상화(js/portraits.js 스타일).
+# 다른 표정은 가까운 것으로 대신한다. 나머지는 그림이 생길 때까지 실루엣 + 이름 첫 글자(js/portraits.js, style = 머리 모양).
 P = lambda style, **kw: {'style': style, **kw}
 PORTRAITS = {
     'akane': {'color': '#ff6b7a', 'sprite': {'key': 'portraits', 'faces': {
@@ -671,6 +671,32 @@ def report(chapters, memories, conv):
     return '\n'.join(out) + '\n', tot, notes_by
 
 
+def write_audio_table(chapters):
+    """대본의 bgm/sfx 이름 → 소리 파일 경로 표 (data/story/audio.json).
+    이미 적어 둔 경로는 그대로 두고 새 이름만 빈 값으로 더한다. 경로가 비어 있으면 게임은 조용히 넘어간다."""
+    path = OUT / 'audio.json'
+    table = json.loads(path.read_text(encoding='utf-8')) if path.exists() else {}
+    table.setdefault('_설명', '대본의 소리 이름 → 파일 경로 (예: "assets/audio/bgm/main.mp3"). 비어 있으면 소리 없이 넘어간다.')
+    for kind in ('bgm', 'sfx'):
+        table.setdefault(kind, {})
+
+    def walk(cmds):
+        for c in cmds or []:
+            if c.get('cmd') in ('bgm', 'sfx') and c.get('name') != 'stop' and not c['name'].startswith('('):
+                table[c['cmd']].setdefault(c['name'], '')
+            for k in ('then', 'else', 'commands'):
+                walk(c.get(k))
+            for o in c.get('options', []) + c.get('cases', []):
+                walk(o.get('commands'))
+
+    for ch in chapters.values():
+        for sc in ch['scenes']:
+            walk(sc['commands'])
+            for b in (sc.get('blocks') or {}).values():
+                walk(b)
+    path.write_text(json.dumps(table, ensure_ascii=False, indent=2), encoding='utf-8')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--src', default=None)
@@ -687,6 +713,7 @@ def main():
     chars = {cid: {'name': ko, 'side': 'left' if cid == 'akane' else 'auto', **PORTRAITS.get(cid, {})}
              for ko, cid in CHARACTERS.items()}
     (OUT / 'characters.json').write_text(json.dumps(chars, ensure_ascii=False, indent=2), encoding='utf-8')
+    write_audio_table(chapters)
     text, tot, notes = report(chapters, memories, conv)
     (OUT / '_report.md').write_text(text, encoding='utf-8')
     print(f"장면 {tot['scenes']} · say {tot['say']} · think {tot['think']} · voice {tot['voice']} · 자막 {tot['caption']} · 풀 {tot['pool']} · 연출 명령 {tot['dir']} · note {tot['note']}")

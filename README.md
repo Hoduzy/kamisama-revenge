@@ -57,25 +57,38 @@
 - 장면 = `{ id, place, trigger, controllable, commands }`. 명령: `say`(대사) `think`(속마음) `voice`(목소리) `caption`(붓 자막) `fadeOut/fadeIn` `letterbox` `shake` `flash` `slowmo` `bgm` `sfx` `cg` `titleCard` `bossName` `giveItem` `wait` `cameraPan` `condition` `choice` `setFlag` `include` `note`(연출 메모).
 - 풀(pools): 체크포인트 한마디. 타누키치는 50%(스테이지 첫 체크포인트는 확정), 장 안에서 다 쓸 때까지 반복 없음, 하루 목소리가 나오면 생략, 3초 말풍선. 하루 목소리는 10%(6장은 확정).
 
-### 연출 엔진 (`js/story-engine.js`)
+### 컷신 엔진 StoryPlayer (`js/story-player.js`)
 
-- 트리거: 장 시작·첫 스테이지는 게임 시작 때, 체크포인트 n번째 벚꽃나무, 스테이지 시작·보스 전은 `js/level.js`의 `storyTriggers`, 보스 체력 조건, 보스 후·장 끝은 보스 처치 후.
-- 일반 컷신은 게임을 멈춘다. Space·J·Enter·탭으로 넘기고 Esc로 장면 전체를 건너뛴다(선택지는 꼭 골라야 함).
-- `controllable` 컷신은 게임이 계속 돌고 대사가 자동으로 넘어간다(Enter·탭으로 빨리 넘기기).
-- 소리 파일이 아직 없어서 BGM·효과음은 화면 오른쪽 위에 이름만 표시(`config.js`의 `story.showAudioCues`).
-- CG는 `assets/cg/cg번호.png`가 있으면 그 그림, 없으면 번호·설명 자리표시.
-- H 키(판정 표시)를 켜면 연출 메모(note)도 왼쪽 위에 보인다.
-- 플래그·선택·재생 기록·아이템은 registry(`storyFlags`, `storyPlayed`, `items`)에 저장.
-- 아카네 초상화는 도트 시트 3장(기본/화남/슬픔)에 표정을 대응. 다른 인물은 도형 임시 초상화.
+- **트리거 ↔ 장면 id**는 맵 데이터 `js/level.js`의 `story` 표에 장별로 적는다:
+  - `start` 장 시작 때, `triggers` 주인공이 x를 넘을 때(`stage`, `then: 'wakeBoss' | 'clear'`)
+  - `trees` n번째 벚꽃나무가 필 때(장면이 없으면 타누키치 한마디)
+  - `boss.hp` 보스 체력 비율, `boss.after` 보스 처치 후
+  - `events` 아직 게임에 없는 사건용 (`scene.storyEvent('이름')`)
+  - 엔딩은 6장 선택(`choice:S6-10`)에 따라 갈린다.
+- **조작:**
+  - 보통 장면·레터박스 장면은 조작 잠금(게임 멈춤).
+  - 조작 가능 컷신(`controllable`)은 걸으면서 대사가 자동으로 흘러간다.
+  - 넘기기: Space·J·Enter·화면 탭.
+  - **길게 누르면(0.8초) 장면 전체 건너뛰기** (화면 위에 게이지). Esc도 건너뛰기. 선택지는 꼭 골라야 한다.
+- **CG:** `assets/cg/cg번호.png`를 화면 가득 띄운다. 없으면 검은 화면에 "CG 번호 + 대본의 설명". 다음 대사는 CG 위에 나온다.
+- **초상화:** 도트 초상화(`sprite`)나 그림(`image`)이 없는 인물은 실루엣 + 이름 첫 글자 (`js/portraits.js`).
+- **소리:** `data/story/audio.json`에 대본의 BGM·효과음 이름 → 파일 경로를 적는다. 비어 있거나 파일이 없으면 조용히 넘어간다. 변환기를 다시 돌려도 적어 둔 경로는 남는다.
+- **연출 메모(note):** 아직 게임으로 옮기지 못한 연출은 개발 모드에서만 왼쪽 위 구석에 작게 보인다.
+- **저장:** 플래그·선택·재생 기록·아이템은 registry(`storyFlags`, `storyPlayed`, `items`)에 있다.
+- **설정:** 글자 속도는 `config.js`의 `dialogue`, 자동 넘김·길게 누르기·음량은 `story`.
+
+### 개발 메뉴 (F1)
+
+- 아무 장면 id나 바로 재생한다. 검색은 id·장소·대사로 하고, ↑↓·Enter 또는 클릭으로 고른다. 장면이 속한 장으로 다시 시작한다.
+- 개발 모드 켜고 끄기 (연출 메모·소리 이름 표시). 주소에 `?dev=1`을 붙여도 켜지고, 브라우저가 기억한다.
+- 기억 조각 개수 설정, 본 장면·플래그 지우기.
 
 ### 테스트용 주소
 
 - `index.html?scene=TEST` — 모든 연출 명령 시연 (`data/story/test.json`)
-- `index.html?scene=S0-7` — 아무 장면 하나만 재생 (장면 id는 `_report.md` 참고)
-- `index.html?chapter=ch3` — 그 장으로 시작 (기본 ch1)
+- `index.html?scene=S0-7` — 장면 하나만 재생
+- `index.html?chapter=ch3` — 그 장으로 시작 (기본 ch1, `epilogue`도 가능)
 - `index.html?scene=E-5&memories=18` — 기억 조각 개수 조건 시험
-
-글자 속도는 `config.js`의 `dialogue`, 조작 가능 컷신 자동 넘김은 `story`.
 
 ## 그림 (스프라이트)
 
@@ -92,11 +105,12 @@
 - `js/skills.js` — 대쉬베기, 발도, 벚꽃 스택
 - `js/tree.js` — 벚꽃나무(체크포인트)
 - `data/story/` — 대본 JSON (`tools/convert_story.py`로 생성)
-- `js/story-engine.js` — 연출 엔진 (장면 재생, 트리거, 풀, 플래그)
+- `js/story-player.js` — 컷신 엔진 StoryPlayer (장면 재생, 길게 눌러 건너뛰기, 소리, 풀, 플래그)
+- `js/dev-menu.js` — F1 개발 메뉴, 개발 모드
 - `js/dialogue.js` / `js/portraits.js` / `js/boot-scene.js` — 대화창, 초상화 그리기, 대본·스프라이트 로딩
 - `js/ui.js` — HTML 글자 레이어 + 컷신 연출(페이드, 레터박스, 자막, CG, 선택지, 말풍선)
 - `js/sprites.js` — 스프라이트 애니메이션·이펙트 도우미
 - `tools/process_sprites.py` — 원본 도트 이미지 전처리
 - `js/player.js` / `js/enemy.js` — 주인공, 적
-- `js/level.js` — 땅·발판·적 배치 데이터
+- `js/level.js` — 땅·발판·적 배치, 스토리 트리거 ↔ 장면 id 표
 - `js/game-scene.js` — 충돌, 전투, 카메라, HUD

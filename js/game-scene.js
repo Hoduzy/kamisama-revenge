@@ -79,36 +79,41 @@ class GameScene extends Phaser.Scene {
     this.boss = this.enemies.find((e) => e.type === 'boss');
     this.createHud();
 
-    // 스토리: data/story 의 장면을 연출 엔진으로 재생한다
-    //   ?chapter=ch1  이 맵을 몇 장으로 쓸지 (기본 ch1)
+    // 스토리: data/story 의 장면을 컷신 엔진(StoryPlayer)으로 재생한다. 위치 ↔ 장면은 LEVEL.story[장]
+    //   ?chapter=ch1  이 맵을 몇 장으로 쓸지 (기본 ch1. 개발 메뉴에서 장면을 고르면 그 장으로 바뀜)
     //   ?scene=S0-7   그 장면 하나만 바로 재생 (테스트용. ?scene=TEST = 모든 연출 명령 확인)
     //   ?memories=18  기억 조각 개수 (진엔딩 분기 확인용)
+    //   ?dev=1        개발 모드 (F1 개발 메뉴에서도 켜고 끔)
     const params = new URLSearchParams(location.search);
-    this.chapter = params.get('chapter') || 'ch1';
-    this.chapterNo = Math.max(1, STORY_FILES.indexOf(this.chapter));
-    this.stageNo = 1;
-    this.stageName = `${this.chapterNo}-1`;
+    this.chapter = this.registry.get('chapterOverride') || params.get('chapter') || 'ch1';
+    this.chapterNo = STORY_FILES.indexOf(this.chapter);
+    this.storyMap = (L.story && L.story[this.chapter]) || {};
+    this.setStage(1);
     this.checkpointNo = 0;
-    this.stageCheckpoint = 0;
     this.bossDisplayName = '???';
-    if (params.get('memories')) this.registry.set('memories', Array.from({ length: +params.get('memories') }, (_, i) => i + 1));
-    this.story = new StoryEngine(this);
+    if (params.get('memories') && this.registry.get('memories') == null) {
+      this.registry.set('memories', Array.from({ length: +params.get('memories') }, (_, i) => i + 1));
+    }
+    this.story = new StoryPlayer(this);
     this.firedTriggers = new Set();
+    this.firedBossHp = new Set();
     this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     this.escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     this.tapped = false;
     this.input.on('pointerdown', () => { this.tapped = true; });
-    const only = params.get('scene') || params.get('story');
-    if (only && !this.registry.get('sceneTestDone')) {
+    const only = this.registry.get('devPlay') || (!this.registry.get('sceneTestDone') && (params.get('scene') || params.get('story')));
+    this.registry.remove('devPlay');
+    if (only) {
+      // 장면 하나만 (개발 메뉴 / ?scene=)
       this.registry.set('sceneTestDone', true);
       this.registry.set('chapterStarted', true);
       this.story.play(only === 'test_dialogue' ? 'TEST' : only);
     } else if (!this.registry.get('chapterStarted')) {
-      // 장 시작 장면 → 첫 스테이지 시작 장면 (R 재시작 시엔 생략)
+      // 장 시작 장면들 (R 재시작 시엔 생략)
       this.registry.set('chapterStarted', true);
-      const S = this.story;
-      S.playAll([...S.find(this.chapter, (t) => t.type === 'chapterStart'),
-        ...S.find(this.chapter, (t) => t.type === 'stageStart' && t.stage === this.stageName)]);
+      this.story.playEntries(this.storyMap.start).then(() => {
+        if (this.storyMap.then === 'clear') this.triggerClear();
+      });
     }
 
     this.input.keyboard.on('keydown-R', () => this.scene.restart());
@@ -119,7 +124,6 @@ class GameScene extends Phaser.Scene {
       const on = !!this.registry.get('debugHitbox');
       this.debugGfx.setVisible(on);
       UI.debug(on);
-      document.body.classList.toggle('debug-notes', on); // 연출 메모(note)도 함께 표시
       if (!on) this.debugGfx.clear();
     };
     applyDebug();
@@ -329,12 +333,15 @@ class GameScene extends Phaser.Scene {
     const tapped = this.tapped;
     this.tapped = false;
 
-    // 연출 엔진: 멈추는 컷신이면 게임은 여기서 멈춘다 (조작 가능 컷신이면 계속 진행)
+    // 컷신 엔진: 잠긴 컷신이면 게임은 여기서 멈춘다 (조작 가능 컷신이면 계속 진행)
     const c = this.controls.state;
     const enter = Phaser.Input.Keyboard.JustDown(this.enterKey);
+    const pointerHeld = this.input.manager.pointers.some((p) => p.isDown);
     this.story.update(dt, {
       advance: c.jump.pressed || c.attack.pressed || tapped || enter,
       advanceSoft: tapped || enter,
+      hold: c.jump.down || c.attack.down || this.enterKey.isDown || pointerHeld,
+      holdSoft: this.enterKey.isDown || pointerHeld,
       skip: Phaser.Input.Keyboard.JustDown(this.escKey),
       left: c.left.pressed, right: c.right.pressed,
       confirm: c.jump.pressed || c.attack.pressed || enter,
@@ -356,31 +363,32 @@ class GameScene extends Phaser.Scene {
     player.skills.checkSlashHits(this.enemies);
     this.updateShurikens(dt);
 
-    // 맵 위치 트리거: 스테이지 시작 / 보스 전 (같은 프레임의 체크포인트보다 먼저)
-    LEVEL.storyTriggers.forEach((t, i) => {
+    // 맵 위치 트리거 (LEVEL.story[장].triggers). 같은 프레임의 체크포인트보다 먼저
+    (this.storyMap.triggers || []).forEach((t, i) => {
       if (this.firedTriggers.has(i) || player.body.center.x < t.x || player.dead) return;
       this.firedTriggers.add(i);
-      if (t.event === 'stageStart') this.onStageStart(t.stage);
-      else if (t.event === 'bossBefore') this.onBossBefore();
+      this.onStoryTrigger(t);
     });
-    // 벚꽃나무 활성화 = 체크포인트. 그 번호의 장면이 있으면 재생, 없으면 한마디(풀)
-    for (const t of this.trees) {
+    // 벚꽃나무 활성화 = 체크포인트. 그 나무에 붙은 장면이 있으면 재생, 없으면 한마디(풀)
+    this.trees.forEach((t, i) => {
       if (!t.active && t.isNear(player.body)) {
         t.bloom();
         this.activeTree = t;
-        this.onCheckpoint();
+        this.onCheckpoint(i);
       }
-    }
+    });
 
     // 낙사
     if (!player.dead && player.body.top > LEVEL.height + 60) this.killPlayer(true);
 
-    // 보스전 중 체력 조건 장면
+    // 보스전 중 체력 조건 장면 (LEVEL.story[장].boss.hp)
     if (this.boss && !this.boss.dormant && !this.boss.dead) {
       const ratio = this.boss.hp / this.boss.cfg.hp;
-      const ids = this.story.find(this.chapter, (t) => t.type === 'bossCondition' && t.condition && t.condition.hpBelow > 0 &&
-        ratio <= t.condition.hpBelow && !t.condition.phase);
-      if (ids.length) this.story.playAll(ids);
+      ((this.storyMap.boss || {}).hp || []).forEach((h, i) => {
+        if (this.firedBossHp.has(i) || ratio > h.below) return;
+        this.firedBossHp.add(i);
+        this.story.playEntries(h.scene);
+      });
     }
 
     // 카메라 룩어헤드: 바라보는 방향을 더 보여줌
@@ -629,33 +637,37 @@ class GameScene extends Phaser.Scene {
       this.spawnPetals(enemy.body.center.x, enemy.body.center.y, 60, 200);
       // 보스 후 → 장 끝 장면을 보고 클리어
       this.time.delayedCall(1200, async () => {
-        const S = this.story;
-        await S.playAll([...S.find(this.chapter, (t) => t.type === 'bossAfter'), ...S.find(this.chapter, (t) => t.type === 'chapterEnd')]);
+        await this.story.playEntries((this.storyMap.boss || {}).after);
         this.triggerClear();
       });
     }
   }
 
-  // ───────── 스토리 트리거 ─────────
-  onCheckpoint() {
+  // ───────── 스토리 트리거 (LEVEL.story) ─────────
+  setStage(no) {
+    this.stageNo = no;
+    this.stageName = this.chapterNo === 0 ? `P-${no}` : `${this.chapterNo}-${no}`;
+    this.stageCheckpoint = 0;
+  }
+
+  async onStoryTrigger(t) {
+    if (t.stage) this.setStage(t.stage);
+    await this.story.playEntries(t.scene);
+    if (t.then === 'wakeBoss') this.wakeBoss();
+    else if (t.then === 'clear') this.triggerClear();
+  }
+
+  onCheckpoint(treeIndex) {
     this.checkpointNo += 1;
     this.stageCheckpoint += 1;
-    const n = this.checkpointNo;
-    const ids = this.story.find(this.chapter, (t) => t.type === 'checkpoint' && (t.n === n || (Array.isArray(t.n) && t.n.includes(n))));
-    if (ids.length) this.story.playAll(ids.slice(0, 1));
+    const ids = this.story.resolve((this.storyMap.trees || {})[treeIndex]);
+    if (ids.length) this.story.playAll(ids);
     else this.story.checkpointChatter(this.chapter, this.stageCheckpoint === 1);
   }
 
-  onStageStart(no) {
-    this.stageNo = no;
-    this.stageName = `${this.chapterNo}-${no}`;
-    this.stageCheckpoint = 0;
-    this.story.playAll(this.story.find(this.chapter, (t) => t.type === 'stageStart' && t.stage === this.stageName));
-  }
-
-  async onBossBefore() {
-    await this.story.playAll(this.story.find(this.chapter, (t) => t.type === 'bossBefore'));
-    this.wakeBoss();
+  // 게임 쪽 사건(예: '한 명 쓰러짐') → LEVEL.story[장].events 의 장면
+  storyEvent(name) {
+    return this.story.playEntries((this.storyMap.events || {})[name]);
   }
 
   showStageTitle(title, subtitle) {

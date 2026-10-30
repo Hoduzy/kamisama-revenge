@@ -1,11 +1,11 @@
 // 대화창 (HTML 레이어 #ui 안). 에도 시대풍: 짙은 남색 반투명 패널 + 얇은 금색 테두리 + 모서리 벚꽃,
 // 패널 위 왼쪽 빨간 이름표, 패널 위로 크게 튀어나온 초상화(말하는 쪽 왼/오른쪽, 안 말하는 쪽은 어둡게).
-// 한 줄씩 보여 주는 방식: open() → line(명령) 을 await → close(). 연출 엔진(js/story-engine.js)이 부른다.
+// 한 줄씩 보여 주는 방식: open() → line(명령) 을 await → close(). 컷신 엔진(js/story-player.js)이 부른다.
 //   say   : 초상화 + 이름표 + 대사
 //   think : 아카네 속마음. 초상화 반투명, 글자 회색
 //   voice : 초상화·이름표 없이 글자만. style pink(하루) / goldTremble(하쿠야, 떨리는 금색) / plain
-// 넘기기: Space / J / Enter / 화면 탭 (조작 가능 컷신에서는 Enter·탭 또는 자동으로 넘어감).
-// 인물 설정(data/story/characters.json): sprite(도트 초상화 시트 + 표정), image, portrait(도형), color
+// 넘기기: Space / J / Enter / 화면 탭, 길게 누르면 장면 전체 건너뛰기 (조작 가능 컷신은 Enter·탭, 또는 자동으로 넘어감).
+// 인물 설정(data/story/characters.json): sprite(도트 초상화 시트 + 표정), image, color. 둘 다 없으면 실루엣(js/portraits.js)
 const SAKURA_SVG = `<svg viewBox="-10 -10 20 20" aria-hidden="true">${[0, 72, 144, 216, 288]
   .map((a) => `<ellipse cx="0" cy="-5" rx="3.6" ry="5" transform="rotate(${a})"/>`).join('')}<circle r="2" class="c"/></svg>`;
 
@@ -23,7 +23,7 @@ class DialogueBox {
         <div class="dlg-panel">
           ${['tl', 'tr', 'bl', 'br'].map((c) => `<span class="dlg-corner ${c}">${SAKURA_SVG}</span>`).join('')}
           <div class="dlg-name"></div>
-          <div class="dlg-hint">Space · J · 탭 넘기기 &nbsp;·&nbsp; Esc 건너뛰기</div>
+          <div class="dlg-hint"></div>
           <div class="dlg-text"></div>
           <div class="dlg-next">▼</div>
         </div>`;
@@ -50,12 +50,23 @@ class DialogueBox {
     }
     this.textEl.innerHTML = '';
     this.nameEl.style.display = 'none';
-    this.hintEl.textContent = controllable ? 'Enter · 탭 넘기기 (자동으로도 넘어감)' : 'Space · J · 탭 넘기기  ·  Esc 건너뛰기';
+    this.hintEl.textContent = controllable ? '자동으로 넘어감 · Enter·탭 넘기기 · 길게 누르면 건너뛰기' : 'Space·탭 넘기기 · 길게 누르면 건너뛰기';
     this.root.classList.toggle('controllable', controllable);
     this.active = true;
-    this.root.classList.add('open');
-    requestAnimationFrame(() => this.root.classList.add('show')); // 아래에서 살짝 올라오며 나타남
+    this.root.classList.remove('show'); // 첫 대사가 나올 때 나타난다
     if (!controllable) document.body.classList.add('in-dialogue');
+  }
+
+  // 대사가 없는 연출(자막, CG, 페이드 …) 동안은 대화창을 내린다
+  hide() {
+    this.root.classList.remove('show');
+  }
+
+  show() {
+    if (this.root.classList.contains('show')) return;
+    this.root.classList.add('open');
+    void this.root.offsetWidth;
+    this.root.classList.add('show'); // 아래에서 살짝 올라오며 나타남
   }
 
   close() {
@@ -67,10 +78,9 @@ class DialogueBox {
     setTimeout(() => { if (!this.active) this.root.classList.remove('open'); }, 250);
   }
 
-  // 초상화 그림: 도트 시트(표정) → image → 도형으로 만든 텍스처
+  // 초상화 그림: 도트 시트(표정) → image → 실루엣 + 이름 첫 글자(임시)
   portraitStyle(id, ch, face) {
-    const tex = this.scene.textures;
-    if (ch.sprite && tex.exists(ch.sprite.key)) {
+    if (ch.sprite && this.scene.textures.exists(ch.sprite.key)) {
       const s = Sprites.sheet(ch.sprite.key);
       const frame = ch.sprite.faces[face] ?? ch.sprite.faces.neutral ?? 0;
       const k = 2.5; // 도트 1칸 = 2.5px
@@ -82,16 +92,15 @@ class DialogueBox {
         height: s.frameHeight * k + 'px',
       };
     }
-    const key = 'portrait-' + id;
-    if (!tex.exists(key)) return null;
-    if (!this.dataUrls) this.dataUrls = {};
-    if (!this.dataUrls[key]) this.dataUrls[key] = ch.image || tex.getBase64(key);
-    return { boxed: true, backgroundImage: `url(${this.dataUrls[key]})`, backgroundSize: '100% 100%', backgroundPosition: '0 0', width: '200px', height: '200px' };
+    if (!ch.name && !ch.image) return null;
+    const url = ch.image || Portraits.silhouette(id, ch);
+    return { boxed: true, backgroundImage: `url(${url})`, backgroundSize: '100% 100%', backgroundPosition: '0 0', width: '200px', height: '200px' };
   }
 
   // 한 줄 보여 주고, 넘길 때 끝나는 Promise
   line(c) {
     this.resolvePending();
+    this.show();
     const ch = this.characters[c.speaker] || {};
     const kind = c.cmd; // say | think | voice
     const side = kind === 'voice' ? null : (c.side || (c.speaker === 'akane' ? 'left' : 'right'));
@@ -159,7 +168,7 @@ class DialogueBox {
     while (this.shown < n) this.chars[this.shown].className = this.chars[this.shown++].className.replace('h', '').trim();
   }
 
-  // 매 프레임 (연출 엔진이 부른다). advance: 넘기기 입력
+  // 매 프레임 (컷신 엔진이 부른다). advance: 넘기기 입력
   update(dt, advance) {
     if (!this.active || !this.pending) return;
     if (advance) {

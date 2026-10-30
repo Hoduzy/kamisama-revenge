@@ -6,6 +6,7 @@ class BootScene extends Phaser.Scene {
 
   preload() {
     this.load.json('story-characters', 'data/story/characters.json');
+    this.load.json('story-audio', 'data/story/audio.json');
     for (const id of STORY_FILES) this.load.json('story-' + id, `data/story/${id}.json`);
     this.load.json('sprites', SPRITE_DIR + 'manifest.json');
   }
@@ -17,14 +18,11 @@ class BootScene extends Phaser.Scene {
     if (!characters || !manifest) {
       console.warn('data/story 또는 sprites/manifest.json 을 불러오지 못했습니다. (file:// 대신 로컬 서버나 GitHub Pages로 실행하세요)');
     }
-    // 그림 파일이 지정된 인물은 이미지를 쓰고, 나머지는 도형으로 그린다
-    for (const [id, ch] of Object.entries(characters || {})) {
-      if (ch.image) this.load.image('portrait-' + id, ch.image);
-    }
+    StoryAudio.init(this.cache.json.get('story-audio'));
+    DevMenu.init(this.game);
     if (manifest) Sprites.queue(this, manifest);
 
     const start = () => {
-      if (characters) Portraits.generate(this, characters);
       Sprites.createAnims(this);
       this.scene.start('game');
     };

@@ -104,11 +104,13 @@ window.TUNING = {
     superArmor: true,
   },
 
-  // 연출 엔진
+  // 컷신 엔진 (js/story-player.js)
   story: {
     autoAdvanceBase: 1.6,     // 조작 가능 컷신: 대사가 다 나온 뒤 기본 대기(초)
     autoAdvancePerChar: 0.05, //   + 글자당
-    showAudioCues: true,      // 소리 파일이 없는 동안 BGM·효과음 이름을 화면 구석에 표시
+    holdToSkip: 0.8,          // 이만큼 길게 누르면 장면 전체 건너뛰기(초)
+    bgmVolume: 0.6,
+    sfxVolume: 0.8,
   },
 
   // 대화
