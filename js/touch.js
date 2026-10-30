@@ -1,4 +1,6 @@
-// 아이패드/모바일용 화면 버튼.
+// 아이패드/모바일용 화면 버튼 + 조작 방식(터치 / 키보드) 선택.
+// 조작 방식: 화면 오른쪽 위 버튼이나 주소의 ?input=touch|keyboard 로 고르고 브라우저가 기억한다.
+// 고르지 않았으면 터치 화면이 있는 기기는 터치, 아니면 키보드.
 // 손가락(pointerId)마다 현재 올라가 있는 버튼을 추적하므로
 // 손가락을 떼지 않고 ◀ → ▶ 로 미끄러뜨려도 동작한다.
 window.TouchPad = (function () {
@@ -47,8 +49,33 @@ window.TouchPad = (function () {
     refresh();
   }
 
+  // 조작 방식
+  const MODE_KEY = 'kamisama-input';
+  let chosen = null;         // 'touch' | 'keyboard' | null(자동)
+  let touchDevice = false;
+  try { chosen = localStorage.getItem(MODE_KEY); } catch (e) { /* 저장소를 못 쓰면 자동 */ }
+  const q = new URLSearchParams(location.search).get('input');
+  if (q === 'touch' || q === 'keyboard') chosen = q;
+  if (chosen !== 'touch' && chosen !== 'keyboard') chosen = null;
+
+  const mode = () => chosen || (touchDevice ? 'touch' : 'keyboard');
+
+  function apply() {
+    const touch = mode() === 'touch';
+    document.body.classList.toggle('touch', touch);
+    if (!touch) releaseAll();
+    document.dispatchEvent(new CustomEvent('inputmodechange', { detail: mode() }));
+  }
+
+  function setMode(m) {
+    chosen = m;
+    try { localStorage.setItem(MODE_KEY, m); } catch (e) { /* 무시 */ }
+    apply();
+  }
+
   function enableTouchUI() {
-    document.body.classList.add('touch');
+    touchDevice = true;
+    apply();
   }
 
   function init() {
@@ -63,7 +90,8 @@ window.TouchPad = (function () {
     document.addEventListener('gesturestart', (e) => e.preventDefault());
     document.addEventListener('dblclick', (e) => e.preventDefault());
 
-    if (('ontouchstart' in window) || navigator.maxTouchPoints > 0) enableTouchUI();
+    touchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    apply();
     window.addEventListener('touchstart', enableTouchUI, { once: true, passive: true });
   }
 
@@ -74,6 +102,9 @@ window.TouchPad = (function () {
   }
 
   return {
+    get mode() { return mode(); },
+    setMode,
+    toggleMode: () => setMode(mode() === 'touch' ? 'keyboard' : 'touch'),
     isDown: (action) => !!held[action],
     consume: (action) => {
       const v = !!latched[action];

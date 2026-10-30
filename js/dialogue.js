@@ -50,7 +50,10 @@ class DialogueBox {
     }
     this.textEl.innerHTML = '';
     this.nameEl.style.display = 'none';
-    this.hintEl.textContent = controllable ? '자동으로 넘어감 · Enter·탭 넘기기 · 길게 누르면 건너뛰기' : 'Space·탭 넘기기 · 길게 누르면 건너뛰기';
+    const touch = TouchPad.mode === 'touch';
+    this.hintEl.textContent = controllable
+      ? (touch ? '자동으로 넘어감 · 화면 탭 넘기기 · 길게 누르면 건너뛰기' : '자동으로 넘어감 · Enter 넘기기 · 길게 누르면 건너뛰기')
+      : (touch ? '탭 넘기기 · 길게 누르면 건너뛰기' : 'Space 넘기기 · 길게 누르면 건너뛰기');
     this.root.classList.toggle('controllable', controllable);
     this.active = true;
     this.root.classList.remove('show'); // 첫 대사가 나올 때 나타난다

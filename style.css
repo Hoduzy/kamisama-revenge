@@ -130,16 +130,16 @@ body.in-dialogue #touch-controls .pad {
 
 #ui > div, #dialogue { position: absolute; }
 
-.hud-tl, .hud-tr, .float span, .skill-label {
+.hud-tr, .float span, .skill-label {
   text-shadow: 0 0 2px #0b0a12, 0 0 2px #0b0a12, 0 1px 3px #0b0a12, 0 0 6px rgba(11, 10, 18, 0.8);
 }
 
-.hud-tl { left: 24px; top: 16px; font-size: 18px; font-weight: 700; }
-.hud-tl .hp {
-  display: inline-block; width: 14px; height: 14px; margin-right: 10px; vertical-align: -1px;
-  background: #d62828; border: 2px solid var(--ink);
-}
 .hud-tr { right: 24px; top: 16px; font-size: 18px; font-weight: 700; text-align: right; }
+.hud-tr .input-mode {
+  pointer-events: auto; cursor: pointer; font: inherit; font-size: 13px; font-weight: 500; color: var(--ink);
+  padding: 4px 12px; background: rgba(13, 17, 43, 0.75); border: 1px solid var(--gold-soft); border-radius: 14px;
+}
+.hud-tr .input-mode:hover { border-color: var(--gold); }
 .hud-tr .debug { display: block; margin-top: 4px; font-size: 12px; font-weight: 500; color: #4ade80; }
 
 .hud-hint {
@@ -246,7 +246,7 @@ body.in-dialogue #touch-controls .pad {
 #ui .fx-lb.top { top: 0; }
 #ui .fx-lb.bottom { bottom: 0; }
 #ui .fx-lb.on { height: 58px; }
-#ui.cinema .hud-tl, #ui.cinema .hud-tr, #ui.cinema .boss, #ui.cinema .skill-labels, #ui.cinema .hud-hint { opacity: 0; transition: opacity 0.3s; }
+#ui.cinema .hud-tr, #ui.cinema .boss, #ui.cinema .skill-labels, #ui.cinema .hud-hint { opacity: 0; transition: opacity 0.3s; }
 #dialogue { z-index: 35; }
 
 /* 붓 글씨: 글자마다 번지며 써짐 */

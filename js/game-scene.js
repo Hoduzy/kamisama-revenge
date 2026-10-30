@@ -9,9 +9,7 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(COLORS.background);
     this.cameras.main.setBounds(0, 0, L.width, L.height);
 
-    this.kills = 0;
     this.hitStopTimer = 0;
-    this.deaths = 0;
     this.cleared = false;
     this.shurikens = [];
 
@@ -218,12 +216,10 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // 글자(사망·KO·안내·보스 이름·결과)는 HTML 글자 레이어(UI)에 그린다. 그림만 캔버스에
+  // 글자(안내·보스 이름·결과)는 HTML 글자 레이어(UI)에 그린다. 그림만 캔버스에
   createHud() {
     UI.reset(this);
-    UI.setDeaths(0);
-    UI.setKO(0);
-    UI.hint('A/D 이동 · Space 점프 · J 공격 · K 대시 · U 대쉬베기 · I 발도 · R 재시작');
+    UI.controlsHint();
     this.createSkillHud();
   }
 
@@ -291,8 +287,6 @@ class GameScene extends Phaser.Scene {
   }
 
   updateHud() {
-    UI.setDeaths(this.deaths);
-    UI.setKO(this.kills);
     const boss = this.boss;
     const bossOn = !!boss && !boss.dormant && !boss.dead;
     UI.boss(bossOn, this.bossDisplayName, bossOn ? boss.hp / boss.cfg.hp : 0);
@@ -488,7 +482,6 @@ class GameScene extends Phaser.Scene {
     if (player.dead) return;
     const x = player.body.center.x;
     const y = Math.min(player.body.center.y, LEVEL.height - 20);
-    this.deaths += 1;
     this.spawnBurst(x, y, 0xd62828, 12);
     this.cameras.main.shake(220, 0.01);
     this.clearShurikens();
@@ -630,7 +623,6 @@ class GameScene extends Phaser.Scene {
   }
 
   onEnemyKilled(enemy, byPlayer) {
-    if (byPlayer) this.kills += 1;
     if (enemy.type === 'boss') {
       this.doHitStop(0.25);
       this.cameras.main.shake(400, 0.015);
@@ -688,7 +680,7 @@ class GameScene extends Phaser.Scene {
   triggerClear() {
     this.cleared = true;
     this.physics.world.pause();
-    UI.banner(`<b>끝</b>처치 ${this.kills} &nbsp;·&nbsp; 사망 ${this.deaths}<small>점프 / 공격으로 다시 시작</small>`);
+    UI.banner('<b>끝</b><small>점프 / 공격으로 다시 시작</small>');
     this.allowRestartSoon();
   }
 

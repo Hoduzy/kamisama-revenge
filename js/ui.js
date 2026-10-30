@@ -13,8 +13,7 @@ const UI = {
     this.root.style.width = GAME_WIDTH + 'px';
     this.root.style.height = GAME_HEIGHT + 'px';
     this.root.innerHTML = `
-      <div class="hud-tl"><i class="hp"></i><span class="deaths">사망 0</span></div>
-      <div class="hud-tr"><span class="ko">KO 0</span><span class="debug">판정 표시 (H)</span></div>
+      <div class="hud-tr"><button type="button" class="input-mode" tabindex="-1"></button><span class="debug">판정 표시 (H)</span></div>
       <div class="hud-hint"></div>
       <div class="boss"><div class="boss-name"></div><div class="boss-bar"><div class="boss-fill"></div></div></div>
       <div class="skill-labels"></div>
@@ -34,6 +33,23 @@ const UI = {
       <div class="fx-notes"></div>
       <div class="fx-skip"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" cx="18" cy="18" r="15" pathLength="100"/></svg><span>건너뛰기</span></div>`;
     this.el = (sel) => this.root.querySelector(sel);
+    // 조작 방식 바꾸기 (터치 ↔ 키보드). 포커스를 가져가지 않게 해서 Space 가 버튼을 다시 누르지 않도록
+    const modeBtn = this.el('.input-mode');
+    const showMode = () => {
+      const touch = TouchPad.mode === 'touch';
+      modeBtn.textContent = touch ? '조작: 터치' : '조작: 키보드';
+      modeBtn.title = '눌러서 ' + (touch ? '키보드' : '터치') + ' 조작으로 바꾸기';
+    };
+    modeBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      TouchPad.toggleMode();
+    });
+    document.addEventListener('inputmodechange', () => {
+      showMode();
+      this.controlsHint();
+    });
+    showMode();
     const layout = () => this.layout();
     window.addEventListener('resize', layout);
     game.scale.on('resize', layout);
@@ -226,8 +242,13 @@ const UI = {
     this.place(f);
   },
 
-  setDeaths(n) { this.el('.deaths').textContent = '사망 ' + n; },
-  setKO(n) { this.el('.ko').textContent = 'KO ' + n; },
+  // 조작 안내 (지금 조작 방식에 맞게)
+  controlsHint() {
+    this.hint(TouchPad.mode === 'touch'
+      ? '◀ ▶ 이동 · JUMP 점프 · ATK 공격 · DASH 대시 · 베기·발도 스킬'
+      : 'A/D 이동 · Space 점프 · J 공격 · K 대시 · U 대쉬베기 · I 발도 · R 재시작');
+  },
+
   debug(on) { this.el('.debug').style.display = on ? '' : 'none'; },
 
   hint(text, ms = 4500) {
