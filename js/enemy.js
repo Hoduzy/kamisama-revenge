@@ -14,7 +14,8 @@ class Enemy {
     scene.physics.add.existing(this.obj);
     this.body = this.obj.body;
 
-    this.hp = 3;
+    this.hp = TUNING.enemyHp[this.type];
+    this.parryImmune = 0; // 한 번 패링당한 뒤 같은 접촉으로 연속 패링되지 않게
     this.dir = Math.random() < 0.5 ? -1 : 1;
     this.speed = this.type === 'hopper' ? 0 : 90;
     this.stun = 0;
@@ -32,6 +33,7 @@ class Enemy {
     const body = this.body;
     this.stun -= dt;
     this.flash -= dt;
+    this.parryImmune -= dt;
     this.obj.setFillStyle(this.flash > 0 ? 0xffffff : COLORS.enemy);
 
     if (this.stun > 0) {
@@ -64,12 +66,12 @@ class Enemy {
     if (body.top > LEVEL.height + 100) this.kill(false);
   }
 
-  hurt(dir, damage) {
+  hurt(dir, damage, knockback = 320) {
     if (this.dead) return;
     this.hp -= damage;
     this.flash = 0.08;
     this.stun = 0.28;
-    this.body.setVelocity(dir * 320, -260);
+    this.body.setVelocity(dir * knockback, -260);
     if (this.hp <= 0) this.kill(true);
   }
 

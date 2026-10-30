@@ -44,6 +44,39 @@ window.TUNING = {
 
   // 연출
   hitStop: 0.06,
+
+  // 적 체력
+  enemyHp: { walker: 4, hopper: 3 },
+  attackDamage: 1,       // 기본 공격(J)
+  stompDamage: 2,        // 밟기
+
+  // 벚꽃 스택
+  sakuraMax: 5,
+
+  // 스킬1 대쉬베기 (U)
+  dashSlash: {
+    distance: 230,       // 대쉬 거리(px)
+    time: 0.12,          // 대쉬에 걸리는 시간(초). 속도 = distance / time
+    cooldown: 0.8,
+    damage: 1,
+    stacksPerHit: 1,     // 적 하나 맞힐 때마다 벚꽃 스택 증가량
+    hitHeight: 52,       // 판정 높이
+    endGrace: 0.2,       // 대쉬가 끝난 직후 무적 시간 (적 몸에 겹쳐 끝나도 바로 맞지 않게)
+  },
+
+  // 스킬2 발도 (I)
+  iaido: {
+    chargeTime: 1.0,     // 준비 시간
+    parryWindow: 0.5,    // 준비 시작 후 이 시간까지 패링
+    cooldown: 6,
+    baseDamage: 3,
+    damagePerStack: 2,   // 벚꽃 스택 1개당 추가 피해
+    range: 200,          // 베기 사거리(px, 몸 앞쪽부터)
+    height: 84,          // 베기 판정 높이
+    lungeSpeed: 650,     // 벨 때 앞으로 내딛는 속도
+    parryDamage: 2,      // 패링당한 적이 받는 피해
+    parryKnockback: 480,
+  },
 };
 
 window.GAME_WIDTH = 960;

@@ -79,3 +79,21 @@ body.touch #touch-controls {
   border-color: #fff;
   transform: scale(0.94);
 }
+
+/* 스킬 버튼: 공격/대시 버튼 위 줄 */
+.pad-skills {
+  right: calc(24px + 112px + 16px + env(safe-area-inset-right));
+  bottom: calc(24px + 48px + 76px + 16px + env(safe-area-inset-bottom));
+}
+
+.pad-skills .btn.small {
+  margin-bottom: 0;
+}
+
+.btn.skill {
+  border-color: rgba(255, 158, 184, 0.9);
+}
+
+.btn.skill.cooldown {
+  opacity: 0.4;
+}

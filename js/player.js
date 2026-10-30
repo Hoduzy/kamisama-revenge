@@ -46,6 +46,8 @@ class Player {
     this.invuln = 0;
     this.hurtLock = 0;
     this.dead = false;
+
+    this.skills = new Skills(this);
   }
 
   get grounded() {
@@ -83,7 +85,13 @@ class Player {
     if (c.attack.pressed) this.attackBuffer = T.attackBuffer;
 
     const dir = this.hurtLock > 0 ? 0 : controls.dirX;
-    if (dir !== 0 && !this.dashing && this.attackTimer <= 0) this.facing = dir;
+    if (dir !== 0 && !this.dashing && this.attackTimer <= 0 && !this.skills.busy) this.facing = dir;
+
+    // 스킬 사용 중엔 일반 이동/점프/대시/공격을 하지 않음
+    if (this.skills.update(dt, controls)) {
+      this.updateScale(dt);
+      return;
+    }
 
     // 대시 시작
     if (c.dash.pressed && this.hurtLock <= 0 && this.dashCooldown <= 0 && !this.dashing &&
@@ -161,7 +169,11 @@ class Player {
     }
     if (this.attackTimer > 0) this.attackTimer -= dt;
 
-    // 그림 크기 복원 (스프링처럼)
+    this.updateScale(dt);
+  }
+
+  // 그림 크기 복원 (스프링처럼)
+  updateScale(dt) {
     const k = Math.min(1, dt * 14);
     this.scaleX += (1 - this.scaleX) * k;
     this.scaleY += (1 - this.scaleY) * k;
@@ -213,10 +225,11 @@ class Player {
     this.scene.spawnDust(this.body.center.x, this.body.bottom, 4);
   }
 
-  hurt(fromX) {
+  // nonLethal: 체력이 1 밑으로 내려가지 않음 (발도 준비 후반에 맞았을 때)
+  hurt(fromX, nonLethal = false) {
     if (this.invuln > 0 || this.dead) return false;
     const T = TUNING;
-    this.hp -= 1;
+    this.hp = nonLethal ? Math.max(1, this.hp - 1) : this.hp - 1;
     this.invuln = T.invulnTime;
     this.hurtLock = T.hurtLockTime;
     this.endDash();
@@ -230,6 +243,7 @@ class Player {
 
   respawn(x, y) {
     this.endDash();
+    this.skills.reset();
     this.obj.setPosition(x, y);
     this.body.reset(x, y);
     this.isJumping = false;
@@ -259,6 +273,8 @@ class Player {
     this.visual.setScale(this.scaleX, this.scaleY);
     // 무적 시간 동안 깜빡임
     this.visual.setAlpha(this.invuln > 0 && !this.dashing ? (Math.floor(this.invuln * 20) % 2 ? 0.3 : 1) : 1);
+
+    this.skills.syncVisual();
 
     const rect = this.getAttackRect();
     this.slash.setVisible(!!rect);

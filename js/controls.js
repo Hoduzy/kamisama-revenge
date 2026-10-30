@@ -10,6 +10,8 @@ class Controls {
       jump: [K.SPACE, K.W, K.UP],
       attack: [K.J],
       dash: [K.K, K.SHIFT],
+      skill1: [K.U],
+      skill2: [K.I],
     };
     this.keys = {};
     this.keyHandlers = [];
