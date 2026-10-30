@@ -1,0 +1,778 @@
+{
+  "id": "ch5",
+  "title": "막부의 성",
+  "summary": "아카네가 처음으로 복수가 아니라 \"지키기 위해\" 칼을 뽑는 장. 타누키치가 붙잡히고, 어머니의 말 \"지켜야 할 게 생겼을 때 뽑는 거란다\"의 뜻을 몸으로 알게 된다. 교단 뒤에 막부 관리가 있다는 것도 드러난다.",
+  "scenes": [
+    {
+      "id": "S5-1",
+      "place": "성 아래 마을",
+      "trigger": {
+        "raw": "장 시작",
+        "type": "chapterStart"
+      },
+      "commands": [
+        {
+          "cmd": "titleCard",
+          "text": "第五章 · 막부의 성",
+          "src": "장 제목 카드: 〈第五章 · 막부의 성〉"
+        },
+        {
+          "cmd": "note",
+          "text": "해 질 녘."
+        },
+        {
+          "cmd": "note",
+          "text": "설산을 내려오자 계곡 입구를 막고 선 거대한 성."
+        },
+        {
+          "cmd": "note",
+          "text": "성 뒤로 신궁이 있는 검은 산이 보이고, 산꼭대기에 붉은빛이 희미하게 맴돈다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "무거운 낮은 현악",
+          "src": "무거운 BGM (낮은 현악)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "serious",
+          "text": "저 산이 신궁이야. 근데 길이 저 성 하나뿐이래. 성주 대리인 오카무라 부교가 관문을 막고 있어. 교단 사람 아니면 아무도 못 지나가.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "겐카이 패가 있잖아.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "scared",
+          "text": "그건 신궁 산문용이고… 성은 또 달라. 성 지하에 신궁으로 이어지는 비밀 통로가 있대. 거기로 가야 해.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "거리에 막부 포졸들이 순찰한다."
+        },
+        {
+          "cmd": "note",
+          "text": "벽에 수배서."
+        },
+        {
+          "cmd": "note",
+          "text": "이번엔 아카네 옆에 너구리귀 소년 그림이 추가되어 있다."
+        },
+        {
+          "cmd": "caption",
+          "text": "공범 — 너구리 소년. 생사 불문."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "surprised",
+          "text": "…나 그림 왜 이렇게 못생기게 그렸어?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…생사 불문.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "scared",
+          "text": "…그거 나 죽여도 된다는 뜻이지?",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "S5-2",
+      "place": "성벽 아래",
+      "trigger": {
+        "raw": "스테이지 5-1 시작",
+        "stage": "5-1",
+        "type": "stageStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "높은 석벽."
+        },
+        {
+          "cmd": "note",
+          "text": "벽 타기 안내 (3장 후 벽 점프를 열었다면 이 장이 본격 활용 구간)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "serious",
+          "text": "난 하수구로 들어가서 통로 위치 알아 올게. 누나는 위로. 성벽 꼭대기에서 만나.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…조심해.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "누나가 그 말 하니까 이상하다. 나 출세했네.",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "S5-3",
+      "place": "성벽 꼭대기",
+      "trigger": {
+        "raw": "스테이지 5-1 끝",
+        "stage": "5-1",
+        "type": "reach",
+        "at": "end"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "아카네가 성벽 꼭대기에 올라선다."
+        },
+        {
+          "cmd": "note",
+          "text": "아무도 없다."
+        },
+        {
+          "cmd": "note",
+          "text": "바닥에 타누키치의 만두 보자기가 떨어져 있다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "stop",
+          "src": "침묵."
+        },
+        {
+          "cmd": "note",
+          "text": "성 안에서 북이 세 번 울린다."
+        },
+        {
+          "cmd": "sfx",
+          "name": "확성 나팔",
+          "src": "확성 나팔 소리."
+        },
+        {
+          "cmd": "voice",
+          "speaker": "okamura",
+          "text": "고양이 아가씨, 들리나? 너구리 한 마리를 잡았다. 천수각 꼭대기에서 기다리지. 해가 다 지기 전에 오지 않으면, 너구리는 지붕에서 떨어질 거다.",
+          "style": "plain"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 보자기를 줍는다."
+        },
+        {
+          "cmd": "note",
+          "text": "초상화: 분노."
+        },
+        {
+          "cmd": "note",
+          "text": "화면 가장자리가 붉게."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "…타누키치.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "화면 위쪽에 타이머 UI는 없다 (긴장감만 주고 실제 제한 시간은 없음)."
+        }
+      ]
+    },
+    {
+      "id": "S5-4",
+      "place": "성 안 복도",
+      "trigger": {
+        "raw": "스테이지 5-2 시작",
+        "stage": "5-2",
+        "type": "stageStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "금박 장지문과 반짝이는 마루."
+        },
+        {
+          "cmd": "note",
+          "text": "조용하다."
+        },
+        {
+          "cmd": "note",
+          "text": "바닥 창 함정과 천장 칼날 안내."
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "엄마가 그랬어. 칼은 화가 났을 때 뽑는 게 아니라고.",
+          "side": "left"
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…지금은, 화가 난 걸까. 아니면.",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "S5-5",
+      "place": "성 안 다다미방",
+      "trigger": {
+        "raw": "체크포인트 2 (엿듣기)",
+        "type": "checkpoint",
+        "n": 2,
+        "note": "엿듣기"
+      },
+      "controllable": true,
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "화승총병들이 휴식 중이다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 천장 위에서 엿듣는다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "gunner_a",
+          "face": "neutral",
+          "text": "부교님은 교단을 믿으시나?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "gunner_b",
+          "face": "smile",
+          "text": "믿긴. 교단이 백성들 조용히 시키고 쌀 거둬 주니까 쓰는 거지. 덕분에 이 번(藩)은 흉년에도 폭동 한 번 없었잖아.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "gunner_a",
+          "face": "serious",
+          "text": "…신궁에 끌려간 애들은?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "gunner_b",
+          "face": "neutral",
+          "text": "그건 우리가 알 바 아니야. 위에서 그렇게 하라면 하는 거지.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 천장에서 떨어지며 전투 시작."
+        }
+      ]
+    },
+    {
+      "id": "S5-6",
+      "place": "천수각 내부",
+      "trigger": {
+        "raw": "스테이지 5-3 시작 (추격전)",
+        "stage": "5-3",
+        "type": "stageStart",
+        "note": "추격전"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "천수각에 들어서는 순간 폭발음."
+        },
+        {
+          "cmd": "note",
+          "text": "아래층에서 불길이 치솟는다."
+        },
+        {
+          "cmd": "shake",
+          "strength": "strong",
+          "src": "흔들림 강."
+        },
+        {
+          "cmd": "voice",
+          "speaker": "okamura",
+          "text": "아, 미안하군. 너를 지붕까지 빨리 올라오게 하려고 성에 불을 좀 질렀다. 서두르는 게 좋을 거다.",
+          "style": "plain"
+        },
+        {
+          "cmd": "note",
+          "text": "자동 스크롤 시작."
+        },
+        {
+          "cmd": "note",
+          "text": "화면 아래에서 불길이 쫓아온다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "빠른 북",
+          "src": "BGM이 빠른 북으로 바뀐다."
+        },
+        {
+          "cmd": "note",
+          "text": "중간 지점, 불타는 복도에 갇힌 하녀가 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "선택: 구하러 가는 길(멀고 위험)과 그냥 지나가는 길."
+        },
+        {
+          "cmd": "note",
+          "text": "구하면 하녀가 기억 조각 위치를 알려 준다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "maid",
+          "face": "scared",
+          "text": "고, 고양이 요괴님… 살려 주셔서… 지붕 북쪽 기와 밑에, 부교님이 숨겨 둔 게 있어요…!",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "S5-7",
+      "place": "천수각 지붕",
+      "trigger": {
+        "raw": "보스 전",
+        "type": "bossBefore"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "해가 거의 졌다."
+        },
+        {
+          "cmd": "note",
+          "text": "하늘이 보랏빛."
+        },
+        {
+          "cmd": "note",
+          "text": "지붕 끝에 타누키치가 밧줄에 묶여 매달려 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "오카무라가 짧은 칼을 밧줄에 대고 서 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "지붕 곳곳에 화승총병."
+        },
+        {
+          "cmd": "letterbox",
+          "on": true,
+          "src": "레터박스."
+        },
+        {
+          "cmd": "say",
+          "speaker": "okamura",
+          "face": "smile",
+          "text": "딱 맞춰 왔군. 해가 지기 직전에. 연극 같지 않나?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "scared",
+          "text": "누, 누나! 오지 말라니까! 나 같은 거 버리고 가지, 왜 왔어!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…만두값 아직 안 줬잖아.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "sad",
+          "text": "…바보야.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "okamura",
+          "face": "neutral",
+          "text": "솔직히 말하지. 나는 신이든 요괴든 관심 없다. 교단이 백성을 조용히 시키고, 나는 교단을 지켜 주고, 이 번은 평화롭다. 그게 정치다.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "okamura",
+          "face": "smile",
+          "text": "교주가 너를 산 채로 원하니, 너구리와 바꾸자. 순순히 칼을 내려놓으면 너구리는 살려 주마.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…엄마가 그랬어.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 칼을 반쯤 뽑는다."
+        },
+        {
+          "cmd": "note",
+          "text": "칼에 분홍 꽃잎이 저절로 하나씩 붙기 시작한다 (스택 0 → 1 → 2, 연출)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "칼은 화가 났을 때 뽑는 게 아니야. 지켜야 할 게 생겼을 때 뽑는 거라고.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "지금이 그때야.",
+          "side": "left"
+        },
+        {
+          "cmd": "letterbox",
+          "on": false,
+          "src": "레터박스 해제."
+        },
+        {
+          "cmd": "bossName",
+          "text": "부교 · 오카무라",
+          "src": "보스 이름 붓 자막: 〈부교 · 오카무라〉"
+        },
+        {
+          "cmd": "note",
+          "text": "이 전투에 한해 시작 시 벚꽃 스택 2개가 차 있다."
+        }
+      ]
+    },
+    {
+      "id": "S5-8",
+      "place": "보스전 중",
+      "trigger": {
+        "raw": "화승총병 전멸",
+        "type": "bossCondition",
+        "condition": {
+          "event": "화승총병 전멸"
+        }
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "마지막 화승총병이 쓰러지면 오카무라가 직접 칼을 든다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "okamura",
+          "face": "angry",
+          "text": "…쓸모없는 놈들. 결국 내 손을 쓰게 하는군.",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "S5-9",
+      "place": "천수각 지붕",
+      "trigger": {
+        "raw": "보스 후",
+        "type": "bossAfter"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "오카무라가 무릎을 꿇는다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 달려가 타누키치의 밧줄을 벤다."
+        },
+        {
+          "cmd": "note",
+          "text": "타누키치가 아카네에게 떨어지듯 안긴다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "sad",
+          "text": "…무서웠어. 진짜 무서웠어.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…응. 나도.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "surprised",
+          "text": "…누나도?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…말하지 마.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 오카무라에게 돌아선다."
+        },
+        {
+          "cmd": "note",
+          "text": "칼끝을 목에 댄다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "okamura",
+          "face": "smile",
+          "text": "베라. 내가 죽어도 다른 놈이 이 자리에 앉아 똑같은 짓을 할 거다. 그게 세상이야.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…알아. 그래서 너는 안 베.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "okamura",
+          "face": "surprised",
+          "text": "…….",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "통로 어디 있어.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "okamura",
+          "face": "neutral",
+          "text": "…천수각 지하 우물. 오늘 밤은 보름이다. 교주는 보름달이 뜨는 밤에 의식을 치를 거다. 신궁에 끌려간 아이들 전부를 그 나무 뿌리에 바치는 의식이지. 그리고 마지막 꽃으로, 너를.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "산 정상의 붉은빛이 갑자기 커진다."
+        },
+        {
+          "cmd": "note",
+          "text": "하늘에 보름달이 뜬다."
+        },
+        {
+          "cmd": "note",
+          "text": "달 테두리가 붉게 번진다."
+        }
+      ]
+    },
+    {
+      "id": "S5-10",
+      "place": "우물 앞",
+      "trigger": {
+        "raw": "장 끝",
+        "type": "chapterEnd"
+      },
+      "commands": [
+        {
+          "cmd": "letterbox",
+          "on": true,
+          "src": "레터박스."
+        },
+        {
+          "cmd": "note",
+          "text": "불타는 성을 뒤로하고 지하 우물 앞."
+        },
+        {
+          "cmd": "note",
+          "text": "차가운 바람이 아래에서 올라온다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…여기서부턴 혼자 갈게. 넌 마을로 돌아가.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "angry",
+          "text": "싫어.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "타누키치.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "serious",
+          "text": "누나가 나 데리러 왔잖아. 그럼 나도 누나 데리러 갈 거야. 누나 다 끝나면, 누가 데리고 돌아와 줄 건데.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 한참 타누키치를 본다."
+        },
+        {
+          "cmd": "note",
+          "text": "그리고 머리끈에 달린 붉은 방울 하나를 떼어 타누키치 손에 쥐여 준다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…엄마가 준 거야. 우물 입구에서 기다려. 이게 울리면, 나 살아 있는 거야.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "sad",
+          "text": "…안 울리면?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "울려.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 우물 속으로 뛰어내린다."
+        },
+        {
+          "cmd": "note",
+          "text": "방울이 딸랑, 하고 한 번 운다."
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.8,
+          "src": "암전."
+        },
+        {
+          "cmd": "titleCard",
+          "text": "第五章 · 끝",
+          "src": "〈第五章 · 끝〉"
+        }
+      ]
+    }
+  ],
+  "pools": [
+    {
+      "id": "ch5_tanukichi",
+      "title": "타누키치 체크포인트 한마디 (5장 — 5-1까지만, 이후 잡혀서 없음)",
+      "trigger": "checkpointBloom",
+      "mode": "random",
+      "chance": 1.0,
+      "lines": [
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "성벽은 위에서 돌 떨어지니까 위를 보면서 올라가. 목 아프겠지만.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "이 성 사람들은 교단 안 믿는대. 믿는 척만 하는 거래. 그게 더 나쁜 거 아냐?",
+          "side": "right"
+        }
+      ],
+      "stages": [
+        "5-1"
+      ]
+    },
+    {
+      "id": "ch5_akane_alone",
+      "title": "대신 5-2부터: 타누키치의 빈자리",
+      "trigger": "checkpointBloom",
+      "mode": "random",
+      "chance": 1.0,
+      "lines": [
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…시끄러운 게 없으니까 이상해.",
+          "side": "left"
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "만두 두 개 반. 줄걸 그랬어.",
+          "side": "left"
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "기다려. 금방 가.",
+          "side": "left"
+        }
+      ],
+      "note": "5-2, 5-3의 체크포인트에서는 꽃이 필 때 타누키치 대신 아카네의 속마음이 나온다.",
+      "stages": [
+        "5-2",
+        "5-3"
+      ]
+    }
+  ],
+  "meta": {
+    "source": "카미사마 복수극 — 전체 스토리 대본.md",
+    "faces": {
+      "기본": "neutral",
+      "웃음": "smile",
+      "분노": "angry",
+      "슬픔": "sad",
+      "놀람": "surprised",
+      "겁먹음": "scared",
+      "진지": "serious"
+    },
+    "voiceStyles": {
+      "haru": "pink",
+      "hakuya": "goldTremble"
+    }
+  }
+}

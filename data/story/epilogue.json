@@ -1,0 +1,604 @@
+{
+  "id": "epilogue",
+  "title": "다시 핀 마을",
+  "summary": "두 엔딩 모두 아카네가 칼에 이름을 붙이며 끝난다. 일반 엔딩은 \"복수를 끝낸 사람\"의 쓸쓸한 귀향이고, 진엔딩은 \"기다려 주는 사람\"이 된 아카네의 귀향이다.",
+  "scenes": [
+    {
+      "id": "E-1",
+      "place": "신궁 산 아래",
+      "trigger": {
+        "raw": "공통",
+        "type": "chapterStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "아침."
+        },
+        {
+          "cmd": "note",
+          "text": "산 아래 우물 입구."
+        },
+        {
+          "cmd": "note",
+          "text": "타누키치가 방울을 두 손으로 꽉 쥐고 쭈그려 앉아 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "눈 밑이 퀭하다."
+        },
+        {
+          "cmd": "note",
+          "text": "밤새 안 잔 얼굴."
+        },
+        {
+          "cmd": "note",
+          "text": "산길에서 아카네가 내려온다."
+        },
+        {
+          "cmd": "note",
+          "text": "뒤에 아이들 여럿이 줄줄이 따라온다."
+        },
+        {
+          "cmd": "note",
+          "text": "맨 앞에서 아카네가 츠구미의 손을 잡고 있다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "sad",
+          "text": "…누, 누나.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "angry",
+          "text": "방울은 밤새 울렸는데 왜 이렇게 늦게 와! 나 진짜… 진짜…",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "타누키치가 울음을 터뜨린다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 아무 말 없이 다가가 타누키치의 머리를 감싸 안는다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "…데리러 와 줬잖아. 고마워.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "sad",
+          "text": "…만두, 세 개.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "응. 세 개.",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "E-2",
+      "place": "대나무 숲 사당",
+      "trigger": {
+        "raw": "공통",
+        "type": "chapterStart"
+      },
+      "commands": [
+        {
+          "cmd": "letterbox",
+          "on": true,
+          "src": "레터박스."
+        },
+        {
+          "cmd": "note",
+          "text": "2장의 사당 계단."
+        },
+        {
+          "cmd": "note",
+          "text": "아오이와 카에데가 부러진 활을 고치고 있다."
+        },
+        {
+          "cmd": "sfx",
+          "name": "작은 발소리",
+          "src": "계단 아래에서 작은 발소리."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tsugumi",
+          "face": "smile",
+          "text": "언니!",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "카에데가 활을 떨어뜨린다."
+        },
+        {
+          "cmd": "note",
+          "text": "아오이가 먼저 달려간다."
+        },
+        {
+          "cmd": "note",
+          "text": "셋이 계단 아래에서 엉켜 넘어진다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네는 멀리 대나무 숲 사이에서 그 모습을 보다가 돌아선다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "kaede",
+          "face": "sad",
+          "text": "고양이! 야, 고양이! …고마워!",
+          "manner": "멀리서",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네는 돌아보지 않고 손만 한 번 든다."
+        }
+      ]
+    },
+    {
+      "id": "E-3",
+      "place": "사쿠라자와 가는 길",
+      "trigger": {
+        "raw": "일반 엔딩",
+        "type": "chapterStart"
+      },
+      "controllable": true,
+      "noCombat": true,
+      "applied": [
+        "초상화 없이 뒷모습."
+      ],
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "계절이 바뀐 몇 주 후."
+        },
+        {
+          "cmd": "note",
+          "text": "봄."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네와 타누키치가 프롤로그의 산길을 걷는다."
+        },
+        {
+          "cmd": "note",
+          "text": "걸어가는 길마다 죽어 있던 벚나무가 하나씩 하얗게 핀다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "누나가 지나가니까 다 피네. 이제 마음대로 피울 수 있어?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…모르겠어. 그냥 피어.",
+          "portrait": false,
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "폐허가 된 사쿠라자와 마을."
+        },
+        {
+          "cmd": "note",
+          "text": "불탄 대장간 터."
+        },
+        {
+          "cmd": "note",
+          "text": "광장의 큰 벚나무는 검게 탄 그루터기만 남았다."
+        },
+        {
+          "cmd": "note",
+          "text": "그 옆에 두 개의 작은 돌무덤."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 무덤 앞에 무릎을 꿇는다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "프롤로그 축제 테마의 피아노 편곡",
+          "src": "BGM: 프롤로그 축제 테마의 피아노 편곡."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "엄마. 아빠. 다녀왔어.",
+          "portrait": false,
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "그놈은… 끝났어. 하얀 꽃잎이 됐어. 마지막에 엄마 꽃이랑 같은 색이라고 했어.",
+          "portrait": false,
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "후련할 줄 알았는데. 그냥… 조용해.",
+          "portrait": false,
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 칼을 무덤 앞에 내려놓는다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "아빠. 이름 지었어.",
+          "portrait": false,
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "하루사쿠라(春桜). 엄마 이름이랑, 엄마 꽃.",
+          "portrait": false,
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "그 순간 검게 탄 그루터기에서 작은 새순 하나가 돋는다."
+        },
+        {
+          "cmd": "note",
+          "text": "꽃은 아직 없다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "surprised",
+          "text": "…누나, 저기.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "…응. 기다리면, 필 거야.",
+          "portrait": false,
+          "side": "left"
+        },
+        {
+          "cmd": "cg",
+          "no": 6,
+          "desc": "무덤 앞에 앉은 아카네와 타누키치, 새순, 멀리 하얗게 핀 산",
+          "src": "CG 6: 무덤 앞에 앉은 아카네와 타누키치, 새순, 멀리 하얗게 핀 산."
+        },
+        {
+          "cmd": "cameraPan",
+          "dir": "up",
+          "src": "카메라가 위로 올라가며 마을 전체를 비춘다."
+        },
+        {
+          "cmd": "caption",
+          "text": "사쿠라자와의 벚나무는, 그다음 봄에 다시 피었다."
+        },
+        {
+          "cmd": "note",
+          "text": "엔딩 크레딧."
+        }
+      ],
+      "condition": {
+        "ending": "normal"
+      }
+    },
+    {
+      "id": "E-4",
+      "place": "크레딧 후",
+      "trigger": {
+        "raw": "일반 엔딩",
+        "type": "chapterStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "검은 화면."
+        },
+        {
+          "cmd": "note",
+          "text": "작은 만두 가게 간판이 걸린 길가 노점."
+        },
+        {
+          "cmd": "note",
+          "text": "타누키치가 외친다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "만두 사세요! 고양이 누나가 칼로 썬 파가 들어간 만두!",
+          "side": "left"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "akane",
+          "text": "…그 문구 빼라고 했지.",
+          "style": "plain",
+          "face": "angry"
+        },
+        {
+          "cmd": "caption",
+          "text": "끝"
+        }
+      ],
+      "condition": {
+        "ending": "normal"
+      }
+    },
+    {
+      "id": "E-5",
+      "place": "진엔딩 — 사쿠라자와 가는 길",
+      "trigger": {
+        "type": "chapterStart",
+        "raw": "진엔딩 — 사쿠라자와 가는 길"
+      },
+      "commands": [
+        {
+          "cmd": "include",
+          "scene": "E-3",
+          "toIndex": 17,
+          "src": "E-3과 같은 길, 같은 무덤 장면."
+        },
+        {
+          "cmd": "note",
+          "text": "칼 이름을 짓는 대사까지 동일하다."
+        },
+        {
+          "cmd": "note",
+          "text": "단, 하나가 다르다."
+        },
+        {
+          "cmd": "note",
+          "text": "무덤 옆, 검게 탄 큰 벚나무 그루터기 앞에 이미 누군가 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "흰 머리를 짧게 자른 사내."
+        },
+        {
+          "cmd": "note",
+          "text": "후광도, 칼도 없다."
+        },
+        {
+          "cmd": "note",
+          "text": "낡은 승복 차림으로 흙을 고르고 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "angry",
+          "text": "…저 사람!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "괜찮아.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야가 일어서서 아카네를 본다."
+        },
+        {
+          "cmd": "note",
+          "text": "한참 둘 다 말이 없다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "serious",
+          "text": "…겐카이 사원에 머물고 있어. 남은 신도들을 고향으로 돌려보내는 중이야. 다 끝나면, 관아에 가서 내 죄를 말할 생각이야.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…여긴 왜 왔어.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "sad",
+          "text": "누나한테 묘목 하나 심어 주고 싶어서. 피울 수는 없어도, 심는 건 할 수 있으니까.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "용서 안 해.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "serious",
+          "text": "알아.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…그래도 다 심으면, 물은 줘. 매일.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "surprised",
+          "text": "…….",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "엄마가 평생 기다린다고 했잖아. 엄마는 이제 없으니까. 대신 이 나무가 기다릴 거야. 피든 안 피든.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야가 고개를 깊이 숙인다."
+        },
+        {
+          "cmd": "note",
+          "text": "어깨가 떨린다."
+        },
+        {
+          "cmd": "cg",
+          "no": 7,
+          "desc": "묘목 앞에 무릎 꿇은 하쿠야, 조금 떨어진 곳에서 등을 돌리고 서 있는 아카네, 그 사이로 하얀 꽃잎 한 장",
+          "src": "CG 7: 묘목 앞에 무릎 꿇은 하쿠야, 조금 떨어진 곳에서 등을 돌리고 서 있는 아카네, 그 사이로 하얀 꽃잎 한 장."
+        },
+        {
+          "cmd": "caption",
+          "text": "사쿠라자와의 벚나무는, 그다음 봄에 다시 피었다."
+        },
+        {
+          "cmd": "caption",
+          "text": "하쿠야가 심은 묘목은, 그다음다음 봄에 처음으로 한 송이를 피웠다."
+        },
+        {
+          "cmd": "note",
+          "text": "엔딩 크레딧 (진엔딩 전용 곡)."
+        }
+      ],
+      "condition": {
+        "ending": "true"
+      }
+    },
+    {
+      "id": "E-6",
+      "place": "크레딧 후",
+      "trigger": {
+        "raw": "진엔딩",
+        "type": "chapterStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "봄."
+        },
+        {
+          "cmd": "note",
+          "text": "사쿠라자와 마을 광장."
+        },
+        {
+          "cmd": "note",
+          "text": "다시 핀 큰 벚나무 아래 축제가 열려 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "아이들이 고양이귀 가면을 쓰고 뛰어다닌다."
+        },
+        {
+          "cmd": "note",
+          "text": "그 속에 츠구미와 쌍둥이 자매가 보인다."
+        },
+        {
+          "cmd": "note",
+          "text": "마을 입구에는 타누키치의 만두 노점."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 연습장 마당에서 목검을 들고 서 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "앞에 어린 아이 셋."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "검은 발에서 시작해. 발이 늦으면 칼도 늦어.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "village_child",
+          "face": "smile",
+          "text": "선생님, 그 말 백 번째예요!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "…백한 번째에는 알아듣겠지.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "바람이 분다."
+        },
+        {
+          "cmd": "note",
+          "text": "꽃잎이 화면을 가득 채운다."
+        },
+        {
+          "cmd": "caption",
+          "text": "終"
+        }
+      ],
+      "condition": {
+        "ending": "true"
+      }
+    }
+  ],
+  "pools": [],
+  "meta": {
+    "source": "카미사마 복수극 — 전체 스토리 대본.md",
+    "faces": {
+      "기본": "neutral",
+      "웃음": "smile",
+      "분노": "angry",
+      "슬픔": "sad",
+      "놀람": "surprised",
+      "겁먹음": "scared",
+      "진지": "serious"
+    },
+    "voiceStyles": {
+      "haru": "pink",
+      "hakuya": "goldTremble"
+    }
+  }
+}

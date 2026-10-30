@@ -1,0 +1,1257 @@
+{
+  "id": "ch6",
+  "title": "천년벚나무",
+  "summary": "모든 것이 한 밤에 끝나는 장. 신궁에 끌려간 아이들은 죽지 않고 뿌리 속에 잠들어 있었다. 아카네는 기억의 회랑에서 부모와 마지막으로 대화하고, 하쿠야와 마주한다. 복수가 아니라 \"무엇을 피울지\"를 고르는 싸움이다.",
+  "scenes": [
+    {
+      "id": "S6-1",
+      "place": "지하 통로 끝",
+      "trigger": {
+        "raw": "장 시작",
+        "type": "chapterStart"
+      },
+      "applied": [
+        "하쿠야의 목소리는 이 장 동안 화면 전체에서 울리는 연출 (초상화 없이 금색 글자, 글자가 살짝 떨림)."
+      ],
+      "commands": [
+        {
+          "cmd": "titleCard",
+          "text": "第六章 · 천년벚나무",
+          "color": "red",
+          "src": "장 제목 카드: 〈第六章 · 천년벚나무〉 — 이 장만 제목 글자가 붉은색."
+        },
+        {
+          "cmd": "note",
+          "text": "어두운 돌 통로 끝에서 계단이 위로 이어진다."
+        },
+        {
+          "cmd": "note",
+          "text": "계단을 오를수록 공기 중에 붉은 꽃잎이 한두 장씩 떠다닌다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "stop",
+          "src": "BGM 없음."
+        },
+        {
+          "cmd": "sfx",
+          "name": "심장 박동 같은 낮은 북",
+          "src": "심장 박동 같은 낮은 북소리만."
+        },
+        {
+          "cmd": "note",
+          "text": "계단 끝, 문이 열리면 화면 가득 신궁 전경."
+        },
+        {
+          "cmd": "note",
+          "text": "보름달이 붉게 번져 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "산꼭대기에 하늘을 덮을 만큼 거대한 죽은 벚나무."
+        },
+        {
+          "cmd": "note",
+          "text": "가지에서 붉은 꽃잎이 아주 천천히 피어나는 중이다."
+        },
+        {
+          "cmd": "cameraPan",
+          "dir": "up",
+          "slow": true,
+          "src": "CG 없음, 실제 게임 화면을 카메라가 위로 천천히 올려다본다."
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…저게, 천년벚나무.",
+          "side": "left"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "hakuya",
+          "text": "어서 와, 아카네. 삼 년 기다렸어. 아니, 이십 년인가.",
+          "style": "goldTremble"
+        }
+      ]
+    },
+    {
+      "id": "S6-2",
+      "place": "피의 벚꽃길",
+      "trigger": {
+        "raw": "스테이지 6-1 시작",
+        "stage": "6-1",
+        "type": "stageStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "신궁으로 오르는 긴 돌길."
+        },
+        {
+          "cmd": "note",
+          "text": "양옆에 죽은 벚나무가 줄지어 서 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "붉은 꽃잎이 바람을 타고 흐른다 (닿으면 즉사)."
+        },
+        {
+          "cmd": "note",
+          "text": "하얀 꽃잎은 밟을 수 있다는 안내."
+        },
+        {
+          "cmd": "voice",
+          "speaker": "hakuya",
+          "text": "그 붉은 꽃잎, 예쁘지? 이 산에 끌려온 아이들이 꿈속에서 흘린 거야.",
+          "style": "goldTremble"
+        }
+      ]
+    },
+    {
+      "id": "S6-3",
+      "place": "피의 벚꽃길",
+      "trigger": {
+        "raw": "체크포인트 1 (뿌리의 아이들)",
+        "type": "checkpoint",
+        "n": 1,
+        "note": "뿌리의 아이들"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "벚꽃나무가 피는 순간, 땅 밑에서 무언가 빛난다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 내려다보면 돌길 아래 투명한 흙 속으로 거대한 뿌리가 지나가고, 뿌리마다 고치 같은 마디가 매달려 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "그 안에 아이들이 잠들어 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "숨을 쉬고 있다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…살아 있어.",
+          "side": "left"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "hakuya",
+          "text": "죽이진 않아. 피가 상하면 안 되니까. 그 애들은 꽃을 피울 '거름'이야. 자면서 조금씩 생명을 나무에 나눠 주고 있지. 오늘 밤 다 끝나면, 그 애들은 꽃이 돼.",
+          "style": "goldTremble"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 뿌리를 베려고 칼을 휘두르지만 튕겨 나간다."
+        },
+        {
+          "cmd": "note",
+          "text": "금빛 막."
+        },
+        {
+          "cmd": "voice",
+          "speaker": "hakuya",
+          "text": "그 뿌리는 나무의 일부야. 나무를 멈추려면 나를 멈춰야지.",
+          "style": "goldTremble"
+        },
+        {
+          "cmd": "note",
+          "text": "근처 고치 하나 안에 왼쪽 볼에 점이 있는 여자아이."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 다가가면 이름이 뜬다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…츠구미.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "언니들이 기다려. 조금만 더 자.",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "S6-4",
+      "place": "피의 벚꽃길",
+      "trigger": {
+        "raw": "체크포인트 2·3 (하쿠야의 목소리)",
+        "type": "checkpoint",
+        "n": [
+          2,
+          3
+        ],
+        "note": "하쿠야의 목소리"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "체크포인트마다 하쿠야의 목소리가 하나씩 나온다."
+        },
+        {
+          "cmd": "voice",
+          "speaker": "hakuya",
+          "text": "누나는 일곱 살에 꽃을 피웠어. 마을 사람들이 누나를 업고 축제를 했지. 나는 그 뒤에서 박수를 쳤어. 열다섯 살까지 매년.",
+          "style": "goldTremble"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "hakuya",
+          "text": "너도 그랬지? 엄마처럼 꽃을 못 피워서, 마른 나무에 손을 대고 속으로 울었지. 우린 닮았어, 아카네.",
+          "style": "goldTremble"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "…안 닮았어.",
+          "manner": "혼잣말",
+          "side": "left"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "hakuya",
+          "text": "정말? 너는 지금 복수하러 왔잖아. 나도 그랬어. 나를 버린 세상에 복수하러.",
+          "style": "goldTremble"
+        }
+      ],
+      "mode": "sequence"
+    },
+    {
+      "id": "S6-5",
+      "place": "신궁 안쪽 문",
+      "trigger": {
+        "raw": "스테이지 6-2 시작 (기억의 회랑)",
+        "stage": "6-2",
+        "type": "stageStart",
+        "note": "기억의 회랑"
+      },
+      "noCombat": true,
+      "controllable": true,
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "신궁 본전 문에 겐카이의 패를 대면 문이 열린다."
+        },
+        {
+          "cmd": "note",
+          "text": "안은 신궁이 아니라 하얀 안개로 가득한 끝없는 회랑."
+        },
+        {
+          "cmd": "note",
+          "text": "바닥에 분홍 꽃잎이 깔려 있다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "오르골 같은 프롤로그 축제 테마의 느린 편곡",
+          "src": "BGM: 오르골 같은 프롤로그 축제 테마의 느린 편곡."
+        },
+        {
+          "cmd": "caption",
+          "text": "기억의 회랑"
+        },
+        {
+          "cmd": "note",
+          "text": "걸어가면 양옆 안개 속에 과거 장면이 반투명한 그림자극처럼 떠오른다."
+        },
+        {
+          "cmd": "note",
+          "text": "플레이어가 지나가는 동안 자동 재생 (조작 가능 컷신)."
+        },
+        {
+          "cmd": "section",
+          "title": "장면 1 — 일곱 살 하루"
+        },
+        {
+          "cmd": "note",
+          "text": "작은 하루가 마을 큰 벚나무에 손을 대고, 꽃이 핀다."
+        },
+        {
+          "cmd": "note",
+          "text": "어른들의 환호."
+        },
+        {
+          "cmd": "note",
+          "text": "그 뒤에서 네 살쯤 된 남자아이가 손뼉을 친다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya_young",
+          "face": "smile",
+          "text": "누나 최고! 나도 크면 누나처럼 할 거야!",
+          "side": "right"
+        },
+        {
+          "cmd": "section",
+          "title": "장면 2 — 열다섯 살 하쿠야"
+        },
+        {
+          "cmd": "note",
+          "text": "흉년."
+        },
+        {
+          "cmd": "note",
+          "text": "마른 벚나무 앞에 선 소년이 손바닥을 칼로 긋는다."
+        },
+        {
+          "cmd": "note",
+          "text": "피가 뿌리에 떨어진다."
+        },
+        {
+          "cmd": "note",
+          "text": "아무것도 피지 않는다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya_young",
+          "face": "sad",
+          "text": "피어. 피라고. 다들 배고프단 말이야. 제발…",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "어른들이 소년을 둘러싼다."
+        },
+        {
+          "cmd": "note",
+          "text": "그림자가 소년보다 훨씬 크다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "village_elder",
+          "face": "angry",
+          "text": "부정한 피를 신목에 뿌리다니! 사쿠라모리 집안에서 이런 게 나오다니!",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "열여덟 살 하루가 어른들 사이를 뚫고 나오려다 붙잡힌다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru_young",
+          "face": "angry",
+          "text": "하쿠야는 마을을 살리려고 한 거예요! 내보내지 마세요!",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "소년이 눈 속으로 걸어 나간다."
+        },
+        {
+          "cmd": "note",
+          "text": "한 번 뒤돌아본다."
+        },
+        {
+          "cmd": "note",
+          "text": "하루는 어른들에게 붙잡힌 채 울고 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "소년은 그 모습을 \"누나가 따라오지 않은 것\"으로 본다."
+        },
+        {
+          "cmd": "section",
+          "title": "장면 3 — 사원 앞의 하루 (20년 전)"
+        },
+        {
+          "cmd": "note",
+          "text": "눈 내리는 사원 산문."
+        },
+        {
+          "cmd": "note",
+          "text": "스무 살 남짓의 하루가 문을 두드린다."
+        },
+        {
+          "cmd": "note",
+          "text": "안에서 젊은 겐카이가 고개를 젓는다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru_young",
+          "face": "sad",
+          "text": "…하쿠야에게 전해 주세요. 미안하다고. 언제든 돌아오라고. 누나가 기다린다고.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "산문 안쪽, 문 뒤에 등을 대고 앉은 청년 하쿠야."
+        },
+        {
+          "cmd": "note",
+          "text": "입을 틀어막고 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "문 하나를 사이에 두고 둘이 같은 눈을 맞는다."
+        },
+        {
+          "cmd": "section",
+          "title": "장면 4 — 그날 밤, 축제 전"
+        },
+        {
+          "cmd": "note",
+          "text": "프롤로그의 집 안."
+        },
+        {
+          "cmd": "note",
+          "text": "하루와 소이치로가 마주 앉아 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 연습장에서 돌아오기 전."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "하쿠야한테서 편지가 왔어. 축제 날 온대. '꽃을 받으러.'",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "serious",
+          "text": "…아카네를 노리는 거야?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "sad",
+          "text": "그 애는 사쿠라모리의 피가 꽃을 피운다고 믿고 있어. 열다섯 살 때처럼. 피가 아니라는 걸, 아직도 몰라.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "serious",
+          "text": "그럼 아카네 데리고 오늘 밤 떠나자.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "…안 돼. 내가 떠나면 그 애는 이번엔 마을을 태울 거야. 나는 여기서 동생을 기다릴게. 이번엔 문을 열고.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "당신은 아카네를 부탁해. 칼, 다 됐지?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "…열일곱 살 생일 선물로 딱 맞게.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 그 장면 앞에서 멈춘다."
+        },
+        {
+          "cmd": "note",
+          "text": "초상화: 슬픔."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "…알고 있었어. 둘 다. 그날 밤 무슨 일이 생길지.",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "S6-6",
+      "place": "기억의 회랑 끝",
+      "trigger": {
+        "raw": "부모와의 대화",
+        "type": "reach"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "회랑 끝, 꽃이 만개한 작은 벚나무 아래."
+        },
+        {
+          "cmd": "note",
+          "text": "하루와 소이치로가 앉아 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "반투명하지 않다."
+        },
+        {
+          "cmd": "note",
+          "text": "진짜처럼 보인다."
+        },
+        {
+          "cmd": "letterbox",
+          "on": true,
+          "src": "레터박스."
+        },
+        {
+          "cmd": "bgm",
+          "name": "stop",
+          "src": "BGM 정지, 바람과 꽃잎 소리만."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "늦었네. 또 어디서 헤맸어?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "…엄마.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 달려가 하루에게 안긴다."
+        },
+        {
+          "cmd": "flash",
+          "color": "white",
+          "soft": true,
+          "src": "화면이 하얗게 번진다."
+        },
+        {
+          "cmd": "cg",
+          "no": 4,
+          "desc": "기억의 회랑, 어린아이처럼 안긴 아카네와 부모",
+          "src": "CG 4: 기억의 회랑, 어린아이처럼 안긴 아카네와 부모."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "미안해. 나 때문에. 내가 그날 광장에 안 갔으면—",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "아카네. 엄마가 너를 지킨 건, 네 탓이 아니라 엄마가 하고 싶었던 일이야. 그걸 네 탓으로 만들면, 엄마가 섭섭해.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "엄마 말 들어. 엄마 섭섭하면 무섭다.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "…그래도 그놈은 용서 못 해. 아직도 미워. 미워서, 꽃이 안 피어.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "응. 미워해도 돼.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…….",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "미워하는 마음으로는 꽃이 안 핀다고 했지, 미워하지 말라고는 안 했어. 미운 건 미운 거야. 그래도 꽃을 피울 이유를, 딱 하나만 찾으면 돼.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "너는 이제 찾았잖아. 우물 앞에서 방울 기다리는 아이. 뿌리 속에서 자는 아이들. 그 아이 언니들.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "…응.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "serious",
+          "text": "아카네. 칼 이름, 지었냐?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "…아직.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "그럼 아직 다 큰 거 아니네. 다 끝나고 지어. 그때 다 큰 거다.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "sad",
+          "text": "그리고 하나만 부탁할게. 하쿠야를… 아니야. 그건 네가 정해.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 아카네의 손을 칼자루 위에 겹쳐 쥔다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네의 칼에 꽃잎 다섯 장이 피어난다 (스택 5, 빛나는 연출)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "가. 엄마가 뒤에 있을게.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "두 사람이 꽃잎이 되어 흩어진다."
+        },
+        {
+          "cmd": "note",
+          "text": "그 꽃잎이 회랑 끝의 문을 연다."
+        },
+        {
+          "cmd": "condition",
+          "when": {
+            "memoriesAtLeast": 18
+          },
+          "then": [
+            {
+              "cmd": "note",
+              "text": "회랑 끝 문 앞, 마지막 그림자극."
+            },
+            {
+              "cmd": "note",
+              "text": "열 살 하루와 일곱 살 하쿠야가 죽은 나무 아래 앉아 있다."
+            },
+            {
+              "cmd": "say",
+              "speaker": "hakuya_young",
+              "face": "sad",
+              "text": "누나, 나는 왜 꽃을 못 피워?",
+              "side": "right"
+            },
+            {
+              "cmd": "say",
+              "speaker": "haru_young",
+              "face": "smile",
+              "text": "꽃은 혼자 피지 않아. 땅이랑, 비랑, 기다려 주는 사람이 있어야 해. 너는 아직 기다려 주는 사람을 못 만난 거야. 그럼 누나가 기다려 줄게. 평생.",
+              "side": "right"
+            },
+            {
+              "cmd": "note",
+              "text": "이 장면을 본 경우 최종전 마지막에 선택지가 생긴다."
+            }
+          ],
+          "src": "진엔딩 조건: 기억 조각 18개 모두 획득 시 추가 장면"
+        }
+      ]
+    },
+    {
+      "id": "S6-7",
+      "place": "천년벚나무 아래",
+      "trigger": {
+        "raw": "스테이지 6-3 / 보스 전",
+        "stage": "6-3",
+        "type": "bossBefore"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "문 밖은 산 정상."
+        },
+        {
+          "cmd": "note",
+          "text": "천년벚나무의 거대한 뿌리가 땅을 뒤덮고, 그 위에 하쿠야가 혼자 서 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "흰 머리, 금빛 후광, 커다란 칼."
+        },
+        {
+          "cmd": "note",
+          "text": "보름달이 그의 등 뒤에서 붉게 타오른다."
+        },
+        {
+          "cmd": "letterbox",
+          "on": true,
+          "src": "레터박스."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "smile",
+          "text": "왔구나. 누나랑 똑같은 눈이야.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…기억의 회랑에서 다 봤어. 당신 어릴 때.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "neutral",
+          "text": "그래? 그럼 알겠네. 이 세상은 꽃을 피우는 자만 사랑해. 피우지 못한 자는 버려. 그러니 이번엔 내가 피울 거야. 사쿠라모리의 피로, 천년벚나무를. 그 꽃을 먹으면 나는 신이 돼. 그리고 다시는, 아무도 버려지지 않게 할 거야.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "그러려고 아이들을 뿌리에 묶었어? 엄마를 죽였어?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "angry",
+          "text": "누나는 내가 죽인 게 아니야! 누나가 끼어든 거야! 그때도, 그날도! 나를 따라오지 않았으면서, 마지막에만…!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "sad",
+          "text": "…마지막에만, 미안하다고 했어.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "엄마는 이십 년 동안 기다렸어. 사원 앞에서도. 그날 밤에도. 문을 열고 당신을 기다리려고 도망 안 친 거야.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "surprised",
+          "text": "…….",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "angry",
+          "text": "…거짓말. 거짓말이야! 피를 내놔, 아카네!",
+          "side": "right"
+        },
+        {
+          "cmd": "letterbox",
+          "on": false,
+          "src": "레터박스 해제."
+        },
+        {
+          "cmd": "bossName",
+          "text": "카미사마 · 하쿠야",
+          "src": "보스 이름 붓 자막: 〈카미사마 · 하쿠야〉"
+        },
+        {
+          "cmd": "note",
+          "text": "1페이즈: 하쿠야가 아카네와 똑같은 대쉬 베기와 발도를 쓴다."
+        },
+        {
+          "cmd": "note",
+          "text": "패링 성공 시 큰 경직."
+        }
+      ]
+    },
+    {
+      "id": "S6-8",
+      "place": "보스전 중",
+      "trigger": {
+        "raw": "1페이즈 종료",
+        "type": "bossCondition",
+        "condition": {
+          "event": "1페이즈 종료",
+          "phase": 1
+        }
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "하쿠야의 후광 장식이 깨진다."
+        },
+        {
+          "cmd": "note",
+          "text": "무릎을 꿇은 하쿠야가 웃는다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "smile",
+          "text": "…역시 누나 딸이네. 그럼 이것도 막아 봐.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야가 자신의 칼로 자신의 가슴을 찌르고, 그대로 천년벚나무 뿌리에 손을 박는다."
+        },
+        {
+          "cmd": "note",
+          "text": "피가 뿌리로 스며든다."
+        },
+        {
+          "cmd": "shake",
+          "strength": "strong",
+          "src": "흔들림 강."
+        },
+        {
+          "cmd": "flash",
+          "color": "red",
+          "src": "플래시(붉음)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "angry",
+          "text": "피어라… 피어라, 피어라! 이번엔, 피어!",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "천년벚나무가 붉게 만개한다."
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야의 몸이 나무 줄기에 흡수되며 거대한 형태로 일어선다."
+        },
+        {
+          "cmd": "cameraPan",
+          "zoom": "out",
+          "src": "화면이 줌아웃되며 보스가 화면 높이 2/3를 차지한다."
+        },
+        {
+          "cmd": "bossName",
+          "text": "천년벚나무 · 하쿠야",
+          "phase": 2,
+          "src": "2페이즈 체력바: 〈천년벚나무 · 하쿠야〉."
+        },
+        {
+          "cmd": "bgm",
+          "name": "합창이 섞인 최종 테마",
+          "src": "BGM이 합창이 섞인 최종 테마로 바뀐다."
+        }
+      ]
+    },
+    {
+      "id": "S6-9",
+      "place": "보스전 중",
+      "trigger": {
+        "raw": "2페이즈 체력 50% (화면 전체 공격 전)",
+        "type": "bossCondition",
+        "condition": {
+          "hpBelow": 0.5,
+          "boss": "2페이즈",
+          "phase": 2
+        },
+        "note": "화면 전체 공격 전"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "하쿠야가 화면 전체를 덮는 붉은 꽃잎 폭풍을 준비한다."
+        },
+        {
+          "cmd": "note",
+          "text": "그 직전, 땅에서 죽은 벚나무 세 그루가 솟는다."
+        },
+        {
+          "cmd": "voice",
+          "speaker": "haru",
+          "text": "아카네. 피워.",
+          "style": "pink"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 다가가면 죽은 나무가 하얗게 핀다."
+        },
+        {
+          "cmd": "note",
+          "text": "하얀 꽃 아래는 안전지대."
+        },
+        {
+          "cmd": "note",
+          "text": "(2페이즈 핵심 기믹)"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "angry",
+          "text": "…왜. 왜 너는 피우는 거야. 나는 피를 다 줬는데.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "피가 아니야. 엄마가 그랬어. 꽃은 혼자 피지 않는다고.",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "S6-10",
+      "place": "보스전 마지막",
+      "trigger": {
+        "raw": "체력 0",
+        "type": "bossCondition",
+        "condition": {
+          "hpBelow": 0
+        }
+      },
+      "blocks": {
+        "normalRoute": [
+          {
+            "cmd": "note",
+            "text": "나무의 붉은 꽃이 모두 하얗게 바뀌며 흩어진다."
+          },
+          {
+            "cmd": "note",
+            "text": "뿌리가 풀리고, 고치들이 열린다."
+          },
+          {
+            "cmd": "note",
+            "text": "하쿠야가 나무에서 떨어져 나와 쓰러진다."
+          },
+          {
+            "cmd": "say",
+            "speaker": "hakuya",
+            "face": "sad",
+            "text": "…하얗네. 누나 꽃이랑, 같은 색.",
+            "side": "right"
+          },
+          {
+            "cmd": "say",
+            "speaker": "hakuya",
+            "face": "smile",
+            "text": "결국 나는… 한 송이도 못 피웠구나.",
+            "side": "right"
+          },
+          {
+            "cmd": "note",
+            "text": "하쿠야가 꽃잎이 되어 흩어진다."
+          },
+          {
+            "cmd": "note",
+            "text": "아카네는 아무 말도 하지 않는다."
+          },
+          {
+            "cmd": "note",
+            "text": "칼을 칼집에 넣는다."
+          },
+          {
+            "cmd": "setFlag",
+            "flag": "ending",
+            "value": "normal",
+            "src": "→에필로그 (일반 엔딩)"
+          }
+        ]
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "하쿠야의 체력이 0이 되어도 쓰러지지 않는다."
+        },
+        {
+          "cmd": "caption",
+          "text": "벚꽃 스택 5개를 모아 발도로 끝내라",
+          "src": "화면 가운데 문구: 〈벚꽃 스택 5개를 모아 발도로 끝내라〉."
+        },
+        {
+          "cmd": "slowmo",
+          "src": "슬로모션 상태로 하쿠야가 마지막 몸부림을 친다."
+        },
+        {
+          "cmd": "note",
+          "text": "스택 5개 발도 성공 시: 아카네의 발도가 하얀 꽃잎 수천 장이 되어 나무를 가른다."
+        },
+        {
+          "cmd": "note",
+          "text": "화면 정지."
+        },
+        {
+          "cmd": "condition",
+          "when": {
+            "memoriesAtLeast": 18
+          },
+          "then": [
+            {
+              "cmd": "note",
+              "text": "발도 직전, 시간이 멈춘다."
+            },
+            {
+              "cmd": "note",
+              "text": "화면에 선택지 두 개가 붓글씨로 떠오른다."
+            },
+            {
+              "cmd": "choice",
+              "options": [
+                {
+                  "id": "cut",
+                  "text": "벤다",
+                  "commands": [
+                    {
+                      "cmd": "run",
+                      "block": "normalRoute"
+                    }
+                  ],
+                  "src": "- 〈벤다〉를 고르면 → 일반 루트와 같다."
+                },
+                {
+                  "id": "share",
+                  "text": "나눈다",
+                  "commands": [
+                    {
+                      "cmd": "note",
+                      "text": "아카네가 칼을 거두고, 칼에 모인 꽃잎 다섯 장을 손바닥에 올린다."
+                    },
+                    {
+                      "cmd": "note",
+                      "text": "그리고 나무 속 하쿠야의 손에 그 손을 겹친다."
+                    },
+                    {
+                      "cmd": "say",
+                      "speaker": "akane",
+                      "face": "serious",
+                      "text": "엄마가 평생 기다려 준다고 했대. 그 약속, 내가 대신 지킬게.",
+                      "side": "left"
+                    },
+                    {
+                      "cmd": "say",
+                      "speaker": "akane",
+                      "face": "angry",
+                      "text": "용서는 안 해. 평생 안 해.",
+                      "side": "left"
+                    },
+                    {
+                      "cmd": "say",
+                      "speaker": "akane",
+                      "face": "serious",
+                      "text": "그래도, 꽃은 나눠 줄게.",
+                      "side": "left"
+                    },
+                    {
+                      "cmd": "note",
+                      "text": "하쿠야의 손바닥 위에서, 처음으로, 하얀 꽃 한 송이가 핀다."
+                    },
+                    {
+                      "cmd": "note",
+                      "text": "하쿠야의 초상화: 놀람 → 슬픔(눈물)."
+                    },
+                    {
+                      "cmd": "say",
+                      "speaker": "hakuya",
+                      "face": "sad",
+                      "text": "…피었다. 누나. 나도…",
+                      "side": "right"
+                    },
+                    {
+                      "cmd": "note",
+                      "text": "천년벚나무가 하얗게 만개하며 붉은 기운이 모두 빠져나간다."
+                    },
+                    {
+                      "cmd": "note",
+                      "text": "하쿠야가 나무에서 떨어져 나와 쓰러진다."
+                    },
+                    {
+                      "cmd": "note",
+                      "text": "숨을 쉬고 있다."
+                    },
+                    {
+                      "cmd": "note",
+                      "text": "후광 장식도, 힘도 사라진 평범한 사내."
+                    },
+                    {
+                      "cmd": "note",
+                      "text": "고치들이 열린다."
+                    },
+                    {
+                      "cmd": "setFlag",
+                      "flag": "ending",
+                      "value": "true",
+                      "src": "→에필로그 (진엔딩)"
+                    }
+                  ],
+                  "src": "- 〈나눈다〉를 고르면 → 아래 장면."
+                }
+              ]
+            }
+          ],
+          "else": [
+            {
+              "cmd": "run",
+              "block": "normalRoute"
+            }
+          ],
+          "src": "진엔딩 루트 (기억 조각 18개)"
+        }
+      ]
+    },
+    {
+      "id": "S6-11",
+      "place": "산 정상",
+      "trigger": {
+        "raw": "보스 후 (공통)",
+        "type": "bossAfter",
+        "note": "공통"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "새벽빛."
+        },
+        {
+          "cmd": "note",
+          "text": "하얀 꽃잎이 산 아래로 흘러간다."
+        },
+        {
+          "cmd": "note",
+          "text": "열린 고치에서 아이들이 하나둘 일어난다."
+        },
+        {
+          "cmd": "note",
+          "text": "츠구미가 눈을 비빈다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tsugumi",
+          "face": "scared",
+          "text": "…여기 어디야? 언니들은?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "기다리고 있어. 데려다줄게.",
+          "side": "left"
+        },
+        {
+          "cmd": "sfx",
+          "name": "방울 (딸랑—)",
+          "distant": true,
+          "src": "멀리 산 아래에서, 딸랑— 방울 소리."
+        },
+        {
+          "cmd": "note",
+          "text": "한 번, 두 번, 계속."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "…들리지? 나 살아 있어.",
+          "side": "left"
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.8,
+          "src": "암전."
+        },
+        {
+          "cmd": "titleCard",
+          "text": "第六章 · 끝",
+          "src": "〈第六章 · 끝〉"
+        }
+      ]
+    }
+  ],
+  "pools": [
+    {
+      "id": "ch6_haru_voice",
+      "title": "6장 체크포인트 (타누키치 없음 — 하루의 목소리 확정 출력)",
+      "trigger": "checkpointBloom",
+      "mode": "random",
+      "chance": 1.0,
+      "lines": [
+        {
+          "cmd": "voice",
+          "speaker": "haru",
+          "text": "붉은 꽃잎은 슬픈 꿈이야. 밟지 마.",
+          "style": "pink"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "haru",
+          "text": "아이들 숨소리, 들리니? 다들 기다리고 있어.",
+          "style": "pink"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "haru",
+          "text": "발이 늦으면 칼도 늦어. 하지만 오늘은, 천천히 가도 돼.",
+          "style": "pink"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "source": "카미사마 복수극 — 전체 스토리 대본.md",
+    "faces": {
+      "기본": "neutral",
+      "웃음": "smile",
+      "분노": "angry",
+      "슬픔": "sad",
+      "놀람": "surprised",
+      "겁먹음": "scared",
+      "진지": "serious"
+    },
+    "voiceStyles": {
+      "haru": "pink",
+      "hakuya": "goldTremble"
+    }
+  }
+}

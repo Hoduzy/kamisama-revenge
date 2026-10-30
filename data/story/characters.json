@@ -1,0 +1,110 @@
+{
+  "akane": {
+    "name": "아카네",
+    "side": "left"
+  },
+  "haru": {
+    "name": "하루",
+    "side": "auto"
+  },
+  "soichiro": {
+    "name": "소이치로",
+    "side": "auto"
+  },
+  "tanukichi": {
+    "name": "타누키치",
+    "side": "auto"
+  },
+  "hakuya": {
+    "name": "하쿠야",
+    "side": "auto"
+  },
+  "hakuya_young": {
+    "name": "어린 하쿠야",
+    "side": "auto"
+  },
+  "haru_young": {
+    "name": "어린 하루",
+    "side": "auto"
+  },
+  "gonzo": {
+    "name": "곤조",
+    "side": "auto"
+  },
+  "aoi": {
+    "name": "아오이",
+    "side": "auto"
+  },
+  "kaede": {
+    "name": "카에데",
+    "side": "auto"
+  },
+  "tsugumi": {
+    "name": "츠구미",
+    "side": "auto"
+  },
+  "tsubaki": {
+    "name": "츠바키",
+    "side": "auto"
+  },
+  "genkai": {
+    "name": "겐카이",
+    "side": "auto"
+  },
+  "okamura": {
+    "name": "오카무라",
+    "side": "auto"
+  },
+  "cultist": {
+    "name": "가면 신도",
+    "side": "auto"
+  },
+  "ninja": {
+    "name": "가면 닌자",
+    "side": "auto"
+  },
+  "cult_exec_a": {
+    "name": "신도 간부 A",
+    "side": "auto"
+  },
+  "cult_exec_b": {
+    "name": "신도 간부 B",
+    "side": "auto"
+  },
+  "warrior_monk": {
+    "name": "승병",
+    "side": "auto"
+  },
+  "gunner_a": {
+    "name": "화승총병 A",
+    "side": "auto"
+  },
+  "gunner_b": {
+    "name": "화승총병 B",
+    "side": "auto"
+  },
+  "village_child": {
+    "name": "마을 아이",
+    "side": "auto"
+  },
+  "villager": {
+    "name": "마을 사람",
+    "side": "auto"
+  },
+  "village_grandma": {
+    "name": "마을 할머니",
+    "side": "auto"
+  },
+  "village_elder": {
+    "name": "마을 어른",
+    "side": "auto"
+  },
+  "rice_seller": {
+    "name": "쌀가게 노인",
+    "side": "auto"
+  },
+  "maid": {
+    "name": "하녀",
+    "side": "auto"
+  }
+}

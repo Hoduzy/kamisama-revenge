@@ -1,0 +1,688 @@
+{
+  "id": "ch1",
+  "title": "에도의 밤",
+  "summary": "삼 년간 산에서 홀로 칼을 갈아 온 아카네가 처음 세상으로 내려오는 장. 목표는 단 하나, 흰 머리 사내를 찾는 것. 하지만 교단이 그녀를 \"생포\"하려 한다는 첫 이상한 신호가 나온다.",
+  "scenes": [
+    {
+      "id": "S1-1",
+      "place": "에도를 내려다보는 언덕",
+      "trigger": {
+        "raw": "장 시작",
+        "type": "chapterStart"
+      },
+      "commands": [
+        {
+          "cmd": "titleCard",
+          "text": "第一章 · 에도의 밤",
+          "src": "장 제목 카드: 〈第一章 · 에도의 밤〉"
+        },
+        {
+          "cmd": "cg",
+          "no": 3,
+          "desc": "산 위 바위에 선 아카네",
+          "src": "CG 3: 산 위 바위에 선 아카네."
+        },
+        {
+          "cmd": "note",
+          "text": "아래로 등불이 흩어진 에도 시가지."
+        },
+        {
+          "cmd": "note",
+          "text": "바람에 포니테일이 흔들린다."
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "삼 년. 매일 같은 꿈을 꿨다. 흰 머리, 금빛 고리, 엄마를 관통한 칼.",
+          "side": "left"
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "그놈 이름도 모른다. 아는 건 하나. 그날 밤 가면을 쓴 놈들이 외친 말.",
+          "side": "left"
+        },
+        {
+          "cmd": "caption",
+          "text": "신께서 내려오신다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "…신이든 뭐든, 내려오면 벤다.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 언덕에서 뛰어내린다."
+        },
+        {
+          "cmd": "cameraPan",
+          "dir": "down",
+          "src": "화면이 따라 내려가며 스테이지 1-1 시작."
+        }
+      ]
+    },
+    {
+      "id": "S1-2",
+      "place": "기와지붕 위",
+      "trigger": {
+        "raw": "스테이지 1-1 시작",
+        "stage": "1-1",
+        "type": "stageStart"
+      },
+      "controllable": true,
+      "applied": [
+        "목소리만 들린다."
+      ],
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "아래 거리에서 흰 옷 신도가 확성 나팔로 설교한다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "cultist",
+          "face": "serious",
+          "text": "흉년도, 역병도 끝난다! 카미사마께서 꽃을 피우시는 날, 이 땅의 모든 고통이 끝난다!",
+          "portrait": false,
+          "side": "right"
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…꽃을 피워? 꽃은 엄마가 피웠어.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "지붕 사이 첫 틈."
+        },
+        {
+          "cmd": "note",
+          "text": "대쉬 안내가 작게 떴다 사라진다."
+        }
+      ]
+    },
+    {
+      "id": "S1-3",
+      "place": "지붕 위",
+      "trigger": {
+        "raw": "체크포인트 1 (타누키치 첫 등장)",
+        "type": "checkpoint",
+        "n": 1,
+        "note": "타누키치 첫 등장"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "벚꽃나무에 다가가 꽃이 피는 순간, 나무 위에서 무언가 떨어진다."
+        },
+        {
+          "cmd": "note",
+          "text": "너구리귀 소년이 엉덩방아를 찧는다."
+        },
+        {
+          "cmd": "note",
+          "text": "품에서 훔친 만두가 굴러 나온다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "scared",
+          "text": "으아악! 나, 나 아무것도 안 훔쳤어! 이건 원래 내… 어? 신도 아니네?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…….",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "surprised",
+          "text": "방금 그 나무, 죽은 거였는데 꽃이 폈어. 누나가 한 거야?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "몰라. 비켜.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "고양이귀에 빨간 눈… 누나 혹시 현상금 붙은 그 사람? 잠깐, 잠깐, 칼 내려! 난 정보상이야. 정보 사 갈래?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "흰 머리에 금색 고리 단 남자. 알아?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "scared",
+          "text": "…그거 교주님이잖아. 카미사마 교단 교주. 누나, 그 사람 찾는 거면 정보값 두 배야.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "어디 있어.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "이 동네 니혼바시 다리 건너면 교단 문지기가 있어. 그 사람이 서쪽 본산으로 가는 길을 알 거야. 만두 하나에 해 줄게. 아, 이거 원래 내 거 맞다니까?",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "타누키치가 지붕 너머로 사라진다."
+        },
+        {
+          "cmd": "note",
+          "text": "이후 체크포인트마다 랜덤으로 나타난다."
+        }
+      ]
+    },
+    {
+      "id": "S1-4",
+      "place": "시장 골목 입구",
+      "trigger": {
+        "raw": "스테이지 1-2 시작",
+        "stage": "1-2",
+        "type": "stageStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "시장 골목."
+        },
+        {
+          "cmd": "note",
+          "text": "벽마다 현상금 수배서가 붙어 있다."
+        },
+        {
+          "cmd": "cameraPan",
+          "zoom": "in",
+          "target": "수배서",
+          "src": "아카네가 지나가면 수배서 하나가 클로즈업된다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네와 닮은 고양이귀 소녀 그림, 아래에 붉은 글씨."
+        },
+        {
+          "cmd": "caption",
+          "text": "생포 — 상금 백 냥. 죽이면 무효."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…죽이면 무효?",
+          "side": "left"
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "그날도 그랬다. '죽이진 마. 피가 상하면 안 되니까.'",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "지붕 위에서 수리검이 날아와 수배서를 꿰뚫는다."
+        },
+        {
+          "cmd": "note",
+          "text": "닌자 첫 등장."
+        },
+        {
+          "cmd": "note",
+          "text": "빨간 \"!\" 예고 연출이 이때 처음 나온다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "ninja",
+          "face": "smile",
+          "text": "찾았다, 백 냥.",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "S1-5",
+      "place": "시장 한가운데",
+      "trigger": {
+        "raw": "체크포인트 2",
+        "type": "checkpoint",
+        "n": 2
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "신도 둘이 쌀가게 노인을 끌어내고 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "바닥에 쌀가마니가 터져 있다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "cultist",
+          "face": "angry",
+          "text": "교단에 바칠 쌀을 숨겨? 신벌이 두렵지 않으냐!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "rice_seller",
+          "face": "scared",
+          "text": "손주들 먹일 것밖에 없습니다요…!",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "플레이어가 신도를 베면 노인이 아카네를 보고 뒷걸음질 친다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "rice_seller",
+          "face": "scared",
+          "text": "고, 고양이귀… 요괴… 요괴다!",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "노인이 도망친다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네는 잠시 서 있다가 칼을 털고 걷는다."
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…익숙해. 마을 밖은 원래 이랬지.",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "S1-6",
+      "place": "니혼바시 다리 입구",
+      "trigger": {
+        "raw": "스테이지 1-3 시작",
+        "stage": "1-3",
+        "type": "stageStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "보름이 가까운 달."
+        },
+        {
+          "cmd": "note",
+          "text": "다리 위에 횃불이 줄지어 있다."
+        },
+        {
+          "cmd": "sfx",
+          "name": "거한의 발소리 (쿵, 쿵)",
+          "src": "다리 끝에서 쿵, 쿵 하는 발소리."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "scared",
+          "text": "저 끝에 있는 게 곤조야. 원래 스모 선수였는데 흉년에 도장이 망했대. 지금은 교단 문지기. 누나, 진짜 갈 거야?",
+          "manner": "체크포인트에서",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "응.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "scared",
+          "text": "…그럼 죽으면 만두값은 못 받는 걸로 할게.",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "S1-7",
+      "place": "다리 한가운데",
+      "trigger": {
+        "raw": "보스 전",
+        "type": "bossBefore"
+      },
+      "commands": [
+        {
+          "cmd": "letterbox",
+          "on": true,
+          "src": "레터박스."
+        },
+        {
+          "cmd": "note",
+          "text": "다리 끝에서 오니 가면을 쓴 거한이 철퇴를 끌며 걸어온다."
+        },
+        {
+          "cmd": "note",
+          "text": "다리 바닥이 걸음마다 흔들린다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "gonzo",
+          "face": "smile",
+          "text": "네가 그 고양이냐. 생각보다 작군.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "교주는 어디 있어.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "gonzo",
+          "face": "neutral",
+          "text": "교주님은 서쪽 산 너머 신궁에 계신다. 가고 싶으면 나를 넘어가라. 걱정 마라, 죽이진 않는다. 다리 몇 개 부러뜨릴 뿐이지.",
+          "side": "right"
+        },
+        {
+          "cmd": "letterbox",
+          "on": false,
+          "src": "레터박스 해제."
+        },
+        {
+          "cmd": "bossName",
+          "text": "문지기 · 곤조",
+          "src": "보스 이름 붓 자막: 〈문지기 · 곤조〉"
+        }
+      ]
+    },
+    {
+      "id": "S1-8",
+      "place": "보스전 중",
+      "trigger": {
+        "raw": "곤조 체력 50%",
+        "type": "bossCondition",
+        "condition": {
+          "hpBelow": 0.5,
+          "boss": "곤조"
+        }
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "곤조의 가면에 금이 간다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "gonzo",
+          "face": "angry",
+          "text": "으음…! 작은 게 아프게 무는구나!",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "2페이즈: 바닥 충격파 패턴 추가."
+        }
+      ]
+    },
+    {
+      "id": "S1-9",
+      "place": "다리 위",
+      "trigger": {
+        "raw": "보스 후",
+        "type": "bossAfter"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "마지막 일격에 슬로모션."
+        },
+        {
+          "cmd": "note",
+          "text": "오니 가면이 반으로 갈라져 떨어진다."
+        },
+        {
+          "cmd": "note",
+          "text": "그 아래 지친 중년 남자의 얼굴."
+        },
+        {
+          "cmd": "say",
+          "speaker": "gonzo",
+          "face": "sad",
+          "text": "…흉년에 도장 식구 열둘을 다 굶겨 죽였다. 교주님이 그런 나에게 밥을 줬지. 그래서 이 다리를 지켰다.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "그 밥, 누구 걸 뺏은 건지는 생각 안 해 봤어?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "gonzo",
+          "face": "sad",
+          "text": "…생각하면, 못 먹으니까.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "gonzo",
+          "face": "serious",
+          "text": "하나만 알려 주마. 교주님은… 너를 기다리고 계신다. 삼 년 동안 계속.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…기다린다고?",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "곤조가 쓰러진다."
+        },
+        {
+          "cmd": "note",
+          "text": "다리 아래로 깨진 가면이 떨어져 강물에 떠내려간다."
+        }
+      ]
+    },
+    {
+      "id": "S1-10",
+      "place": "강가 모닥불",
+      "trigger": {
+        "raw": "장 끝",
+        "type": "chapterEnd"
+      },
+      "commands": [
+        {
+          "cmd": "letterbox",
+          "on": true,
+          "src": "레터박스."
+        },
+        {
+          "cmd": "note",
+          "text": "밤."
+        },
+        {
+          "cmd": "note",
+          "text": "다리 아래 강가."
+        },
+        {
+          "cmd": "note",
+          "text": "타누키치가 모닥불에 만두를 굽고 있다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "잔잔한 피리",
+          "src": "잔잔한 피리 BGM."
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "진짜 이겼네. 나 누나한테 걸었으면 부자 됐을 텐데.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…서쪽 산 너머 신궁. 길 알아?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "serious",
+          "text": "알긴 아는데… 대나무 숲 지나서 설산까지 넘어야 해. 혼자는 무리야. 길 안내 해 줄게. 하루에 만두 세 개.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…두 개.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "두 개 반!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…….",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "알았어, 두 개. 대신 누나가 나 지켜 줘야 돼.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 만두 하나를 집는다."
+        },
+        {
+          "cmd": "note",
+          "text": "처음으로 아주 작게 웃는 얼굴(초상화: 웃음, 0.5초만)."
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…기다린다고 했다. 나를. 왜?",
+          "side": "left"
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.8,
+          "src": "암전."
+        },
+        {
+          "cmd": "titleCard",
+          "text": "第一章 · 끝",
+          "src": "〈第一章 · 끝〉"
+        }
+      ]
+    }
+  ],
+  "pools": [
+    {
+      "id": "ch1_tanukichi",
+      "title": "타누키치 체크포인트 한마디 (1장)",
+      "trigger": "checkpointBloom",
+      "mode": "random",
+      "chance": 1.0,
+      "lines": [
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "지붕 위에서 뛰는 건 좋은데, 기와 깨면 그거 다 돈이야.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "닌자들 수리검 던지기 전에 반짝거려. 그거 보이면 대쉬해. 대쉬하면 안 맞잖아? 그거 사기 아냐?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "누나 칼에 꽃 붙는 거 예쁘다. 하나만 떼 주면 안 돼? 팔게.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "에도 사람들 반은 교단 믿어. 나머지 반은 무서워서 믿는 척해.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "tanukichi",
+          "face": "smile",
+          "text": "곤조는 내려찍기 전에 철퇴를 높이 들어. 그때 발도 자세 잡으면… 아, 이건 공짜로 알려 주는 거야.",
+          "side": "right"
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "source": "카미사마 복수극 — 전체 스토리 대본.md",
+    "faces": {
+      "기본": "neutral",
+      "웃음": "smile",
+      "분노": "angry",
+      "슬픔": "sad",
+      "놀람": "surprised",
+      "겁먹음": "scared",
+      "진지": "serious"
+    },
+    "voiceStyles": {
+      "haru": "pink",
+      "hakuya": "goldTremble"
+    }
+  }
+}

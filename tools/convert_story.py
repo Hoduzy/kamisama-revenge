@@ -1,0 +1,646 @@
+#!/usr/bin/env python3
+"""docs/ 의 스토리 대본(마크다운)을 게임 데이터(data/story/*.json)로 바꾼다.
+
+    python3 tools/convert_story.py            # 변환 + data/story/_report.md
+    python3 tools/convert_story.py --src 다른대본.md
+
+대본 표기법(대본 맨 위 '표기법' 섹션):
+  ### S번호 · 장소 · 트리거       장면 머리말
+  ▶ 연출                         → 표준 연출 명령으로 바꿀 수 있는 문장은 바꾸고, 못 바꾸면 note
+  인물 (표정): "대사"             → say   (표정 자리에 '속마음' → think, '목소리' → voice)
+  〈자막〉                        → caption
+  - "…" / - 인물 (표정): "…"      → (체크포인트 한마디 등) 랜덤 풀
+
+명령마다 연출에서 나온 것은 원문 문장을 src 로 남긴다.
+"""
+import argparse
+import json
+import re
+from collections import Counter, OrderedDict
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / 'data/story'
+
+# ───────── 인물 ─────────
+# 한글 이름 → id. side: 기본 위치(아카네는 항상 왼쪽, 나머지는 화자가 바뀔 때 자동 배정)
+CHARACTERS = OrderedDict([
+    ('아카네', 'akane'), ('하루', 'haru'), ('소이치로', 'soichiro'), ('타누키치', 'tanukichi'),
+    ('하쿠야', 'hakuya'), ('어린 하쿠야', 'hakuya_young'), ('어린 하루', 'haru_young'),
+    ('곤조', 'gonzo'), ('아오이', 'aoi'), ('카에데', 'kaede'), ('츠구미', 'tsugumi'),
+    ('츠바키', 'tsubaki'), ('겐카이', 'genkai'), ('오카무라', 'okamura'),
+    ('가면 신도', 'cultist'), ('가면 닌자', 'ninja'), ('신도 간부 A', 'cult_exec_a'), ('신도 간부 B', 'cult_exec_b'),
+    ('승병', 'warrior_monk'), ('화승총병 A', 'gunner_a'), ('화승총병 B', 'gunner_b'),
+    ('마을 아이', 'village_child'), ('마을 사람', 'villager'), ('마을 할머니', 'village_grandma'),
+    ('마을 어른', 'village_elder'), ('쌀가게 노인', 'rice_seller'), ('하녀', 'maid'),
+])
+FACES = {'기본': 'neutral', '웃음': 'smile', '분노': 'angry', '슬픔': 'sad', '놀람': 'surprised',
+         '겁먹음': 'scared', '진지': 'serious'}
+VOICE_STYLE = {'haru': 'pink', 'hakuya': 'goldTremble'}  # 하루 = 분홍 글자, 하쿠야 = 금색 떨리는 글자
+
+CHAPTERS = [  # (파일 이름, 대본의 장 제목 머리말 시작)
+    ('prologue', '## 프롤로그'), ('ch1', '## 1장'), ('ch2', '## 2장'), ('ch3', '## 3장'), ('ch4', '## 4장'),
+    ('ch5', '## 5장'), ('ch6', '## 6장'), ('epilogue', '## 에필로그'),
+]
+
+# ───────── 대본 한 줄 패턴 ─────────
+RE_SCENE = re.compile(r'^### ((?:S\d+-\d+|E-\d+)) · (.+)$')
+RE_SAY = re.compile(r'^(?:- )?([^\s(":-][^(":]*?) \(([^)]+)\): ["“](.*)["”](?:\s*\((.+)\))?$')
+RE_CAPTION = re.compile(r'^〈(.+)〉$')
+RE_BOLD = re.compile(r'^\*\*(.+)\*\*$')
+RE_BULLET_QUOTE = re.compile(r'^- ["“](.*)["”]$')
+
+
+# ───────── 연출 문장 → 표준 명령 ─────────
+# 게임 이벤트에 걸린 문장(성공 시, ~할 때마다 …)은 순서대로 재생하면 틀리므로 note 로 둔다
+GAMEPLAY_WORDS = ('성공 시', '때마다', '반복', '튜토리얼', '안내', '기믹', '페이즈', '패턴', '튕긴다',
+                  '자동 진행', '이후 체크포인트', '선택:', '전투 시작', '이 전투에 한해', '타이머 UI',
+                  '힌트', '베는 순간', '마지막 일격')
+
+# 규칙으로 뽑기 어려운 문장은 원문 그대로 짝지어 둔다 (원문 문장 → 명령 목록)
+OVERRIDES = {
+    '검은 칼집의 칼을 건넨다.': [{'cmd': 'note', 'text': '검은 칼집의 칼을 건넨다.'}],
+    '아이템 획득 연출 (칼이 화면 가운데서 빛남).': [{'cmd': 'giveItem', 'name': '아카네의 칼 (이름 없음)'}],
+    '타이틀 로고가 붓으로 써지며 등장.': [{'cmd': 'titleCard', 'text': '카미사마 복수극', 'style': 'logo'}],
+    'BGM이 얇아지고 물방울 소리.': [{'cmd': 'bgm', 'name': '(현재 곡 작게)', 'volume': 0.4}, {'cmd': 'sfx', 'name': '물방울'}],
+    '화면이 하얗게 번진다.': [{'cmd': 'flash', 'color': 'white', 'soft': True}],
+    '화면이 순간 하얘지고 안개 속에서 목소리가 들린다.': [{'cmd': 'flash', 'color': 'white'}],
+    '화면이 따라 내려가며 스테이지 1-1 시작.': [{'cmd': 'cameraPan', 'dir': 'down'}],
+    '아카네가 언덕에서 뛰어내린다.': [{'cmd': 'note', 'text': '아카네가 언덕에서 뛰어내린다.'}],
+    '카메라가 위로 올라가며 마을 전체를 비춘다.': [{'cmd': 'cameraPan', 'dir': 'up'}],
+    '화면이 줌아웃되며 보스가 화면 높이 2/3를 차지한다.': [{'cmd': 'cameraPan', 'zoom': 'out'}],
+    '아카네가 지나가면 수배서 하나가 클로즈업된다.': [{'cmd': 'cameraPan', 'zoom': 'in', 'target': '수배서'}],
+    '효과음 없이 침묵.': [{'cmd': 'bgm', 'name': 'stop'}, {'cmd': 'sfx', 'name': 'stop'}],
+    '종소리.': [{'cmd': 'sfx', 'name': '종소리'}],
+    '한 번, 두 번.': [{'cmd': 'sfx', 'name': '종소리'}],
+    '그중 한 명이 종을 친다.': [{'cmd': 'note', 'text': '그중 한 명이 종을 친다.'}],
+    '댕— 소리가 산을 울린다.': [{'cmd': 'sfx', 'name': '큰 종 (댕—)'}],
+    '화면 정지.': [{'cmd': 'note', 'text': '화면 정지.'}],
+    '소이치로가 칼날을 물에 담그자 치익 소리와 하얀 김.': [{'cmd': 'sfx', 'name': '담금질 (치익)'}],
+    '다리 끝에서 쿵, 쿵 하는 발소리.': [{'cmd': 'sfx', 'name': '거한의 발소리 (쿵, 쿵)'}],
+    '복도 끝의 방에서 샤미센 소리.': [{'cmd': 'sfx', 'name': '샤미센'}],
+    '타누키치가 처음으로 큰 소리를 낸다.': [{'cmd': 'note', 'text': '타누키치가 처음으로 큰 소리를 낸다.'}],
+    '관객 소리도 뚝 끊긴다.': [{'cmd': 'sfx', 'name': '관객', 'stop': True}],
+    '화로 타는 소리만.': [{'cmd': 'sfx', 'name': '화로 타는 소리'}],
+    '심장 박동 같은 낮은 북소리만.': [{'cmd': 'sfx', 'name': '심장 박동 같은 낮은 북'}],
+    '계단 아래에서 작은 발소리.': [{'cmd': 'sfx', 'name': '작은 발소리'}],
+    '멀리 산 아래에서, 딸랑— 방울 소리.': [{'cmd': 'sfx', 'name': '방울 (딸랑—)', 'distant': True}],
+    '쇠 두드리는 소리.': [{'cmd': 'sfx', 'name': '쇠 두드리는 소리'}],
+    '칼 뽑는 소리 한 번.': [{'cmd': 'sfx', 'name': '칼 뽑는 소리'}],
+    '칼집에 넣는 소리.': [{'cmd': 'sfx', 'name': '칼집에 넣는 소리'}],
+    '부채 펴는 소리.': [{'cmd': 'sfx', 'name': '부채 펴는 소리'}],
+    '바람에 대나무가 서로 부딪히는 소리.': [{'cmd': 'sfx', 'name': '대나무 부딪히는 소리'}],
+    '바람 소리가 BGM보다 크다.': [{'cmd': 'sfx', 'name': '바람', 'loud': True}],
+    '장 제목 카드: 〈第六章 · 천년벚나무〉 — 이 장만 제목 글자가 붉은색.': [{'cmd': 'titleCard', 'text': '第六章 · 천년벚나무', 'color': 'red'}],
+    '벚꽃나무에 다가가 꽃이 피는 순간, 화면이 순간 하얘지고 안개 속에서 목소리가 들린다.': [{'cmd': 'flash', 'color': 'white'}],
+    'CG 없음, 실제 게임 화면을 카메라가 위로 천천히 올려다본다.': [{'cmd': 'cameraPan', 'dir': 'up', 'slow': True}],
+    '2페이즈 체력바: 〈천년벚나무 · 하쿠야〉.': [{'cmd': 'bossName', 'text': '천년벚나무 · 하쿠야', 'phase': 2}],
+    '보스 체력바: "하쿠야" — 체력바가 줄지 않는다.': [{'cmd': 'bossName', 'text': '하쿠야'},
+                                         {'cmd': 'note', 'text': '체력바가 줄지 않는다. (패배 이벤트 전투)'}],
+}
+
+FADE_SEC = 0.8
+
+
+def _bgm_name(s):
+    """BGM 이름을 문장에서 뽑는다"""
+    if re.search(r'BGM(이)? (뚝 )?끊긴다|BGM 정지|BGM 없음', s):
+        return 'stop'
+    for pat in (r'BGM:\s*([^.]+?)\.?$', r'BGM이 (.+?)(?:으로|로) 바뀐다', r'(\S+(?: \S+){0,2}) BGM 시작',
+                r'이 보스전 BGM은 (.+?)만', r'^(.+?) BGM(?: \(([^)]+)\))?\.?$'):
+        m = re.search(pat, s)
+        if m:
+            return ' '.join(g for g in m.groups() if g).strip(' .,')
+    return None
+
+
+def _sfx_names(s):
+    names = []
+    for m in re.finditer(r'((?:[^\s.,]+ ){0,2}[^\s.,]*?)\s?소리', s):
+        if '목소리' in m.group(0):
+            continue
+        n = m.group(0).replace(' 소리', '').replace('소리', '').strip(' ,—')
+        n = re.sub(r'^(이어서|멀리 산 아래에서|다리 끝에서|안에서|성 안에서|화로|침묵 속|바깥)\s*', '', n)
+        if n:
+            names.append(n if n.endswith('소리') or not re.search(r'[는은던]$', n) else n + ' 소리')
+    return names
+
+
+def direction_commands(sentence):
+    """연출 한 문장 → 표준 명령 목록. 하나도 못 뽑으면 [] (note 가 된다)"""
+    s = sentence.strip()
+    if s in OVERRIDES:
+        return [dict(c) for c in OVERRIDES[s]]
+    if any(w in s for w in GAMEPLAY_WORDS):
+        return []
+    cmds = []
+    m = re.search(r'암전(?:\s*([\d.]+)초)?', s)
+    if m:
+        cmds.append({'cmd': 'fadeOut', 'duration': float(m.group(1)) if m.group(1) else FADE_SEC})
+    if '명전' in s:
+        cmds.append({'cmd': 'fadeIn', 'duration': FADE_SEC})
+    if '레터박스 해제' in s:
+        cmds.append({'cmd': 'letterbox', 'on': False})
+    elif '레터박스' in s:
+        cmds.append({'cmd': 'letterbox', 'on': True})
+    m = re.search(r'흔들림 (강|약)', s)
+    if m:
+        cmds.append({'cmd': 'shake', 'strength': 'strong' if m.group(1) == '강' else 'weak'})
+    m = re.search(r'플래시\((붉음|흰색)\)', s)
+    if m:
+        cmds.append({'cmd': 'flash', 'color': 'red' if m.group(1) == '붉음' else 'white'})
+    if '슬로모션' in s:
+        cmds.append({'cmd': 'slowmo'})
+    m = re.search(r'CG\s*(\d+)(?::\s*([^)]+?))?(?:\)|\.|$)', s)
+    if m:
+        cmds.append({'cmd': 'cg', 'no': int(m.group(1)), **({'desc': m.group(2).strip()} if m.group(2) else {})})
+    m = re.search(r'(?:장 제목 카드:\s*)?〈(第.+?)〉', s)
+    if m:
+        cmds.append({'cmd': 'titleCard', 'text': m.group(1)})
+    m = re.search(r'(?:보스 이름 붓 자막|\d페이즈 체력바|보스 체력바):\s*[〈"“](.+?)[〉"”]', s)
+    if m:
+        cmds.append({'cmd': 'bossName', 'text': m.group(1)})
+    m = re.search(r'아이템 획득(?: 연출)?:\s*〈(.+?)〉', s)
+    if m:
+        cmds.append({'cmd': 'giveItem', 'name': m.group(1)})
+    m = re.search(r'화면 가운데 문구:\s*〈(.+?)〉', s)
+    if m:
+        cmds.append({'cmd': 'caption', 'text': m.group(1)})
+    m = re.search(r'(위|아래|왼쪽|오른쪽)로 패닝', s)
+    if m:
+        cmds.append({'cmd': 'cameraPan', 'dir': {'위': 'up', '아래': 'down', '왼쪽': 'left', '오른쪽': 'right'}[m.group(1)]})
+    bgm = _bgm_name(s)
+    if '침묵' in s and not bgm:
+        bgm = 'stop'  # 침묵 = BGM 이 끊기고 환경음만 남음
+    if bgm:
+        cmds.append({'cmd': 'bgm', 'name': bgm})
+    m = re.search(r'(?:침묵|정적)\s*(\d+)초|(\d+)초\s*(?:간|정적)', s)
+    if m:
+        cmds.append({'cmd': 'wait', 'seconds': float(m.group(1) or m.group(2))})
+    if not bgm or 'BGM' not in s:
+        for n in _sfx_names(s):
+            cmds.append({'cmd': 'sfx', 'name': n})
+    return cmds
+
+
+def split_sentences(text):
+    """마침표 기준으로 나누되 괄호·〈〉 안의 마침표는 무시. '→ 에필로그' 는 따로 뗀다"""
+    out, buf, depth = [], '', 0
+    for ch in text:
+        buf += ch
+        if ch in '(〈':
+            depth += 1
+        elif ch in ')〉':
+            depth = max(0, depth - 1)
+        elif ch == '.' and depth == 0:
+            out.append(buf.strip())
+            buf = ''
+    # '0.3초' 처럼 숫자 사이 마침표에서 잘린 것은 다시 붙인다
+    merged = []
+    for s in out + ([buf.strip()] if buf.strip() else []):
+        if merged and re.search(r'\d\.$', merged[-1]) and re.match(r'^\d', s):
+            merged[-1] += s
+        else:
+            merged.append(s)
+    out, buf = merged, ''
+    if buf.strip():
+        out.append(buf.strip())
+    res = []
+    for s in out:
+        if '→ 에필로그' in s:
+            a, b = s.split('→', 1)
+            if a.strip():
+                res.append(a.strip())
+            res.append('→' + b.strip())
+        else:
+            res.append(s)
+    return res
+
+
+# ───────── 장면 트리거 ─────────
+def parse_trigger(rest):
+    """머리말의 '장소 · 트리거' 부분 → (장소, 트리거 dict)"""
+    parts = [p.strip() for p in rest.split(' · ')]
+    if len(parts) == 1:  # 'E-5 · 진엔딩 — 사쿠라자와 가는 길'
+        return parts[0], {'type': 'chapterStart', 'raw': parts[0]}
+    place, raw = ' · '.join(parts[:-1]), parts[-1]
+    t = {'raw': raw}
+    note = re.search(r'\(([^)]+)\)\s*$', raw)
+    core = re.sub(r'\s*\([^)]+\)\s*$', '', raw)
+    stage = re.search(r'스테이지 ([\dP]+-\d+)', core)
+    if stage:
+        t['stage'] = stage.group(1)
+    if core in ('게임 시작', '장 시작', '공통'):
+        t['type'] = 'chapterStart'
+    elif core in ('장 끝', '프롤로그 끝'):
+        t['type'] = 'chapterEnd'
+    elif '보스 전' in core:
+        t['type'] = 'bossBefore'
+    elif '보스 후' in core:
+        t['type'] = 'bossAfter'
+    elif place.startswith('보스전'):
+        t['type'] = 'bossCondition'
+        hp = re.search(r'체력 (\d+)%', core)
+        t['condition'] = {'hpBelow': int(hp.group(1)) / 100} if hp else {'event': core}
+        if core.startswith('체력 0'):
+            t['condition'] = {'hpBelow': 0}
+        boss = re.match(r'(\S+) 체력', core)
+        if boss:
+            t['condition']['boss'] = boss.group(1)
+        if '페이즈' in core:
+            t['condition']['phase'] = int(re.search(r'(\d)페이즈', core).group(1))
+    elif core.startswith('체크포인트'):
+        t['type'] = 'checkpoint'
+        t['n'] = [int(x) for x in re.findall(r'\d+', core)]
+        if len(t['n']) == 1:
+            t['n'] = t['n'][0]
+    elif '시작' in core and stage:
+        t['type'] = 'stageStart'
+    elif stage and ('중간' in core or '끝' in core):
+        t['type'] = 'reach'
+        t['at'] = 'middle' if '중간' in core else 'end'
+    elif '위치 도달' in core:
+        t['type'] = 'reach'
+    elif '엔딩' in core or '크레딧 후' in place or '크레딧 후' in core:
+        t['type'] = 'chapterStart'
+    else:
+        t['type'] = 'reach'  # '부모와의 대화' 처럼 장소에 도착하면 시작
+    if note:
+        t['note'] = note.group(1)
+    return place, t
+
+
+# ───────── 변환 ─────────
+class Converter:
+    def __init__(self, lines):
+        self.lines = lines
+        self.unknown_speakers = Counter()
+
+    def speaker_id(self, name):
+        if name not in CHARACTERS:
+            self.unknown_speakers[name] += 1
+            return name
+        return CHARACTERS[name]
+
+    def line_command(self, m):
+        """say / think / voice 한 줄"""
+        name, face_raw, text, tail = m.group(1).strip(), m.group(2), m.group(3), m.group(4)
+        sid = self.speaker_id(name)
+        parts = [p.strip() for p in face_raw.split(',')]
+        face, manner = parts[0], parts[1:]
+        if face == '속마음':
+            c = {'cmd': 'think', 'speaker': sid, 'text': text}
+        elif face == '목소리' or '목소리만' in manner:
+            c = {'cmd': 'voice', 'speaker': sid, 'text': text, 'style': VOICE_STYLE.get(sid, 'plain')}
+            if face in FACES:
+                c['face'] = FACES[face]
+            manner = [x for x in manner if x != '목소리만']
+        else:
+            c = {'cmd': 'say', 'speaker': sid, 'face': FACES.get(face, face), 'text': text}
+        if manner:
+            c['manner'] = ', '.join(manner)
+        if tail:
+            c['note'] = tail
+        return c
+
+    def dir_commands(self, text, scene):
+        out = []
+        for s in split_sentences(text):
+            if s.startswith('→'):
+                ending = 'true' if '진엔딩' in s else 'normal'
+                out.append({'cmd': 'setFlag', 'flag': 'ending', 'value': ending, 'src': s})
+                continue
+            # 장면 속성으로 옮기는 문장
+            if re.fullmatch(r'조작 가능(?: 컷신)?[.,]?', s) or s in ('조작 가능, 전투 없음.',):
+                scene['controllable'] = True
+                if '전투 없음' in s:
+                    scene['noCombat'] = True
+                continue
+            # 대사 줄의 속성(portrait: false, 목소리 글자 스타일)으로 이미 옮긴 문장
+            if s in ('목소리만 들린다.', '초상화 없이 그림자만.', '초상화 없이 뒷모습.', '초상화 없이 글자만, 분홍색.') or \
+                    s.startswith('하쿠야의 목소리는 이 장 동안'):
+                scene.setdefault('applied', []).append(s)
+                continue
+            if s in ('전투 없음.',):
+                scene['noCombat'] = True
+                continue
+            if '(조작 가능 컷신)' in s:
+                scene['controllable'] = True
+            cmds = direction_commands(s)
+            if cmds and not (len(cmds) == 1 and cmds[0]['cmd'] == 'note'):
+                first = next(c for c in cmds if c['cmd'] != 'note')
+                first['src'] = s
+                out.extend(cmds)
+            else:
+                out.append({'cmd': 'note', 'text': s})
+        return out
+
+    def assign_sides(self, commands, state=None, all_cmds=None):
+        """say/think 에 초상화 위치. 아카네는 항상 왼쪽.
+        장면(분기 포함) 어디에서든 아카네가 말하면 다른 인물은 모두 오른쪽,
+        아카네가 없는 장면이면 화자가 바뀔 때 왼쪽/오른쪽을 자동으로 번갈아 배정."""
+        if state is None:
+            akane = any(c.get('cmd') in ('say', 'think') and c.get('speaker') == 'akane' for c in walk(all_cmds or commands))
+            state = {'akane_spoke': akane, 'left': None, 'right': None, 'last': None}
+        for c in commands:
+            for key in ('then', 'else', 'commands'):
+                if isinstance(c.get(key), list):
+                    self.assign_sides(c[key], dict(state))
+            if c.get('cmd') == 'choice':
+                for o in c['options']:
+                    self.assign_sides(o['commands'], dict(state))
+            if c.get('cmd') == 'condition' and 'cases' in c:
+                for case in c['cases']:
+                    self.assign_sides(case['commands'], dict(state))
+            if c.get('cmd') not in ('say', 'think'):
+                continue
+            sp = c['speaker']
+            if sp == 'akane':
+                c['side'] = 'left'
+                state['akane_spoke'] = True
+                state['left'] = 'akane'
+            elif state['akane_spoke']:
+                c['side'] = 'right'
+                state['right'] = sp
+            elif state['left'] == sp:
+                c['side'] = 'left'
+            elif state['right'] == sp:
+                c['side'] = 'right'
+            else:
+                # 비어 있는 쪽, 없으면 방금 말한 사람의 반대쪽
+                side = 'left' if state['left'] is None else 'right' if state['right'] is None else \
+                    ('right' if state['last'] == state['left'] else 'left')
+                state[side] = sp
+                c['side'] = side
+            state['last'] = sp
+        return state
+
+    def parse_scene_body(self, sid, body, scene):
+        """장면 본문 → 명령 목록 (조건·선택지 블록 포함)"""
+        cmds = []
+        target = cmds        # 지금 명령을 넣는 목록
+        i = 0
+        while i < len(body):
+            s = body[i].strip()
+            i += 1
+            if not s:
+                continue
+            b = RE_BOLD.match(s)
+            if b:
+                title = b.group(1)
+                if title.startswith('(진엔딩 조건'):
+                    block = {'cmd': 'condition', 'when': {'memoriesAtLeast': 18}, 'then': [], 'src': title.strip('()')}
+                    cmds.append(block)
+                    target = block['then']
+                elif title.startswith('일반 루트'):
+                    scene.setdefault('blocks', {})['normalRoute'] = []
+                    target = scene['blocks']['normalRoute']
+                elif title.startswith('진엔딩 루트'):
+                    cond = {'cmd': 'condition', 'when': {'memoriesAtLeast': 18}, 'then': [],
+                            'else': [{'cmd': 'run', 'block': 'normalRoute'}], 'src': title}
+                    cmds.append(cond)
+                    target = cond['then']
+                else:
+                    target.append({'cmd': 'section', 'title': title})
+                continue
+            if s.startswith('▶'):
+                target.extend(self.dir_commands(s[1:].strip(), scene))
+                continue
+            cap = RE_CAPTION.match(s)
+            if cap and ' / ' in s and '〉 / 〈' in s:  # 〈벤다〉 / 〈나눈다〉 선택지
+                labels = re.findall(r'〈(.+?)〉', s)
+                choice = {'cmd': 'choice', 'options': []}
+                # 이어지는 '- 〈X〉를 고르면 → …' 줄
+                while i < len(body) and body[i].strip().startswith('- 〈') or (i < len(body) and not body[i].strip()):
+                    t = body[i].strip()
+                    i += 1
+                    if not t:
+                        continue
+                    lab = re.match(r'- 〈(.+?)〉를 고르면 → (.+)', t)
+                    opt = {'id': {'벤다': 'cut', '나눈다': 'share'}.get(lab.group(1), lab.group(1)), 'text': lab.group(1),
+                           'commands': [], 'src': t}
+                    if '일반 루트와 같다' in lab.group(2):
+                        opt['commands'] = [{'cmd': 'run', 'block': 'normalRoute'}]
+                    choice['options'].append(opt)
+                assert [o['text'] for o in choice['options']] == labels, (sid, labels)
+                target.append(choice)
+                share = next(o for o in choice['options'] if not o['commands'])
+                target = share['commands']  # '아래 장면' = 이후 줄들
+                continue
+            if cap:
+                target.append({'cmd': 'caption', 'text': cap.group(1)})
+                continue
+            cond = re.match(r'^- (.+?)(?:이|가) 먼저 쓰러지면 — (.+)$', s)
+            if cond:
+                m = RE_SAY.match(cond.group(2))
+                case = {'when': {'firstDown': self.speaker_id(cond.group(1))}, 'commands': [self.line_command(m)]}
+                if target and target[-1].get('cmd') == 'condition' and 'cases' in target[-1]:
+                    target[-1]['cases'].append(case)
+                else:
+                    target.append({'cmd': 'condition', 'cases': [case]})
+                continue
+            m = RE_SAY.match(s)
+            if m:
+                target.append(self.line_command(m))
+                continue
+            raise ValueError(f'{sid}: 해석 못 한 줄: {s}')
+        return cmds
+
+    def pool(self, title, body, chapter):
+        """'타누키치 체크포인트 한마디' 같은 목록 → 랜덤 풀"""
+        entries = []
+        desc = []
+        for s in (x.strip() for x in body):
+            if not s:
+                continue
+            q = RE_BULLET_QUOTE.match(s)
+            m = RE_SAY.match(s)
+            if q and title.startswith('하루의 목소리'):
+                entries.append({'cmd': 'voice', 'speaker': 'haru', 'text': q.group(1), 'style': VOICE_STYLE['haru']})
+            elif q:
+                entries.append({'cmd': 'say', 'speaker': 'tanukichi', 'face': 'smile', 'text': q.group(1), 'side': 'right'})
+            elif m:
+                c = self.line_command(m)
+                if c['cmd'] in ('say', 'think'):
+                    c['side'] = 'left' if c['speaker'] == 'akane' else 'right'
+                entries.append(c)
+            elif s.startswith('▶'):
+                desc.append(s[1:].strip())
+            else:
+                desc.append(s)
+        p = {'id': None, 'title': title, 'trigger': 'checkpointBloom', 'mode': 'random', 'chance': 1.0, 'lines': entries}
+        if desc:
+            p['note'] = ' '.join(desc)
+        if title.startswith('타누키치'):
+            p['id'] = f'{chapter}_tanukichi'
+            if '5-1까지만' in title:
+                p['stages'] = ['5-1']
+        elif title.startswith('하루의 목소리'):
+            p.update(id='haru_voice', chance=0.1, fromChapter=2, afterScene='S2-4')
+        elif title.startswith('대신 5-2부터'):
+            p.update(id='ch5_akane_alone', stages=['5-2', '5-3'])
+        elif title.startswith('6장 체크포인트'):
+            p.update(id='ch6_haru_voice', chance=1.0)
+        return p
+
+    def run(self):
+        L = self.lines
+        idx = {}
+        for name, head in CHAPTERS:
+            idx[name] = next(i for i, l in enumerate(L) if l.startswith(head))
+        mem_i = next(i for i, l in enumerate(L) if l.startswith('## 기억 조각'))
+        bounds = [idx[n] for n, _ in CHAPTERS] + [mem_i]
+        chapters = {}
+        for k, (name, _) in enumerate(CHAPTERS):
+            chunk = L[bounds[k]:bounds[k + 1]]
+            title = chunk[0].split('—', 1)[1].strip() if '—' in chunk[0] else chunk[0][3:].strip()
+            # 장 소개 문단: 제목 다음 첫 '###' 전까지
+            first = next(j for j, l in enumerate(chunk) if l.startswith('###'))
+            summary = ' '.join(l.strip() for l in chunk[1:first] if l.strip())
+            ch = {'id': name, 'title': title, 'summary': summary, 'scenes': [], 'pools': []}
+            # '###' 단위로 나눈다
+            heads = [j for j, l in enumerate(chunk) if l.startswith('### ')] + [len(chunk)]
+            for a, b in zip(heads, heads[1:]):
+                head, body = chunk[a], chunk[a + 1:b]
+                m = RE_SCENE.match(head)
+                if not m:
+                    t = head[4:].strip()
+                    if '기억 조각 연결' in t:
+                        ch['memoryNote'] = ' '.join(x.strip() for x in body if x.strip())
+                    else:
+                        ch['pools'].append(self.pool(t, body, name))
+                    continue
+                sid, rest = m.group(1), m.group(2)
+                place, trig = parse_trigger(rest)
+                scene = {'id': sid, 'place': place, 'trigger': trig}
+                scene['commands'] = self.parse_scene_body(sid, body, scene)
+                self.post_scene(scene)
+                ch['scenes'].append(scene)
+            chapters[name] = ch
+        self.special_cases(chapters)
+        for ch in chapters.values():
+            for sc in ch['scenes']:
+                everything = sc['commands'] + [c for blk in sc.get('blocks', {}).values() for c in blk]
+                self.assign_sides(sc['commands'], all_cmds=everything)
+                for blk in sc.get('blocks', {}).values():
+                    self.assign_sides(blk, all_cmds=everything)
+        memories = self.memories(L[mem_i:])
+        return chapters, memories
+
+    def post_scene(self, scene):
+        # 초상화 없이 목소리/그림자/뒷모습만 나오는 장면
+        no_portrait = {'S1-2': ['cultist'], 'S3-4': ['cult_exec_a', 'cult_exec_b'], 'E-3': ['akane']}
+        for c in scene['commands']:
+            if c.get('cmd') == 'say' and c['speaker'] in no_portrait.get(scene['id'], []):
+                c['portrait'] = False
+
+    def special_cases(self, chapters):
+        ep = {s['id']: s for s in chapters['epilogue']['scenes']}
+        # 엔딩별 장면: 일반 엔딩 = 진엔딩 조건 미충족 또는 〈벤다〉, 진엔딩 = 〈나눈다〉
+        for sid in ('E-3', 'E-4'):
+            ep[sid]['condition'] = {'ending': 'normal'}
+        for sid in ('E-5', 'E-6'):
+            ep[sid]['condition'] = {'ending': 'true'}
+        # E-5: 'E-3 과 같은 길, 같은 무덤 장면. 칼 이름을 짓는 대사까지 동일' → E-3 을 이름 짓는 줄까지 포함
+        e3 = ep['E-3']['commands']
+        upto = next(k for k, c in enumerate(e3) if c.get('cmd') == 'say' and '하루사쿠라' in c['text'])
+        cmds = ep['E-5']['commands']
+        for k, c in enumerate(cmds):
+            if c.get('cmd') == 'note' and c['text'].startswith('E-3과 같은 길'):
+                cmds[k] = {'cmd': 'include', 'scene': 'E-3', 'toIndex': upto, 'src': c['text']}
+                break
+        # 6장 체크포인트 2·3 의 하쿠야 목소리는 순서대로 하나씩 (랜덤 아님)
+        s64 = next(s for s in chapters['ch6']['scenes'] if s['id'] == 'S6-4')
+        s64['mode'] = 'sequence'
+
+    def memories(self, L):
+        rows, notes, intro = [], [], []
+        for l in L[1:]:
+            s = l.strip()
+            if s.startswith('| ') and not s.startswith('| 번호') and not s.startswith('| ---'):
+                cells = [c.strip() for c in s.strip('|').split('|')]
+                no, stage, where, title, content = cells
+                quote = re.findall(r'"([^"]+)"', content)
+                rows.append({'no': int(no), 'stage': stage, 'hidden': where, 'title': title, 'content': content,
+                             **({'quotes': quote} if quote else {})})
+            elif s.startswith('- '):
+                notes.append(s[2:])
+            elif s and not s.startswith('|') and not s.startswith('**'):
+                intro.append(s)
+        return {'description': ' '.join(intro), 'total': len(rows), 'trueEndingRequires': len(rows),
+                'fragments': rows, 'designNotes': notes}
+
+
+# ───────── 보고서 ─────────
+def walk(cmds):
+    for c in cmds:
+        yield c
+        for key in ('then', 'else'):
+            if isinstance(c.get(key), list):
+                yield from walk(c[key])
+        for case in c.get('cases', []):
+            yield from walk(case['commands'])
+        for o in c.get('options', []):
+            yield from walk(o['commands'])
+
+
+def report(chapters, memories, conv):
+    out = ['# 스토리 변환 보고서', '', '`tools/convert_story.py` 가 만든다. 다시 돌리면 덮어쓴다.', '',
+           '## 장별 대사 수', '', '| 장 | 장면 | say | think | voice | 자막 | 랜덤 풀 줄 | 연출 명령 | note |', '|---|---|---|---|---|---|---|---|---|']
+    tot = Counter()
+    notes_by = []
+    for name, ch in chapters.items():
+        c = Counter()
+        for sc in ch['scenes']:
+            allc = list(walk(sc['commands'])) + [x for blk in sc.get('blocks', {}).values() for x in walk(blk)]
+            for x in allc:
+                k = x.get('cmd')
+                if k in ('say', 'think', 'voice', 'caption', 'note'):
+                    c[k] += 1
+                elif k not in ('condition', 'choice', 'run', 'section', 'include', 'setFlag'):
+                    c['dir'] += 1
+                if k == 'note':
+                    notes_by.append((name, sc['id'], x['text']))
+        pool_lines = sum(len(p['lines']) for p in ch['pools'])
+        c['pool'] = pool_lines
+        c['scenes'] = len(ch['scenes'])
+        tot.update(c)
+        out.append(f"| {name} | {c['scenes']} | {c['say']} | {c['think']} | {c['voice']} | {c['caption']} | {pool_lines} | {c['dir']} | {c['note']} |")
+    out.append(f"| **합계** | {tot['scenes']} | {tot['say']} | {tot['think']} | {tot['voice']} | {tot['caption']} | {tot['pool']} | {tot['dir']} | {tot['note']} |")
+    out += ['', f"대사(say+think+voice) 합계 {tot['say'] + tot['think'] + tot['voice']}줄, 랜덤 풀 {tot['pool']}줄, 기억 조각 {memories['total']}개.", '',
+            '## 연출 명령으로 못 바꾼 note (원문 그대로)', '']
+    cur = None
+    for name, sid, text in notes_by:
+        if name != cur:
+            out += ['', f'### {name}', '']
+            cur = name
+        out.append(f'- **{sid}** {text}')
+    if conv.unknown_speakers:
+        out += ['', '## 인물 표에 없는 화자', ''] + [f'- {k} ({v}줄)' for k, v in conv.unknown_speakers.items()]
+    return '\n'.join(out) + '\n', tot, notes_by
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--src', default=None)
+    args = ap.parse_args()
+    src = Path(args.src) if args.src else next((ROOT / 'docs').glob('*.md'))
+    lines = src.read_text(encoding='utf-8').split('\n')
+    conv = Converter(lines)
+    chapters, memories = conv.run()
+    OUT.mkdir(parents=True, exist_ok=True)
+    meta = {'source': src.name, 'faces': FACES, 'voiceStyles': VOICE_STYLE}
+    for name, ch in chapters.items():
+        (OUT / f'{name}.json').write_text(json.dumps({**ch, 'meta': meta}, ensure_ascii=False, indent=2), encoding='utf-8')
+    (OUT / 'memories.json').write_text(json.dumps(memories, ensure_ascii=False, indent=2), encoding='utf-8')
+    chars = {cid: {'name': ko, 'side': 'left' if cid == 'akane' else 'auto'} for ko, cid in CHARACTERS.items()}
+    (OUT / 'characters.json').write_text(json.dumps(chars, ensure_ascii=False, indent=2), encoding='utf-8')
+    text, tot, notes = report(chapters, memories, conv)
+    (OUT / '_report.md').write_text(text, encoding='utf-8')
+    print(f"장면 {tot['scenes']} · say {tot['say']} · think {tot['think']} · voice {tot['voice']} · 자막 {tot['caption']} · 풀 {tot['pool']} · 연출 명령 {tot['dir']} · note {tot['note']}")
+    if conv.unknown_speakers:
+        print('인물 표에 없는 화자:', dict(conv.unknown_speakers))
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,851 @@
+{
+  "id": "prologue",
+  "title": "꽃이 지던 밤",
+  "summary": "평화로운 축제 밤이 한순간에 불타는 밤으로 바뀌는 장. 플레이어는 조작을 배우는 동시에 가족을 사랑하게 되어야, 마지막에 잃는 순간이 아프다.",
+  "scenes": [
+    {
+      "id": "S0-1",
+      "place": "검은 화면",
+      "trigger": {
+        "raw": "게임 시작",
+        "type": "chapterStart"
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "완전한 검은 화면."
+        },
+        {
+          "cmd": "sfx",
+          "name": "풍경(風鈴)",
+          "src": "풍경(風鈴) 소리 한 번."
+        },
+        {
+          "cmd": "sfx",
+          "name": "바람",
+          "src": "바람 소리."
+        },
+        {
+          "cmd": "caption",
+          "text": "덴포 연간. 흉년이 삼 년째 이어지던 해."
+        },
+        {
+          "cmd": "caption",
+          "text": "사람들은 기도할 곳을 찾았고, 누군가는 그 기도를 팔았다."
+        },
+        {
+          "cmd": "note",
+          "text": "붉은 태양 문양이 먹물처럼 번지며 화면을 채웠다가 사라진다."
+        },
+        {
+          "cmd": "caption",
+          "text": "에도에서 서쪽으로 사흘. 지도에 없는 마을, 사쿠라자와."
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.8,
+          "src": "명전."
+        },
+        {
+          "cmd": "cg",
+          "no": 1,
+          "desc": "축제 밤의 가족",
+          "src": "벚꽃이 만개한 산골 마을 전경(CG 1: 축제 밤의 가족)이 천천히 아래로 패닝."
+        },
+        {
+          "cmd": "cameraPan",
+          "dir": "down"
+        }
+      ]
+    },
+    {
+      "id": "S0-2",
+      "place": "마을 연습장",
+      "trigger": {
+        "raw": "스테이지 P-1 시작",
+        "stage": "P-1",
+        "type": "stageStart"
+      },
+      "controllable": true,
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "해 질 녘."
+        },
+        {
+          "cmd": "note",
+          "text": "연습장 마당."
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 목검을 들고 서 있다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "늦었네. 또 대장간에서 아빠 망치질 구경했지?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…구경 아니고 감시. 아빠가 또 손 데일까 봐.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "그래, 그래. 자, 축제 전에 한 번만 더 하자. 따라와 봐.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "이동 튜토리얼 표시."
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 마당 끝으로 걸어간다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "neutral",
+          "text": "검은 발에서 시작해. 발이 늦으면 칼도 늦어.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "점프 튜토리얼."
+        },
+        {
+          "cmd": "note",
+          "text": "낮은 담을 넘는다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "이번엔 대쉬. 상대 품으로 단숨에 파고들어서, 지나가며 베는 거야. 그 짧은 순간엔 아무것도 너를 못 건드려.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "허수아비 3개."
+        },
+        {
+          "cmd": "note",
+          "text": "대쉬 베기 튜토리얼."
+        },
+        {
+          "cmd": "note",
+          "text": "벨 때마다 칼에 분홍 꽃잎이 하나씩 붙는다 (벚꽃 스택 UI 처음 등장)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…꽃잎이 칼에 붙었어.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "우리 집안 칼이 원래 그래. 베면 벨수록 꽃이 쌓이지. 그 꽃은 한 번에 터뜨리는 거야. 발도로.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 목검을 허리에 대고 자세를 낮춘다."
+        },
+        {
+          "cmd": "note",
+          "text": "발도 튜토리얼."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "숨을 한 번 들이쉬는 동안은 무엇이든 받아낼 수 있어. 하지만 숨을 다 들이쉰 뒤에 맞으면 흐트러지지. 그 반 호흡을 기억해.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 목검으로 천천히 공격한다."
+        },
+        {
+          "cmd": "note",
+          "text": "패링에 성공할 때까지 반복."
+        },
+        {
+          "cmd": "note",
+          "text": "성공 시 하얀 섬광 + 짧은 슬로모션."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "잘했어. 이제 엄마보다 빠르겠는걸.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…엄마가 일부러 느리게 한 거잖아.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "하나만 더. 칼은 화가 났을 때 뽑는 게 아니야. 지켜야 할 게 생겼을 때 뽑는 거란다.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "그 말 백 번째야.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "백한 번째에는 알아듣겠지.",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "S0-3",
+      "place": "대장간",
+      "trigger": {
+        "raw": "위치 도달",
+        "type": "reach"
+      },
+      "commands": [
+        {
+          "cmd": "sfx",
+          "name": "쇠 두드리는 소리",
+          "src": "쇠 두드리는 소리."
+        },
+        {
+          "cmd": "note",
+          "text": "불꽃이 튄다."
+        },
+        {
+          "cmd": "sfx",
+          "name": "담금질 (치익)",
+          "src": "소이치로가 칼날을 물에 담그자 치익 소리와 하얀 김."
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "딱 맞춰 왔구나. 이거 들어 봐.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "검은 칼집의 칼을 건넨다."
+        },
+        {
+          "cmd": "giveItem",
+          "name": "아카네의 칼 (이름 없음)",
+          "src": "아이템 획득 연출 (칼이 화면 가운데서 빛남)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…이거, 내 거야?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "neutral",
+          "text": "열일곱 살 생일 선물. 엄마가 쓰던 것보다 조금 가볍게 했다. 네 손은 엄마보다 작으니까.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "이름은?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "이 칼 이름은 네가 지어. 다 자란 다음에.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…나 다 자랐는데.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "이름 짓는 걸 미루는 동안은 아직 아니라는 거다. 자, 축제 가자. 엄마가 기다려.",
+          "side": "right"
+        }
+      ]
+    },
+    {
+      "id": "S0-4",
+      "place": "축제 광장",
+      "trigger": {
+        "raw": "위치 도달",
+        "type": "reach"
+      },
+      "controllable": true,
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "등롱이 줄지어 걸리고 마을 사람들이 고양이귀 가면을 쓰고 춤춘다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "밝은 축제 피리·북",
+          "src": "밝은 축제 BGM (피리·북)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "village_child",
+          "face": "smile",
+          "text": "아카네 언니! 오늘은 하루 님이 마을 큰 벚나무에 꽃을 피워 주신대!",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "광장 가운데의 오래된 벚나무."
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 손을 대자 분홍 빛이 퍼지며 꽃이 한꺼번에 핀다."
+        },
+        {
+          "cmd": "note",
+          "text": "마을 사람들 환호."
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…엄마는 매년 이걸 한다. 나도 언젠간 할 수 있을까.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 아카네를 보고 손짓한다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 다가가면 하루가 귓속말."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "아카네. 혹시 오늘 무슨 일이 생기면, 뒤돌아보지 말고 뒷산 동굴로 가. 알았지?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…갑자기 무슨—",
+          "side": "left"
+        },
+        {
+          "cmd": "sfx",
+          "name": "종소리",
+          "src": "종소리."
+        },
+        {
+          "cmd": "sfx",
+          "name": "종소리",
+          "src": "한 번, 두 번."
+        },
+        {
+          "cmd": "bgm",
+          "name": "stop",
+          "src": "축제 BGM이 뚝 끊긴다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "stop",
+          "src": "침묵."
+        },
+        {
+          "cmd": "note",
+          "text": "하늘에서 불화살 수십 개가 포물선을 그리며 떨어진다."
+        },
+        {
+          "cmd": "flash",
+          "color": "red",
+          "src": "플래시(붉음)."
+        },
+        {
+          "cmd": "shake",
+          "strength": "strong",
+          "src": "흔들림 강."
+        }
+      ]
+    },
+    {
+      "id": "S0-5",
+      "place": "불타는 골목",
+      "trigger": {
+        "raw": "체크포인트 1",
+        "type": "checkpoint",
+        "n": 1
+      },
+      "commands": [
+        {
+          "cmd": "bgm",
+          "name": "북과 불꽃 소리",
+          "src": "BGM: 북과 불꽃 소리."
+        },
+        {
+          "cmd": "note",
+          "text": "마을이 불탄다."
+        },
+        {
+          "cmd": "note",
+          "text": "흰 옷에 흰 가면을 쓴 무리가 횃불을 들고 들어온다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "cultist",
+          "face": "angry",
+          "text": "요괴의 피를 정화하라! 신께서 내려오신다!",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "첫 실전 전투."
+        },
+        {
+          "cmd": "note",
+          "text": "가면 신도 2명."
+        },
+        {
+          "cmd": "say",
+          "speaker": "villager",
+          "face": "scared",
+          "text": "아카네! 하루 님이 광장에… 소이치로는 대장간에…!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "…아빠!",
+          "side": "left"
+        }
+      ]
+    },
+    {
+      "id": "S0-6",
+      "place": "대장간 앞",
+      "trigger": {
+        "raw": "체크포인트 2",
+        "type": "checkpoint",
+        "n": 2
+      },
+      "commands": [
+        {
+          "cmd": "note",
+          "text": "대장간이 불타고 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "소이치로가 망치 하나로 신도 셋을 막고 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "어깨에 화살이 꽂혀 있다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "angry",
+          "text": "왜 왔어! 뒷산으로 가라고 했잖아!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "같이 가!",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "플레이어가 신도들을 벤다."
+        },
+        {
+          "cmd": "note",
+          "text": "마지막 신도를 베는 순간 슬로모션."
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "sad",
+          "text": "…많이 컸구나. 그 칼, 잘 맞네.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "소이치로가 무릎을 꿇는다."
+        },
+        {
+          "cmd": "note",
+          "text": "등에 화살이 두 개 더 꽂혀 있다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "sad",
+          "text": "엄마한테 가. 엄마는… 너를 지키려고 저기 있는 거다. 가.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "아빠…!",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "이름. 꼭 지어라.",
+          "side": "right"
+        },
+        {
+          "cmd": "note",
+          "text": "대장간 지붕이 무너지며 화면을 가린다."
+        },
+        {
+          "cmd": "shake",
+          "strength": "strong",
+          "src": "흔들림 강."
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.3,
+          "src": "암전 0.3초 후 바로 명전, 아카네 혼자 서 있다."
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.8
+        }
+      ]
+    },
+    {
+      "id": "S0-7",
+      "place": "마을 광장",
+      "trigger": {
+        "raw": "위치 도달",
+        "type": "reach"
+      },
+      "commands": [
+        {
+          "cmd": "letterbox",
+          "on": true,
+          "src": "레터박스."
+        },
+        {
+          "cmd": "note",
+          "text": "광장의 큰 벚나무가 불타며 꽃잎이 재가 되어 흩날린다."
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 목검이 아닌 진검을 들고 서 있다."
+        },
+        {
+          "cmd": "note",
+          "text": "그 앞에 흰 머리, 금빛 후광 장식을 단 사내."
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야."
+        },
+        {
+          "cmd": "note",
+          "text": "얼굴은 아직 그림자."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "smile",
+          "text": "오랜만이야, 누나. 여전히 꽃을 잘 피우네.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "angry",
+          "text": "하쿠야. 여기 있는 사람들은 아무 상관 없어. 돌아가.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "neutral",
+          "text": "상관없지. 그래서 태웠어. 상관없는 것들이 누나 곁에 너무 많으니까.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "smile",
+          "text": "그 아이는 어디 있어?",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 광장에 뛰어든다."
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 돌아본다."
+        },
+        {
+          "cmd": "note",
+          "text": "처음으로 하루의 얼굴이 무너진다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "scared",
+          "text": "…아카네, 오지 마!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "smile",
+          "text": "아, 거기 있었구나.",
+          "side": "left"
+        },
+        {
+          "cmd": "letterbox",
+          "on": false,
+          "src": "레터박스 해제."
+        },
+        {
+          "cmd": "bossName",
+          "text": "하쿠야",
+          "src": "보스 체력바: \"하쿠야\" — 체력바가 줄지 않는다."
+        },
+        {
+          "cmd": "note",
+          "text": "체력바가 줄지 않는다. (패배 이벤트 전투)"
+        },
+        {
+          "cmd": "note",
+          "text": "패배 이벤트 전투."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네의 공격은 모두 금빛 막에 튕긴다."
+        },
+        {
+          "cmd": "note",
+          "text": "20초 후 또는 3번 피격 시 자동 진행."
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야의 발도."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네가 날아가 쓰러진다."
+        },
+        {
+          "cmd": "note",
+          "text": "사망 연출이 나오지만 화면이 멈추지 않는다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "neutral",
+          "text": "죽이진 마. 피가 상하면 안 되니까.",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 아카네 앞을 막아선다."
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야의 칼이 하루를 꿰뚫는다."
+        },
+        {
+          "cmd": "bgm",
+          "name": "stop",
+          "src": "효과음 없이 침묵."
+        },
+        {
+          "cmd": "sfx",
+          "name": "stop"
+        },
+        {
+          "cmd": "note",
+          "text": "꽃잎 한 장이 떨어진다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "sad",
+          "text": "…미안해, 하쿠야. 그때도, 지금도.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "surprised",
+          "text": "…….",
+          "side": "left"
+        },
+        {
+          "cmd": "note",
+          "text": "하루가 마지막 힘으로 손을 뻗는다."
+        },
+        {
+          "cmd": "note",
+          "text": "아카네 주위로 분홍 꽃잎 수천 장이 소용돌이친다."
+        },
+        {
+          "cmd": "cg",
+          "no": 2,
+          "desc": "꽃잎에 감싸인 아카네와 손을 뻗은 하루",
+          "src": "CG 2: 꽃잎에 감싸인 아카네와 손을 뻗은 하루."
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "아카네. 미워하는 마음으로는, 꽃이 안 피어.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "살아.",
+          "side": "right"
+        },
+        {
+          "cmd": "flash",
+          "color": "white",
+          "src": "플래시(흰색)."
+        },
+        {
+          "cmd": "note",
+          "text": "꽃잎이 아카네를 싣고 하늘로 날아간다."
+        },
+        {
+          "cmd": "note",
+          "text": "하쿠야가 손을 뻗지만 꽃잎이 그의 손을 벤다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "angry",
+          "text": "누나아——!",
+          "side": "left"
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.8,
+          "src": "암전."
+        },
+        {
+          "cmd": "bgm",
+          "name": "stop",
+          "src": "침묵 3초."
+        },
+        {
+          "cmd": "wait",
+          "seconds": 3.0
+        }
+      ]
+    },
+    {
+      "id": "S0-8",
+      "place": "검은 화면",
+      "trigger": {
+        "raw": "프롤로그 끝",
+        "type": "chapterEnd"
+      },
+      "commands": [
+        {
+          "cmd": "caption",
+          "text": "그날 밤, 사쿠라자와의 벚나무는 모두 죽었다."
+        },
+        {
+          "cmd": "caption",
+          "text": "단 한 그루도 다시 피지 않았다."
+        },
+        {
+          "cmd": "wait",
+          "seconds": 3.0,
+          "src": "3초 정적."
+        },
+        {
+          "cmd": "sfx",
+          "name": "칼 뽑는 소리",
+          "src": "칼 뽑는 소리 한 번."
+        },
+        {
+          "cmd": "caption",
+          "text": "삼 년 후."
+        },
+        {
+          "cmd": "titleCard",
+          "text": "카미사마 복수극",
+          "style": "logo",
+          "src": "타이틀 로고가 붓으로 써지며 등장."
+        },
+        {
+          "cmd": "bgm",
+          "name": "메인 테마",
+          "src": "메인 테마 BGM 시작."
+        }
+      ]
+    }
+  ],
+  "pools": [],
+  "meta": {
+    "source": "카미사마 복수극 — 전체 스토리 대본.md",
+    "faces": {
+      "기본": "neutral",
+      "웃음": "smile",
+      "분노": "angry",
+      "슬픔": "sad",
+      "놀람": "surprised",
+      "겁먹음": "scared",
+      "진지": "serious"
+    },
+    "voiceStyles": {
+      "haru": "pink",
+      "hakuya": "goldTremble"
+    }
+  }
+}
