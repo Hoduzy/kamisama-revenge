@@ -1,0 +1,535 @@
+#!/usr/bin/env python3
+"""ChatGPT로 만든 도트 이미지를 게임용 스프라이트 시트로 전처리한다.
+
+    python3 tools/process_sprites.py              # assets/raw → assets/sprites
+    python3 tools/process_sprites.py --only player_run boss
+
+단계:
+ 1. 바깥과 연결된 흰 배경(밝기 240 이상)·투명 영역을 투명으로 만든다. 캐릭터 안쪽 흰색은 남는다.
+ 2. 도트 1칸 크기를 추정해 Nearest Neighbor(칸 중앙 샘플)로 축소한다.
+ 3. 투명한 세로 빈 열을 기준으로 프레임을 나눈다 (개수를 알고 있으면 거기에 맞춰 합치거나 자른다).
+ 4. 프레임을 같은 크기 칸에 넣고, 발바닥(아래)과 가로 중앙을 맞춘다.
+ 5. assets/sprites/ 에 가로 시트 PNG + manifest.json, 비교용 preview.html 을 만든다.
+
+필요: Pillow, numpy
+"""
+import argparse
+import json
+import math
+from collections import deque
+from pathlib import Path
+
+import numpy as np
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parent.parent
+
+# ───────── 시트별 설정 ─────────
+# frames: 프레임 수 / labels: 프레임 이름 / facing: 바라보는 방향
+# anchor: 'feet' = 발(아래 12% 영역) 중앙을 기준으로 가로 정렬, 'bbox' = 테두리 상자 중앙
+# pad: 칸 여백(도트) / dot: 도트 크기를 직접 지정하고 싶을 때 (None 이면 자동 추정)
+PLAYER6 = dict(frames=6, facing='right', anchor='feet', pad=2)
+ENEMY4 = dict(frames=4, facing='left', anchor='feet', pad=6, labels=['idle', 'windup', 'attack', 'death'])
+
+SHEETS = {
+    'player_idle': dict(PLAYER6),
+    'player_run': dict(PLAYER6),
+    'player_jump': dict(PLAYER6, labels=['crouch', 'rise', 'apex', 'fall', 'land', 'recover']),
+    'player_dash': dict(PLAYER6),
+    'player_iaido_ready': dict(PLAYER6),
+    'player_iaido_slash': dict(PLAYER6),
+    'player_parry': dict(PLAYER6),
+    'player_death': dict(PLAYER6),
+    'enemy_sword': dict(ENEMY4),
+    'enemy_ninja': dict(ENEMY4),
+    'boss': dict(frames=1, facing='left', anchor='feet', pad=2),
+    'tree': dict(frames=2, anchor='feet', pad=2, labels=['bare', 'bloom']),
+    'portraits': dict(frames=3, anchor='bbox', pad=1, labels=['neutral', 'angry', 'sad']),
+    'ui_icons': dict(frames=4, anchor='bbox', pad=0, labels=['dash', 'iaido', 'stack_empty', 'stack_full']),
+    # 2줄 × 8개를 4개씩 4개 시트로 나눈다
+    'effects': dict(kind='effects', anchor='bbox', pad=1, rows=[
+        [('fx_petals', 4), ('fx_slash', 4)],
+        [('fx_parry_flash', 4), ('fx_sakura_burst', 4)],
+    ]),
+    'tileset': dict(kind='tiles', tile=32),
+    'bg_mid': dict(kind='background'),
+    'bg_near': dict(kind='background'),
+}
+
+ALPHA_CUT = 128     # 축소 후 이 값 미만은 완전 투명, 이상은 불투명
+WHITE_LUMA = 240    # 배경으로 볼 밝기
+
+
+# ───────── 1. 배경 제거 ─────────
+
+def luma(rgb):
+    return rgb[..., 0] * 0.299 + rgb[..., 1] * 0.587 + rgb[..., 2] * 0.114
+
+
+def remove_background(img):
+    """이미지 테두리에서 시작해 밝기 240 이상인 픽셀만 따라 퍼지며 투명으로 만든다(4방향).
+    흰색만으로 테두리까지 이어진 영역 = 배경. 캐릭터 안쪽 흰색(눈 하이라이트, 칼날, 흰 옷)이나
+    이미 투명한 배경에 떠 있는 흰 섬광은 흰색으로 테두리와 이어지지 않으므로 남는다."""
+    a = np.array(img.convert('RGBA'))
+    h, w = a.shape[:2]
+    rgb = a[..., :3].astype(np.float32)
+    cand = (a[..., 3] >= 16) & (luma(rgb) >= WHITE_LUMA)
+    seen = np.zeros((h, w), bool)
+    q = deque()
+    for x in range(w):
+        for y in (0, h - 1):
+            if cand[y, x] and not seen[y, x]:
+                seen[y, x] = True
+                q.append((y, x))
+    for y in range(h):
+        for x in (0, w - 1):
+            if cand[y, x] and not seen[y, x]:
+                seen[y, x] = True
+                q.append((y, x))
+    while q:
+        y, x = q.popleft()
+        for ny, nx in ((y - 1, x), (y + 1, x), (y, x - 1), (y, x + 1)):
+            if 0 <= ny < h and 0 <= nx < w and cand[ny, nx] and not seen[ny, nx]:
+                seen[ny, nx] = True
+                q.append((ny, nx))
+    removed_white = int(seen.sum())
+    a[seen] = 0
+
+    # 흰 배경이었다면 가장자리에 남은 밝은 테두리(헤일로)를 2겹까지 걷어낸다
+    if removed_white > 0:
+        for _ in range(2):
+            bg = a[..., 3] == 0
+            near = np.zeros_like(bg)
+            near[1:] |= bg[:-1]
+            near[:-1] |= bg[1:]
+            near[:, 1:] |= bg[:, :-1]
+            near[:, :-1] |= bg[:, 1:]
+            rgbf = a[..., :3].astype(np.float32)
+            sat = rgbf.max(2) - rgbf.min(2)
+            halo = near & ~bg & (luma(rgbf) >= 215) & (sat < 30)
+            a[halo] = 0
+    return a, removed_white
+
+
+# ───────── 2. 도트 크기 추정 / 축소 ─────────
+
+def _edges(a, axis):
+    """axis=1: 가로 방향 경계 강도 (H × W-1), axis=0: 세로 방향 (W × H-1)"""
+    rgb = a[..., :3].astype(np.float32) * (a[..., 3:4] / 255.0)
+    if axis == 1:
+        return np.abs(np.diff(rgb, axis=1)).sum(2)
+    return np.abs(np.diff(rgb, axis=0)).sum(2).T
+
+
+def _local_period(E, win=192, maxlag=16):
+    """창(win 픽셀)마다 경계 강도의 자기상관에서 첫 봉우리를 찾아 중앙값을 낸다.
+    AI 그림은 격자가 조금씩 어긋나므로 전체보다 부분별로 재는 게 안정적이다."""
+    vals = []
+    for s in range(0, max(1, E.shape[1] - win), win // 2):
+        block = E[:, s:s + win]
+        if (block > 30).sum() < win * 4:
+            continue
+        e = block.sum(0)
+        e = e - e.mean()
+        denom = (e * e).sum()
+        if denom <= 0:
+            continue
+        ac = np.array([(e[:-l] * e[l:]).sum() for l in range(1, maxlag + 1)]) / denom
+        for l in range(2, maxlag - 1):
+            if ac[l - 1] > ac[l - 2] and ac[l - 1] >= ac[l] and ac[l - 1] > 0.08:
+                y0, y1, y2 = ac[l - 2], ac[l - 1], ac[l]
+                d = y0 - 2 * y1 + y2
+                vals.append(l + (0.5 * (y0 - y2) / d if d else 0))
+                break
+    return (float(np.median(vals)), len(vals)) if vals else (None, 0)
+
+
+def estimate_dot(a):
+    px, nx = _local_period(_edges(a, 1))
+    py, ny = _local_period(_edges(a, 0))
+    if px is None and py is None:
+        return 4.0
+    if px is None:
+        return py
+    if py is None:
+        return px
+    if abs(px - py) / min(px, py) <= 0.15:
+        return (px * nx + py * ny) / (nx + ny)
+    return px if nx >= ny else py  # 크게 다르면 측정 창이 많은 쪽을 믿는다
+
+
+def _phase(profile, s):
+    """경계 강도 1차원 신호에서 주기 s 격자의 경계 위치(0~s)"""
+    x = np.arange(len(profile))
+    z = (profile * np.exp(2j * np.pi * x / s)).sum()
+    c = (np.angle(z) / (2 * np.pi)) * s
+    return (c + 1) % s  # profile[i] 는 i 와 i+1 사이 경계 → 칸 시작은 c+1
+
+
+def downscale(a, s):
+    """도트 칸 중앙 픽셀을 그대로 가져온다(Nearest Neighbor). 칸 위치는 이 영역에서 따로 맞춘다."""
+    h, w = a.shape[:2]
+    if h < 2 or w < 2:
+        return a[:1, :1].copy()
+    bx = _phase(_edges(a, 1).sum(0), s)
+    by = _phase(_edges(a, 0).sum(0), s)
+    xs = np.floor(bx - s * math.ceil(bx / s) + (np.arange(int(w / s) + 2) + 0.5) * s).astype(int)
+    ys = np.floor(by - s * math.ceil(by / s) + (np.arange(int(h / s) + 2) + 0.5) * s).astype(int)
+    xs = xs[(xs >= 0) & (xs < w)]
+    ys = ys[(ys >= 0) & (ys < h)]
+    out = a[ys][:, xs].copy()
+    out[..., 3] = np.where(out[..., 3] >= ALPHA_CUT, 255, 0)
+    out[out[..., 3] == 0] = 0
+    return out
+
+
+# ───────── 3. 프레임 분리 ─────────
+
+def runs(mask):
+    out, start = [], None
+    for i, v in enumerate(mask):
+        if v and start is None:
+            start = i
+        elif not v and start is not None:
+            out.append([start, i])
+            start = None
+    if start is not None:
+        out.append([start, len(mask)])
+    return out
+
+
+def split_axis(occ, count=None, min_mass_ratio=0.002):
+    """occ: 열(또는 행)별 불투명 픽셀 수. 빈 구간에서 자르고, count 에 맞게 합치거나 나눈다."""
+    segs = runs(occ > 1)
+    total = occ.sum()
+    # 먼지 같은 작은 조각 제거
+    segs = [g for g in segs if occ[g[0]:g[1]].sum() >= total * min_mass_ratio] or segs
+    if count:
+        while len(segs) > count:  # 가장 좁은 틈부터 합침
+            gaps = [segs[i + 1][0] - segs[i][1] for i in range(len(segs) - 1)]
+            i = int(np.argmin(gaps))
+            segs[i] = [segs[i][0], segs[i + 1][1]]
+            del segs[i + 1]
+        while len(segs) < count:  # 붙어 있는 프레임은 가장 넓은 구간의 가장 얇은 곳에서 자름
+            i = int(np.argmax([g[1] - g[0] for g in segs]))
+            a0, a1 = segs[i]
+            lo, hi = a0 + (a1 - a0) // 5, a1 - (a1 - a0) // 5
+            cut = lo + int(np.argmin(occ[lo:hi]))
+            segs[i:i + 1] = [[a0, cut], [cut, a1]]
+    return segs
+
+
+def crop_to_content(a):
+    op = a[..., 3] > 0
+    if not op.any():
+        return a[:1, :1], (0, 0)
+    ys, xs = np.where(op)
+    return a[ys.min():ys.max() + 1, xs.min():xs.max() + 1], (xs.min(), ys.min())
+
+
+# ───────── 4. 칸 맞추기 ─────────
+
+def anchor_x(frame, mode):
+    if mode == 'feet':
+        h = frame.shape[0]
+        foot = frame[int(h * 0.88):, :, 3] > 0
+        cols = np.where(foot.any(0))[0]
+        if len(cols):
+            return (cols.min() + cols.max() + 1) / 2
+    return frame.shape[1] / 2
+
+
+def pack(frames, mode, pad):
+    """프레임마다 아래(발바닥)를 칸 바닥에, anchor 를 칸 가로 중앙에 둔다."""
+    anchors = [anchor_x(f, mode) for f in frames]
+    half = max(max(ax, f.shape[1] - ax) for f, ax in zip(frames, anchors))
+    fw = int(math.ceil(half)) * 2 + pad * 2
+    fh = max(f.shape[0] for f in frames) + pad
+    sheet = np.zeros((fh, fw * len(frames), 4), np.uint8)
+    for i, (f, ax) in enumerate(zip(frames, anchors)):
+        x = i * fw + int(round(fw / 2 - ax))
+        y = fh - f.shape[0]
+        sheet[y:y + f.shape[0], x:x + f.shape[1]] = f
+    return sheet, fw, fh
+
+
+# ───────── 시트 종류별 처리 ─────────
+
+def process_frames(a, cfg, dot, count=None):
+    """한 줄짜리 시트: 원본 해상도에서 프레임을 나눈 뒤 프레임마다 축소한다."""
+    op = a[..., 3] > 0
+    segs = split_axis(op.sum(0), count or cfg.get('frames'))
+    frames, bottoms = [], []
+    for x0, x1 in segs:
+        part = a[:, x0:x1]
+        ys = np.where(part[..., 3].any(1))[0]
+        if len(ys):
+            part = part[max(0, ys.min() - 4):ys.max() + 5]
+            bottoms.append(ys.max())
+        small, _ = crop_to_content(downscale(part, dot))
+        frames.append(small)
+    # 원래 그림에서 발이 얼마나 떠 있었는지(점프 높이 참고용, 도트 단위)
+    base = max(bottoms) if bottoms else 0
+    lift = [round((base - b) / dot) for b in bottoms]
+    return frames, lift
+
+
+def save_sheet(name, frames, cfg, dot, out_dir, source, lift=None):
+    sheet, fw, fh = pack(frames, cfg.get('anchor', 'bbox'), cfg.get('pad', 1))
+    Image.fromarray(sheet).save(out_dir / f'{name}.png')
+    entry = dict(file=f'{name}.png', source=source, frameWidth=fw, frameHeight=fh, frames=len(frames),
+                 origin=dict(x=0.5, y=1.0), dot=round(dot, 2))
+    if cfg.get('facing'):
+        entry['facing'] = cfg['facing']
+    if cfg.get('labels'):
+        entry['labels'] = cfg['labels']
+    if lift and any(lift):
+        entry['liftInSource'] = lift
+    return entry
+
+
+def process_effects(a, cfg, dot, out_dir, source):
+    entries = {}
+    bands = split_axis((a[..., 3] > 0).sum(1), len(cfg['rows']))
+    for (y0, y1), groups in zip(bands, cfg['rows']):
+        band = a[y0:y1]
+        frames, _ = process_frames(band, cfg, dot, count=sum(n for _, n in groups))
+        i = 0
+        for name, n in groups:
+            entries[name] = save_sheet(name, frames[i:i + n], cfg, dot, out_dir, source)
+            i += n
+    return entries
+
+
+def process_tiles(a, cfg, out_dir, source):
+    """행 → 열 순서로 타일을 찾아 개별 PNG(32×32)로 저장. 도트 크기는 '가장 큰 타일 = 32px' 로 정한다."""
+    T = cfg['tile']
+    tile_dir = out_dir / 'tiles'
+    tile_dir.mkdir(exist_ok=True)
+    for old in tile_dir.glob('*.png'):
+        old.unlink()
+    op = a[..., 3] > 0
+    regions = []
+    for r, (y0, y1) in enumerate(split_axis(op.sum(1), min_mass_ratio=0.01)):
+        for c, (x0, x1) in enumerate(split_axis(op[y0:y1].sum(0), min_mass_ratio=0.0005)):
+            regions.append((r, c, x0, y0, x1, y1))
+    widths = np.array([x1 - x0 for *_, x0, y0, x1, y1 in regions])
+    full = widths[widths >= widths.max() * 0.85]
+    dot = float(np.median(full)) / T
+
+    tiles = []
+    atlas_cols = 12
+    for idx, (r, c, x0, y0, x1, y1) in enumerate(regions):
+        small, _ = crop_to_content(downscale(a[y0:y1, x0:x1], dot))
+        h, w = small.shape[:2]
+        # 거의 한 칸이면 32 로 맞춤(NN), 작은 조각(기둥 머리, 끝 장식 등)은 원래 크기로 아래·가운데 정렬
+        nw = T if w >= T * 0.75 else min(w, T)
+        nh = T if h >= T * 0.75 else min(h, T)
+        if (nw, nh) != (w, h):
+            small = np.array(Image.fromarray(small).resize((nw, nh), Image.NEAREST))
+        canvas = np.zeros((T, T, 4), np.uint8)
+        ox, oy = (T - nw) // 2, T - nh
+        canvas[oy:oy + nh, ox:ox + nw] = small
+        name = f'tile_r{r}_c{c:02d}.png'
+        Image.fromarray(canvas).save(tile_dir / name)
+        tiles.append(dict(file=f'tiles/{name}', row=r, col=c, size=[int(w), int(h)],
+                          stretched=bool((nw, nh) != (w, h))))
+    # 한 장으로도 저장 (Phaser spritesheet 로 바로 쓸 수 있게 32×32 격자)
+    rows_n = math.ceil(len(tiles) / atlas_cols)
+    atlas = Image.new('RGBA', (atlas_cols * T, rows_n * T))
+    for i, t in enumerate(tiles):
+        atlas.paste(Image.open(tile_dir / Path(t['file']).name), ((i % atlas_cols) * T, (i // atlas_cols) * T))
+    atlas.save(out_dir / 'tileset.png')
+    return dict(file='tileset.png', source=source, frameWidth=T, frameHeight=T, frames=len(tiles),
+                columns=atlas_cols, dot=round(dot, 2), tiles=tiles)
+
+
+def make_tileable(a, search=0.12, k=8):
+    """가로로 이어 붙였을 때 이음매가 자연스럽도록:
+    양 끝 근처(각 12%)에서 k 칸 너비로 서로 가장 비슷한 두 위치 x0, x1 을 찾아 [x0, x1) 만 남긴다.
+    그러면 오른쪽 끝 다음에 원래 오던 그림(x1~)이 왼쪽 시작(x0~)과 거의 같아 이음매가 이어진다.
+    (섞기/디더링은 도트 그림에 얼룩이 생겨 하지 않는다)"""
+    h, w = a.shape[:2]
+    f = a.astype(np.float32)
+    best = None
+    for x0 in range(0, int(w * search)):
+        for x1 in range(int(w * (1 - search)), w - k):
+            d = np.abs(f[:, x0:x0 + k] - f[:, x1:x1 + k]).mean()
+            if best is None or d < best[0]:
+                best = (d, x0, x1)
+    _, x0, x1 = best
+    return a[:, x0:x1].copy(), int(x0), int(x1)
+
+
+def process_background(a, out_dir, name, source):
+    dot = estimate_dot(a)
+    small = downscale(a, dot)
+    tiled, x0, x1 = make_tileable(small)
+    Image.fromarray(tiled).save(out_dir / f'{name}.png')
+    return dict(file=f'{name}.png', source=source, width=int(tiled.shape[1]), height=int(tiled.shape[0]),
+                dot=round(dot, 2), tileable=True, seamCrop=[x0, x1])
+
+
+# ───────── preview.html ─────────
+
+def write_preview(manifest, out_dir, src_rel):
+    data = json.dumps(manifest, ensure_ascii=False)
+    html = """<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sprite Preview</title>
+<style>
+:root { --bg:#f4f1ea; --fg:#1d1b18; --muted:#6b665d; --card:#fff; --line:#ddd6c8; --accent:#d6336c; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#16151a; --fg:#ece8e1; --muted:#9a948a; --card:#1f1e24; --line:#34323a; } }
+body { margin:0; background:var(--bg); color:var(--fg); font:14px/1.5 system-ui,-apple-system,sans-serif; }
+header { padding:20px 16px 4px; max-width:1200px; margin:auto; }
+h1 { font-size:20px; margin:0 0 4px; } header p { color:var(--muted); margin:0; }
+.controls { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:10px 0; }
+main { max-width:1200px; margin:auto; padding:0 16px 40px; }
+section { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px; margin:14px 0; }
+h2 { font-size:16px; margin:0 0 2px; } .meta { color:var(--muted); font-size:12px; margin-bottom:10px; }
+.row { display:grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:start; }
+@media (max-width:760px) { .row { grid-template-columns: minmax(0,1fr); } }
+.label { font-size:12px; color:var(--muted); margin-bottom:4px; }
+.box { overflow:auto; border:1px solid var(--line); border-radius:6px; padding:6px;
+  background: repeating-conic-gradient(#cfcfcf 0 25%, #f2f2f2 0 50%) 0 0/16px 16px; }
+.box img, .box canvas { display:block; image-rendering:pixelated; }
+.orig img { max-width:100%; height:auto; image-rendering:auto; }
+.anim { display:flex; gap:14px; align-items:flex-end; margin-top:10px; flex-wrap:wrap; }
+.tiles { display:flex; flex-wrap:wrap; gap:6px; }
+.tiles figure { margin:0; text-align:center; font-size:10px; color:var(--muted); }
+.tiles img { width:64px; height:64px; image-rendering:pixelated; border:1px dashed var(--line); }
+</style></head><body>
+<header><h1>스프라이트 전처리 미리보기</h1>
+<p>왼쪽: 원본 (assets/raw) · 오른쪽: 결과 (assets/sprites). 빨간 선 = 프레임 칸 경계, 분홍 선 = 바닥선(발바닥 정렬 기준).</p>
+<div class="controls"><label>확대 <select id="zoom"><option>2</option><option selected>3</option><option>4</option><option>6</option></select></label>
+<label>속도 <select id="fps"><option>6</option><option selected>10</option><option>15</option></select> fps</label></div></header>
+<main id="list"></main>
+<script>
+const M = __DATA__;
+const SRC = '__SRC__';
+const list = document.getElementById('list');
+const zoomSel = document.getElementById('zoom'), fpsSel = document.getElementById('fps');
+const anims = [];
+function el(tag, attrs = {}, ...kids) { const e = document.createElement(tag); Object.assign(e, attrs); kids.forEach(k => e.append(k)); return e; }
+
+function sheetCanvas(img, s) {
+  const z = +zoomSel.value, c = el('canvas'); c.width = img.width * z; c.height = img.height * z;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0, c.width, c.height);
+  if (s.frames) {
+    g.strokeStyle = 'rgba(220,30,30,.8)'; g.lineWidth = 1;
+    for (let i = 0; i <= s.frames; i++) { const x = i * s.frameWidth * z + .5; g.beginPath(); g.moveTo(x, 0); g.lineTo(x, c.height); g.stroke(); }
+    g.strokeStyle = 'rgba(214,51,108,.9)'; g.beginPath(); g.moveTo(0, c.height - .5); g.lineTo(c.width, c.height - .5); g.stroke();
+  }
+  return c;
+}
+
+function render() {
+  list.innerHTML = ''; anims.length = 0;
+  for (const [name, s] of Object.entries(M.sheets)) {
+    const sec = el('section');
+    const info = s.tiles ? `타일 ${s.tiles.length}개 · 32×32 · 도트 ${s.dot}px`
+      : s.frames ? `${s.frames}프레임 · 칸 ${s.frameWidth}×${s.frameHeight} · 도트 ${s.dot}px` + (s.facing ? ` · ${s.facing === 'right' ? '오른쪽' : '왼쪽'} 봄` : '')
+      : `${s.width}×${s.height} · 도트 ${s.dot}px · 가로 반복`;
+    sec.append(el('h2', { textContent: name }), el('div', { className: 'meta', textContent: info + (s.labels ? ' · ' + s.labels.join(', ') : '') }));
+    const orig = el('div', {}, el('div', { className: 'label', textContent: '원본 ' + s.source }),
+      el('div', { className: 'box orig' }, el('img', { src: SRC + s.source, loading: 'lazy' })));
+    const outBox = el('div', { className: 'box' });
+    const out = el('div', {}, el('div', { className: 'label', textContent: '결과 ' + s.file }), outBox);
+    sec.append(el('div', { className: 'row' }, orig, out));
+    const img = new Image(); img.src = s.file;
+    img.onload = () => {
+      if (s.tiles) {
+        const t = el('div', { className: 'tiles' });
+        s.tiles.forEach(tt => t.append(el('figure', {}, el('img', { src: tt.file }), el('figcaption', { textContent: `r${tt.row} c${tt.col}${tt.stretched ? ' ↔' : ''}` }))));
+        outBox.append(t);
+      } else if (!s.frames) {
+        // 배경: 두 장 이어 붙여 이음매 확인
+        const c = el('canvas'); c.width = img.width * 2; c.height = img.height; c.style.width = '100%';
+        const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.drawImage(img, img.width, 0);
+        g.fillStyle = 'rgba(214,51,108,.9)'; g.fillRect(img.width, 0, 1, 6); g.fillRect(img.width, c.height - 6, 1, 6);
+        outBox.append(c);
+        out.append(el('div', { className: 'label', textContent: '↑ 같은 배경 2장을 이어 붙인 모습 (분홍 눈금 = 이음매)' }));
+      } else {
+        outBox.append(sheetCanvas(img, s));
+        if (s.frames > 1) {
+          const z = +zoomSel.value, c = el('canvas'); c.width = s.frameWidth * z; c.height = s.frameHeight * z;
+          out.append(el('div', { className: 'anim' }, el('div', {}, el('div', { className: 'label', textContent: '재생' }), el('div', { className: 'box' }, c))));
+          anims.push({ c, img, s, z });
+        }
+      }
+    };
+    list.append(sec);
+  }
+}
+let frame = 0;
+function tick() {
+  frame++;
+  for (const a of anims) {
+    const g = a.c.getContext('2d'), i = frame % a.s.frames; g.imageSmoothingEnabled = false;
+    g.clearRect(0, 0, a.c.width, a.c.height);
+    g.drawImage(a.img, i * a.s.frameWidth, 0, a.s.frameWidth, a.s.frameHeight, 0, 0, a.c.width, a.c.height);
+  }
+  setTimeout(tick, 1000 / +fpsSel.value);
+}
+zoomSel.onchange = render;
+render(); tick();
+</script></body></html>"""
+    html = html.replace('__DATA__', data).replace('__SRC__', src_rel)
+    (out_dir / 'preview.html').write_text(html, encoding='utf-8')
+
+
+# ───────── main ─────────
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument('--src', default=str(ROOT / 'assets/raw'))
+    ap.add_argument('--out', default=str(ROOT / 'assets/sprites'))
+    ap.add_argument('--only', nargs='*', help='이 이름의 원본만 처리 (manifest 의 나머지는 유지)')
+    args = ap.parse_args()
+    src, out = Path(args.src), Path(args.out)
+    out.mkdir(parents=True, exist_ok=True)
+
+    man_path = out / 'manifest.json'
+    manifest = json.loads(man_path.read_text(encoding='utf-8')) if (args.only and man_path.exists()) else {}
+    manifest.setdefault('sheets', {})
+
+    for name, cfg in SHEETS.items():
+        if args.only and name not in args.only:
+            continue
+        path = src / f'{name}.png'
+        if not path.exists():
+            print(f'  ! {path.name} 없음 — 건너뜀')
+            continue
+        a, removed = remove_background(Image.open(path))
+        source = path.name
+        kind = cfg.get('kind')
+        if kind == 'tiles':
+            entry = process_tiles(a, cfg, out, source)
+            manifest['sheets'][name] = entry
+            note = f"타일 {entry['frames']}개"
+        elif kind == 'background':
+            entry = process_background(a, out, name, source)
+            manifest['sheets'][name] = entry
+            note = f"{entry['width']}×{entry['height']}"
+        else:
+            dot = cfg.get('dot') or estimate_dot(a)
+            if kind == 'effects':
+                entries = process_effects(a, cfg, dot, out, source)
+                manifest['sheets'].update(entries)
+                note = ', '.join(f"{k} {v['frames']}×{v['frameWidth']}×{v['frameHeight']}" for k, v in entries.items())
+            else:
+                frames, lift = process_frames(a, cfg, dot)
+                entry = save_sheet(name, frames, cfg, dot, out, source, lift)
+                manifest['sheets'][name] = entry
+                note = f"{entry['frames']}프레임 칸 {entry['frameWidth']}×{entry['frameHeight']}"
+        dot_shown = manifest['sheets'].get(name, {}).get('dot') or round(dot, 2)
+        print(f'  {name:<20} 도트 {dot_shown:>5}px  흰 배경 제거 {removed:>7}px  → {note}')
+
+    manifest['note'] = 'tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.'
+    man_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
+    write_preview(manifest, out, src_rel='../raw/')
+    print(f'완료: {out.relative_to(ROOT)}/ (manifest.json, preview.html)')
+
+
+if __name__ == '__main__':
+    main()

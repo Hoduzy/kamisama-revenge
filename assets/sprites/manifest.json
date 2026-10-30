@@ -1,0 +1,1114 @@
+{
+  "sheets": {
+    "player_idle": {
+      "file": "player_idle.png",
+      "source": "player_idle.png",
+      "frameWidth": 98,
+      "frameHeight": 197,
+      "frames": 6,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.01,
+      "facing": "right",
+      "liftInSource": [
+        0,
+        1,
+        0,
+        0,
+        1,
+        0
+      ]
+    },
+    "player_run": {
+      "file": "player_run.png",
+      "source": "player_run.png",
+      "frameWidth": 104,
+      "frameHeight": 130,
+      "frames": 6,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.43,
+      "facing": "right",
+      "liftInSource": [
+        2,
+        2,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "player_jump": {
+      "file": "player_jump.png",
+      "source": "player_jump.png",
+      "frameWidth": 120,
+      "frameHeight": 135,
+      "frames": 6,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.14,
+      "facing": "right",
+      "labels": [
+        "crouch",
+        "rise",
+        "apex",
+        "fall",
+        "land",
+        "recover"
+      ],
+      "liftInSource": [
+        0,
+        0,
+        38,
+        13,
+        0,
+        0
+      ]
+    },
+    "player_dash": {
+      "file": "player_dash.png",
+      "source": "player_dash.png",
+      "frameWidth": 160,
+      "frameHeight": 95,
+      "frames": 6,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.04,
+      "facing": "right"
+    },
+    "player_iaido_ready": {
+      "file": "player_iaido_ready.png",
+      "source": "player_iaido_ready.png",
+      "frameWidth": 94,
+      "frameHeight": 105,
+      "frames": 6,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.53,
+      "facing": "right"
+    },
+    "player_iaido_slash": {
+      "file": "player_iaido_slash.png",
+      "source": "player_iaido_slash.png",
+      "frameWidth": 210,
+      "frameHeight": 109,
+      "frames": 6,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.01,
+      "facing": "right"
+    },
+    "player_parry": {
+      "file": "player_parry.png",
+      "source": "player_parry.png",
+      "frameWidth": 96,
+      "frameHeight": 116,
+      "frames": 6,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.83,
+      "facing": "right"
+    },
+    "player_death": {
+      "file": "player_death.png",
+      "source": "player_death.png",
+      "frameWidth": 136,
+      "frameHeight": 127,
+      "frames": 6,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.1,
+      "facing": "right",
+      "liftInSource": [
+        2,
+        2,
+        2,
+        2,
+        2,
+        0
+      ]
+    },
+    "enemy_sword": {
+      "file": "enemy_sword.png",
+      "source": "enemy_sword.png",
+      "frameWidth": 168,
+      "frameHeight": 147,
+      "frames": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.99,
+      "facing": "left",
+      "labels": [
+        "idle",
+        "windup",
+        "attack",
+        "death"
+      ],
+      "liftInSource": [
+        0,
+        1,
+        0,
+        2
+      ]
+    },
+    "enemy_ninja": {
+      "file": "enemy_ninja.png",
+      "source": "enemy_ninja.png",
+      "frameWidth": 192,
+      "frameHeight": 106,
+      "frames": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 4.14,
+      "facing": "left",
+      "labels": [
+        "idle",
+        "windup",
+        "attack",
+        "death"
+      ]
+    },
+    "boss": {
+      "file": "boss.png",
+      "source": "boss.png",
+      "frameWidth": 334,
+      "frameHeight": 294,
+      "frames": 1,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 4.14,
+      "facing": "left"
+    },
+    "tree": {
+      "file": "tree.png",
+      "source": "tree.png",
+      "frameWidth": 172,
+      "frameHeight": 188,
+      "frames": 2,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 4.39,
+      "labels": [
+        "bare",
+        "bloom"
+      ],
+      "liftInSource": [
+        1,
+        0
+      ]
+    },
+    "portraits": {
+      "file": "portraits.png",
+      "source": "portraits.png",
+      "frameWidth": 96,
+      "frameHeight": 108,
+      "frames": 3,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 6.21,
+      "labels": [
+        "neutral",
+        "angry",
+        "sad"
+      ]
+    },
+    "ui_icons": {
+      "file": "ui_icons.png",
+      "source": "ui_icons.png",
+      "frameWidth": 50,
+      "frameHeight": 47,
+      "frames": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 5.93,
+      "labels": [
+        "dash",
+        "iaido",
+        "stack_empty",
+        "stack_full"
+      ]
+    },
+    "fx_petals": {
+      "file": "fx_petals.png",
+      "source": "effects.png",
+      "frameWidth": 24,
+      "frameHeight": 21,
+      "frames": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.64
+    },
+    "fx_slash": {
+      "file": "fx_slash.png",
+      "source": "effects.png",
+      "frameWidth": 42,
+      "frameHeight": 41,
+      "frames": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.64
+    },
+    "fx_parry_flash": {
+      "file": "fx_parry_flash.png",
+      "source": "effects.png",
+      "frameWidth": 38,
+      "frameHeight": 36,
+      "frames": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.64
+    },
+    "fx_sakura_burst": {
+      "file": "fx_sakura_burst.png",
+      "source": "effects.png",
+      "frameWidth": 50,
+      "frameHeight": 53,
+      "frames": 4,
+      "origin": {
+        "x": 0.5,
+        "y": 1.0
+      },
+      "dot": 3.64
+    },
+    "tileset": {
+      "file": "tileset.png",
+      "source": "tileset.png",
+      "frameWidth": 32,
+      "frameHeight": 32,
+      "frames": 77,
+      "columns": 12,
+      "dot": 4.41,
+      "tiles": [
+        {
+          "file": "tiles/tile_r0_c00.png",
+          "row": 0,
+          "col": 0,
+          "size": [
+            33,
+            32
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r0_c01.png",
+          "row": 0,
+          "col": 1,
+          "size": [
+            32,
+            32
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r0_c02.png",
+          "row": 0,
+          "col": 2,
+          "size": [
+            32,
+            32
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r0_c03.png",
+          "row": 0,
+          "col": 3,
+          "size": [
+            32,
+            32
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r0_c04.png",
+          "row": 0,
+          "col": 4,
+          "size": [
+            31,
+            32
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r0_c05.png",
+          "row": 0,
+          "col": 5,
+          "size": [
+            32,
+            31
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r0_c06.png",
+          "row": 0,
+          "col": 6,
+          "size": [
+            32,
+            30
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r0_c07.png",
+          "row": 0,
+          "col": 7,
+          "size": [
+            31,
+            19
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r0_c08.png",
+          "row": 0,
+          "col": 8,
+          "size": [
+            26,
+            25
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r0_c09.png",
+          "row": 0,
+          "col": 9,
+          "size": [
+            17,
+            27
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c00.png",
+          "row": 1,
+          "col": 0,
+          "size": [
+            32,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c01.png",
+          "row": 1,
+          "col": 1,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c02.png",
+          "row": 1,
+          "col": 2,
+          "size": [
+            32,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c03.png",
+          "row": 1,
+          "col": 3,
+          "size": [
+            32,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c04.png",
+          "row": 1,
+          "col": 4,
+          "size": [
+            31,
+            28
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c05.png",
+          "row": 1,
+          "col": 5,
+          "size": [
+            32,
+            28
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c06.png",
+          "row": 1,
+          "col": 6,
+          "size": [
+            31,
+            27
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c07.png",
+          "row": 1,
+          "col": 7,
+          "size": [
+            31,
+            10
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c08.png",
+          "row": 1,
+          "col": 8,
+          "size": [
+            26,
+            11
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r1_c09.png",
+          "row": 1,
+          "col": 9,
+          "size": [
+            16,
+            14
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r2_c00.png",
+          "row": 2,
+          "col": 0,
+          "size": [
+            32,
+            33
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r2_c01.png",
+          "row": 2,
+          "col": 1,
+          "size": [
+            32,
+            32
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r2_c02.png",
+          "row": 2,
+          "col": 2,
+          "size": [
+            31,
+            32
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r2_c03.png",
+          "row": 2,
+          "col": 3,
+          "size": [
+            32,
+            32
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r2_c04.png",
+          "row": 2,
+          "col": 4,
+          "size": [
+            31,
+            33
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r2_c05.png",
+          "row": 2,
+          "col": 5,
+          "size": [
+            31,
+            32
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r2_c06.png",
+          "row": 2,
+          "col": 6,
+          "size": [
+            31,
+            33
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r2_c07.png",
+          "row": 2,
+          "col": 7,
+          "size": [
+            31,
+            32
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r2_c08.png",
+          "row": 2,
+          "col": 8,
+          "size": [
+            26,
+            32
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r2_c09.png",
+          "row": 2,
+          "col": 9,
+          "size": [
+            15,
+            32
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r3_c00.png",
+          "row": 3,
+          "col": 0,
+          "size": [
+            32,
+            31
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c01.png",
+          "row": 3,
+          "col": 1,
+          "size": [
+            32,
+            30
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c02.png",
+          "row": 3,
+          "col": 2,
+          "size": [
+            31,
+            31
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c03.png",
+          "row": 3,
+          "col": 3,
+          "size": [
+            31,
+            31
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c04.png",
+          "row": 3,
+          "col": 4,
+          "size": [
+            32,
+            31
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c05.png",
+          "row": 3,
+          "col": 5,
+          "size": [
+            32,
+            31
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c06.png",
+          "row": 3,
+          "col": 6,
+          "size": [
+            32,
+            31
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c07.png",
+          "row": 3,
+          "col": 7,
+          "size": [
+            31,
+            24
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c08.png",
+          "row": 3,
+          "col": 8,
+          "size": [
+            25,
+            21
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r3_c09.png",
+          "row": 3,
+          "col": 9,
+          "size": [
+            14,
+            17
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r4_c00.png",
+          "row": 4,
+          "col": 0,
+          "size": [
+            32,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c01.png",
+          "row": 4,
+          "col": 1,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c02.png",
+          "row": 4,
+          "col": 2,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c03.png",
+          "row": 4,
+          "col": 3,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c04.png",
+          "row": 4,
+          "col": 4,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c05.png",
+          "row": 4,
+          "col": 5,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c06.png",
+          "row": 4,
+          "col": 6,
+          "size": [
+            32,
+            27
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c07.png",
+          "row": 4,
+          "col": 7,
+          "size": [
+            31,
+            16
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c08.png",
+          "row": 4,
+          "col": 8,
+          "size": [
+            16,
+            26
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r4_c09.png",
+          "row": 4,
+          "col": 9,
+          "size": [
+            12,
+            19
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r5_c00.png",
+          "row": 5,
+          "col": 0,
+          "size": [
+            15,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c01.png",
+          "row": 5,
+          "col": 1,
+          "size": [
+            13,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c02.png",
+          "row": 5,
+          "col": 2,
+          "size": [
+            16,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c03.png",
+          "row": 5,
+          "col": 3,
+          "size": [
+            15,
+            35
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c04.png",
+          "row": 5,
+          "col": 4,
+          "size": [
+            15,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c05.png",
+          "row": 5,
+          "col": 5,
+          "size": [
+            17,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c06.png",
+          "row": 5,
+          "col": 6,
+          "size": [
+            15,
+            35
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c07.png",
+          "row": 5,
+          "col": 7,
+          "size": [
+            12,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c08.png",
+          "row": 5,
+          "col": 8,
+          "size": [
+            15,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c09.png",
+          "row": 5,
+          "col": 9,
+          "size": [
+            14,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c10.png",
+          "row": 5,
+          "col": 10,
+          "size": [
+            11,
+            34
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c11.png",
+          "row": 5,
+          "col": 11,
+          "size": [
+            11,
+            35
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c12.png",
+          "row": 5,
+          "col": 12,
+          "size": [
+            11,
+            35
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c13.png",
+          "row": 5,
+          "col": 13,
+          "size": [
+            10,
+            25
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r5_c14.png",
+          "row": 5,
+          "col": 14,
+          "size": [
+            8,
+            23
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r5_c15.png",
+          "row": 5,
+          "col": 15,
+          "size": [
+            7,
+            13
+          ],
+          "stretched": false
+        },
+        {
+          "file": "tiles/tile_r6_c00.png",
+          "row": 6,
+          "col": 0,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c01.png",
+          "row": 6,
+          "col": 1,
+          "size": [
+            30,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c02.png",
+          "row": 6,
+          "col": 2,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c03.png",
+          "row": 6,
+          "col": 3,
+          "size": [
+            32,
+            30
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c04.png",
+          "row": 6,
+          "col": 4,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c05.png",
+          "row": 6,
+          "col": 5,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c06.png",
+          "row": 6,
+          "col": 6,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c07.png",
+          "row": 6,
+          "col": 7,
+          "size": [
+            31,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c08.png",
+          "row": 6,
+          "col": 8,
+          "size": [
+            14,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c09.png",
+          "row": 6,
+          "col": 9,
+          "size": [
+            10,
+            29
+          ],
+          "stretched": true
+        },
+        {
+          "file": "tiles/tile_r6_c10.png",
+          "row": 6,
+          "col": 10,
+          "size": [
+            14,
+            13
+          ],
+          "stretched": false
+        }
+      ]
+    },
+    "bg_mid": {
+      "file": "bg_mid.png",
+      "source": "bg_mid.png",
+      "width": 406,
+      "height": 261,
+      "dot": 3.61,
+      "tileable": true,
+      "seamCrop": [
+        38,
+        444
+      ]
+    },
+    "bg_near": {
+      "file": "bg_near.png",
+      "source": "bg_near.png",
+      "width": 425,
+      "height": 294,
+      "dot": 3.2,
+      "tileable": true,
+      "seamCrop": [
+        39,
+        464
+      ]
+    }
+  },
+  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙."
+}
