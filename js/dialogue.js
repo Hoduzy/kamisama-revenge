@@ -15,7 +15,8 @@ class DialogueBox {
     const box = scene.add.rectangle(BOX_X, BOX_Y, 900, 128, 0x141214, 0.92).setOrigin(0)
       .setStrokeStyle(2, 0xff9eb8, 0.7);
     this.portraitFrame = scene.add.rectangle(44, 370, 136, 136, 0x000000).setOrigin(0).setStrokeStyle(3, 0xff9eb8);
-    this.portrait = scene.add.image(48, 374, '__DEFAULT').setOrigin(0);
+    this.portraitX = 44 + 68; // 초상화 틀 가운데
+    this.portrait = scene.add.image(this.portraitX, 370 + 68, '__DEFAULT');
     this.name = scene.add.text(this.textX, 406, '', { fontFamily: font, fontSize: '20px', fontStyle: 'bold', color: '#fff' });
     this.text = scene.add.text(this.textX, 436, '', {
       fontFamily: font, fontSize: '21px', color: '#f2f2f2', lineSpacing: 6,
@@ -53,17 +54,24 @@ class DialogueBox {
     const line = this.lines[this.index];
     const ch = this.characters[line.speaker] || {};
     const narration = !line.speaker || line.speaker === 'narration';
+    // 초상화: story.json 의 sprite(도트 그림 시트, line.face 로 표정 선택) → image → 도형으로 그린 것
+    const sheet = ch.sprite && this.scene.textures.exists(ch.sprite.key) ? ch.sprite : null;
     const portraitKey = 'portrait-' + line.speaker;
-    const hasPortrait = !narration && this.scene.textures.exists(portraitKey);
+    const hasPortrait = !narration && (sheet || this.scene.textures.exists(portraitKey));
 
     this.portraitFrame.setVisible(hasPortrait);
     this.portrait.setVisible(hasPortrait);
     if (hasPortrait) {
-      this.portrait.setTexture(portraitKey).setDisplaySize(PORTRAIT_SIZE, PORTRAIT_SIZE);
+      if (sheet) {
+        const face = sheet.faces[line.face] ?? sheet.faces.neutral ?? 0;
+        this.portrait.setTexture(sheet.key, face).setScale(1); // 도트 그림은 원래 크기 그대로
+      } else {
+        this.portrait.setTexture(portraitKey).setDisplaySize(PORTRAIT_SIZE, PORTRAIT_SIZE);
+      }
       if (line.speaker !== this.lastSpeaker) {
         // 말하는 사람이 바뀌면 초상화가 살짝 미끄러져 들어온다
-        this.portrait.setAlpha(0).setX(30);
-        this.scene.tweens.add({ targets: this.portrait, alpha: 1, x: 48, duration: 160, ease: 'Cubic.easeOut' });
+        this.portrait.setAlpha(0).setX(this.portraitX - 18);
+        this.scene.tweens.add({ targets: this.portrait, alpha: 1, x: this.portraitX, duration: 160, ease: 'Cubic.easeOut' });
       }
     }
     this.lastSpeaker = line.speaker;

@@ -64,8 +64,13 @@ SHEETS = {
         [('fx_parry_flash', 4, 48), ('fx_sakura_burst', 4, 72)],
     ]),
     'tileset': dict(kind='tiles', tile=32),
-    'bg_mid': dict(kind='background', parallax=0.3),
-    'bg_near': dict(kind='background', parallax=0.6),
+    # screenBottom: 땅에 서 있을 때(카메라 맨 아래) 그림 아래 끝이 화면 몇 px 에 오는지. 게임과 미리보기가 같이 쓴다
+    # opaque: 하늘까지 다 그린 그림이라 배경 투명 처리를 하지 않는다
+    # display: 화면 배율. bg_far 는 2배면 높이(486)가 화면(540)보다 작아 3배로 그린다 (위아래 일부가 잘림)
+    'bg_far': dict(kind='background', parallax=0.05, opaque=True, display=3, screenBottom=630),
+    # tint: 게임에서 곱할 색. 앞쪽 레이어일수록 어둡게 해서 캐릭터가 묻히지 않게 한다
+    'bg_mid': dict(kind='background', parallax=0.3, screenBottom=470, tint='#9a98b8'),
+    'bg_near': dict(kind='background', parallax=0.6, screenBottom=520, tint='#6e6c8a'),
 }
 
 # 배경은 화면에 이 배율로 그린다고 보고 스테이지를 덮는지 계산한다 (배경 1도트 = 화면 2px).
@@ -93,13 +98,15 @@ def enemy_body(key):
     return dict(width=int(m.group(1)), height=int(m.group(2)), note='몸통 판정. 발바닥 중앙 기준') if m else None
 
 
-def game_numbers():
-    """게임 화면 너비와 스테이지 길이를 js 설정에서 읽는다."""
+def game_numbers(full=False):
+    """게임 화면 크기와 스테이지 크기를 js 설정에서 읽는다."""
     cfg = (ROOT / 'js/config.js').read_text(encoding='utf-8')
     lvl = (ROOT / 'js/level.js').read_text(encoding='utf-8')
     gw = int(re.search(r'GAME_WIDTH\s*=\s*(\d+)', cfg).group(1))
+    gh = int(re.search(r'GAME_HEIGHT\s*=\s*(\d+)', cfg).group(1))
     sw = int(re.search(r'width:\s*(\d+)', lvl).group(1))
-    return gw, sw
+    sh = int(re.search(r'height:\s*(\d+)', lvl).group(1))
+    return dict(gameWidth=gw, gameHeight=gh, stageWidth=sw, stageHeight=sh) if full else (gw, sw)
 
 ALPHA_CUT = 128     # 축소 후 이 값 미만은 완전 투명, 이상은 불투명
 WHITE_LUMA = 240    # 배경으로 볼 밝기
@@ -506,7 +513,7 @@ def process_tiles(a, cfg, out_dir, source):
                 columns=atlas_cols, dot=round(dot, 2), tiles=tiles)
 
 
-def process_background(a, out_dir, name, source, parallax):
+def process_background(a, out_dir, name, source, parallax, display=BG_DISPLAY_SCALE):
     """자르지 않고 도트 해상도로만 줄인다. 패럴랙스로 스테이지를 덮는 데 모자라면
     좌우 반전 사본을 번갈아 붙인 띠(A, 반전A, A, …)를 따로 만든다. 반전 이음매는 저절로 맞는다."""
     dot = estimate_dot(a)
@@ -514,12 +521,17 @@ def process_background(a, out_dir, name, source, parallax):
     Image.fromarray(small).save(out_dir / f'{name}.png')
     gw, stage = game_numbers()
     need = gw + (stage - gw) * parallax           # 이 레이어가 화면에 보여야 하는 총 길이(px)
-    shown = small.shape[1] * BG_DISPLAY_SCALE      # 배경 한 장이 화면에서 차지하는 길이(px)
+    shown = small.shape[1] * display               # 배경 한 장이 화면에서 차지하는 길이(px)
     copies = max(1, math.ceil(need / shown))
+    rows = np.where(small[..., 3].any(1))[0]
     entry = dict(file=f'{name}.png', source=source, width=int(small.shape[1]), height=int(small.shape[0]),
-                 dot=round(dot, 2), parallax=parallax, displayScale=BG_DISPLAY_SCALE,
+                 contentTop=int(rows.min()), contentBottom=int(rows.max()) + 1,
+                 dot=round(dot, 2), parallax=parallax, displayScale=display,
                  coverage=dict(gameWidth=gw, stageWidth=stage, needPx=round(need), onePx=int(shown),
                                copies=copies, covered=copies == 1))
+    stale = out_dir / f'{name}_strip.png'
+    if copies == 1 and stale.exists():
+        stale.unlink()
     if copies > 1:
         parts = [small if i % 2 == 0 else small[:, ::-1] for i in range(copies)]
         strip = np.concatenate(parts, axis=1)
@@ -648,8 +660,52 @@ function drawLineups() {
   }
 }
 
+// 배경 3장을 게임과 같은 위치·배율·틴트로 겹쳐 보여 준다. 슬라이더 = 카메라 x (패럴랙스 확인)
+const BG_LAYERS = ['bg_far', 'bg_mid', 'bg_near'];
+function renderBackdrop() {
+  const G = M.game || { gameWidth: 960, gameHeight: 540, stageWidth: 7000, stageHeight: 720 };
+  const layers = BG_LAYERS.map(n => M.sheets[n] && { n, s: M.sheets[n] }).filter(Boolean);
+  if (!layers.length) return;
+  const c = el('canvas'); c.width = G.gameWidth; c.height = G.gameHeight; c.style.width = '100%';
+  const slider = el('input', { type: 'range', min: 0, max: G.stageWidth - G.gameWidth, value: 0, style: 'width:100%' });
+  const tintBox = el('input', { type: 'checkbox', checked: true });
+  const info = el('div', { className: 'meta' });
+  const sec = el('section', {}, el('h2', { textContent: '배경 겹침 (bg_far + bg_mid + bg_near)' }),
+    el('div', { className: 'meta', textContent: '게임 화면 960×540, 땅에 서 있을 때의 카메라 높이 기준. 분홍 선 = 땅 윗면. 슬라이더로 스테이지를 가로질러 보며 패럴랙스를 확인.' }),
+    el('div', { className: 'box' }, c),
+    el('div', { className: 'controls' }, el('label', { style: 'flex:1' }, '카메라 x ', slider), el('label', {}, tintBox, ' 게임 틴트 적용')), info);
+  list.append(sec);
+  const imgs = {}; let left = layers.length;
+  layers.forEach(({ n, s }) => { const im = new Image(); im.onload = () => { if (--left === 0) draw(); }; im.src = s.strip ? s.strip.file : s.file; imgs[n] = im; });
+  const off = document.createElement('canvas');
+  function draw() {
+    const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+    const grad = g.createLinearGradient(0, 0, 0, c.height); grad.addColorStop(0, '#0b0d22'); grad.addColorStop(1, '#262a52');
+    g.fillStyle = grad; g.fillRect(0, 0, c.width, c.height);
+    const camX = +slider.value;
+    for (const { n, s } of layers) {
+      const im = imgs[n], S = s.displayScale, w = im.width * S, h = im.height * S;
+      const x = -camX * s.parallax, y = s.screenBottom - s.height * S;
+      if (tintBox.checked && s.tint) {
+        off.width = w; off.height = h; const o = off.getContext('2d'); o.imageSmoothingEnabled = false;
+        o.globalCompositeOperation = 'source-over'; o.clearRect(0, 0, w, h); o.drawImage(im, 0, 0, w, h);
+        o.globalCompositeOperation = 'multiply'; o.fillStyle = s.tint; o.fillRect(0, 0, w, h);
+        o.globalCompositeOperation = 'destination-in'; o.drawImage(im, 0, 0, w, h);
+        g.drawImage(off, x, y);
+      } else {
+        g.drawImage(im, x, y, w, h);
+      }
+    }
+    const groundY = 620 - (G.stageHeight - G.gameHeight);
+    g.fillStyle = 'rgba(214,51,108,.9)'; g.fillRect(0, groundY, c.width, 2);
+    info.textContent = layers.map(({ n, s }) => `${n}: 패럴랙스 ${s.parallax} · ${s.displayScale}배 · ${s.strip ? s.coverage.copies + '장 거울 반복' : '한 장'}`).join('   |   ');
+  }
+  slider.oninput = draw; tintBox.onchange = draw;
+}
+
 function render() {
   list.innerHTML = ''; anims.length = 0; lineups.length = 0;
+  renderBackdrop();
   renderLineup();
   for (const [name, s] of Object.entries(M.sheets)) {
     const sec = el('section');
@@ -741,7 +797,10 @@ def main():
         if not path.exists():
             print(f'  ! {path.name} 없음 — 건너뜀')
             continue
-        a, removed = remove_background(Image.open(path))
+        if cfg.get('opaque'):
+            a, removed = np.array(Image.open(path).convert('RGBA')), 0
+        else:
+            a, removed = remove_background(Image.open(path))
         source = path.name
         kind = cfg.get('kind')
         if kind == 'tiles':
@@ -749,7 +808,10 @@ def main():
             manifest['sheets'][name] = entry
             note = f"타일 {entry['frames']}개"
         elif kind == 'background':
-            entry = process_background(a, out, name, source, cfg['parallax'])
+            entry = process_background(a, out, name, source, cfg['parallax'], cfg.get('display', BG_DISPLAY_SCALE))
+            entry['screenBottom'] = cfg['screenBottom']
+            if cfg.get('tint'):
+                entry['tint'] = cfg['tint']
             manifest['sheets'][name] = entry
             cv = entry['coverage']
             note = (f"{entry['width']}×{entry['height']}  화면 {cv['onePx']}px / 필요 {cv['needPx']}px"
@@ -802,6 +864,7 @@ def main():
         print(f'  {name:<20} 도트 {dot_shown:>5}px  흰 배경 제거 {removed:>7}px  → {note}')
 
     manifest['note'] = 'tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.'
+    manifest['game'] = game_numbers(full=True)
     man_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     write_preview(manifest, out, src_rel='../raw/')
     print(f'완료: {out.relative_to(ROOT)}/ (manifest.json, preview.html)')

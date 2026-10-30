@@ -41,6 +41,7 @@ window.TUNING = {
 
   // 피격: 체력 1칸. 맞으면 즉시 죽고 마지막 벚꽃나무에서 부활
   respawnInvuln: 1.0,    // 부활 직후 무적
+  deathAnimTime: 0.75,   // 사망 애니메이션을 보여 주는 시간 (그 뒤 부활)
   interruptInvuln: 0.6,  // 발도가 끊겼을 때 무적 (연속 피격 방지)
   hurtLockTime: 0.2,     // 발도가 끊겼을 때 조작 불가 시간
   hurtKnockX: 380,
@@ -151,9 +152,10 @@ window.GAME_WIDTH = 960;
 window.GAME_HEIGHT = 540;
 
 window.COLORS = {
-  background: 0xeeebe4,
+  background: 0x14172e,   // 밤 (배경 그림 뒤)
   player: 0x000000,
   enemy: 0xd62828,
   ground: 0x8a8a8a,
+  groundFill: 0x24222c,   // 땅 윗면 타일 아래 채움색
   platform: 0x9d9d9d,
 };

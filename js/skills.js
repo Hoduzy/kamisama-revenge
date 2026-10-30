@@ -148,6 +148,7 @@ class Skills {
       this.addSakura(S.stacksPerHit);
       this.scene.showDamage(ex, ey - 20, S.damage, '#d6336c');
       this.scene.spawnPetals(ex, ey, 5, 50);
+      Sprites.fx(this.scene, 'fx_slash', ex, ey, { flipX: this.slashDir > 0, depth: 14 });
       this.scene.hitImpact();
     }
   }
@@ -198,7 +199,9 @@ class Skills {
   parryFx(x, y) {
     const p = this.player;
     const scene = this.scene;
-    scene.popText(p.body.center.x, p.body.top - 30, '패링!', '#d6336c');
+    scene.popText(p.body.center.x, p.body.bottom - 110, '패링!', '#d6336c');
+    p.playAction('player_parry', 0.3);
+    Sprites.fx(scene, 'fx_parry_flash', x, y, { depth: 15, scale: 1 });
     const ring = scene.add.rectangle(p.body.center.x, p.body.center.y, 50, 60).setStrokeStyle(4, 0xff7aa2).setDepth(12);
     scene.tweens.add({ targets: ring, scale: 2.2, alpha: 0, duration: 260, onComplete: () => ring.destroy() });
     scene.spawnPetals(x, y, 8, 60);
@@ -231,15 +234,20 @@ class Skills {
       e.hurt(f, damage, 520);
       scene.showDamage(ex, ey - 24, damage, '#d6336c', 30);
       scene.spawnPetals(ex, ey, 6 + stacks * 3, 70);
+      Sprites.fx(scene, 'fx_sakura_burst', ex, ey, { depth: 15 });
       hits++;
     }
 
-    // 베기 연출: 검은 일섬 + 분홍 띠 + 스택만큼 벚꽃잎
+    // 베기 연출: 큰 베기 궤적(3배) 또는 검은 일섬 + 분홍 띠, 그리고 스택만큼 벚꽃잎
     const cx = x0 + I.range / 2;
-    const band = scene.add.rectangle(cx, cy, I.range + 20, I.height, 0xff9eb8, 0.35).setDepth(11);
-    const line = scene.add.rectangle(cx, cy, I.range + 40, 6, 0x111111).setDepth(12);
-    scene.tweens.add({ targets: band, scaleY: 0, alpha: 0, duration: 260, onComplete: () => band.destroy() });
-    scene.tweens.add({ targets: line, scaleY: 0, duration: 300, ease: 'Cubic.easeIn', onComplete: () => line.destroy() });
+    p.playAction('player_iaido_slash', 0.3);
+    if (!Sprites.fx(scene, 'fx_slash', cx, cy, { flipX: f > 0, scale: 3, depth: 13 })) {
+      const band = scene.add.rectangle(cx, cy, I.range + 20, I.height, 0xff9eb8, 0.35).setDepth(11);
+      const line = scene.add.rectangle(cx, cy, I.range + 40, 6, 0x111111).setDepth(12);
+      scene.tweens.add({ targets: band, scaleY: 0, alpha: 0, duration: 260, onComplete: () => band.destroy() });
+      scene.tweens.add({ targets: line, scaleY: 0, duration: 300, ease: 'Cubic.easeIn', onComplete: () => line.destroy() });
+    }
+    if (stacks > 0) Sprites.fx(scene, 'fx_sakura_burst', cx, cy, { depth: 14, scale: stacks >= 3 ? 2 : 1 });
     for (let i = 0; i < 4 + stacks * 12; i++) {
       scene.spawnPetals(x0 + Math.random() * I.range, cy + (Math.random() - 0.5) * I.height * 0.6, 1, 90);
     }
@@ -260,7 +268,7 @@ class Skills {
     if (!show) return;
     const I = TUNING.iaido;
     const x = p.body.center.x;
-    const y = p.body.top - 14;
+    const y = p.body.bottom - 96; // 머리 위
     this.chargeBarBg.setPosition(x, y);
     this.chargeBar.setPosition(x - 20, y);
     this.chargeBar.setSize(40 * Math.min(1, this.iaidoCharge / I.chargeTime), 6);

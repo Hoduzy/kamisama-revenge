@@ -1,5 +1,6 @@
 // 벚꽃나무 = 체크포인트. 가까이 가면 꽃잎이 확 퍼지며 만개한다.
 // 마지막으로 만개시킨 나무에서 부활한다.
+// 스프라이트 tree: 0번 앙상함 → 1번 만개. 없으면 도형으로 그린다.
 class CherryTree {
   constructor(scene, x, groundY) {
     this.scene = scene;
@@ -7,6 +8,13 @@ class CherryTree {
     this.y = groundY;
     this.active = false;
     this.petalTimer = Math.random();
+
+    if (Sprites.has(scene, 'tree')) {
+      this.sprite = scene.add.sprite(x, groundY, 'tree', 0).setOrigin(0.5, 1).setDepth(2);
+      this.canopyY = groundY - Sprites.height('tree', 190) * 0.62; // 꽃이 모인 높이
+      this.canopyW = 120;
+      return;
+    }
 
     const c = this.container = scene.add.container(x, groundY).setDepth(2);
     const bark = 0x4a3b35;
@@ -32,6 +40,8 @@ class CherryTree {
       this.canopy.add(scene.add.circle(bx, by, r, SAKURA_COLORS[i % SAKURA_COLORS.length]));
     });
     c.add(this.canopy);
+    this.canopyY = groundY - 104;
+    this.canopyW = 50;
   }
 
   // 플레이어가 근처에 있는지
@@ -43,18 +53,26 @@ class CherryTree {
     if (this.active) return;
     this.active = true;
     const scene = this.scene;
-    if (!withFx) {
+    if (this.sprite) {
+      this.sprite.setFrame(1);
+    } else if (!withFx) {
       this.canopy.setScale(1);
       this.buds.setVisible(false);
-      return;
+    } else {
+      scene.tweens.add({ targets: this.canopy, scale: 1, duration: 520, ease: 'Back.easeOut' });
+      scene.tweens.add({ targets: this.buds, alpha: 0, duration: 200 });
     }
-    scene.tweens.add({ targets: this.canopy, scale: 1, duration: 520, ease: 'Back.easeOut' });
-    scene.tweens.add({ targets: this.buds, alpha: 0, duration: 200 });
-    scene.spawnPetals(this.x, this.y - 104, 45, 170);
-    scene.time.delayedCall(90, () => scene.spawnPetals(this.x, this.y - 104, 25, 110));
-    const ring = scene.add.circle(this.x, this.y - 100, 30).setStrokeStyle(4, 0xff9eb8).setDepth(12);
+    if (!withFx) return;
+
+    // 벚꽃 폭발 이펙트 + 꽃잎(effects 의 꽃잎 4종)이 확 퍼진다
+    for (const [dx, dy] of [[0, 0], [-this.canopyW * 0.45, 12], [this.canopyW * 0.45, 8]]) {
+      Sprites.fx(scene, 'fx_sakura_burst', this.x + dx, this.canopyY + dy, { depth: 13, scale: 2 });
+    }
+    scene.spawnPetals(this.x, this.canopyY, 45, 170);
+    scene.time.delayedCall(90, () => scene.spawnPetals(this.x, this.canopyY, 25, 110));
+    const ring = scene.add.circle(this.x, this.canopyY, 30).setStrokeStyle(4, 0xff9eb8).setDepth(12);
     scene.tweens.add({ targets: ring, scale: 4, alpha: 0, duration: 450, onComplete: () => ring.destroy() });
-    scene.popText(this.x, this.y - 180, '벚꽃나무', '#d6336c');
+    scene.popText(this.x, this.y - Sprites.height('tree', 150) - 16, '벚꽃나무', '#d6336c');
     scene.cameras.main.shake(120, 0.004);
   }
 
@@ -68,8 +86,9 @@ class CherryTree {
     this.petalTimer = 0.18 + Math.random() * 0.2;
 
     const scene = this.scene;
-    const p = scene.add.image(this.x + Phaser.Math.Between(-50, 50), this.y - 104 + Phaser.Math.Between(-20, 20), 'petal')
-      .setTint(Phaser.Utils.Array.GetRandom(SAKURA_COLORS)).setDepth(3).setAngle(Phaser.Math.Between(0, 360));
+    const w = this.canopyW;
+    const p = Sprites.petal(scene, this.x + Phaser.Math.Between(-w, w), this.canopyY + Phaser.Math.Between(-30, 30))
+      .setDepth(3).setAngle(Phaser.Math.Between(0, 360));
     scene.tweens.add({
       targets: p,
       x: p.x + Phaser.Math.Between(-60, 30),

@@ -1,4 +1,5 @@
-// 적. 빨간 사각형.
+// 적. 몸통 판정 사각형(보이지 않음) + 스프라이트(왼쪽을 보고 그려져 있어 오른쪽은 flipX).
+// 스프라이트 프레임: 0 대기, 1 공격 준비(닌자는 투척), 2 공격, 3 사망. 보스는 1장.
 // swordsman(근접 검사): 플레이어를 쫓아와 0.4초 빨간 예고 후 앞을 벤다.
 // thrower(투척병): 거리를 두고 수리검을 던진다. 가까이 오면 뒤로 물러난다.
 // 몸끼리 부딪히는 것만으로는 피해가 없다. 검과 수리검만 위험하다.
@@ -18,6 +19,15 @@ class Enemy {
     this.obj.enemy = this;
     scene.physics.add.existing(this.obj);
     this.body = this.obj.body;
+
+    this.sheet = { swordsman: 'enemy_sword', thrower: 'enemy_ninja', boss: 'boss' }[data.type];
+    this.sprite = null;
+    if (Sprites.has(scene, this.sheet)) {
+      this.obj.setFillStyle(COLORS.enemy, 0); // 판정 사각형은 숨기고 그림만 보인다
+      this.sprite = scene.add.sprite(data.x, data.y, this.sheet, 0).setOrigin(0.5, 1).setDepth(6);
+    }
+    this.artHeight = Sprites.height(this.sheet, this.h); // 머리 위 '!' 위치용
+    this.throwPose = 0; // 닌자: 던진 직후 투척 자세 유지 시간
 
     this.hp = this.cfg.hp;
     this.facing = Math.random() < 0.5 ? -1 : 1;
@@ -151,6 +161,9 @@ class Enemy {
 
   spawnSlashFx() {
     const r = this.getSwordRect();
+    const fx = Sprites.fx(this.scene, 'fx_slash', r.centerX, r.centerY,
+      { flipX: this.facing > 0, tint: 0xff3b3b, depth: 12, scale: this.type === 'boss' ? 2 : 1 });
+    if (fx) return;
     const line = this.scene.add.rectangle(r.centerX, r.centerY, r.width + 10, 5, 0x7a0000).setDepth(12);
     this.scene.tweens.add({ targets: line, scaleY: 0, alpha: 0, duration: 180, onComplete: () => line.destroy() });
   }
@@ -166,6 +179,7 @@ class Enemy {
       body.setVelocityX(0);
       if (this.stateTimer <= 0) {
         this.scene.spawnShuriken(this, player);
+        this.throwPose = 0.3;
         this.cooldown = T.cooldown;
         this.setState('patrol');
       }
@@ -213,19 +227,40 @@ class Enemy {
     this.obj.setVisible(false);
     this.telegraph.destroy();
     this.alert.destroy();
+    if (this.sprite) {
+      // 쓰러진 모습을 잠깐 보여 주고 사라진다 (보스는 1장이라 어둡게)
+      const s = this.sprite;
+      s.clearTint();
+      if (this.type === 'boss') s.setTint(0x555566);
+      else s.setFrame(3);
+      this.scene.tweens.add({ targets: s, alpha: 0, delay: withEffect ? 900 : 0, duration: 500, onComplete: () => s.destroy() });
+    }
     this.scene.time.delayedCall(0, () => this.obj.destroy());
     this.scene.onEnemyKilled(this, withEffect);
   }
 
   // 물리 스텝 이후: 피격 깜빡임, 예고 표시 위치
-  syncVisual() {
+  syncVisual(dt = 0) {
     if (this.dead) return;
     const b = this.body;
-    this.obj.setFillStyle(this.flash > 0 ? 0xffffff : COLORS.enemy);
-
     const winding = this.state === 'windup';
+    this.throwPose -= dt;
+    if (this.sprite) {
+      const s = this.sprite;
+      s.setPosition(b.center.x, b.bottom).setFlipX(this.facing > 0);
+      let frame = 0;
+      if (this.type === 'swordsman') frame = winding ? 1 : (this.state === 'attack' || this.state === 'recover') ? 2 : 0;
+      else if (this.type === 'thrower') frame = this.throwPose > 0 ? 1 : 0;
+      if (this.type !== 'boss') s.setFrame(frame);
+      if (this.flash > 0) s.setTintFill(0xffffff);
+      else if (winding && Math.floor(this.stateTimer * 16) % 2) s.setTint(0xff8080); // 공격 직전 붉게 깜빡임
+      else s.clearTint();
+    } else {
+      this.obj.setFillStyle(this.flash > 0 ? 0xffffff : COLORS.enemy);
+    }
+
     this.alert.setVisible(winding);
-    this.alert.setPosition(b.center.x, b.top - 4);
+    this.alert.setPosition(b.center.x, b.bottom - this.artHeight - 2);
 
     const showRect = winding && this.type !== 'thrower';
     this.telegraph.setVisible(showRect);
@@ -235,7 +270,7 @@ class Enemy {
       this.telegraph.setPosition(r.centerX, r.centerY).setSize(r.width, r.height);
       this.telegraph.setFillStyle(0xff1f1f, 0.15 + 0.35 * t);
       this.alert.setScale(1 + 0.3 * Math.sin(t * Math.PI * 4));
-    } else if (winding) {
+    } else if (winding && !this.sprite) {
       // 투척병: 던지기 직전 몸이 밝게 깜빡임
       if (Math.floor(this.stateTimer * 20) % 2) this.obj.setFillStyle(0xff8a8a);
     }

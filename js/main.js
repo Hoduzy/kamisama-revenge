@@ -4,6 +4,8 @@ window.game = new Phaser.Game({
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
   backgroundColor: '#1b1b1b',
+  pixelArt: true,    // 도트가 뭉개지지 않게 (Nearest Neighbor)
+  roundPixels: true,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

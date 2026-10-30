@@ -1,5 +1,6 @@
-// 주인공. 물리 바디(보이지 않는 사각형)와 그림(검은 사각형)을 분리해서
-// 그림만 늘이고 줄여(squash & stretch) 손맛을 준다.
+// 주인공. 물리 바디(보이지 않는 몸통 사각형 28×60)와 그림(스프라이트)을 분리한다.
+// 머리카락·칼은 그림에만 있고 판정에는 들어가지 않는다.
+// 스프라이트가 없으면 예전처럼 검은 사각형을 늘이고 줄여(squash & stretch) 그린다.
 function approach(value, target, amount) {
   if (value < target) return Math.min(value + amount, target);
   if (value > target) return Math.max(value - amount, target);
@@ -18,9 +19,19 @@ class Player {
     this.body.setMaxVelocity(4000, TUNING.maxFallSpeed);
     this.body.setCollideWorldBounds(false);
 
-    this.visual = scene.add.rectangle(x, y, this.width, this.height, COLORS.player).setOrigin(0.5, 1).setDepth(10);
+    this.useSprite = Sprites.has(scene, 'player_idle');
+    if (this.useSprite) {
+      // 그림은 오른쪽을 보고 있다. 왼쪽은 flipX. 원점(0.5, 1) = 발바닥 중앙 = 몸통 박스 아래 변 중앙
+      this.visual = scene.add.sprite(x, y, 'player_idle', 0).setOrigin(0.5, 1).setDepth(10);
+      this.visual.play('player_idle');
+    } else {
+      this.visual = scene.add.rectangle(x, y, this.width, this.height, COLORS.player).setOrigin(0.5, 1).setDepth(10);
+    }
     this.slash = scene.add.rectangle(0, 0, TUNING.attackRange, TUNING.attackHeight, 0x000000, 0.22)
       .setDepth(11).setVisible(false);
+    this.actionAnim = null; // 발도 베기·패링처럼 끝날 때까지 다른 동작으로 바꾸지 않는 애니메이션
+    this.actionTimer = 0;
+    this.landTimer = 0;
 
     this.facing = 1;
     this.scaleX = 1;
@@ -165,10 +176,74 @@ class Player {
       this.attackTimer = T.attackActive;
       this.attackCooldown = T.attackCooldown;
       this.attackHits.clear();
+      const r = this.getAttackRect();
+      Sprites.fx(this.scene, 'fx_slash', r.centerX, r.centerY, { flipX: this.facing > 0, depth: 12 }); // 원본 궤적은 왼쪽으로 볼록
     }
     if (this.attackTimer > 0) this.attackTimer -= dt;
+    this.landTimer -= dt;
 
     this.updateScale(dt);
+  }
+
+  // 끝까지 재생해야 하는 동작 (발도 베기, 패링 성공)
+  playAction(key, duration) {
+    if (!this.useSprite) return;
+    this.actionAnim = key;
+    this.actionTimer = duration;
+    this.visual.play(key);
+  }
+
+  // 상태에 맞는 애니메이션을 고른다 (우선순위 순)
+  updateAnim(dt) {
+    if (!this.useSprite) return;
+    const v = this.visual;
+    const sk = this.skills;
+    const HOLD_LAST = ['player_iaido_ready', 'player_death']; // 끝나면 마지막 프레임 유지
+    const play = (key) => {
+      const same = v.anims.currentAnim?.key === key && v.texture.key === v.anims.currentAnim.frames[0].textureKey;
+      if (!same || (!v.anims.isPlaying && !HOLD_LAST.includes(key))) v.play(key);
+    };
+    const still = (sheet, frame) => {
+      v.anims.stop();
+      v.setTexture(sheet, frame);
+    };
+
+    if (this.dead) return play('player_death'); // 1회 재생 후 마지막 프레임에서 정지
+    if (this.actionTimer > 0) {
+      this.actionTimer -= dt;
+      if (this.actionTimer > 0) return;
+      // 패링 뒤 발도 준비가 계속되면 진행도에 맞는 프레임부터 이어서 재생
+      if (this.actionAnim === 'player_parry' && sk.charging) {
+        const f = Math.min(5, Math.floor((sk.iaidoCharge / TUNING.iaido.chargeTime) * 6));
+        v.play({ key: 'player_iaido_ready', startFrame: f });
+      }
+      this.actionAnim = null;
+    }
+    if (sk.charging) return play('player_iaido_ready');
+    if (sk.slashing || this.dashing) return play('player_dash'); // 대쉬·대쉬베기: 1회 재생
+    if (v.anims.currentAnim?.key === 'player_dash' && v.anims.isPlaying) return; // 대쉬 모션은 끝까지
+    if (this.attackTimer > 0) return play('player_attack');
+    if (v.anims.currentAnim?.key === 'player_attack' && v.anims.isPlaying) return;
+
+    const vy = this.body.velocity.y;
+    if (!this.grounded) {
+      // 점프: 속도에 따라 상승 / 최고점 / 낙하 프레임
+      return still('player_jump', vy < -150 ? 1 : vy > 150 ? 3 : 2);
+    }
+    if (this.landTimer > 0) return still('player_jump', this.landTimer > 0.05 ? 4 : 5); // 착지 → 착지 마무리
+    if (Math.abs(this.body.velocity.x) > 40) return play('player_run');
+    play('player_idle');
+  }
+
+  // 사망: 사망 애니메이션을 1회 재생하고 멈춘다 (부활은 scene 이 처리)
+  die() {
+    this.dead = true;
+    this.endDash();
+    this.skills.reset();
+    this.attackTimer = 0;
+    this.actionTimer = 0;
+    this.body.setVelocityX(0);
+    if (this.useSprite) this.visual.play('player_death');
   }
 
   // 그림 크기 복원 (스프링처럼)
@@ -218,6 +293,7 @@ class Player {
   }
 
   onLand() {
+    this.landTimer = 0.1;
     this.scaleX = 1.3;
     this.scaleY = 0.72;
     this.isJumping = false;
@@ -248,6 +324,9 @@ class Player {
     this.attackTimer = 0;
     this.hurtLock = 0;
     this.body.setVelocity(0, 0);
+    this.dead = false;
+    this.actionTimer = 0;
+    this.landTimer = 0;
     this.facing = 1;
     this.scaleX = 0.7;
     this.scaleY = 1.35;
@@ -264,21 +343,33 @@ class Player {
   }
 
   spawnAfterimage() {
-    const ghost = this.scene.add.rectangle(this.body.center.x, this.body.bottom,
-      this.width * this.scaleX, this.height * this.scaleY, COLORS.player, 0.3).setOrigin(0.5, 1).setDepth(9);
+    let ghost;
+    if (this.useSprite) {
+      const v = this.visual;
+      ghost = this.scene.add.image(v.x, v.y, v.texture.key, v.frame.name).setOrigin(0.5, 1).setFlipX(v.flipX)
+        .setDepth(9).setTintFill(0x8b1e3f).setAlpha(0.45);
+    } else {
+      ghost = this.scene.add.rectangle(this.body.center.x, this.body.bottom,
+        this.width * this.scaleX, this.height * this.scaleY, COLORS.player, 0.3).setOrigin(0.5, 1).setDepth(9);
+    }
     this.scene.tweens.add({ targets: ghost, alpha: 0, duration: 160, onComplete: () => ghost.destroy() });
   }
 
   // 물리 스텝 이후 호출: 그림을 바디 위치에 맞춘다
-  syncVisual() {
+  syncVisual(dt = 0) {
     this.visual.setPosition(this.body.center.x, this.body.bottom);
-    this.visual.setScale(this.scaleX, this.scaleY);
+    if (this.useSprite) {
+      this.visual.setFlipX(this.facing < 0); // 도트가 뭉개지지 않게 늘이고 줄이지 않는다
+      this.updateAnim(dt);
+    } else {
+      this.visual.setScale(this.scaleX, this.scaleY);
+    }
     // 무적 시간 동안 깜빡임
-    this.visual.setAlpha(this.invuln > 0 && !this.dashing ? (Math.floor(this.invuln * 20) % 2 ? 0.3 : 1) : 1);
+    this.visual.setAlpha(this.invuln > 0 && !this.dashing && !this.dead ? (Math.floor(this.invuln * 20) % 2 ? 0.3 : 1) : 1);
 
     this.skills.syncVisual();
 
-    const rect = this.getAttackRect();
+    const rect = this.useSprite ? null : this.getAttackRect(); // 스프라이트일 땐 베기 궤적 이펙트가 대신한다
     this.slash.setVisible(!!rect);
     if (rect) {
       this.slash.setPosition(rect.centerX, rect.centerY);

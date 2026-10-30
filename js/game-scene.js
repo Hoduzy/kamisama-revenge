@@ -18,10 +18,20 @@ class GameScene extends Phaser.Scene {
     this.createTextures();
     this.createBackground();
 
-    // 땅 (사방 충돌)
+    // 땅 (사방 충돌). 타일이 있으면 판정 사각형은 숨기고 타일로 그린다
+    const tiled = Sprites.has(this, GROUND_TILES.top) && Sprites.has(this, GROUND_TILES.platform);
     this.ground = this.physics.add.staticGroup();
     for (const r of L.ground) {
-      this.ground.add(this.add.rectangle(r.x + r.w / 2, r.y + r.h / 2, r.w, r.h, COLORS.ground));
+      const rect = this.add.rectangle(r.x + r.w / 2, r.y + r.h / 2, r.w, r.h, COLORS.ground);
+      this.ground.add(rect);
+      if (tiled) {
+        rect.setVisible(false);
+        if (r.x >= 0 && r.x < L.width) {
+          // 윗면 한 줄 = 갓돌 있는 돌담 타일, 그 아래는 어두운 돌색
+          this.add.rectangle(r.x, r.y, r.w, r.h, COLORS.groundFill).setOrigin(0).setDepth(1);
+          this.add.tileSprite(r.x, r.y, r.w, Math.min(32, r.h), GROUND_TILES.top).setOrigin(0).setDepth(1);
+        }
+      }
     }
 
     // 얇은 발판 (위에서만 충돌)
@@ -29,6 +39,10 @@ class GameScene extends Phaser.Scene {
     for (const r of L.platforms) {
       const rect = this.add.rectangle(r.x + r.w / 2, r.y + r.h / 2, r.w, r.h, COLORS.platform);
       this.platforms.add(rect);
+      if (tiled) {
+        rect.setVisible(false);
+        this.add.tileSprite(r.x, r.y, r.w, r.h, GROUND_TILES.platform).setOrigin(0).setDepth(1);
+      }
       rect.body.checkCollision.down = false;
       rect.body.checkCollision.left = false;
       rect.body.checkCollision.right = false;
@@ -98,8 +112,9 @@ class GameScene extends Phaser.Scene {
       applyDebug();
     });
     const sync = () => {
-      this.player.syncVisual();
-      for (const e of this.enemies) e.syncVisual();
+      const dt = Math.min(this.game.loop.delta / 1000, 1 / 30);
+      this.player.syncVisual(dt);
+      for (const e of this.enemies) e.syncVisual(dt);
       if (this.debugGfx.visible) this.drawDebug();
     };
     this.events.on('postupdate', sync);
@@ -141,37 +156,34 @@ class GameScene extends Phaser.Scene {
     g.destroy();
   }
 
+  // 맨 뒤부터: 남색 그라데이션(빈틈 메우기) → bg_far(밤하늘·달, 0.05) → bg_mid(마을, 0.3) → bg_near(난간, 0.6)
+  // 위치·배율은 manifest 에 기록된 값(screenBottom, displayScale, parallax)을 따른다
   createBackground() {
-    const L = LEVEL;
-    // 먼 산 / 가까운 건물 느낌의 사각형 (패럴랙스)
-    const layers = [
-      { factor: 0.25, color: 0xe4e0d8, minH: 120, maxH: 260, step: 180 },
-      { factor: 0.5, color: 0xdad6cd, minH: 60, maxH: 180, step: 140 },
-    ];
-    for (const layer of layers) {
-      const span = L.width * layer.factor + GAME_WIDTH + 200;
-      let i = 0;
-      for (let x = -100; x < span; x += layer.step) {
-        // 결정적인 의사 난수
-        const n = Math.abs(Math.sin(i * 12.9898 + layer.factor * 78.233) * 43758.5453) % 1;
-        const h = layer.minH + n * (layer.maxH - layer.minH);
-        const w = layer.step * (0.6 + n * 0.5);
-        this.add.rectangle(x, L.height - 100, w, h * 2, layer.color)
-          .setOrigin(0, 0.5).setScrollFactor(layer.factor, 1).setDepth(-10 + layer.factor);
-        i++;
-      }
-    }
+    const g = this.add.graphics().setScrollFactor(0).setDepth(-100);
+    g.fillGradientStyle(0x0b0d22, 0x0b0d22, 0x262a52, 0x262a52, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    const groundScrollY = LEVEL.height - GAME_HEIGHT; // 땅에 서 있을 때 카메라 위치
+    ['bg_far', 'bg_mid', 'bg_near'].forEach((name, i) => {
+      const s = Sprites.sheet(name);
+      if (!s || !this.textures.exists(name)) return;
+      const S = s.displayScale;
+      const p = s.parallax;
+      const y = s.screenBottom - s.height * S + groundScrollY * p;
+      const img = this.add.image(0, y, name).setOrigin(0, 0).setScale(S).setScrollFactor(p, p).setDepth(-90 + i * 10);
+      // 앞쪽 레이어일수록 어둡게 (manifest 의 tint) — 캐릭터가 배경에 묻히지 않게
+      if (s.tint) img.setTint(Phaser.Display.Color.HexStringToColor(s.tint).color);
+    });
   }
 
   createHud() {
-    const style = { fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: '20px', color: '#222' };
+    // 밤 배경 위라 밝은 글자 + 어두운 테두리
+    const style = { fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: '20px', color: '#f2eee8', stroke: '#14121c', strokeThickness: 4 };
     // 체력 1칸 + 사망 횟수
-    this.add.rectangle(24, 24, 18, 18, COLORS.player).setOrigin(0, 0).setScrollFactor(0).setDepth(100);
+    this.add.rectangle(24, 24, 18, 18, 0xd62828).setStrokeStyle(2, 0xf2eee8).setOrigin(0, 0).setScrollFactor(0).setDepth(100);
     this.deathText = this.add.text(52, 22, '사망 0', style).setScrollFactor(0).setDepth(100);
     this.koText = this.add.text(GAME_WIDTH - 24, 22, 'KO 0', style).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
     const hint = this.add.text(GAME_WIDTH / 2, 70,
       'A/D 이동 · Space 점프 · J 공격 · K 대시 · U 대쉬베기 · I 발도 · R 재시작',
-      { ...style, fontSize: '18px', color: '#555' }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(100);
+      { ...style, fontSize: '18px', color: '#d8d2e6' }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(100);
     this.tweens.add({ targets: hint, alpha: 0, delay: 4500, duration: 800 });
 
     this.createSkillHud();
@@ -188,7 +200,7 @@ class GameScene extends Phaser.Scene {
     this.bannerBg = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, 520, 260, 0xffffff, 0.82)
       .setScrollFactor(0).setDepth(100).setVisible(false);
     this.banner = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, '',
-      { ...style, fontSize: '48px', fontStyle: 'bold', color: '#111', align: 'center' })
+      { ...style, fontSize: '48px', fontStyle: 'bold', color: '#111', strokeThickness: 0, align: 'center' })
       .setOrigin(0.5).setScrollFactor(0).setDepth(101);
   }
 
@@ -197,32 +209,42 @@ class GameScene extends Phaser.Scene {
     const cx = GAME_WIDTH / 2;
     const y = GAME_HEIGHT - 40;
     const depth = 100;
-    this.add.rectangle(cx, y, 330, 64, 0xffffff, 0.6).setScrollFactor(0).setDepth(depth);
+    this.add.rectangle(cx, y, 330, 64, 0x0d0c16, 0.55).setScrollFactor(0).setDepth(depth);
+    const icons = Sprites.has(this, 'ui_icons');
 
-    const makeIcon = (x, name, key) => {
+    // frame: ui_icons 의 칸 (0 대쉬 스킬, 1 발도 스킬)
+    const makeIcon = (x, name, key, frame) => {
       const icon = {};
-      icon.bg = this.add.rectangle(x, y, 48, 48, 0x222222).setScrollFactor(0).setDepth(depth);
-      icon.label = this.add.text(x, y + 2, name, { fontFamily: 'system-ui, sans-serif', fontSize: '15px', fontStyle: 'bold', color: '#fff' })
-        .setOrigin(0.5).setScrollFactor(0).setDepth(depth + 1);
-      this.add.text(x - 21, y - 22, key, { fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#999' })
+      if (icons) {
+        icon.bg = this.add.image(x, y, 'ui_icons', frame).setScrollFactor(0).setDepth(depth);
+        icon.label = this.add.text(0, 0, '').setVisible(false);
+      } else {
+        icon.bg = this.add.rectangle(x, y, 48, 48, 0x222222).setScrollFactor(0).setDepth(depth);
+        icon.label = this.add.text(x, y + 2, name, { fontFamily: 'system-ui, sans-serif', fontSize: '15px', fontStyle: 'bold', color: '#fff' })
+          .setOrigin(0.5).setScrollFactor(0).setDepth(depth + 1);
+      }
+      this.add.text(x - 21, y - 22, key, { fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#fff', stroke: '#000', strokeThickness: 3 })
         .setScrollFactor(0).setDepth(depth + 3);
       // 쿨타임 동안 위에서부터 덮이는 막
-      icon.shade = this.add.rectangle(x, y + 24, 48, 48, 0xffffff, 0.65).setOrigin(0.5, 1)
+      icon.shade = this.add.rectangle(x, y + 24, 48, 48, 0x0d0c16, 0.7).setOrigin(0.5, 1)
         .setScrollFactor(0).setDepth(depth + 2);
-      icon.time = this.add.text(x, y, '', { fontFamily: 'system-ui, sans-serif', fontSize: '18px', fontStyle: 'bold', color: '#111' })
+      icon.time = this.add.text(x, y, '', { fontFamily: 'system-ui, sans-serif', fontSize: '18px', fontStyle: 'bold', color: '#fff' })
         .setOrigin(0.5).setScrollFactor(0).setDepth(depth + 3);
       icon.border = this.add.rectangle(x, y, 52, 52).setStrokeStyle(3, 0xff7aa2).setScrollFactor(0)
         .setDepth(depth + 3).setVisible(false);
       return icon;
     };
     this.skillIcons = {
-      slash: makeIcon(cx - 130, '베기', 'U'),
-      iaido: makeIcon(cx - 74, '발도', 'I'),
+      slash: makeIcon(cx - 130, '베기', 'U', 0),
+      iaido: makeIcon(cx - 74, '발도', 'I', 1),
     };
 
+    // 벚꽃 스택: ui_icons 2번(빈칸) / 3번(채움)을 반 크기로
+    this.sakuraTex = icons ? { off: ['ui_icons', 2], on: ['ui_icons', 3], scale: 0.5 } : { off: ['sakura-off'], on: ['sakura-on'], scale: 1 };
     this.sakuraIcons = [];
     for (let i = 0; i < TUNING.sakuraMax; i++) {
-      this.sakuraIcons.push(this.add.image(cx - 20 + i * 30, y, 'sakura-off').setScrollFactor(0).setDepth(depth));
+      this.sakuraIcons.push(this.add.image(cx - 20 + i * 30, y, ...this.sakuraTex.off).setScale(this.sakuraTex.scale)
+        .setScrollFactor(0).setDepth(depth));
     }
     this.lastSakura = 0;
 
@@ -265,11 +287,12 @@ class GameScene extends Phaser.Scene {
     if (sk.sakura !== this.lastSakura) {
       this.sakuraIcons.forEach((icon, i) => {
         const on = i < sk.sakura;
-        icon.setTexture(on ? 'sakura-on' : 'sakura-off');
+        icon.setTexture(...(on ? this.sakuraTex.on : this.sakuraTex.off));
         // 새로 켜진 칸은 톡 튀게
         if (on && i >= this.lastSakura) {
-          icon.setScale(1.6);
-          this.tweens.add({ targets: icon, scale: 1, duration: 200, ease: 'Back.easeOut' });
+          const base = this.sakuraTex.scale;
+          icon.setScale(base * 1.6);
+          this.tweens.add({ targets: icon, scale: base, duration: 200, ease: 'Back.easeOut' });
         }
       });
       this.lastSakura = sk.sakura;
@@ -305,7 +328,7 @@ class GameScene extends Phaser.Scene {
     }
 
     const player = this.player;
-    player.update(dt, this.controls);
+    if (!player.dead) player.update(dt, this.controls);
     for (const e of this.enemies) e.update(dt, player);
     for (const t of this.trees) t.update(dt);
 
@@ -322,7 +345,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // 낙사
-    if (player.body.top > LEVEL.height + 60) this.killPlayer();
+    if (!player.dead && player.body.top > LEVEL.height + 60) this.killPlayer(true);
 
     // 스토리 트리거
     for (const t of LEVEL.storyTriggers) {
@@ -407,7 +430,7 @@ class GameScene extends Phaser.Scene {
       // 발도 준비 후반: 스킬이 끊기고 쿨타임 시작. 죽지는 않음
       skills.interruptIaido();
       player.stagger(fromX);
-      this.popText(player.body.center.x, player.body.top - 30, '끊김', '#555');
+      this.popText(player.body.center.x, player.body.bottom - 110, '끊김', '#cfcfcf');
       this.cameras.main.shake(160, 0.008);
       this.doHitStop(0.08);
       return 'interrupted';
@@ -424,16 +447,27 @@ class GameScene extends Phaser.Scene {
     return result !== 'ignored';
   }
 
-  killPlayer() {
+  // fell: 구멍에 떨어짐 → 바로 부활. 아니면 사망 애니메이션을 보여 준 뒤 부활
+  killPlayer(fell = false) {
     const player = this.player;
+    if (player.dead) return;
     const x = player.body.center.x;
     const y = Math.min(player.body.center.y, LEVEL.height - 20);
     this.deaths += 1;
-    this.spawnBurst(x, y, COLORS.player, 16);
+    this.spawnBurst(x, y, 0xd62828, 12);
     this.cameras.main.shake(220, 0.01);
     this.clearShurikens();
+    if (fell || !player.useSprite) {
+      this.respawnPlayer();
+      return;
+    }
+    player.die();
+    this.time.delayedCall(TUNING.deathAnimTime * 1000, () => this.respawnPlayer());
+  }
 
-    // 마지막으로 만개시킨 벚꽃나무에서 즉시 부활
+  // 마지막으로 만개시킨 벚꽃나무에서 부활
+  respawnPlayer() {
+    const player = this.player;
     const t = this.activeTree;
     player.respawn(t.x + 24, t.y - TUNING.playerBody.height / 2 - 2);
     this.cameras.main.centerOn(t.x + 24 + 90, t.y - 100);
@@ -579,8 +613,8 @@ class GameScene extends Phaser.Scene {
 
   showStageTitle(title, subtitle) {
     const font = 'system-ui, -apple-system, sans-serif';
-    const t1 = this.add.text(GAME_WIDTH / 2, 190, title, { fontFamily: font, fontSize: '40px', fontStyle: 'bold', color: '#111' });
-    const t2 = this.add.text(GAME_WIDTH / 2, 240, subtitle || '', { fontFamily: font, fontSize: '22px', color: '#d6336c' });
+    const t1 = this.add.text(GAME_WIDTH / 2, 190, title, { fontFamily: font, fontSize: '40px', fontStyle: 'bold', color: '#f5f1ea', stroke: '#14121c', strokeThickness: 6 });
+    const t2 = this.add.text(GAME_WIDTH / 2, 240, subtitle || '', { fontFamily: font, fontSize: '22px', color: '#ff9eb8', stroke: '#14121c', strokeThickness: 5 });
     for (const t of [t1, t2]) {
       t.setOrigin(0.5).setScrollFactor(0).setDepth(150).setAlpha(0);
       this.tweens.add({ targets: t, alpha: 1, duration: 300, hold: 1400, yoyo: true, onComplete: () => t.destroy() });
@@ -632,10 +666,7 @@ class GameScene extends Phaser.Scene {
   // 벚꽃잎이 사방으로 터졌다가 천천히 떨어진다
   spawnPetals(x, y, count, spread) {
     for (let i = 0; i < count; i++) {
-      const p = this.add.image(x, y, 'petal').setDepth(13)
-        .setTint(Phaser.Utils.Array.GetRandom(SAKURA_COLORS))
-        .setAngle(Phaser.Math.Between(0, 360))
-        .setScale(Phaser.Math.FloatBetween(0.7, 1.3));
+      const p = Sprites.petal(this, x, y).setDepth(13).setAngle(Phaser.Math.Between(0, 360));
       const angle = Math.random() * Math.PI * 2;
       const dist = Phaser.Math.Between(spread * 0.3, spread);
       this.tweens.add({

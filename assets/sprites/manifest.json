@@ -1402,11 +1402,33 @@
         }
       ]
     },
+    "bg_far": {
+      "file": "bg_far.png",
+      "source": "bg_far.png",
+      "width": 434,
+      "height": 243,
+      "contentTop": 0,
+      "contentBottom": 243,
+      "dot": 3.86,
+      "parallax": 0.05,
+      "displayScale": 3,
+      "coverage": {
+        "gameWidth": 960,
+        "stageWidth": 7000,
+        "needPx": 1262,
+        "onePx": 1302,
+        "copies": 1,
+        "covered": true
+      },
+      "screenBottom": 630
+    },
     "bg_mid": {
       "file": "bg_mid.png",
       "source": "bg_mid.png",
       "width": 463,
       "height": 261,
+      "contentTop": 66,
+      "contentBottom": 212,
       "dot": 3.61,
       "parallax": 0.3,
       "displayScale": 2,
@@ -1423,13 +1445,17 @@
         "width": 1389,
         "height": 261,
         "pattern": "A, 반전A 번갈아"
-      }
+      },
+      "screenBottom": 470,
+      "tint": "#9a98b8"
     },
     "bg_near": {
       "file": "bg_near.png",
       "source": "bg_near.png",
       "width": 522,
       "height": 294,
+      "contentTop": 17,
+      "contentBottom": 294,
       "dot": 3.2,
       "parallax": 0.6,
       "displayScale": 2,
@@ -1446,8 +1472,16 @@
         "width": 2610,
         "height": 294,
         "pattern": "A, 반전A 번갈아"
-      }
+      },
+      "screenBottom": 520,
+      "tint": "#6e6c8a"
     }
   },
-  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙."
+  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.",
+  "game": {
+    "gameWidth": 960,
+    "gameHeight": 540,
+    "stageWidth": 7000,
+    "stageHeight": 720
+  }
 }

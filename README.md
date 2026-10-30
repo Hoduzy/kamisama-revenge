@@ -60,6 +60,13 @@
 - 대화 중 게임은 멈춘다. Space·J·Enter·화면 탭으로 넘기고(글자가 나오는 중이면 한 줄을 바로 완성), Esc로 장면 전체를 건너뛴다.
 - 글자 속도는 `js/config.js`의 `dialogue`.
 
+## 그림 (스프라이트)
+
+- 원본: `assets/raw/` → `python3 tools/process_sprites.py` → `assets/sprites/` (시트 PNG + `manifest.json` + `preview.html`)
+- 게임은 시작할 때 `manifest.json`을 읽어 시트·배경·타일을 불러온다 (`js/sprites.js`, `js/boot-scene.js`). 그림을 못 읽으면 예전 도형으로 그린다.
+- 판정은 그림과 별개인 몸통 사각형 (주인공 28×60). H 키로 판정 표시.
+- 배경: bg_far(밤하늘·달, 0.05배 스크롤, 3배 확대) → bg_mid(마을, 0.3) → bg_near(난간, 0.6). 앞쪽일수록 어둡게 틴트.
+
 ## 파일 구성
 
 - `js/config.js` — 조작감 튜닝 값(가속, 점프, 대시 등)을 한 곳에 모음
@@ -68,7 +75,9 @@
 - `js/skills.js` — 대쉬베기, 발도, 벚꽃 스택
 - `js/tree.js` — 벚꽃나무(체크포인트)
 - `story.json` — 대사, 캐릭터, 초상화 설정
-- `js/dialogue.js` / `js/portraits.js` / `js/boot-scene.js` — 대화창, 초상화 그리기, story.json 로딩
+- `js/dialogue.js` / `js/portraits.js` / `js/boot-scene.js` — 대화창, 초상화 그리기, story.json·스프라이트 로딩
+- `js/sprites.js` — 스프라이트 애니메이션·이펙트 도우미
+- `tools/process_sprites.py` — 원본 도트 이미지 전처리
 - `js/player.js` / `js/enemy.js` — 주인공, 적
 - `js/level.js` — 땅·발판·적 배치 데이터
 - `js/game-scene.js` — 충돌, 전투, 카메라, HUD
