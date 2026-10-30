@@ -25,7 +25,7 @@ class Skills {
     const scene = this.scene;
     this.chargeBarBg = scene.add.rectangle(0, 0, 40, 6, 0x000000, 0.2).setDepth(12).setVisible(false);
     this.chargeBar = scene.add.rectangle(0, 0, 40, 6, 0xff7aa2).setOrigin(0, 0.5).setDepth(13).setVisible(false);
-    this.parryAura = scene.add.rectangle(0, 0, 44, 56).setStrokeStyle(3, 0xff7aa2).setDepth(9).setVisible(false);
+    this.parryAura = scene.add.rectangle(0, 0, player.width + 16, player.height + 16).setStrokeStyle(3, 0xff7aa2).setDepth(9).setVisible(false);
   }
 
   get slashing() {

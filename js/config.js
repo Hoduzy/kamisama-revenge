@@ -26,12 +26,15 @@ window.TUNING = {
   dashTime: 0.14,
   dashCooldown: 0.30,
 
+  // 주인공 판정 박스 (몸통만. 머리카락·칼 제외). 스프라이트 서 있는 키 96도트 기준
+  playerBody: { width: 30, height: 70 },
+
   // 공격
   attackActive: 0.11,
   attackCooldown: 0.24,
   attackBuffer: 0.10,
   attackRange: 58,
-  attackHeight: 38,
+  attackHeight: 56,
   airHitBounce: 260,     // 공중에서 적을 때리면 살짝 떠오름
   stompBounce: 560,
 
@@ -120,7 +123,7 @@ window.TUNING = {
     cooldown: 0.8,
     damage: 1,
     stacksPerHit: 1,     // 적 하나 맞힐 때마다 벚꽃 스택 증가량
-    hitHeight: 52,       // 판정 높이
+    hitHeight: 72,       // 판정 높이
     endGrace: 0.2,       // 대쉬가 끝난 직후 무적 시간 (적 몸에 겹쳐 끝나도 바로 맞지 않게)
   },
 

@@ -389,7 +389,7 @@ class GameScene extends Phaser.Scene {
 
     // 마지막으로 만개시킨 벚꽃나무에서 즉시 부활
     const t = this.activeTree;
-    player.respawn(t.x + 24, t.y - 20);
+    player.respawn(t.x + 24, t.y - TUNING.playerBody.height / 2 - 2);
     this.cameras.main.centerOn(t.x + 24 + 90, t.y - 100);
     this.lookAhead = -90;
     this.spawnPetals(t.x, t.y - 60, 18, 80);

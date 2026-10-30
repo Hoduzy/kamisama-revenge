@@ -9,8 +9,8 @@ function approach(value, target, amount) {
 class Player {
   constructor(scene, x, y) {
     this.scene = scene;
-    this.width = 28;
-    this.height = 40;
+    this.width = TUNING.playerBody.width;
+    this.height = TUNING.playerBody.height;
 
     this.obj = scene.add.rectangle(x, y, this.width, this.height, 0x000000, 0);
     scene.physics.add.existing(this.obj);
