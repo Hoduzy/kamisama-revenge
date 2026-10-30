@@ -23,8 +23,8 @@
       "headScaleVsIdle": 1.0,
       "headWidth": 15.3,
       "body": {
-        "width": 30,
-        "height": 70,
+        "width": 28,
+        "height": 60,
         "note": "몸통 판정. 발바닥 중앙(origin) 기준"
       },
       "adjust": 0.85,
@@ -444,6 +444,11 @@
         0,
         1
       ],
+      "body": {
+        "width": 34,
+        "height": 74,
+        "note": "몸통 판정. 발바닥 중앙 기준"
+      },
       "heights": [
         100,
         100,
@@ -469,6 +474,11 @@
         "attack",
         "death"
       ],
+      "body": {
+        "width": 36,
+        "height": 74,
+        "note": "몸통 판정. 발바닥 중앙 기준"
+      },
       "heights": [
         100,
         87,
@@ -488,6 +498,11 @@
       },
       "dot": 6.36,
       "facing": "left",
+      "body": {
+        "width": 60,
+        "height": 140,
+        "note": "몸통 판정. 발바닥 중앙 기준"
+      },
       "heights": [
         190
       ]

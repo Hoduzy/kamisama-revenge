@@ -44,24 +44,24 @@ window.LEVEL = {
   ],
 
   // type: swordsman(근접 검사) / thrower(투척병)
-  // minX/maxX: 움직일 수 있는 범위
+  // y: 발을 딛는 바닥(땅·발판 윗면) 높이 / minX/maxX: 움직일 수 있는 범위
   enemies: [
-    { type: 'swordsman', x: 900, y: 580, minX: 700, maxX: 1090 },
-    { type: 'thrower', x: 860, y: 360, minX: 765, maxX: 935 },
-    { type: 'swordsman', x: 1550, y: 580, minX: 1260, maxX: 1690 },
-    { type: 'thrower', x: 1520, y: 440, minX: 1425, maxX: 1595 },
-    { type: 'swordsman', x: 2450, y: 580, minX: 2160, maxX: 2620 },
-    { type: 'swordsman', x: 3150, y: 580, minX: 2810, maxX: 3810 },
-    { type: 'thrower', x: 3300, y: 350, minX: 3205, maxX: 3395 },
-    { type: 'swordsman', x: 3550, y: 580, minX: 2810, maxX: 3810 },
-    { type: 'thrower', x: 3600, y: 250, minX: 3485, maxX: 3695 },
-    { type: 'thrower', x: 3990, y: 400, minX: 3915, maxX: 4045 },
-    { type: 'swordsman', x: 4550, y: 580, minX: 4310, maxX: 4690 },
-    { type: 'thrower', x: 4980, y: 400, minX: 4885, maxX: 5075 },
-    { type: 'swordsman', x: 5100, y: 580, minX: 4790, maxX: 5590 },
-    { type: 'thrower', x: 5380, y: 430, minX: 5305, maxX: 5455 },
+    { type: 'swordsman', x: 900, y: 620, minX: 700, maxX: 1090 },
+    { type: 'thrower', x: 860, y: 400, minX: 765, maxX: 935 },
+    { type: 'swordsman', x: 1550, y: 620, minX: 1260, maxX: 1690 },
+    { type: 'thrower', x: 1520, y: 480, minX: 1425, maxX: 1595 },
+    { type: 'swordsman', x: 2450, y: 620, minX: 2160, maxX: 2620 },
+    { type: 'swordsman', x: 3150, y: 620, minX: 2810, maxX: 3810 },
+    { type: 'thrower', x: 3300, y: 390, minX: 3205, maxX: 3395 },
+    { type: 'swordsman', x: 3550, y: 620, minX: 2810, maxX: 3810 },
+    { type: 'thrower', x: 3600, y: 290, minX: 3485, maxX: 3695 },
+    { type: 'thrower', x: 3990, y: 440, minX: 3915, maxX: 4045 },
+    { type: 'swordsman', x: 4550, y: 620, minX: 4310, maxX: 4690 },
+    { type: 'thrower', x: 4980, y: 440, minX: 4885, maxX: 5075 },
+    { type: 'swordsman', x: 5100, y: 620, minX: 4790, maxX: 5590 },
+    { type: 'thrower', x: 5380, y: 470, minX: 5305, maxX: 5455 },
     // 보스: 대화가 끝날 때까지 움직이지 않음
-    { type: 'boss', x: 6650, y: 560, minX: 5760, maxX: 6990, dormant: true },
+    { type: 'boss', x: 6650, y: 620, minX: 5760, maxX: 6990, dormant: true },
   ],
 
   // 벚꽃나무(체크포인트). x, 땅 높이 y. 첫 나무는 처음부터 만개.

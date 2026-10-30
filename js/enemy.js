@@ -9,11 +9,12 @@ class Enemy {
     this.cfg = TUNING[data.type];
     this.minX = data.minX;
     this.maxX = data.maxX;
-    const sizes = { swordsman: [30, 44], thrower: [28, 36], boss: [48, 72] };
-    [this.w, this.h] = sizes[data.type];
+    this.w = this.cfg.body.width;
+    this.h = this.cfg.body.height;
     this.dormant = !!data.dormant; // true 면 깨어날 때까지 가만히 있음
 
-    this.obj = scene.add.rectangle(data.x, data.y, this.w, this.h, COLORS.enemy);
+    // data.y 는 발을 딛는 바닥 높이
+    this.obj = scene.add.rectangle(data.x, data.y - this.h / 2 - 1, this.w, this.h, COLORS.enemy);
     this.obj.enemy = this;
     scene.physics.add.existing(this.obj);
     this.body = this.obj.body;

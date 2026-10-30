@@ -26,8 +26,9 @@ window.TUNING = {
   dashTime: 0.14,
   dashCooldown: 0.30,
 
-  // 주인공 판정 박스 (몸통만. 머리카락·칼 제외). 스프라이트 서 있는 키 96도트 기준
-  playerBody: { width: 30, height: 70 },
+  // 판정 박스는 몸통만 (머리·머리카락·칼·옷자락 제외). 발바닥이 박스 아래 변. 스프라이트 키 82도트 기준
+  // H 키로 화면에 판정을 표시할 수 있다
+  playerBody: { width: 28, height: 60 },
 
   // 공격
   attackActive: 0.11,
@@ -58,6 +59,7 @@ window.TUNING = {
   // 근접 검사
   swordsman: {
     hp: 3,
+    body: { width: 34, height: 74 },   // 그림 키 100 중 목 아래 몸통
     patrolSpeed: 70,
     chaseSpeed: 150,
     aggroRange: 320,     // 이 거리 안에 들어오면 쫓아옴
@@ -74,6 +76,7 @@ window.TUNING = {
   // 원거리 투척병
   thrower: {
     hp: 2,
+    body: { width: 36, height: 74 },
     range: 520,          // 이 거리 안이면 수리검을 던짐
     windup: 0.3,
     cooldown: 1.6,
@@ -84,6 +87,7 @@ window.TUNING = {
   // 보스: 근접 검사 AI + 부채꼴 수리검. 맞아도 공격이 끊기지 않음(슈퍼아머)
   boss: {
     hp: 24,
+    body: { width: 60, height: 140 },  // 그림 키 190 중 목 아래 몸통 (후광·흰 머리·큰 칼 제외)
     patrolSpeed: 0,
     chaseSpeed: 170,
     aggroRange: 1400,

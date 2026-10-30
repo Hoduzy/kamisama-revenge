@@ -79,6 +79,20 @@ def player_body():
     return dict(width=int(m.group(1)), height=int(m.group(2)), note='몸통 판정. 발바닥 중앙(origin) 기준')
 
 
+# 시트 이름 → js/config.js 의 적 설정 이름
+ENEMY_CONFIG = {'enemy_sword': 'swordsman', 'enemy_ninja': 'thrower', 'boss': 'boss'}
+
+
+def enemy_body(key):
+    """config.js 의 `key: { ... body: { width: N, height: M }` 를 읽는다 (게임과 같은 값을 미리보기에 표시)"""
+    cfg = (ROOT / 'js/config.js').read_text(encoding='utf-8')
+    start = re.search(r'\n\s*' + key + r':\s*\{', cfg)
+    if not start:
+        return None
+    m = re.search(r'body:\s*\{\s*width:\s*(\d+),\s*height:\s*(\d+)', cfg[start.end():])
+    return dict(width=int(m.group(1)), height=int(m.group(2)), note='몸통 판정. 발바닥 중앙 기준') if m else None
+
+
 def game_numbers():
     """게임 화면 너비와 스테이지 길이를 js 설정에서 읽는다."""
     cfg = (ROOT / 'js/config.js').read_text(encoding='utf-8')
@@ -596,7 +610,8 @@ function renderLineup() {
       el('div', { className: 'legend' },
         el('span', {}, el('i', { style: 'border-color:#d6336c' }), '바닥선'),
         el('span', {}, el('i', { style: 'border-color:#2563eb;border-top-style:dashed' }), `idle 서 있는 키 ${IDLE_H}도트`),
-        el('span', {}, el('i', { style: 'border-color:#16a34a' }), '주인공 판정 박스 ' + (M.sheets.player_idle && M.sheets.player_idle.body ? M.sheets.player_idle.body.width + '×' + M.sheets.player_idle.body.height : ''))));
+        el('span', {}, el('i', { style: 'border-color:#16a34a' }), '주인공 판정 ' + (M.sheets.player_idle && M.sheets.player_idle.body ? M.sheets.player_idle.body.width + '×' + M.sheets.player_idle.body.height : '')),
+        el('span', {}, el('i', { style: 'border-color:#dc2626' }), '적 판정 ' + ['enemy_sword', 'enemy_ninja', 'boss'].filter(n => M.sheets[n] && M.sheets[n].body).map(n => M.sheets[n].body.width + '×' + M.sheets[n].body.height).join(' / '))));
     list.append(sec);
     const imgs = {};
     let loaded = 0;
@@ -614,8 +629,9 @@ function drawLineups() {
       const s = M.sheets[n], i = frame % s.frames;
       g.drawImage(L.imgs[n], i * s.frameWidth, 0, s.frameWidth, s.frameHeight, x * z, base - s.frameHeight * z, s.frameWidth * z, s.frameHeight * z);
       const cx = (x + s.frameWidth / 2) * z;
-      if (n.startsWith('player_') && M.sheets.player_idle && M.sheets.player_idle.body) {
-        const b = M.sheets.player_idle.body; g.strokeStyle = '#16a34a'; g.lineWidth = 1;
+      const b = n.startsWith('player_') ? (M.sheets.player_idle && M.sheets.player_idle.body) : s.body;
+      if (b) {
+        g.strokeStyle = n.startsWith('player_') ? '#16a34a' : '#dc2626'; g.lineWidth = 1;
         g.strokeRect(cx - b.width * z / 2 + .5, base - b.height * z + .5, b.width * z - 1, b.height * z - 1);
       }
       g.fillStyle = '#333';
@@ -774,6 +790,8 @@ def main():
                     extra['adjust'] = cfg['adjust']
                 entry = save_sheet(name, frames, cfg, dot, out, source, lift)
                 entry.update(extra)
+                if name in ENEMY_CONFIG and enemy_body(ENEMY_CONFIG[name]):
+                    entry['body'] = enemy_body(ENEMY_CONFIG[name])
                 hs = [f.shape[0] for f in frames]
                 entry['heights'] = hs
                 manifest['sheets'][name] = entry

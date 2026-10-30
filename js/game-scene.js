@@ -80,9 +80,27 @@ class GameScene extends Phaser.Scene {
     }
 
     this.input.keyboard.on('keydown-R', () => this.scene.restart());
+
+    // 디버그: H 로 판정 박스 표시 (재시작해도 유지)
+    this.debugGfx = this.add.graphics().setDepth(500);
+    this.debugText = this.add.text(GAME_WIDTH - 24, 50, '판정 표시 (H)', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '13px', color: '#16a34a', backgroundColor: '#ffffffcc', padding: { x: 4, y: 2 },
+    }).setOrigin(1, 0).setScrollFactor(0).setDepth(501);
+    const applyDebug = () => {
+      const on = !!this.registry.get('debugHitbox');
+      this.debugGfx.setVisible(on);
+      this.debugText.setVisible(on);
+      if (!on) this.debugGfx.clear();
+    };
+    applyDebug();
+    this.input.keyboard.on('keydown-H', () => {
+      this.registry.set('debugHitbox', !this.registry.get('debugHitbox'));
+      applyDebug();
+    });
     const sync = () => {
       this.player.syncVisual();
       for (const e of this.enemies) e.syncVisual();
+      if (this.debugGfx.visible) this.drawDebug();
     };
     this.events.on('postupdate', sync);
     this.events.once('shutdown', () => {
@@ -320,6 +338,34 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.setFollowOffset(this.lookAhead, 40);
 
     this.updateHud();
+  }
+
+  // 판정 표시: 초록 = 주인공 몸통, 빨강 = 적 몸통, 노랑 = 주인공 공격, 주황 = 적 베기, 분홍 = 발도 범위, 흰 원 = 수리검
+  drawDebug() {
+    const g = this.debugGfx;
+    g.clear();
+    const box = (r, color, alpha = 1, fill = 0) => {
+      if (fill) g.fillStyle(color, fill).fillRect(r.x, r.y, r.width, r.height);
+      g.lineStyle(1, color, alpha).strokeRect(r.x + 0.5, r.y + 0.5, r.width - 1, r.height - 1);
+    };
+    const p = this.player;
+    box(this.bodyRect(p.body), 0x16a34a, 1, 0.15);
+    const atk = p.getAttackRect();
+    if (atk) box(atk, 0xeab308, 1, 0.25);
+    if (p.skills.charging) {
+      const I = TUNING.iaido, b = p.body;
+      const x0 = p.facing > 0 ? b.right : b.left - I.range;
+      box(new Phaser.Geom.Rectangle(x0, b.center.y - I.height / 2, I.range, I.height), 0xff7aa2, 0.9);
+    }
+    for (const e of this.enemies) {
+      if (e.dead) continue;
+      box(this.bodyRect(e.body), 0xdc2626, 1, 0.12);
+      if (e.type !== 'thrower' && (e.state === 'windup' || e.state === 'attack')) {
+        box(e.getSwordRect(), 0xf97316, 1, e.state === 'attack' ? 0.3 : 0);
+      }
+    }
+    g.lineStyle(1, 0xffffff, 1);
+    for (const s of this.shurikens) g.strokeCircle(s.x, s.y, TUNING.shuriken.radius);
   }
 
   bodyRect(body) {
