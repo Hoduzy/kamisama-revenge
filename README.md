@@ -59,6 +59,9 @@
 - 초상화는 `portrait` 설정으로 도형을 그린다. 그림이 생기면 캐릭터에 `"image": "assets/akane.png"`를 넣으면 그 이미지를 쓴다.
 - 대화 중 게임은 멈춘다. Space·J·Enter·화면 탭으로 넘기고(글자가 나오는 중이면 한 줄을 바로 완성), Esc로 장면 전체를 건너뛴다.
 - 글자 속도는 `js/config.js`의 `dialogue`.
+- 대화창·HUD 글자는 캔버스 위 HTML 레이어(`js/ui.js`, `#ui`)에 그려 도트 설정과 무관하게 매끈하다. 폰트: Gowun Batang(대사), Noto Sans KR(UI).
+- 캐릭터의 `side`(`left`/`right`)로 초상화 위치를 정한다. 아카네는 왼쪽, 나머지는 오른쪽.
+- **대화창 테스트:** `index.html?story=test_dialogue` (다른 장면 이름도 가능, 예: `?story=boss_intro`)
 
 ## 그림 (스프라이트)
 

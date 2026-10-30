@@ -47,6 +47,8 @@ class Enemy {
       fontFamily: 'system-ui, sans-serif', fontSize: '26px', fontStyle: 'bold', color: '#ff1f1f',
       stroke: '#fff', strokeThickness: 4,
     }).setOrigin(0.5, 1).setDepth(15).setVisible(false);
+    // 닌자: 던지기 직전 머리 위 반짝임
+    this.glint = data.type === 'thrower' ? scene.add.image(0, 0, 'glint').setDepth(16).setVisible(false) : null;
   }
 
   get grounded() {
@@ -227,6 +229,7 @@ class Enemy {
     this.obj.setVisible(false);
     this.telegraph.destroy();
     this.alert.destroy();
+    if (this.glint) this.glint.destroy();
     if (this.sprite) {
       // 쓰러진 모습을 잠깐 보여 주고 사라진다 (보스는 1장이라 어둡게)
       const s = this.sprite;
@@ -261,6 +264,15 @@ class Enemy {
 
     this.alert.setVisible(winding);
     this.alert.setPosition(b.center.x, b.bottom - this.artHeight - 2);
+    if (this.glint) {
+      this.glint.setVisible(winding);
+      if (winding) {
+        const t = 1 - Math.max(0, this.stateTimer) / this.cfg.windup; // 0 → 1
+        this.glint.setPosition(b.center.x + 14, b.bottom - this.artHeight - 26)
+          .setScale(1 + 0.8 * Math.abs(Math.sin(t * Math.PI * 3))).setAngle(t * 180);
+        this.alert.setScale(1 + 0.25 * Math.sin(t * Math.PI * 4));
+      }
+    }
 
     const showRect = winding && this.type !== 'thrower';
     this.telegraph.setVisible(showRect);

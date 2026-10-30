@@ -10,6 +10,7 @@ class BootScene extends Phaser.Scene {
   }
 
   create() {
+    if (!UI.root) UI.init(this.game);
     const story = this.cache.json.get('story');
     const manifest = this.cache.json.get('sprites');
     if (!story || !manifest) {

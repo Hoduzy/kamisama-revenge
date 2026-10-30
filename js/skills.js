@@ -146,7 +146,7 @@ class Skills {
       const ey = e.body.center.y;
       e.hurt(this.slashDir, S.damage);
       this.addSakura(S.stacksPerHit);
-      this.scene.showDamage(ex, ey - 20, S.damage, '#d6336c');
+      this.scene.showDamage(ex, ey - 20, S.damage, '#ff8fb1');
       this.scene.spawnPetals(ex, ey, 5, 50);
       Sprites.fx(this.scene, 'fx_slash', ex, ey, { flipX: this.slashDir > 0, depth: 14 });
       this.scene.hitImpact();
@@ -191,7 +191,7 @@ class Skills {
     enemy.parryImmune = 0.5;
     enemy.hurt(dir, I.parryDamage, I.parryKnockback);
 
-    scene.showDamage(ex, ey - 20, I.parryDamage, '#d6336c');
+    scene.showDamage(ex, ey - 20, I.parryDamage, '#ff8fb1');
     this.parryFx((p.body.center.x + ex) / 2, ey);
   }
 
@@ -199,7 +199,7 @@ class Skills {
   parryFx(x, y) {
     const p = this.player;
     const scene = this.scene;
-    scene.popText(p.body.center.x, p.body.bottom - 110, '패링!', '#d6336c');
+    scene.popText(p.body.center.x, p.body.bottom - 110, '패링!', '#ff8fb1');
     p.playAction('player_parry', 0.3);
     Sprites.fx(scene, 'fx_parry_flash', x, y, { depth: 15, scale: 1 });
     const ring = scene.add.rectangle(p.body.center.x, p.body.center.y, 50, 60).setStrokeStyle(4, 0xff7aa2).setDepth(12);
@@ -232,7 +232,7 @@ class Skills {
       const ex = e.body.center.x;
       const ey = e.body.center.y;
       e.hurt(f, damage, 520);
-      scene.showDamage(ex, ey - 24, damage, '#d6336c', 30);
+      scene.showDamage(ex, ey - 24, damage, '#ff8fb1', 30);
       scene.spawnPetals(ex, ey, 6 + stacks * 3, 70);
       Sprites.fx(scene, 'fx_sakura_burst', ex, ey, { depth: 15 });
       hits++;

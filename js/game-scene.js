@@ -87,8 +87,14 @@ class GameScene extends Phaser.Scene {
     this.escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     this.tapped = false;
     this.input.on('pointerdown', () => { this.tapped = true; });
-    // 프롤로그는 처음 한 번만 (R 재시작 시엔 생략)
-    if (!this.registry.get('prologueSeen')) {
+    // 테스트용: index.html?story=장면이름 이면 그 장면을 바로 재생 (예: ?story=test_dialogue)
+    const testScene = new URLSearchParams(location.search).get('story');
+    if (testScene && !this.registry.get('storyTestDone')) {
+      this.registry.set('storyTestDone', true);
+      this.registry.set('prologueSeen', true);
+      this.startStory(testScene);
+    } else if (!this.registry.get('prologueSeen')) {
+      // 프롤로그는 처음 한 번만 (R 재시작 시엔 생략)
       this.registry.set('prologueSeen', true);
       this.startStory('prologue');
     }
@@ -97,13 +103,10 @@ class GameScene extends Phaser.Scene {
 
     // 디버그: H 로 판정 박스 표시 (재시작해도 유지)
     this.debugGfx = this.add.graphics().setDepth(500);
-    this.debugText = this.add.text(GAME_WIDTH - 24, 50, '판정 표시 (H)', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '13px', color: '#16a34a', backgroundColor: '#ffffffcc', padding: { x: 4, y: 2 },
-    }).setOrigin(1, 0).setScrollFactor(0).setDepth(501);
     const applyDebug = () => {
       const on = !!this.registry.get('debugHitbox');
       this.debugGfx.setVisible(on);
-      this.debugText.setVisible(on);
+      UI.debug(on);
       if (!on) this.debugGfx.clear();
     };
     applyDebug();
@@ -116,6 +119,7 @@ class GameScene extends Phaser.Scene {
       this.player.syncVisual(dt);
       for (const e of this.enemies) e.syncVisual(dt);
       if (this.debugGfx.visible) this.drawDebug();
+      UI.update();
     };
     this.events.on('postupdate', sync);
     this.events.once('shutdown', () => {
@@ -126,18 +130,41 @@ class GameScene extends Phaser.Scene {
 
   createTextures() {
     if (this.textures.exists('shuriken')) return;
+    // 수리검(1.5배): 흰 테두리 + 빨간 빛. 어두운 배경에서도 보이도록 캔버스 그림자로 빛을 낸다
+    const star = (ctx, cx, cy, outer, inner) => {
+      ctx.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const a = (i * Math.PI) / 4, r = i % 2 === 0 ? outer : inner;
+        ctx[i ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+      }
+      ctx.closePath();
+    };
+    const sh = this.textures.createCanvas('shuriken', 48, 48);
+    let ctx = sh.getContext();
+    ctx.shadowColor = 'rgba(255, 40, 40, 0.95)';
+    ctx.shadowBlur = 10;
+    star(ctx, 24, 24, 13.5, 4);
+    ctx.fillStyle = '#2b2b2b';
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath(); ctx.arc(24, 24, 2.2, 0, Math.PI * 2); ctx.fill();
+    sh.refresh();
+    // 닌자 던지기 예고용 반짝임
+    const gl = this.textures.createCanvas('glint', 32, 32);
+    ctx = gl.getContext();
+    ctx.shadowColor = 'rgba(255, 50, 50, 1)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.moveTo(16, 3); ctx.lineTo(18.5, 13.5); ctx.lineTo(29, 16); ctx.lineTo(18.5, 18.5);
+    ctx.lineTo(16, 29); ctx.lineTo(13.5, 18.5); ctx.lineTo(3, 16); ctx.lineTo(13.5, 13.5);
+    ctx.closePath(); ctx.fill();
+    gl.refresh();
     const g = this.make.graphics({ x: 0, y: 0 }, false);
-    // 수리검: 4갈래 별
-    const pts = [];
-    for (let i = 0; i < 8; i++) {
-      const a = (i * Math.PI) / 4;
-      const r = i % 2 === 0 ? 9 : 2.5;
-      pts.push(new Phaser.Math.Vector2(9 + Math.cos(a) * r, 9 + Math.sin(a) * r));
-    }
-    g.fillStyle(0x2b2b2b).fillPoints(pts, true);
-    g.fillStyle(0xeeebe4).fillCircle(9, 9, 1.5);
-    g.generateTexture('shuriken', 18, 18);
-    g.clear();
     // 흩날리는 꽃잎
     g.fillStyle(0xffffff).fillEllipse(6, 4, 12, 8);
     g.generateTexture('petal', 12, 8);
@@ -174,34 +201,13 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  // 글자(사망·KO·안내·보스 이름·결과)는 HTML 글자 레이어(UI)에 그린다. 그림만 캔버스에
   createHud() {
-    // 밤 배경 위라 밝은 글자 + 어두운 테두리
-    const style = { fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: '20px', color: '#f2eee8', stroke: '#14121c', strokeThickness: 4 };
-    // 체력 1칸 + 사망 횟수
-    this.add.rectangle(24, 24, 18, 18, 0xd62828).setStrokeStyle(2, 0xf2eee8).setOrigin(0, 0).setScrollFactor(0).setDepth(100);
-    this.deathText = this.add.text(52, 22, '사망 0', style).setScrollFactor(0).setDepth(100);
-    this.koText = this.add.text(GAME_WIDTH - 24, 22, 'KO 0', style).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
-    const hint = this.add.text(GAME_WIDTH / 2, 70,
-      'A/D 이동 · Space 점프 · J 공격 · K 대시 · U 대쉬베기 · I 발도 · R 재시작',
-      { ...style, fontSize: '18px', color: '#d8d2e6' }).setOrigin(0.5, 0).setScrollFactor(0).setDepth(100);
-    this.tweens.add({ targets: hint, alpha: 0, delay: 4500, duration: 800 });
-
+    UI.reset(this);
+    UI.setDeaths(0);
+    UI.setKO(0);
+    UI.hint('A/D 이동 · Space 점프 · J 공격 · K 대시 · U 대쉬베기 · I 발도 · R 재시작');
     this.createSkillHud();
-
-    // 보스 체력바 (보스가 깨어나면 표시)
-    this.bossBar = this.add.container(GAME_WIDTH / 2, 30).setScrollFactor(0).setDepth(100).setVisible(false);
-    this.bossBarFill = this.add.rectangle(-180, 14, 360, 10, COLORS.enemy).setOrigin(0, 0.5);
-    this.bossBar.add([
-      this.add.text(0, -6, '교주 아마테루', { ...style, fontSize: '16px', fontStyle: 'bold' }).setOrigin(0.5),
-      this.add.rectangle(0, 14, 364, 14, 0x222222),
-      this.bossBarFill,
-    ]);
-
-    this.bannerBg = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, 520, 260, 0xffffff, 0.82)
-      .setScrollFactor(0).setDepth(100).setVisible(false);
-    this.banner = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 40, '',
-      { ...style, fontSize: '48px', fontStyle: 'bold', color: '#111', strokeThickness: 0, align: 'center' })
-      .setOrigin(0.5).setScrollFactor(0).setDepth(101);
   }
 
   // 화면 하단: 스킬 쿨타임 2칸 + 벚꽃 스택 5칸
@@ -223,13 +229,10 @@ class GameScene extends Phaser.Scene {
         icon.label = this.add.text(x, y + 2, name, { fontFamily: 'system-ui, sans-serif', fontSize: '15px', fontStyle: 'bold', color: '#fff' })
           .setOrigin(0.5).setScrollFactor(0).setDepth(depth + 1);
       }
-      this.add.text(x - 21, y - 22, key, { fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#fff', stroke: '#000', strokeThickness: 3 })
-        .setScrollFactor(0).setDepth(depth + 3);
-      // 쿨타임 동안 위에서부터 덮이는 막
+      // 쿨타임 동안 위에서부터 덮이는 막 (그림) + 키 글자·남은 초 (HTML)
       icon.shade = this.add.rectangle(x, y + 24, 48, 48, 0x0d0c16, 0.7).setOrigin(0.5, 1)
         .setScrollFactor(0).setDepth(depth + 2);
-      icon.time = this.add.text(x, y, '', { fontFamily: 'system-ui, sans-serif', fontSize: '18px', fontStyle: 'bold', color: '#fff' })
-        .setOrigin(0.5).setScrollFactor(0).setDepth(depth + 3);
+      icon.label_i = UI.addSkillLabel(x, y, key);
       icon.border = this.add.rectangle(x, y, 52, 52).setStrokeStyle(3, 0xff7aa2).setScrollFactor(0)
         .setDepth(depth + 3).setVisible(false);
       return icon;
@@ -258,7 +261,7 @@ class GameScene extends Phaser.Scene {
     const frac = Phaser.Math.Clamp(remaining / total, 0, 1);
     icon.shade.setVisible(frac > 0);
     icon.shade.setSize(48, 48 * frac);
-    icon.time.setText(frac > 0 ? remaining.toFixed(1) : '');
+    UI.setCooldown(icon.label_i, frac > 0 ? remaining.toFixed(1) : '');
     icon.label.setVisible(frac <= 0);
     icon.border.setVisible(active);
     if (btn) {
@@ -271,11 +274,11 @@ class GameScene extends Phaser.Scene {
   }
 
   updateHud() {
-    this.deathText.setText('사망 ' + this.deaths);
+    UI.setDeaths(this.deaths);
+    UI.setKO(this.kills);
     const boss = this.boss;
-    this.bossBar.setVisible(!!boss && !boss.dormant && !boss.dead);
-    if (boss && !boss.dead) this.bossBarFill.setSize(360 * Math.max(0, boss.hp) / boss.cfg.hp, 10);
-    this.koText.setText('KO ' + this.kills);
+    const bossOn = !!boss && !boss.dormant && !boss.dead;
+    UI.boss(bossOn, '교주 아마테루', bossOn ? boss.hp / boss.cfg.hp : 0);
 
     const sk = this.player.skills;
     this.updateSkillIcon(this.skillIcons.slash, this.touchSkillBtns.slash, sk.slashCooldown,
@@ -485,7 +488,7 @@ class GameScene extends Phaser.Scene {
     const img = this.add.image(x, y, 'shuriken').setDepth(14);
     this.shurikens.push({
       img, x, y, vx: Math.cos(angle) * S.speed, vy: Math.sin(angle) * S.speed,
-      life: S.life, owner: 'enemy', source: enemy,
+      life: S.life, owner: 'enemy', source: enemy, trail: 0,
     });
   }
 
@@ -501,7 +504,15 @@ class GameScene extends Phaser.Scene {
       s.x += s.vx * dt;
       s.y += s.vy * dt;
       s.img.setPosition(s.x, s.y);
-      s.img.angle += 1100 * dt;
+      s.img.angle += 1100 * dt; // 회전
+      // 짧은 잔상 꼬리
+      s.trail -= dt;
+      if (s.trail <= 0) {
+        s.trail = S.trailInterval;
+        const ghost = this.add.image(s.x, s.y, 'shuriken').setDepth(13).setAngle(s.img.angle)
+          .setTint(s.owner === 'enemy' ? 0xff5050 : 0xff9eb8).setAlpha(0.5);
+        this.tweens.add({ targets: ghost, alpha: 0, scale: 0.55, duration: 150, onComplete: () => ghost.destroy() });
+      }
 
       if (s.life <= 0 || this.isSolidAt(s.x, s.y)) {
         this.removeShuriken(i, true);
@@ -531,7 +542,7 @@ class GameScene extends Phaser.Scene {
         for (const e of this.enemies) {
           if (e.dead || !Phaser.Geom.Intersects.CircleToRectangle(circle, this.bodyRect(e.body))) continue;
           e.hurt(Math.sign(s.vx) || 1, S.reflectDamage);
-          this.showDamage(e.body.center.x, e.body.center.y - 20, S.reflectDamage, '#d6336c');
+          this.showDamage(e.body.center.x, e.body.center.y - 20, S.reflectDamage, '#ff8fb1');
           this.hitImpact();
           this.removeShuriken(i, true);
           break;
@@ -612,13 +623,7 @@ class GameScene extends Phaser.Scene {
   }
 
   showStageTitle(title, subtitle) {
-    const font = 'system-ui, -apple-system, sans-serif';
-    const t1 = this.add.text(GAME_WIDTH / 2, 190, title, { fontFamily: font, fontSize: '40px', fontStyle: 'bold', color: '#f5f1ea', stroke: '#14121c', strokeThickness: 6 });
-    const t2 = this.add.text(GAME_WIDTH / 2, 240, subtitle || '', { fontFamily: font, fontSize: '22px', color: '#ff9eb8', stroke: '#14121c', strokeThickness: 5 });
-    for (const t of [t1, t2]) {
-      t.setOrigin(0.5).setScrollFactor(0).setDepth(150).setAlpha(0);
-      this.tweens.add({ targets: t, alpha: 1, duration: 300, hold: 1400, yoyo: true, onComplete: () => t.destroy() });
-    }
+    UI.stageTitle(title, subtitle);
   }
 
   wakeBoss() {
@@ -635,32 +640,22 @@ class GameScene extends Phaser.Scene {
   triggerClear() {
     this.cleared = true;
     this.physics.world.pause();
-    this.banner.setText('끝\n\n처치 ' + this.kills + '  ·  사망 ' + this.deaths + '\n\n점프 / 공격으로 다시 시작');
-    this.banner.setFontSize(40);
+    UI.banner(`<b>끝</b>처치 ${this.kills} &nbsp;·&nbsp; 사망 ${this.deaths}<small>점프 / 공격으로 다시 시작</small>`);
     this.allowRestartSoon();
   }
 
   allowRestartSoon() {
-    this.bannerBg.setVisible(true);
     this.canRestart = false;
     this.time.delayedCall(500, () => { this.canRestart = true; });
   }
 
-  showDamage(x, y, amount, color = '#111', size = 20) {
-    const t = this.add.text(x, y, String(amount), {
-      fontFamily: 'system-ui, sans-serif', fontSize: size + 'px', fontStyle: 'bold', color,
-      stroke: '#fff', strokeThickness: 4,
-    }).setOrigin(0.5).setDepth(20);
-    this.tweens.add({ targets: t, y: y - 36, alpha: 0, duration: 650, ease: 'Cubic.easeOut', onComplete: () => t.destroy() });
+  // 떠오르는 글자는 HTML 레이어에 (월드 좌표를 따라 움직임)
+  showDamage(x, y, amount, color = '#fff', size = 20) {
+    UI.float(x, y, String(amount), { color, size, kind: 'damage', ms: 650 });
   }
 
   popText(x, y, text, color) {
-    const t = this.add.text(x, y, text, {
-      fontFamily: 'system-ui, sans-serif', fontSize: '22px', fontStyle: 'bold', color,
-      stroke: '#fff', strokeThickness: 5,
-    }).setOrigin(0.5).setDepth(20).setScale(0.6);
-    this.tweens.add({ targets: t, scale: 1, y: y - 20, duration: 160, ease: 'Back.easeOut' });
-    this.tweens.add({ targets: t, alpha: 0, delay: 450, duration: 250, onComplete: () => t.destroy() });
+    UI.float(x, y, text, { color, size: 24, kind: 'pop', ms: 750 });
   }
 
   // 벚꽃잎이 사방으로 터졌다가 천천히 떨어진다

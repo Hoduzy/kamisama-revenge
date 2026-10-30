@@ -79,7 +79,7 @@ window.TUNING = {
     hp: 2,
     body: { width: 36, height: 74 },
     range: 520,          // 이 거리 안이면 수리검을 던짐
-    windup: 0.3,
+    windup: 0.4,         // 던지기 전 머리 위 '!' + 반짝임 예고 시간
     cooldown: 1.6,
     retreatRange: 150,   // 이보다 가까우면 뒤로 물러남
     retreatSpeed: 110,
@@ -111,9 +111,10 @@ window.TUNING = {
   },
 
   shuriken: {
-    speed: 420,
+    speed: 336,          // 날아가는 속도(px/s). 처음 420 에서 20% 느리게
     life: 3,
-    radius: 7,
+    radius: 10,          // 맞는 판정 반지름 (그림 1.5배에 맞춤)
+    trailInterval: 0.025, // 잔상 꼬리를 남기는 간격(초)
     reflectSpeedMult: 1.4, // 패링으로 되돌려 보낼 때 속도 배율
     reflectDamage: 2,
   },
