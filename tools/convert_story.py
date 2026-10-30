@@ -126,6 +126,85 @@ OVERRIDES = {
                                          {'cmd': 'note', 'text': '체력바가 줄지 않는다. (패배 이벤트 전투)'}],
 }
 
+# 게임플레이로 옮긴 연출 메모: 장면 id → { note 원문: 대신 넣을 gameplay 명령들 }
+# gameplay 명령은 js/gameplay.js 가 실행한다 ({cmd:'gameplay', do: 동작, ...}). 빈 목록이면 메모만 지운다(앞 명령에 포함됨)
+G = lambda do, **kw: {'cmd': 'gameplay', 'do': do, **kw}
+GAMEPLAY = {
+    'S0-2': {
+        '해 질 녘.': [G('mood', mood='dusk')],
+        '이동 튜토리얼 표시.': [G('tutorial', step='move')],
+        '하루가 마당 끝으로 걸어간다.': [G('npcMove', who='haru', to='haruWall')],
+        '점프 튜토리얼.': [G('tutorial', step='jump')],
+        '낮은 담을 넘는다.': [G('npcMove', who='haru', to='haruDrill')],
+        '허수아비 3개.': [G('spawn', group='dummies')],
+        '대쉬 베기 튜토리얼.': [G('tutorial', step='dashSlash')],
+        '벨 때마다 칼에 분홍 꽃잎이 하나씩 붙는다 (벚꽃 스택 UI 처음 등장).': [],
+        '발도 튜토리얼.': [G('tutorial', step='iaido')],
+        '하루가 목검으로 천천히 공격한다.': [],
+        '패링에 성공할 때까지 반복.': [G('tutorial', step='parry')],
+        '성공 시 하얀 섬광 + 짧은 슬로모션.': [],
+    },
+    'S0-4': {
+        '등롱이 줄지어 걸리고 마을 사람들이 고양이귀 가면을 쓰고 춤춘다.': [G('festival')],
+        '하루가 손을 대자 분홍 빛이 퍼지며 꽃이 한꺼번에 핀다.': [G('bloomTree', tree='festival')],
+        '마을 사람들 환호.': [G('cheer')],
+        '아카네가 다가가면 하루가 귓속말.': [G('approach', who='haru')],
+        '하늘에서 불화살 수십 개가 포물선을 그리며 떨어진다.': [G('fireArrows')],
+    },
+    'S0-5': {
+        '흰 옷에 흰 가면을 쓴 무리가 횃불을 들고 들어온다.': [G('spawn', group='alley')],
+        '첫 실전 전투.': [],
+        '가면 신도 2명.': [G('fight', group='alley')],
+    },
+    'S0-6': {
+        '소이치로가 망치 하나로 신도 셋을 막고 있다.': [G('npcPlace', who='soichiro', at='smithyFront', face=1), G('spawn', group='smithy')],
+        '플레이어가 신도들을 벤다.': [G('fight', group='smithy', slowmoLast=True)],
+        '마지막 신도를 베는 순간 슬로모션.': [],
+        '소이치로가 무릎을 꿇는다.': [G('npcPose', who='soichiro', pose='kneel')],
+        '대장간 지붕이 무너지며 화면을 가린다.': [G('roofCollapse', who='soichiro')],
+    },
+    'S0-7': {
+        '하루가 목검이 아닌 진검을 들고 서 있다.': [G('npcPlace', who='haru', at='fireHaru', face=1)],
+        '아카네가 광장에 뛰어든다.': [G('playerRun', to='fireAkane')],
+        '하루가 돌아본다.': [G('npcFace', who='haru', dir=-1)],
+        '체력바가 줄지 않는다. (패배 이벤트 전투)': [],
+        '패배 이벤트 전투.': [G('defeatBattle', seconds=20, hits=3)],
+        '아카네의 공격은 모두 금빛 막에 튕긴다.': [],
+        '20초 후 또는 3번 피격 시 자동 진행.': [],
+        '하쿠야의 발도.': [G('hakuyaIaido')],
+        '아카네가 날아가 쓰러진다.': [],
+        '사망 연출이 나오지만 화면이 멈추지 않는다.': [],
+        '하루가 아카네 앞을 막아선다.': [G('npcMove', who='haru', to='player', offset=60, wait=True)],
+        '하쿠야의 칼이 하루를 꿰뚫는다.': [G('stab', who='haru')],
+        '꽃잎 한 장이 떨어진다.': [G('petal')],
+        '아카네 주위로 분홍 꽃잎 수천 장이 소용돌이친다.': [G('petalStorm')],
+        '꽃잎이 아카네를 싣고 하늘로 날아간다.': [G('carryAway')],
+    },
+}
+
+
+def apply_gameplay(chapters):
+    """GAMEPLAY 표의 메모를 gameplay 명령으로 바꾼다. 표에 있는데 대본에서 못 찾은 문장은 알려 준다"""
+    scenes = {sc['id']: sc for ch in chapters.values() for sc in ch['scenes']}
+    for sid, table in GAMEPLAY.items():
+        sc = scenes.get(sid)
+        if not sc:
+            print('[gameplay] 장면 없음:', sid)
+            continue
+        used, out = set(), []
+        for c in sc['commands']:
+            t = c.get('text')
+            if c.get('cmd') == 'note' and t in table:
+                used.add(t)
+                out += [{**g, 'text': t} for g in table[t]]
+            else:
+                out.append(c)
+        sc['commands'] = out
+        for t in table:
+            if t not in used:
+                print(f'[gameplay] {sid} 에서 못 찾은 문장:', t)
+
+
 FADE_SEC = 0.8
 
 
@@ -705,6 +784,7 @@ def main():
     lines = src.read_text(encoding='utf-8').split('\n')
     conv = Converter(lines)
     chapters, memories = conv.run()
+    apply_gameplay(chapters)
     OUT.mkdir(parents=True, exist_ok=True)
     meta = {'source': src.name, 'faces': FACES, 'voiceStyles': VOICE_STYLE}
     for name, ch in chapters.items():

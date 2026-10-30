@@ -95,15 +95,26 @@ class StoryPlayer {
     this.context = {};     // condition 판정에 쓰는 실행 중 값 (예: firstDown)
     const reg = scene.registry;
     if (!reg.get('storyFlags')) reg.set('storyFlags', {});
-    if (!reg.get('storyPlayed')) reg.set('storyPlayed', []);
+    if (!reg.get('storyPlayed')) reg.set('storyPlayed', []); // 시작한 장면
+    if (!reg.get('storyDone')) reg.set('storyDone', []);     // 끝까지 본 장면 (맵의 막힌 길이 열림)
     this.poolState = reg.get('storyPools') || {};
     reg.set('storyPools', this.poolState);
+    // 장면이 다시 시작되면(R, 개발 메뉴) 이 재생기는 멈춘다. 남은 명령이 새 화면을 건드리지 않게
+    this.stopped = false;
+    scene.events.once('shutdown', () => {
+      this.stopped = true;
+      this.queue = [];
+      this.flushWaiters(false);
+      this.dialogue.resolvePending();
+      this.endSlowmo();
+    });
   }
 
   get flags() { return this.scene.registry.get('storyFlags'); }
   get busy() { return !!this.running; }
   get blocking() { return !!this.running && this.locked; }
   played(id) { return this.scene.registry.get('storyPlayed').includes(id); }
+  done(id) { return this.scene.registry.get('storyDone').includes(id); }
 
   // level.js 의 story 표 항목 → 재생할 장면 id 들. 'S1-1' | ['S0-7', 'S0-8'] | { scene, when }
   // once: 이미 본 장면은 빼기 (재시작해도 같은 장면이 다시 나오지 않게)
@@ -125,21 +136,22 @@ class StoryPlayer {
     return this.playAll(this.resolve(entries));
   }
 
+  // 이어지는 장면 사이엔 검은 화면을 유지한다 (암전으로 끝나는 장면 → 다음 장면)
   async playAll(ids) {
-    for (const id of ids) await this.play(id);
+    for (let i = 0; i < ids.length; i++) await this.play(ids[i], { keepFade: i < ids.length - 1 });
   }
 
-  play(id) {
+  play(id, opts = {}) {
     const sc = this.scenes[id];
     if (!sc) {
       console.warn('[story] 장면 없음:', id);
       return Promise.resolve();
     }
-    if (this.running) return new Promise((r) => this.queue.push(() => this.play(id).then(r)));
-    return this.runScene(sc);
+    if (this.running) return new Promise((r) => this.queue.push(() => this.play(id, opts).then(r)));
+    return this.runScene(sc, opts);
   }
 
-  async runScene(sc) {
+  async runScene(sc, { keepFade = false } = {}) {
     this.running = sc;
     this.skipping = false;
     const controllable = !!sc.controllable;
@@ -152,11 +164,13 @@ class StoryPlayer {
     } catch (e) {
       console.error('[story]', sc.id, e);
     }
+    if (this.stopped) return;
     // 정리: 대화창 닫기, 연출 걷기, 느린 화면·카메라 원래대로, 게임 재개
     this.dialogue.close();
     for (const s of ['.fx-cg', '.fx-caption', '.fx-title', '.fx-bossname', '.fx-choice']) UI.hide(s);
     UI.letterbox(false);
-    if (this.faded) {
+    UI.prompt(null);
+    if (this.faded && !keepFade) {
       this.faded = false;
       UI.fade(0, 0.6);
     }
@@ -166,6 +180,9 @@ class StoryPlayer {
     this.lock(false);
     this.running = null;
     this.skipping = false;
+    const done = this.scene.registry.get('storyDone');
+    if (!done.includes(sc.id)) done.push(sc.id);
+    this.scene.events.emit('storySceneEnd', sc.id);
     const next = this.queue.shift();
     if (next) next();
   }
@@ -181,7 +198,10 @@ class StoryPlayer {
   }
 
   async runList(cmds, sc) {
-    for (const c of cmds || []) await this.exec(c, sc);
+    for (const c of cmds || []) {
+      if (this.stopped) return;
+      await this.exec(c, sc);
+    }
   }
 
   // ───────── 명령 하나 ─────────
@@ -316,6 +336,11 @@ class StoryPlayer {
         if (other) await this.runList(other.commands.slice(0, c.endBefore ?? c.toIndex ?? other.commands.length), sc);
         break;
       }
+      case 'gameplay':
+        // 실제 게임 동작 (js/gameplay.js). 조작이 필요한 건 건너뛰기 중에도 한다
+        dlg.hide();
+        await this.scene.gameplay.run(c, skip);
+        break;
       case 'note':
         // 아직 게임으로 옮기지 못한 연출 메모: 개발 모드에서만 화면 구석에 작게 (style.css 의 body.dev-mode)
         if (!skip) UI.note(c.text);
@@ -405,6 +430,7 @@ class StoryPlayer {
   endSlowmo() {
     const scene = this.scene;
     clearTimeout(this.slowTimer);
+    if (!scene.physics || !scene.physics.world) return;
     scene.physics.world.timeScale = 1;
     scene.tweens.timeScale = 1;
     scene.anims.globalTimeScale = 1;

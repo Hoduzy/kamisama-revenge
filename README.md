@@ -61,7 +61,7 @@
 
 ### 컷신 엔진 StoryPlayer (`js/story-player.js`)
 
-- **트리거 ↔ 장면 id**는 맵 데이터 `js/level.js`의 `story` 표에 장별로 적는다:
+- **트리거 ↔ 장면 id**는 `js/level.js`의 `STORY_MAP` 표에 장별로 적는다 (장마다 쓰는 맵은 `levelFor(장)`: 프롤로그는 `LEVELS.prologue`, 나머지는 아직 `LEVELS.town`):
   - `start` 장 시작 때, `triggers` 주인공이 x를 넘을 때(`stage`, `then: 'wakeBoss' | 'clear'`)
   - `trees` n번째 벚꽃나무가 필 때(장면이 없으면 타누키치 한마디)
   - `boss.hp` 보스 체력 비율, `boss.after` 보스 처치 후
@@ -79,6 +79,33 @@
 - **저장:** 플래그·선택·재생 기록·아이템은 registry(`storyFlags`, `storyPlayed`, `items`)에 있다.
 - **설정:** 글자 속도는 `config.js`의 `dialogue`, 자동 넘김·길게 누르기·음량은 `story`.
 
+### 게임플레이 연결 (`js/gameplay.js`)
+
+- 대본의 연출 메모 중 게임 동작은 변환기(`tools/convert_story.py`의 `GAMEPLAY` 표)가 `{cmd:'gameplay', do: …}` 명령으로 바꾼다. 대본을 다시 변환해도 유지된다.
+- 튜토리얼·전투처럼 조작이 필요한 동작은 잠긴 장면에서도 그동안만 조작이 풀리고, 건너뛰기를 해도 꼭 해야 한다. 보여 주기만 하는 동작은 건너뛰면 결과로 바로 간다.
+- 맵 데이터에 더 들어가는 것:
+  - `npcs`(이야기 속 인물: 하루는 주인공 그림을 분홍빛으로, 나머지는 실루엣 + 이름표)
+  - `points`(인물이 갈 위치)
+  - `gates`(그 장면을 끝까지 보기 전엔 못 지나가는 보이지 않는 벽)
+  - `enemies[].group`(gameplay `spawn`·`fight`로 나타나는 무리)
+  - `decorTrees`(체크포인트가 아닌 장식 나무)
+  - `memories`(기억 조각 위치)
+  - `mood`(화면 분위기 dusk / night / fire)
+
+### 프롤로그 (`?chapter=prologue`)
+
+연습장 → 대장간 → 축제 광장 → 불타는 골목 → 대장간 앞 → 불타는 광장 → 1장으로 이어진다.
+
+- **S0-2 연습장** (걸으며 진행): 이동 → 낮은 담 점프 → 허수아비 3개 대쉬베기(이때 대쉬베기·벚꽃 스택 칸이 처음 나타남) → 발도 → 하루와 패링 연습(맞아도 안 죽음, 성공할 때까지. 성공하면 하얀 섬광 + 슬로모션). 대쉬베기·발도는 배우기 전엔 못 쓴다.
+- **S0-3 대장간**: 칼 획득.
+- **S0-4 축제 광장**: 하루가 큰 벚나무를 피움 → 마을 사람들 환호 → 하루에게 다가가면 귓속말 → 종소리 → 불화살, 화면이 붉게 바뀌고 불티가 날린다.
+- **S0-5 불타는 골목** (벚꽃나무 1): 가면 신도 2명과 첫 실전.
+- **S0-6 대장간 앞** (벚꽃나무 2): 신도 3명. 마지막 한 명을 벨 때 슬로모션 → 소이치로가 무릎 꿇고 지붕이 무너진다.
+- **S0-7 불타는 광장**: 대화 → 하쿠야 패배 이벤트 전투(공격은 금빛 막에 튕기고 체력바가 줄지 않음. 20초가 지나거나 3번 맞으면 끝, 맞아도 안 죽음) → 하쿠야의 발도에 아카네가 날아가 쓰러짐 → 하루가 막아서다 쓰러짐 → 꽃잎 소용돌이 → 꽃잎에 실려 사라짐.
+- **S0-8**: 검은 화면 자막 → 타이틀 → 1장 시작.
+- R을 누르면 프롤로그는 처음부터 다시 시작한다(연출이 이어져 있어서). 죽으면 마지막 벚꽃나무에서 부활한다.
+- 기억 조각: 대본 표(`memories.json`)에 따르면 1-1 ~ 6-3에만 있어 프롤로그에는 없다. 1장 3개(1-1 지붕 끝, 1-2 쌀가게 지붕, 1-3 다리 아래)는 지금 마을 맵에 놓았다. 먹으면 `기억 조각 N · 제목`이 뜨고 registry `memories`에 저장된다.
+
 ### 개발 메뉴 (F1)
 
 - 아무 장면 id나 바로 재생한다. 검색은 id·장소·대사로 하고, ↑↓·Enter 또는 클릭으로 고른다. 장면이 속한 장으로 다시 시작한다.
@@ -89,7 +116,7 @@
 
 - `index.html?scene=TEST` — 모든 연출 명령 시연 (`data/story/test.json`)
 - `index.html?scene=S0-7` — 장면 하나만 재생
-- `index.html?chapter=ch3` — 그 장으로 시작 (기본 ch1, `epilogue`도 가능)
+- `index.html?chapter=prologue` — 프롤로그부터 (기본 ch1, `ch3`·`epilogue` 등도 가능)
 - `index.html?scene=E-5&memories=18` — 기억 조각 개수 조건 시험
 
 ## 그림 (스프라이트)
@@ -107,6 +134,8 @@
 - `js/skills.js` — 대쉬베기, 발도, 벚꽃 스택
 - `js/tree.js` — 벚꽃나무(체크포인트)
 - `data/story/` — 대본 JSON (`tools/convert_story.py`로 생성)
+- `js/gameplay.js` — 대본의 gameplay 명령(튜토리얼, 전투, 인물 이동, 패배 이벤트 …)
+- `js/npc.js` — 이야기 속 인물
 - `js/story-player.js` — 컷신 엔진 StoryPlayer (장면 재생, 길게 눌러 건너뛰기, 소리, 풀, 플래그)
 - `js/dev-menu.js` — F1 개발 메뉴, 개발 모드
 - `js/dialogue.js` / `js/portraits.js` / `js/boot-scene.js` — 대화창, 초상화 그리기, 대본·스프라이트 로딩
@@ -114,5 +143,5 @@
 - `js/sprites.js` — 스프라이트 애니메이션·이펙트 도우미
 - `tools/process_sprites.py` — 원본 도트 이미지 전처리
 - `js/player.js` / `js/enemy.js` — 주인공, 적
-- `js/level.js` — 땅·발판·적 배치, 스토리 트리거 ↔ 장면 id 표
+- `js/level.js` — 맵(`LEVELS.town`, `LEVELS.prologue`), 스토리 트리거 ↔ 장면 id 표(`STORY_MAP`)
 - `js/game-scene.js` — 충돌, 전투, 카메라, HUD

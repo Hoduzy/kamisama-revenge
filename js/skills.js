@@ -63,8 +63,9 @@ class Skills {
     this.slashJustEnded = false;
 
     const canStart = p.hurtLock <= 0 && !this.busy;
-    if (c.skill1.pressed && canStart && this.slashCooldown <= 0) this.startSlash();
-    else if (c.skill2.pressed && canStart && this.iaidoCooldown <= 0) this.startIaido();
+    const locks = this.scene.skillLocks; // 프롤로그: 튜토리얼에서 배우기 전엔 못 씀
+    if (c.skill1.pressed && canStart && this.slashCooldown <= 0 && !locks.has('dashSlash')) this.startSlash();
+    else if (c.skill2.pressed && canStart && this.iaidoCooldown <= 0 && !locks.has('iaido')) this.startIaido();
 
     if (this.slashing) {
       this.updateSlash(dt);
@@ -144,9 +145,10 @@ class Skills {
       this.slashHits.add(e);
       const ex = e.body.center.x;
       const ey = e.body.center.y;
-      e.hurt(this.slashDir, S.damage);
-      this.addSakura(S.stacksPerHit);
-      this.scene.showDamage(ex, ey - 20, S.damage, '#ff8fb1');
+      if (e.hurt(this.slashDir, S.damage, undefined, 'dashSlash')) {
+        this.addSakura(S.stacksPerHit);
+        this.scene.showDamage(ex, ey - 20, S.damage, '#ff8fb1');
+      }
       this.scene.spawnPetals(ex, ey, 5, 50);
       Sprites.fx(this.scene, 'fx_slash', ex, ey, { flipX: this.slashDir > 0, depth: 14 });
       this.scene.hitImpact();
@@ -189,9 +191,8 @@ class Skills {
     const ex = enemy.body.center.x;
     const ey = enemy.body.center.y;
     enemy.parryImmune = 0.5;
-    enemy.hurt(dir, I.parryDamage, I.parryKnockback);
-
-    scene.showDamage(ex, ey - 20, I.parryDamage, '#ff8fb1');
+    if (enemy.hurt(dir, I.parryDamage, I.parryKnockback)) scene.showDamage(ex, ey - 20, I.parryDamage, '#ff8fb1');
+    scene.events.emit('parry', enemy);
     this.parryFx((p.body.center.x + ex) / 2, ey);
   }
 
@@ -226,13 +227,13 @@ class Skills {
     const cy = b.center.y;
     const rect = new Phaser.Geom.Rectangle(x0, cy - I.height / 2, I.range, I.height);
 
+    scene.events.emit('iaido');
     let hits = 0;
     for (const e of scene.enemies) {
       if (e.dead || !Phaser.Geom.Rectangle.Overlaps(rect, scene.bodyRect(e.body))) continue;
       const ex = e.body.center.x;
       const ey = e.body.center.y;
-      e.hurt(f, damage, 520);
-      scene.showDamage(ex, ey - 24, damage, '#ff8fb1', 30);
+      if (e.hurt(f, damage, 520, 'iaido')) scene.showDamage(ex, ey - 24, damage, '#ff8fb1', 30);
       scene.spawnPetals(ex, ey, 6 + stacks * 3, 70);
       Sprites.fx(scene, 'fx_sakura_burst', ex, ey, { depth: 15 });
       hits++;

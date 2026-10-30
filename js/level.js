@@ -1,6 +1,10 @@
-// 레벨 데이터. 좌표는 월드 기준, 사각형은 좌상단 (x, y)와 크기 (w, h).
+// 레벨(맵) 데이터. 좌표는 월드 기준, 사각형은 좌상단 (x, y)와 크기 (w, h).
 // oneWay: 아래에서 뚫고 올라갈 수 있는 얇은 발판.
-window.LEVEL = {
+// LEVELS.town   : 에도 마을 (1장~, 아직 장마다 맵이 따로 없어 같은 맵을 쓴다)
+// LEVELS.prologue: 프롤로그 사쿠라자와 (연습장 → 대장간 → 축제 광장 → 불타는 골목 → 대장간 앞 → 불타는 광장)
+// STORY_MAP     : 장별 스토리 트리거 ↔ 장면 id
+window.LEVELS = {};
+LEVELS.town = {
   width: 7000,
   height: 720,
   spawn: { x: 120, y: 560 },
@@ -74,100 +78,187 @@ window.LEVEL = {
     { x: 5810, y: 620 },
   ],
 
-  // 스토리 트리거 ↔ 장면 id (data/story/*.json). 맵이 아직 하나라서 장마다 같은 맵 위에 배치한다.
-  //   start      : 장을 시작할 때 차례로 재생. { scene, when } 이면 조건이 맞을 때만
-  //   triggers   : 주인공이 x 를 넘으면 한 번. stage = 여기서 스테이지 번호가 바뀜(타누키치 한마디 풀),
-  //                then: 'wakeBoss'(장면 뒤 보스가 깨어남) | 'clear'(장면 뒤 장 클리어)
-  //   trees      : 벚꽃나무 번호(LEVEL.trees 순서, 0 = 시작 나무) → 그 나무가 필 때 장면. 없으면 한마디(풀)
-  //   boss.hp    : 보스 체력 비율이 below 이하가 되면 / boss.after : 보스를 쓰러뜨린 뒤 → 클리어
-  //   events     : 게임 쪽 사건 이름 → 장면 (scene.storyEvent(이름) 으로 재생. 아직 그 사건이 없는 것들)
-  story: {
-    prologue: {
-      start: ['S0-1', 'S0-2'],
-      triggers: [
-        { x: 900, scene: 'S0-3' },
-        { x: 2200, scene: 'S0-4', stage: 2 },
-        { x: 5900, scene: ['S0-7', 'S0-8'], then: 'clear' },
-      ],
-      trees: { 1: 'S0-5', 2: 'S0-6' },
-    },
-    ch1: {
-      start: ['S1-1', 'S1-2'],
-      triggers: [
-        { x: 2200, scene: 'S1-4', stage: 2 },
-        { x: 4330, scene: 'S1-6', stage: 3 },
-        { x: 5900, scene: 'S1-7', then: 'wakeBoss' },
-      ],
-      trees: { 1: 'S1-3', 2: 'S1-5' },
-      boss: { hp: [{ below: 0.5, scene: 'S1-8' }], after: ['S1-9', 'S1-10'] },
-    },
-    ch2: {
-      start: ['S2-1'],
-      triggers: [
-        { x: 1000, scene: 'S2-2' },
-        { x: 2200, scene: 'S2-3', stage: 2 },
-        { x: 4330, scene: 'S2-5', stage: 3 },
-        { x: 5900, scene: 'S2-6', then: 'wakeBoss' },
-      ],
-      trees: { 2: 'S2-4' },
-      boss: { after: ['S2-8', 'S2-9'] },
-      events: { '한 명 쓰러짐': 'S2-7' },
-    },
-    ch3: {
-      start: ['S3-1'],
-      triggers: [
-        { x: 1000, scene: 'S3-2' },
-        { x: 2200, scene: 'S3-3', stage: 2 },
-        { x: 4330, stage: 3 },
-        { x: 5900, scene: 'S3-6', then: 'wakeBoss' },
-      ],
-      trees: { 2: 'S3-4', 3: 'S3-5' },
-      boss: { hp: [{ below: 0.5, scene: 'S3-7' }], after: ['S3-8', 'S3-9'] },
-    },
-    ch4: {
-      start: ['S4-1'],
-      triggers: [
-        { x: 1000, scene: 'S4-2' },
-        { x: 2200, scene: 'S4-3', stage: 2 },
-        { x: 4330, stage: 3 },
-        { x: 5900, scene: 'S4-5', then: 'wakeBoss' },
-      ],
-      trees: { 3: 'S4-4' },
-      boss: { hp: [{ below: 0.3, scene: 'S4-6' }], after: ['S4-7', 'S4-8'] },
-    },
-    ch5: {
-      start: ['S5-1', 'S5-2'],
-      triggers: [
-        { x: 2050, scene: 'S5-3' },
-        { x: 2200, scene: 'S5-4', stage: 2 },
-        { x: 4330, scene: 'S5-6', stage: 3 },
-        { x: 5900, scene: 'S5-7', then: 'wakeBoss' },
-      ],
-      trees: { 2: 'S5-5' },
-      boss: { after: ['S5-9', 'S5-10'] },
-      events: { '화승총병 전멸': 'S5-8' },
-    },
-    ch6: {
-      start: ['S6-1', 'S6-2'],
-      triggers: [
-        { x: 4330, scene: 'S6-5', stage: 2 },
-        { x: 5200, scene: 'S6-6' },
-        { x: 5900, scene: 'S6-7', stage: 3, then: 'wakeBoss' },
-      ],
-      trees: { 1: 'S6-3', 2: 'S6-4a', 3: 'S6-4b' },
-      boss: { hp: [{ below: 0.5, scene: 'S6-9' }], after: ['S6-10', 'S6-11'] },
-      events: { '1페이즈 종료': 'S6-8' },
-    },
-    // 엔딩: 6장 마지막 선택에서 〈나눈다〉를 골랐으면 진엔딩(E-5, E-6), 아니면 E-3, E-4
-    epilogue: {
-      start: [
-        'E-1', 'E-2',
-        { scene: 'E-3', when: { flag: 'choice:S6-10', not: 'share' } },
-        { scene: 'E-4', when: { flag: 'choice:S6-10', not: 'share' } },
-        { scene: 'E-5', when: { flag: 'choice:S6-10', is: 'share' } },
-        { scene: 'E-6', when: { flag: 'choice:S6-10', is: 'share' } },
-      ],
-      then: 'clear',
-    },
+  // 기억 조각 (data/story/memories.json 의 번호). chapter 가 그 장일 때만 나온다
+  memories: [
+    { no: 1, chapter: 'ch1', x: 900, y: 372 },   // 1-1 지붕 끝 굴뚝 뒤 (높은 발판)
+    { no: 2, chapter: 'ch1', x: 3640, y: 262 },  // 1-2 쌀가게 지붕 (가장 높은 발판)
+    { no: 3, chapter: 'ch1', x: 5420, y: 442 },  // 1-3 다리 아래 기둥
+  ],
+};
+
+// 프롤로그: 사쿠라자와 마을. 해 질 녘 연습장에서 튜토리얼 → 대장간 → 축제 광장(불화살) →
+// 불타는 골목(첫 실전) → 대장간 앞(소이치로) → 불타는 광장(하쿠야 패배 이벤트)
+LEVELS.prologue = {
+  width: 6300,
+  height: 720,
+  spawn: { x: 120, y: 560 },
+  mood: 'dusk', // 화면 색: dusk(해 질 녘) / night / fire (gameplay 'mood'·'fireArrows' 로 바뀜)
+
+  ground: [
+    { x: 0, y: 620, w: 3700, h: 100 },
+    { x: 700, y: 572, w: 44, h: 48 },     // 연습장 낮은 담 (점프 튜토리얼)
+    { x: 3820, y: 620, w: 2480, h: 100 }, // 골목의 구덩이 3700~3820 너머
+    { x: 4250, y: 560, w: 90, h: 60 },    // 무너진 담
+    { x: -40, y: 0, w: 40, h: 720 },
+    { x: 6300, y: 0, w: 40, h: 720 },
+  ],
+
+  platforms: [
+    { x: 3380, y: 500, w: 160, h: 20 },
+    { x: 3600, y: 450, w: 140, h: 20 },
+    { x: 3980, y: 500, w: 150, h: 20 },
+  ],
+
+  // 처음엔 없고 gameplay 'spawn' 으로 나타나는 무리는 group 을 단다
+  enemies: [
+    { type: 'dummy', group: 'dummies', x: 1060, y: 620 },
+    { type: 'dummy', group: 'dummies', x: 1180, y: 620 },
+    { type: 'dummy', group: 'dummies', x: 1300, y: 620 },
+    { type: 'swordsman', group: 'alley', x: 3520, y: 620, minX: 3300, maxX: 3690 },
+    { type: 'swordsman', group: 'alley', x: 4000, y: 620, minX: 3830, maxX: 4240 },
+    { type: 'swordsman', group: 'smithy', x: 4830, y: 620, minX: 4600, maxX: 5050 },
+    { type: 'swordsman', group: 'smithy', x: 4920, y: 620, minX: 4600, maxX: 5050 },
+    { type: 'swordsman', group: 'smithy', x: 5010, y: 620, minX: 4600, maxX: 5050 },
+    // 하쿠야: 패배 이벤트 전투 (gameplay 'defeatBattle' 이 깨운다)
+    { type: 'boss', x: 5760, y: 620, minX: 5150, maxX: 6250, dormant: true },
+  ],
+
+  trees: [
+    { x: 120, y: 620 },
+    { x: 3240, y: 620 }, // 불타는 골목 입구 (S0-5)
+    { x: 4480, y: 620 }, // 대장간 앞 (S0-6)
+  ],
+  // 체크포인트가 아닌 장식 나무: 축제 광장의 큰 벚나무(하루가 피움), 불타는 광장의 큰 벚나무
+  decorTrees: [
+    { id: 'festival', x: 2760, y: 620, scale: 1.5 },
+    { id: 'burning', x: 5680, y: 620, scale: 1.5, bloomed: true, burning: true },
+  ],
+
+  // 인물(그림만, 판정 없음). look: haru(주인공 그림을 물들임) / 그 밖엔 실루엣 + 이름
+  npcs: [
+    { id: 'haru', name: '하루', look: 'haru', x: 330, y: 620, face: -1 },
+    { id: 'soichiro', name: '소이치로', look: 'silhouette', x: 2010, y: 620, face: -1, tall: true },
+    { id: 'child', name: '마을 아이', look: 'silhouette', x: 2560, y: 620, face: -1, small: true, festival: true },
+    { id: 'villagerA', name: '마을 사람', look: 'silhouette', x: 2650, y: 620, face: 1, festival: true },
+    { id: 'villagerB', name: '마을 사람', look: 'silhouette', x: 2930, y: 620, face: -1, festival: true },
+    { id: 'villagerC', name: '마을 사람', look: 'silhouette', x: 3010, y: 620, face: -1, festival: true },
+  ],
+  // gameplay 명령이 쓰는 위치(x)
+  points: {
+    haruWall: 640, haruDrill: 1500, plazaTree: 2700, smithyFront: 4660,
+    fireHaru: 5600, fireAkane: 5450, fireHaruAside: 5360,
   },
+  // 보이지 않는 벽: 그 장면이 끝나기 전엔 앞으로 못 감
+  gates: [
+    { x: 1640, until: 'S0-2' },
+    { x: 2330, until: 'S0-3' },
+    { x: 3120, until: 'S0-4' },
+    { x: 4400, until: 'S0-5' },
+    { x: 5100, until: 'S0-6' },
+  ],
+  memories: [], // 기억 조각은 1-1 ~ 6-3 에만 있다 (memories.json)
+};
+
+// 장 → 맵
+window.levelFor = (chapter) => LEVELS[chapter] || LEVELS.town;
+
+// 스토리 트리거 ↔ 장면 id (data/story/*.json). 장마다 쓰는 맵은 levelFor(장).
+//   start      : 장을 시작할 때 차례로 재생. { scene, when } 이면 조건이 맞을 때만
+//   triggers   : 주인공이 x 를 넘으면 한 번. stage = 여기서 스테이지 번호가 바뀜(타누키치 한마디 풀),
+//                then: 'wakeBoss'(장면 뒤 보스가 깨어남) | 'clear'(장면 뒤 장 클리어)
+//   trees      : 벚꽃나무 번호(LEVEL.trees 순서, 0 = 시작 나무) → 그 나무가 필 때 장면. 없으면 한마디(풀)
+//   boss.hp    : 보스 체력 비율이 below 이하가 되면 / boss.after : 보스를 쓰러뜨린 뒤 → 클리어
+//   events     : 게임 쪽 사건 이름 → 장면 (scene.storyEvent(이름) 으로 재생. 아직 그 사건이 없는 것들)
+//   next       : 마지막 장면 뒤 이어지는 장 (then: 'nextChapter')
+window.STORY_MAP = {
+  prologue: {
+    start: ['S0-1', 'S0-2'],
+    triggers: [
+      { x: 1850, scene: 'S0-3' },
+      { x: 2420, scene: 'S0-4' },
+      { x: 5330, scene: ['S0-7', 'S0-8'], then: 'nextChapter' },
+    ],
+    trees: { 1: 'S0-5', 2: 'S0-6' },
+    next: 'ch1',
+    restartFromBeginning: true, // R: 프롤로그는 처음부터 (튜토리얼·연출이 이어져 있어서)
+  },
+  ch1: {
+    start: ['S1-1', 'S1-2'],
+    triggers: [
+      { x: 2200, scene: 'S1-4', stage: 2 },
+      { x: 4330, scene: 'S1-6', stage: 3 },
+      { x: 5900, scene: 'S1-7', then: 'wakeBoss' },
+    ],
+    trees: { 1: 'S1-3', 2: 'S1-5' },
+    boss: { hp: [{ below: 0.5, scene: 'S1-8' }], after: ['S1-9', 'S1-10'] },
+  },
+  ch2: {
+    start: ['S2-1'],
+    triggers: [
+      { x: 1000, scene: 'S2-2' },
+      { x: 2200, scene: 'S2-3', stage: 2 },
+      { x: 4330, scene: 'S2-5', stage: 3 },
+      { x: 5900, scene: 'S2-6', then: 'wakeBoss' },
+    ],
+    trees: { 2: 'S2-4' },
+    boss: { after: ['S2-8', 'S2-9'] },
+    events: { '한 명 쓰러짐': 'S2-7' },
+  },
+  ch3: {
+    start: ['S3-1'],
+    triggers: [
+      { x: 1000, scene: 'S3-2' },
+      { x: 2200, scene: 'S3-3', stage: 2 },
+      { x: 4330, stage: 3 },
+      { x: 5900, scene: 'S3-6', then: 'wakeBoss' },
+    ],
+    trees: { 2: 'S3-4', 3: 'S3-5' },
+    boss: { hp: [{ below: 0.5, scene: 'S3-7' }], after: ['S3-8', 'S3-9'] },
+  },
+  ch4: {
+    start: ['S4-1'],
+    triggers: [
+      { x: 1000, scene: 'S4-2' },
+      { x: 2200, scene: 'S4-3', stage: 2 },
+      { x: 4330, stage: 3 },
+      { x: 5900, scene: 'S4-5', then: 'wakeBoss' },
+    ],
+    trees: { 3: 'S4-4' },
+    boss: { hp: [{ below: 0.3, scene: 'S4-6' }], after: ['S4-7', 'S4-8'] },
+  },
+  ch5: {
+    start: ['S5-1', 'S5-2'],
+    triggers: [
+      { x: 2050, scene: 'S5-3' },
+      { x: 2200, scene: 'S5-4', stage: 2 },
+      { x: 4330, scene: 'S5-6', stage: 3 },
+      { x: 5900, scene: 'S5-7', then: 'wakeBoss' },
+    ],
+    trees: { 2: 'S5-5' },
+    boss: { after: ['S5-9', 'S5-10'] },
+    events: { '화승총병 전멸': 'S5-8' },
+  },
+  ch6: {
+    start: ['S6-1', 'S6-2'],
+    triggers: [
+      { x: 4330, scene: 'S6-5', stage: 2 },
+      { x: 5200, scene: 'S6-6' },
+      { x: 5900, scene: 'S6-7', stage: 3, then: 'wakeBoss' },
+    ],
+    trees: { 1: 'S6-3', 2: 'S6-4a', 3: 'S6-4b' },
+    boss: { hp: [{ below: 0.5, scene: 'S6-9' }], after: ['S6-10', 'S6-11'] },
+    events: { '1페이즈 종료': 'S6-8' },
+  },
+  // 엔딩: 6장 마지막 선택에서 〈나눈다〉를 골랐으면 진엔딩(E-5, E-6), 아니면 E-3, E-4
+  epilogue: {
+    start: [
+      'E-1', 'E-2',
+      { scene: 'E-3', when: { flag: 'choice:S6-10', not: 'share' } },
+      { scene: 'E-4', when: { flag: 'choice:S6-10', not: 'share' } },
+      { scene: 'E-5', when: { flag: 'choice:S6-10', is: 'share' } },
+      { scene: 'E-6', when: { flag: 'choice:S6-10', is: 'share' } },
+    ],
+    then: 'clear',
+  },
+
 };

@@ -7,6 +7,7 @@ class BootScene extends Phaser.Scene {
   preload() {
     this.load.json('story-characters', 'data/story/characters.json');
     this.load.json('story-audio', 'data/story/audio.json');
+    this.load.json('story-memories', 'data/story/memories.json');
     for (const id of STORY_FILES) this.load.json('story-' + id, `data/story/${id}.json`);
     this.load.json('sprites', SPRITE_DIR + 'manifest.json');
   }

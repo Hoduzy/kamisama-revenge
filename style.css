@@ -374,3 +374,13 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 .dm-row i { font-style: normal; font-size: 11px; padding: 1px 6px; margin-right: 4px; border-radius: 3px; background: #2a2f55; color: #cfd3ff; }
 .dm-row small { display: block; margin-top: 2px; color: #8a8496; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dm-empty { padding: 20px; color: #8a8496; text-align: center; }
+
+/* 튜토리얼 안내, 인물 이름표 */
+#ui .fx-prompt {
+  left: 50%; top: 70px; transform: translate(-50%, -6px); z-index: 45; max-width: 760px; padding: 9px 22px;
+  background: rgba(13, 17, 43, 0.82); border: 1px solid var(--gold); border-radius: 4px;
+  font-family: var(--font-story); font-size: 19px; color: #f5e6c8; text-align: center; white-space: nowrap;
+  opacity: 0; transition: opacity 0.25s, transform 0.25s;
+}
+#ui .fx-prompt.show { opacity: 1; transform: translate(-50%, 0); }
+.float.npc-tag span { animation: none; font-weight: 500; display: block; transform: translate(-50%, -100%); font-size: 12px; color: #f3eee4; white-space: nowrap; text-shadow: 0 0 3px #000, 0 0 3px #000; opacity: 0.85; }

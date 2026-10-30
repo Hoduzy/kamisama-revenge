@@ -56,6 +56,7 @@ class Player {
     this.invuln = 0;
     this.hurtLock = 0;
     this.dead = false;
+    this.alphaMul = 1; // 연출용 (꽃잎에 실려 사라질 때 0)
 
     this.skills = new Skills(this);
   }
@@ -365,7 +366,7 @@ class Player {
       this.visual.setScale(this.scaleX, this.scaleY);
     }
     // 무적 시간 동안 깜빡임
-    this.visual.setAlpha(this.invuln > 0 && !this.dashing && !this.dead ? (Math.floor(this.invuln * 20) % 2 ? 0.3 : 1) : 1);
+    this.visual.setAlpha((this.invuln > 0 && !this.dashing && !this.dead ? (Math.floor(this.invuln * 20) % 2 ? 0.3 : 1) : 1) * this.alphaMul);
 
     this.skills.syncVisual();
 

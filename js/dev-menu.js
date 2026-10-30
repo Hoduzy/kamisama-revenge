@@ -161,7 +161,7 @@ const DevMenu = {
   playScene(id) {
     const r = this.all.find((x) => x.id === id);
     const reg = this.game.registry;
-    if (r && LEVEL.story[r.chapter] && r.chapter !== 'epilogue') reg.set('chapterOverride', r.chapter);
+    if (r && STORY_MAP[r.chapter] && r.chapter !== 'epilogue') reg.set('chapterOverride', r.chapter);
     reg.set('devPlay', id);
     reg.set('chapterStarted', true);
     this.close();

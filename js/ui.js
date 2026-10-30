@@ -31,6 +31,7 @@ const UI = {
       <div class="fx-voice"></div>
       <div class="fx-audio"></div>
       <div class="fx-notes"></div>
+      <div class="fx-prompt"></div>
       <div class="fx-skip"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" cx="18" cy="18" r="15" pathLength="100"/></svg><span>건너뛰기</span></div>`;
     this.el = (sel) => this.root.querySelector(sel);
     // 조작 방식 바꾸기 (터치 ↔ 키보드). 포커스를 가져가지 않게 해서 Space 가 버튼을 다시 누르지 않도록
@@ -48,6 +49,7 @@ const UI = {
     document.addEventListener('inputmodechange', () => {
       showMode();
       this.controlsHint();
+      if (this.promptText) this.prompt(this.promptText);
     });
     showMode();
     const layout = () => this.layout();
@@ -87,6 +89,7 @@ const UI = {
     this.fade(0, 0);
     this.letterbox(false, true);
     this.skipGauge(0);
+    this.prompt(null);
     for (const s of ['.fx-cg', '.fx-caption', '.fx-title', '.fx-bossname', '.fx-item', '.fx-choice', '.fx-voice']) {
       this.el(s).classList.remove('show');
     }
@@ -240,6 +243,27 @@ const UI = {
     const f = { el, target, until: performance.now() + ms };
     this.floats.push(f);
     this.place(f);
+  },
+
+  // 튜토리얼 안내 (화면 위쪽 가운데, 끝날 때까지 떠 있음). { kb, touch } — 조작 방식에 맞는 글. null 이면 숨김
+  prompt(p) {
+    const el = this.el('.fx-prompt');
+    this.promptText = p;
+    if (!p) return el.classList.remove('show');
+    el.textContent = TouchPad.mode === 'touch' ? p.touch : p.kb;
+    el.classList.add('show');
+  },
+
+  // 인물 머리 위 이름표 (지울 때까지 남음). { el, remove }
+  tag(target, text) {
+    const el = document.createElement('div');
+    el.className = 'float npc-tag';
+    el.innerHTML = `<span>${text}</span>`;
+    this.el('.floats').append(el);
+    const f = { el, target, until: Infinity };
+    this.floats.push(f);
+    this.place(f);
+    return { el, remove: () => { f.until = 0; } };
   },
 
   // 조작 안내 (지금 조작 방식에 맞게)

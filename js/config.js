@@ -85,6 +85,29 @@ window.TUNING = {
     retreatSpeed: 110,
   },
 
+  // 프롤로그 연습장 허수아비: 대쉬베기로만 쓰러진다
+  dummy: {
+    hp: 1,
+    body: { width: 30, height: 64 },
+  },
+
+  // 패링 연습 상대(하루): 근접 검사 AI 를 천천히. 맞아도 죽지 않음(프롤로그 튜토리얼)
+  trainer: {
+    hp: 999,
+    body: { width: 28, height: 60 },
+    patrolSpeed: 0,
+    chaseSpeed: 90,
+    aggroRange: 700,
+    attackRange: 80,
+    windup: 0.9,         // 일부러 느리게
+    activeTime: 0.14,
+    recover: 0.6,
+    cooldown: 1.0,
+    reach: 70,
+    height: 50,
+    lunge: 70,
+  },
+
   // 보스: 근접 검사 AI + 부채꼴 수리검. 맞아도 공격이 끊기지 않음(슈퍼아머)
   boss: {
     hp: 24,

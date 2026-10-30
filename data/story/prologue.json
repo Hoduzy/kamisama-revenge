@@ -69,7 +69,9 @@
       "controllable": true,
       "commands": [
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "mood",
+          "mood": "dusk",
           "text": "해 질 녘."
         },
         {
@@ -102,11 +104,16 @@
           "side": "right"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "tutorial",
+          "step": "move",
           "text": "이동 튜토리얼 표시."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcMove",
+          "who": "haru",
+          "to": "haruWall",
           "text": "하루가 마당 끝으로 걸어간다."
         },
         {
@@ -117,11 +124,16 @@
           "side": "right"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "tutorial",
+          "step": "jump",
           "text": "점프 튜토리얼."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcMove",
+          "who": "haru",
+          "to": "haruDrill",
           "text": "낮은 담을 넘는다."
         },
         {
@@ -132,16 +144,16 @@
           "side": "right"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "spawn",
+          "group": "dummies",
           "text": "허수아비 3개."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "tutorial",
+          "step": "dashSlash",
           "text": "대쉬 베기 튜토리얼."
-        },
-        {
-          "cmd": "note",
-          "text": "벨 때마다 칼에 분홍 꽃잎이 하나씩 붙는다 (벚꽃 스택 UI 처음 등장)."
         },
         {
           "cmd": "say",
@@ -162,7 +174,9 @@
           "text": "하루가 목검을 허리에 대고 자세를 낮춘다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "tutorial",
+          "step": "iaido",
           "text": "발도 튜토리얼."
         },
         {
@@ -173,16 +187,10 @@
           "side": "right"
         },
         {
-          "cmd": "note",
-          "text": "하루가 목검으로 천천히 공격한다."
-        },
-        {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "tutorial",
+          "step": "parry",
           "text": "패링에 성공할 때까지 반복."
-        },
-        {
-          "cmd": "note",
-          "text": "성공 시 하얀 섬광 + 짧은 슬로모션."
         },
         {
           "cmd": "say",
@@ -313,7 +321,8 @@
       "controllable": true,
       "commands": [
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "festival",
           "text": "등롱이 줄지어 걸리고 마을 사람들이 고양이귀 가면을 쓰고 춤춘다."
         },
         {
@@ -333,11 +342,14 @@
           "text": "광장 가운데의 오래된 벚나무."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "bloomTree",
+          "tree": "festival",
           "text": "하루가 손을 대자 분홍 빛이 퍼지며 꽃이 한꺼번에 핀다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "cheer",
           "text": "마을 사람들 환호."
         },
         {
@@ -351,7 +363,9 @@
           "text": "하루가 아카네를 보고 손짓한다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "approach",
+          "who": "haru",
           "text": "아카네가 다가가면 하루가 귓속말."
         },
         {
@@ -389,7 +403,8 @@
           "src": "침묵."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "fireArrows",
           "text": "하늘에서 불화살 수십 개가 포물선을 그리며 떨어진다."
         },
         {
@@ -423,7 +438,9 @@
           "text": "마을이 불탄다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "spawn",
+          "group": "alley",
           "text": "흰 옷에 흰 가면을 쓴 무리가 횃불을 들고 들어온다."
         },
         {
@@ -434,11 +451,9 @@
           "side": "right"
         },
         {
-          "cmd": "note",
-          "text": "첫 실전 전투."
-        },
-        {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "fight",
+          "group": "alley",
           "text": "가면 신도 2명."
         },
         {
@@ -471,7 +486,17 @@
           "text": "대장간이 불타고 있다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcPlace",
+          "who": "soichiro",
+          "at": "smithyFront",
+          "face": 1,
+          "text": "소이치로가 망치 하나로 신도 셋을 막고 있다."
+        },
+        {
+          "cmd": "gameplay",
+          "do": "spawn",
+          "group": "smithy",
           "text": "소이치로가 망치 하나로 신도 셋을 막고 있다."
         },
         {
@@ -493,12 +518,11 @@
           "side": "left"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "fight",
+          "group": "smithy",
+          "slowmoLast": true,
           "text": "플레이어가 신도들을 벤다."
-        },
-        {
-          "cmd": "note",
-          "text": "마지막 신도를 베는 순간 슬로모션."
         },
         {
           "cmd": "say",
@@ -508,7 +532,10 @@
           "side": "right"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcPose",
+          "who": "soichiro",
+          "pose": "kneel",
           "text": "소이치로가 무릎을 꿇는다."
         },
         {
@@ -537,7 +564,9 @@
           "side": "right"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "roofCollapse",
+          "who": "soichiro",
           "text": "대장간 지붕이 무너지며 화면을 가린다."
         },
         {
@@ -574,7 +603,11 @@
           "text": "광장의 큰 벚나무가 불타며 꽃잎이 재가 되어 흩날린다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcPlace",
+          "who": "haru",
+          "at": "fireHaru",
+          "face": 1,
           "text": "하루가 목검이 아닌 진검을 들고 서 있다."
         },
         {
@@ -618,11 +651,16 @@
           "side": "left"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "playerRun",
+          "to": "fireAkane",
           "text": "아카네가 광장에 뛰어든다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcFace",
+          "who": "haru",
+          "dir": -1,
           "text": "하루가 돌아본다."
         },
         {
@@ -654,32 +692,16 @@
           "src": "보스 체력바: \"하쿠야\" — 체력바가 줄지 않는다."
         },
         {
-          "cmd": "note",
-          "text": "체력바가 줄지 않는다. (패배 이벤트 전투)"
-        },
-        {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "defeatBattle",
+          "seconds": 20,
+          "hits": 3,
           "text": "패배 이벤트 전투."
         },
         {
-          "cmd": "note",
-          "text": "아카네의 공격은 모두 금빛 막에 튕긴다."
-        },
-        {
-          "cmd": "note",
-          "text": "20초 후 또는 3번 피격 시 자동 진행."
-        },
-        {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "hakuyaIaido",
           "text": "하쿠야의 발도."
-        },
-        {
-          "cmd": "note",
-          "text": "아카네가 날아가 쓰러진다."
-        },
-        {
-          "cmd": "note",
-          "text": "사망 연출이 나오지만 화면이 멈추지 않는다."
         },
         {
           "cmd": "say",
@@ -689,11 +711,18 @@
           "side": "left"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcMove",
+          "who": "haru",
+          "to": "player",
+          "offset": 60,
+          "wait": true,
           "text": "하루가 아카네 앞을 막아선다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "stab",
+          "who": "haru",
           "text": "하쿠야의 칼이 하루를 꿰뚫는다."
         },
         {
@@ -706,7 +735,8 @@
           "name": "stop"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "petal",
           "text": "꽃잎 한 장이 떨어진다."
         },
         {
@@ -728,7 +758,8 @@
           "text": "하루가 마지막 힘으로 손을 뻗는다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "petalStorm",
           "text": "아카네 주위로 분홍 꽃잎 수천 장이 소용돌이친다."
         },
         {
@@ -757,7 +788,8 @@
           "src": "플래시(흰색)."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "carryAway",
           "text": "꽃잎이 아카네를 싣고 하늘로 날아간다."
         },
         {

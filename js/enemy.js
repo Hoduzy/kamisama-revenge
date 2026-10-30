@@ -2,6 +2,9 @@
 // 스프라이트 프레임: 0 대기, 1 공격 준비(닌자는 투척), 2 공격, 3 사망. 보스는 1장.
 // swordsman(근접 검사): 플레이어를 쫓아와 0.4초 빨간 예고 후 앞을 벤다.
 // thrower(투척병): 거리를 두고 수리검을 던진다. 가까이 오면 뒤로 물러난다.
+// dummy(허수아비): 프롤로그 연습장. 움직이지 않고 대쉬베기로만 쓰러진다.
+// trainer(하루, 패링 연습): 근접 검사 AI 를 천천히. 피해를 받지 않고 그림은 NPC(하루)가 대신 보여 준다.
+// barrier = true 면 금빛 막에 공격이 튕긴다 (프롤로그 하쿠야 패배 이벤트).
 // 몸끼리 부딪히는 것만으로는 피해가 없다. 검과 수리검만 위험하다.
 class Enemy {
   constructor(scene, data) {
@@ -13,6 +16,8 @@ class Enemy {
     this.w = this.cfg.body.width;
     this.h = this.cfg.body.height;
     this.dormant = !!data.dormant; // true 면 깨어날 때까지 가만히 있음
+    this.group = data.group || null; // gameplay 'spawn' 으로 나타나는 무리
+    this.barrier = false;
 
     // data.y 는 발을 딛는 바닥 높이
     this.obj = scene.add.rectangle(data.x, data.y - this.h / 2 - 1, this.w, this.h, COLORS.enemy);
@@ -20,18 +25,23 @@ class Enemy {
     scene.physics.add.existing(this.obj);
     this.body = this.obj.body;
 
-    this.sheet = { swordsman: 'enemy_sword', thrower: 'enemy_ninja', boss: 'boss' }[data.type];
+    this.sheet = { swordsman: 'enemy_sword', thrower: 'enemy_ninja', boss: 'boss', dummy: 'scarecrow' }[data.type];
     this.sprite = null;
-    if (Sprites.has(scene, this.sheet)) {
+    if (data.type === 'trainer') {
+      this.obj.setFillStyle(COLORS.enemy, 0); // 그림은 NPC 가 보여 준다
+    } else if (data.type === 'dummy') {
+      this.obj.setFillStyle(COLORS.enemy, 0);
+      this.sprite = scene.add.image(data.x, data.y, 'scarecrow').setOrigin(0.5, 1).setDepth(6);
+    } else if (Sprites.has(scene, this.sheet)) {
       this.obj.setFillStyle(COLORS.enemy, 0); // 판정 사각형은 숨기고 그림만 보인다
       this.sprite = scene.add.sprite(data.x, data.y, this.sheet, 0).setOrigin(0.5, 1).setDepth(6);
     }
-    this.artHeight = Sprites.height(this.sheet, this.h); // 머리 위 '!' 위치용
+    this.artHeight = data.type === 'dummy' ? 74 : Sprites.height(this.sheet, this.h); // 머리 위 '!' 위치용
     this.throwPose = 0; // 닌자: 던진 직후 투척 자세 유지 시간
 
     this.hp = this.cfg.hp;
     this.facing = Math.random() < 0.5 ? -1 : 1;
-    this.state = 'patrol';
+    this.state = data.type === 'trainer' ? 'chase' : 'patrol';
     this.stateTimer = 0;
     this.cooldown = 0.5 + Math.random() * 0.5;
     this.stun = 0;
@@ -63,11 +73,11 @@ class Enemy {
     this.parryImmune -= dt;
     this.cooldown -= dt;
 
-    if (this.dormant) {
+    if (this.dormant || this.type === 'dummy') {
       body.setVelocityX(0);
     } else if (this.stun > 0) {
       if (this.grounded) body.setVelocityX(body.velocity.x * Math.max(0, 1 - dt * 10));
-    } else if (this.type === 'swordsman' || this.type === 'boss') {
+    } else if (this.type === 'swordsman' || this.type === 'boss' || this.type === 'trainer') {
       this.updateSwordsman(dt, player);
     } else {
       this.updateThrower(dt, player);
@@ -200,15 +210,38 @@ class Enemy {
     if (this.cooldown <= 0 && this.grounded) this.setState('windup', T.windup);
   }
 
-  hurt(dir, damage, knockback = 320) {
-    if (this.dead) return;
+  // 피해를 줬으면 true. source: 'dashSlash' 등 (허수아비는 대쉬베기로만)
+  hurt(dir, damage, knockback = 320, source = null) {
+    if (this.dead) return false;
+    const scene = this.scene;
+    const b = this.body;
+    if (this.type === 'dummy' && source !== 'dashSlash') {
+      this.flash = 0.06;
+      scene.popText(b.center.x, b.bottom - 96, '대쉬베기로!', '#cfcfcf');
+      return false;
+    }
+    if (this.barrier) {
+      // 금빛 막에 튕김: 피해 없음
+      const ring = scene.add.circle(b.center.x, b.center.y, 46).setStrokeStyle(4, 0xffd166).setDepth(14);
+      scene.tweens.add({ targets: ring, scale: 1.8, alpha: 0, duration: 300, onComplete: () => ring.destroy() });
+      scene.popText(b.center.x, b.bottom - this.artHeight - 10, '튕김', '#ffd166');
+      return false;
+    }
+    if (this.type === 'trainer') {
+      // 연습 상대: 밀려나며 잠깐 멈출 뿐
+      this.stun = 0.5;
+      this.setState('chase');
+      this.cooldown = Math.max(this.cooldown, 0.6);
+      b.setVelocity(dir * knockback * 0.6, -120);
+      return false;
+    }
     this.hp -= damage;
     this.flash = 0.08;
     if (this.cfg.superArmor) {
       // 공격이 끊기지 않고 살짝만 밀림
       this.body.setVelocityX(dir * 80);
       if (this.hp <= 0) this.kill(true);
-      return;
+      return true;
     }
     this.stun = 0.28;
     // 맞으면 공격이 끊긴다
@@ -218,6 +251,7 @@ class Enemy {
     }
     this.body.setVelocity(dir * knockback, -260);
     if (this.hp <= 0) this.kill(true);
+    return true;
   }
 
   kill(withEffect) {
@@ -235,6 +269,7 @@ class Enemy {
       const s = this.sprite;
       s.clearTint();
       if (this.type === 'boss') s.setTint(0x555566);
+      else if (this.type === 'dummy') s.setAngle(this.facing > 0 ? -80 : 80);
       else s.setFrame(3);
       this.scene.tweens.add({ targets: s, alpha: 0, delay: withEffect ? 900 : 0, duration: 500, onComplete: () => s.destroy() });
     }
@@ -248,13 +283,26 @@ class Enemy {
     const b = this.body;
     const winding = this.state === 'windup';
     this.throwPose -= dt;
-    if (this.sprite) {
+    if (this.npc) {
+      // 연습 상대(하루): NPC 그림을 몸통 위치·자세에 맞춘다
+      const n = this.npc;
+      n.x = b.center.x;
+      n.y = b.bottom;
+      n.facing = this.facing;
+      const pose = winding ? 'guard' : (this.state === 'attack' || this.state === 'recover') ? 'slash'
+        : Math.abs(b.velocity.x) > 30 ? 'run' : 'idle';
+      if (pose !== n.pose) n.setPose(pose);
+      else n.sync();
+      n.sprite.setTint(this.flash > 0 ? 0xffffff : winding && Math.floor(this.stateTimer * 10) % 2 ? 0xff9090 : 0xffc4d4);
+    } else if (this.type === 'trainer') {
+      // 그림 없음
+    } else if (this.sprite) {
       const s = this.sprite;
       s.setPosition(b.center.x, b.bottom).setFlipX(this.facing > 0);
       let frame = 0;
       if (this.type === 'swordsman') frame = winding ? 1 : (this.state === 'attack' || this.state === 'recover') ? 2 : 0;
       else if (this.type === 'thrower') frame = this.throwPose > 0 ? 1 : 0;
-      if (this.type !== 'boss') s.setFrame(frame);
+      if (this.type !== 'boss' && this.type !== 'dummy') s.setFrame(frame);
       if (this.flash > 0) s.setTintFill(0xffffff);
       else if (winding && Math.floor(this.stateTimer * 16) % 2) s.setTint(0xff8080); // 공격 직전 붉게 깜빡임
       else s.clearTint();

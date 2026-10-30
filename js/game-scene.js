@@ -4,7 +4,18 @@ class GameScene extends Phaser.Scene {
   }
 
   create() {
+    // 스토리: data/story 의 장면을 컷신 엔진(StoryPlayer)으로 재생한다. 위치 ↔ 장면은 STORY_MAP[장], 맵은 levelFor(장)
+    //   ?chapter=ch1  몇 장으로 시작할지 (기본 ch1. 개발 메뉴에서 장면을 고르면 그 장으로 바뀜)
+    //   ?scene=S0-7   그 장면 하나만 바로 재생 (테스트용. ?scene=TEST = 모든 연출 명령 확인)
+    //   ?memories=18  기억 조각 개수 (진엔딩 분기 확인용)
+    //   ?dev=1        개발 모드 (F1 개발 메뉴에서도 켜고 끔)
+    const params = new URLSearchParams(location.search);
+    this.chapter = this.registry.get('chapterOverride') || params.get('chapter') || 'ch1';
+    this.chapterNo = STORY_FILES.indexOf(this.chapter);
+    this.storyMap = STORY_MAP[this.chapter] || {};
+    window.LEVEL = levelFor(this.chapter);
     const L = LEVEL;
+    UI.reset(this); // 글자 레이어 비우기 (이름표 등을 만들기 전에)
     this.physics.world.setBounds(0, 0, L.width, L.height + 400);
     this.cameras.main.setBackgroundColor(COLORS.background);
     this.cameras.main.setBounds(0, 0, L.width, L.height);
@@ -54,17 +65,36 @@ class GameScene extends Phaser.Scene {
     this.controls = new Controls(this);
     this.player = new Player(this, L.spawn.x, L.spawn.y);
 
+    // 적. group 이 있는 무리는 gameplay 'spawn' 때 나타난다
     this.enemies = [];
     this.enemyGroup = this.physics.add.group();
+    this.pendingGroups = {};
     for (const data of L.enemies) {
-      const e = new Enemy(this, data);
-      this.enemyGroup.add(e.obj);
-      e.body.setMaxVelocity(2000, TUNING.maxFallSpeed); // 그룹 기본값 덮어쓰기
-      this.enemies.push(e);
+      if (data.group) (this.pendingGroups[data.group] = this.pendingGroups[data.group] || []).push(data);
+      else this.addEnemy(data);
     }
+
+    // 장식 나무, 이야기 속 인물, 막힌 길, 기억 조각, 화면 분위기
+    this.decorTrees = {};
+    for (const d of L.decorTrees || []) this.decorTrees[d.id] = this.createDecorTree(d);
+    this.npcs = {};
+    for (const d of L.npcs || []) this.npcs[d.id] = new Npc(this, d);
+    this.gameplay = new StoryGameplay(this);
+    this.nonLethal = null; // 튜토리얼·패배 이벤트: 맞아도 죽지 않을 때 (fromX) => {}
+    this.gates = this.physics.add.staticGroup();
+    for (const g of L.gates || []) {
+      const rect = this.add.rectangle(g.x, L.height / 2, 20, L.height * 2).setVisible(false);
+      rect.until = g.until;
+      this.gates.add(rect);
+    }
+    this.createMemories(L);
+    this.mood = null;
+    this.moodLayer = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0).setOrigin(0).setScrollFactor(0).setDepth(-60);
+    this.emberTimer = 0;
 
     this.physics.add.collider(this.player.obj, this.ground);
     this.physics.add.collider(this.player.obj, this.platforms);
+    this.physics.add.collider(this.player.obj, this.gates);
     this.physics.add.collider(this.enemyGroup, this.ground);
     this.physics.add.collider(this.enemyGroup, this.platforms);
     this.physics.add.overlap(this.player.obj, this.enemyGroup, (p, eObj) => this.onPlayerTouchEnemy(eObj.enemy));
@@ -75,17 +105,11 @@ class GameScene extends Phaser.Scene {
     this.lookAhead = 0;
 
     this.boss = this.enemies.find((e) => e.type === 'boss');
+    // 프롤로그: 대쉬베기·발도는 연습장에서 배우기 전엔 못 씀
+    this.skillLocks = new Set(L === LEVELS.prologue ? ['dashSlash', 'iaido'] : []);
     this.createHud();
+    this.setMood(L.mood || null);
 
-    // 스토리: data/story 의 장면을 컷신 엔진(StoryPlayer)으로 재생한다. 위치 ↔ 장면은 LEVEL.story[장]
-    //   ?chapter=ch1  이 맵을 몇 장으로 쓸지 (기본 ch1. 개발 메뉴에서 장면을 고르면 그 장으로 바뀜)
-    //   ?scene=S0-7   그 장면 하나만 바로 재생 (테스트용. ?scene=TEST = 모든 연출 명령 확인)
-    //   ?memories=18  기억 조각 개수 (진엔딩 분기 확인용)
-    //   ?dev=1        개발 모드 (F1 개발 메뉴에서도 켜고 끔)
-    const params = new URLSearchParams(location.search);
-    this.chapter = this.registry.get('chapterOverride') || params.get('chapter') || 'ch1';
-    this.chapterNo = STORY_FILES.indexOf(this.chapter);
-    this.storyMap = (L.story && L.story[this.chapter]) || {};
     this.setStage(1);
     this.checkpointNo = 0;
     this.bossDisplayName = '???';
@@ -93,6 +117,8 @@ class GameScene extends Phaser.Scene {
       this.registry.set('memories', Array.from({ length: +params.get('memories') }, (_, i) => i + 1));
     }
     this.story = new StoryPlayer(this);
+    this.openGates();
+    this.events.on('storySceneEnd', () => this.openGates());
     this.firedTriggers = new Set();
     this.firedBossHp = new Set();
     this.enterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
@@ -114,7 +140,7 @@ class GameScene extends Phaser.Scene {
       });
     }
 
-    this.input.keyboard.on('keydown-R', () => this.scene.restart());
+    this.input.keyboard.on('keydown-R', () => this.restartChapter());
 
     // 디버그: H 로 판정 박스 표시 (재시작해도 유지)
     this.debugGfx = this.add.graphics().setDepth(500);
@@ -144,6 +170,17 @@ class GameScene extends Phaser.Scene {
   }
 
   createTextures() {
+    if (!this.textures.exists('scarecrow')) {
+      // 연습장 허수아비: 짚 몸통 + 나무 십자 + 삿갓
+      const g = this.make.graphics({ x: 0, y: 0 }, false);
+      g.fillStyle(0x5a4030).fillRect(21, 20, 6, 60).fillRect(4, 34, 40, 5);
+      g.fillStyle(0xc9a35a).fillRoundedRect(12, 30, 24, 34, 6);
+      g.fillStyle(0xa8823e).fillRect(12, 44, 24, 3).fillRect(12, 54, 24, 3);
+      g.fillStyle(0xe0c48a).fillCircle(24, 22, 9);
+      g.fillStyle(0x6b5a3a).fillTriangle(8, 18, 40, 18, 24, 4);
+      g.generateTexture('scarecrow', 48, 80);
+      g.destroy();
+    }
     if (this.textures.exists('shuriken')) return;
     // 수리검(1.5배): 흰 테두리 + 빨간 빛. 어두운 배경에서도 보이도록 캔버스 그림자로 빛을 낸다
     const star = (ctx, cx, cy, outer, inner) => {
@@ -218,8 +255,7 @@ class GameScene extends Phaser.Scene {
 
   // 글자(안내·보스 이름·결과)는 HTML 글자 레이어(UI)에 그린다. 그림만 캔버스에
   createHud() {
-    UI.reset(this);
-    UI.controlsHint();
+    if (!this.skillLocks.size) UI.controlsHint(); // 프롤로그는 연습장 튜토리얼이 대신 알려 준다
     this.createSkillHud();
   }
 
@@ -228,7 +264,7 @@ class GameScene extends Phaser.Scene {
     const cx = GAME_WIDTH / 2;
     const y = GAME_HEIGHT - 40;
     const depth = 100;
-    this.add.rectangle(cx, y, 330, 64, 0x0d0c16, 0.55).setScrollFactor(0).setDepth(depth);
+    this.hudPanel = this.add.rectangle(cx, y, 330, 64, 0x0d0c16, 0.55).setScrollFactor(0).setDepth(depth);
     const icons = Sprites.has(this, 'ui_icons');
 
     // frame: ui_icons 의 칸 (0 대쉬 스킬, 1 발도 스킬)
@@ -268,6 +304,7 @@ class GameScene extends Phaser.Scene {
       slash: document.querySelector('.btn[data-action="skill1"]'),
       iaido: document.querySelector('.btn[data-action="skill2"]'),
     };
+    this.applySkillLocks();
   }
 
   updateSkillIcon(icon, btn, remaining, total, active) {
@@ -352,12 +389,15 @@ class GameScene extends Phaser.Scene {
     if (!player.dead) player.update(dt, this.controls);
     for (const e of this.enemies) e.update(dt, player);
     for (const t of this.trees) t.update(dt);
+    for (const t of Object.values(this.decorTrees)) t.update(dt);
+    this.updateMood(dt);
+    this.updateMemories();
 
     this.checkAttackHits();
     player.skills.checkSlashHits(this.enemies);
     this.updateShurikens(dt);
 
-    // 맵 위치 트리거 (LEVEL.story[장].triggers). 같은 프레임의 체크포인트보다 먼저
+    // 맵 위치 트리거 (STORY_MAP[장].triggers). 같은 프레임의 체크포인트보다 먼저
     (this.storyMap.triggers || []).forEach((t, i) => {
       if (this.firedTriggers.has(i) || player.body.center.x < t.x || player.dead) return;
       this.firedTriggers.add(i);
@@ -375,7 +415,7 @@ class GameScene extends Phaser.Scene {
     // 낙사
     if (!player.dead && player.body.top > LEVEL.height + 60) this.killPlayer(true);
 
-    // 보스전 중 체력 조건 장면 (LEVEL.story[장].boss.hp)
+    // 보스전 중 체력 조건 장면 (STORY_MAP[장].boss.hp)
     if (this.boss && !this.boss.dormant && !this.boss.dead) {
       const ratio = this.boss.hp / this.boss.cfg.hp;
       ((this.storyMap.boss || {}).hp || []).forEach((h, i) => {
@@ -463,6 +503,10 @@ class GameScene extends Phaser.Scene {
       this.cameras.main.shake(160, 0.008);
       this.doHitStop(0.08);
       return 'interrupted';
+    }
+    if (this.nonLethal) {
+      this.nonLethal(fromX);
+      return 'hurt';
     }
     this.killPlayer();
     return 'killed';
@@ -566,8 +610,7 @@ class GameScene extends Phaser.Scene {
         // 패링으로 되돌아간 수리검은 적을 맞힌다
         for (const e of this.enemies) {
           if (e.dead || !Phaser.Geom.Intersects.CircleToRectangle(circle, this.bodyRect(e.body))) continue;
-          e.hurt(Math.sign(s.vx) || 1, S.reflectDamage);
-          this.showDamage(e.body.center.x, e.body.center.y - 20, S.reflectDamage, '#ff8fb1');
+          if (e.hurt(Math.sign(s.vx) || 1, S.reflectDamage)) this.showDamage(e.body.center.x, e.body.center.y - 20, S.reflectDamage, '#ff8fb1');
           this.hitImpact();
           this.removeShuriken(i, true);
           break;
@@ -623,6 +666,7 @@ class GameScene extends Phaser.Scene {
   }
 
   onEnemyKilled(enemy, byPlayer) {
+    this.events.emit('enemyKilled', enemy);
     if (enemy.type === 'boss') {
       this.doHitStop(0.25);
       this.cameras.main.shake(400, 0.015);
@@ -635,7 +679,7 @@ class GameScene extends Phaser.Scene {
     }
   }
 
-  // ───────── 스토리 트리거 (LEVEL.story) ─────────
+  // ───────── 스토리 트리거 (STORY_MAP) ─────────
   setStage(no) {
     this.stageNo = no;
     this.stageName = this.chapterNo === 0 ? `P-${no}` : `${this.chapterNo}-${no}`;
@@ -647,6 +691,281 @@ class GameScene extends Phaser.Scene {
     await this.story.playEntries(t.scene);
     if (t.then === 'wakeBoss') this.wakeBoss();
     else if (t.then === 'clear') this.triggerClear();
+    else if (t.then === 'nextChapter') this.goToChapter(this.storyMap.next);
+  }
+
+  // 다음 장으로 (프롤로그 → 1장)
+  goToChapter(chapter) {
+    if (!chapter) return this.triggerClear();
+    const reg = this.registry;
+    reg.set('chapterOverride', chapter);
+    reg.set('chapterStarted', false);
+    UI.fade(1, 0);
+    this.scene.restart();
+  }
+
+  // R: 보통은 마지막 벚꽃나무 기준으로 다시. 프롤로그처럼 연출이 이어진 장은 처음부터
+  restartChapter() {
+    if (this.storyMap.restartFromBeginning) {
+      const reg = this.registry;
+      const mine = (id) => this.story.scenes[id] && this.story.scenes[id].chapter === this.chapter;
+      reg.set('storyPlayed', reg.get('storyPlayed').filter((id) => !mine(id)));
+      reg.set('storyDone', reg.get('storyDone').filter((id) => !mine(id)));
+      reg.set('chapterStarted', false);
+      StoryAudio.stopBgm(0.2);
+    }
+    this.scene.restart();
+  }
+
+  // 그 장면을 끝까지 본 막힌 길은 사라진다
+  openGates() {
+    for (const g of this.gates.getChildren().slice()) {
+      if (this.story.done(g.until)) g.destroy();
+    }
+  }
+
+  // ───────── 적 무리 / 연습 상대 ─────────
+  addEnemy(data) {
+    const e = new Enemy(this, data);
+    this.enemyGroup.add(e.obj);
+    e.body.setMaxVelocity(2000, TUNING.maxFallSpeed); // 그룹 기본값 덮어쓰기
+    this.enemies.push(e);
+    return e;
+  }
+
+  // 무리가 연기와 함께 나타난다 (이미 나왔으면 그대로)
+  spawnGroup(group) {
+    const list = this.pendingGroups[group];
+    if (!list) return;
+    delete this.pendingGroups[group];
+    for (const d of list) {
+      const e = this.addEnemy(d);
+      this.spawnDust(d.x, d.y, 8);
+    }
+  }
+
+  groupAlive(group) {
+    if (this.pendingGroups[group]) return this.pendingGroups[group].length;
+    return this.enemies.filter((e) => e.group === group && !e.dead).length;
+  }
+
+  // 패링 연습: NPC(하루) 자리에 보이지 않는 연습 상대를 두고 그림은 NPC 가 따라간다
+  spawnTrainer(npc) {
+    const e = this.addEnemy({ type: 'trainer', x: npc.x, y: npc.y, minX: npc.x - 400, maxX: npc.x + 400 });
+    e.npc = npc;
+    e.facing = Math.sign(this.player.body.center.x - npc.x) || -1;
+    e.cooldown = 1.2;
+    return e;
+  }
+
+  removeTrainer(e) {
+    if (!e) return;
+    const n = e.npc;
+    e.npc = null;
+    e.kill(false);
+    this.enemies = this.enemies.filter((x) => x !== e);
+    if (n) {
+      n.sprite.setTint(0xffc4d4);
+      n.place(n.x, Math.sign(this.player.body.center.x - n.x) || -1);
+    }
+  }
+
+  // ───────── 스킬 잠금 (프롤로그 튜토리얼) ─────────
+  unlockSkill(name) {
+    this.skillLocks.delete(name);
+    this.applySkillLocks();
+    const icon = this.skillIcons[name === 'dashSlash' ? 'slash' : 'iaido'];
+    this.tweens.add({ targets: icon.bg, scale: { from: 1.6, to: 1 }, duration: 300, ease: 'Back.easeOut' });
+  }
+
+  applySkillLocks() {
+    const lock = this.skillLocks;
+    const show = (icon, on) => {
+      for (const o of [icon.bg, icon.label, icon.shade, icon.border]) if (on === false) o.setVisible(false);
+      if (on) icon.bg.setVisible(true);
+      UI.skills[icon.label_i].parentElement.style.display = on ? '' : 'none';
+    };
+    show(this.skillIcons.slash, !lock.has('dashSlash'));
+    show(this.skillIcons.iaido, !lock.has('iaido'));
+    // 벚꽃 스택 칸은 대쉬베기를 배울 때 처음 나온다
+    for (const i of this.sakuraIcons) i.setVisible(!lock.has('dashSlash'));
+    this.hudPanel.setVisible(lock.size < 2);
+    this.touchSkillBtns.slash.style.visibility = lock.has('dashSlash') ? 'hidden' : '';
+    this.touchSkillBtns.iaido.style.visibility = lock.has('iaido') ? 'hidden' : '';
+  }
+
+  // ───────── 장식 나무 / 화면 분위기 / 연출 도우미 ─────────
+  createDecorTree(d) {
+    const t = new CherryTree(this, d.x, d.y);
+    if (t.sprite) t.sprite.setScale(d.scale || 1).setDepth(0);
+    t.canopyY = d.y - (d.y - t.canopyY) * (d.scale || 1);
+    t.canopyW *= d.scale || 1;
+    if (d.bloomed) t.bloom(false);
+    if (d.burning && t.sprite) t.sprite.setTint(0xff8a5a);
+    t.burning = !!d.burning;
+    return t;
+  }
+
+  // dusk(해 질 녘 주황) / night / fire(붉은빛 + 불티)
+  setMood(mood) {
+    this.mood = mood;
+    const tone = { dusk: [0xff8a3d, 0.16], night: [0x101040, 0.12], fire: [0xff3010, 0.2] }[mood];
+    if (tone) this.moodLayer.setFillStyle(tone[0], tone[1]);
+    else this.moodLayer.setFillStyle(0, 0);
+  }
+
+  updateMood(dt) {
+    if (this.mood !== 'fire') return;
+    this.emberTimer -= dt;
+    if (this.emberTimer > 0) return;
+    this.emberTimer = 0.05;
+    const view = this.cameras.main.worldView;
+    const x = view.x + Math.random() * view.width;
+    const e = this.add.rectangle(x, view.bottom + 4, 3, 3, Math.random() < 0.5 ? 0xffa040 : 0xff5a20).setDepth(18);
+    this.tweens.add({
+      targets: e, y: view.bottom - 200 - Math.random() * 260, x: x + Phaser.Math.Between(-60, 60), alpha: 0,
+      duration: 1600 + Math.random() * 1200, onComplete: () => e.destroy(),
+    });
+  }
+
+  // 불화살 하나: 하늘에서 비스듬히 떨어져 땅에 꽂히며 불꽃
+  fireArrow(x) {
+    const view = this.cameras.main.worldView;
+    const y1 = 600 + Math.random() * 20;
+    const a = this.add.rectangle(x - 220, view.y - 20, 26, 3, 0xffc070).setDepth(17).setAngle(55);
+    this.tweens.add({
+      targets: a, x, y: y1, duration: 520, ease: 'Quad.easeIn',
+      onComplete: () => {
+        a.destroy();
+        this.spawnBurst(x, y1, 0xff6a20, 5);
+      },
+    });
+  }
+
+  // 무너지는 지붕 조각
+  debris(x, groundY) {
+    const view = this.cameras.main.worldView;
+    const d = this.add.rectangle(x, view.y - 20, Phaser.Math.Between(14, 34), Phaser.Math.Between(8, 18), 0x2a1d17).setDepth(17);
+    this.tweens.add({
+      targets: d, y: groundY - 6, angle: Phaser.Math.Between(-90, 90), duration: 420 + Math.random() * 200, ease: 'Quad.easeIn',
+      onComplete: () => this.spawnDust(d.x, groundY, 3),
+    });
+  }
+
+  // 잠긴 장면에서 주인공을 걷게 (물리가 멈춰 있어 위치를 직접 옮긴다). 멀면 가까이 옮긴 뒤 걷는다
+  movePlayerTo(x, speed) {
+    const p = this.player;
+    const b = p.body;
+    const y = b.y;
+    if (!speed || Math.abs(x - b.center.x) > 700) b.reset(x - Math.sign(x - b.center.x || 1) * 120, b.center.y);
+    if (!speed) {
+      b.reset(x, b.center.y);
+      return Promise.resolve();
+    }
+    const from = b.center.x;
+    p.facing = Math.sign(x - from) || p.facing;
+    if (p.useSprite) p.visual.play('player_run');
+    return new Promise((resolve) => {
+      const o = { x: from };
+      this.tweens.add({
+        targets: o, x, duration: (Math.abs(x - from) / speed) * 1000,
+        onUpdate: () => b.reset(o.x, b.center.y),
+        onComplete: () => {
+          if (p.useSprite) p.visual.play('player_idle');
+          resolve();
+        },
+      });
+    });
+  }
+
+  // 쓰러지는 주인공을 dx 만큼 날려 보낸다
+  knockPlayer(dx, ms) {
+    const b = this.player.body;
+    const x0 = b.center.x;
+    const y0 = b.center.y;
+    // 맵 밖으로 날아가지 않게
+    dx = Phaser.Math.Clamp(x0 + dx, 80, LEVEL.width - 80) - x0;
+    if (!ms) {
+      b.reset(x0 + dx, y0);
+      return Promise.resolve();
+    }
+    return new Promise((resolve) => {
+      const o = { t: 0 };
+      this.tweens.add({
+        targets: o, t: 1, duration: ms, ease: 'Quad.easeOut',
+        onUpdate: () => b.reset(x0 + dx * o.t, y0 - Math.sin(o.t * Math.PI) * 90),
+        onComplete: resolve,
+      });
+    });
+  }
+
+  // 꽃잎에 실려 하늘로
+  liftPlayer(dy, ms) {
+    const p = this.player;
+    const b = p.body;
+    const x0 = b.center.x;
+    const y0 = b.center.y;
+    return new Promise((resolve) => {
+      const o = { t: 0 };
+      this.tweens.add({
+        targets: o, t: 1, duration: ms, ease: 'Sine.easeIn',
+        onUpdate: () => {
+          b.reset(x0, y0 - dy * o.t);
+          p.alphaMul = 1 - o.t;
+          if (Math.random() < 0.5) this.spawnPetals(x0, y0 - dy * o.t, 2, 40);
+        },
+        onComplete: resolve,
+      });
+    });
+  }
+
+  // 보스가 단숨에 x 까지 파고든다 (하쿠야의 발도)
+  dashBossTo(x) {
+    const boss = this.boss;
+    if (!boss) return;
+    const b = boss.body;
+    x = Phaser.Math.Clamp(x, 60, LEVEL.width - 60);
+    for (let i = 0; i < 5; i++) {
+      const gx = b.center.x + ((x - b.center.x) * i) / 5;
+      if (boss.sprite) {
+        const g = this.add.image(gx, b.bottom, boss.sheet, 0).setOrigin(0.5, 1).setFlipX(boss.facing > 0)
+          .setTintFill(0xffd166).setAlpha(0.5).setDepth(5);
+        this.tweens.add({ targets: g, alpha: 0, duration: 350, onComplete: () => g.destroy() });
+      }
+    }
+    b.reset(x, b.center.y);
+  }
+
+  // ───────── 기억 조각 (data/story/memories.json, 위치는 LEVEL.memories) ─────────
+  createMemories(L) {
+    const data = this.cache.json.get('story-memories') || {};
+    const frags = data.fragments || [];
+    const have = this.registry.get('memories') || [];
+    this.memoryPickups = [];
+    for (const m of L.memories || []) {
+      if (m.chapter && m.chapter !== this.chapter) continue;
+      if (have.includes(m.no)) continue;
+      const info = frags.find((f) => f.no === m.no) || {};
+      const glow = this.add.circle(m.x, m.y, 14, 0xffd166, 0.25).setDepth(4);
+      const core = this.add.star(m.x, m.y, 5, 4, 9, 0xfff1c2).setDepth(5);
+      this.tweens.add({ targets: [glow, core], y: m.y - 6, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      this.tweens.add({ targets: glow, scale: 1.4, alpha: 0.1, duration: 900, yoyo: true, repeat: -1 });
+      this.memoryPickups.push({ ...m, info, objs: [glow, core] });
+    }
+  }
+
+  updateMemories() {
+    const pb = this.player.body;
+    for (const m of this.memoryPickups) {
+      if (m.taken || Math.abs(pb.center.x - m.x) > 26 || Math.abs(pb.center.y - m.y) > 46) continue;
+      m.taken = true;
+      const have = this.registry.get('memories') || [];
+      if (!have.includes(m.no)) have.push(m.no);
+      this.registry.set('memories', have);
+      m.objs.forEach((o) => o.destroy());
+      this.spawnPetals(m.x, m.y, 16, 70);
+      UI.item(`기억 조각 ${m.no} · ${m.info.title || ''}`);
+    }
   }
 
   onCheckpoint(treeIndex) {
@@ -657,7 +976,7 @@ class GameScene extends Phaser.Scene {
     else this.story.checkpointChatter(this.chapter, this.stageCheckpoint === 1);
   }
 
-  // 게임 쪽 사건(예: '한 명 쓰러짐') → LEVEL.story[장].events 의 장면
+  // 게임 쪽 사건(예: '한 명 쓰러짐') → STORY_MAP[장].events 의 장면
   storyEvent(name) {
     return this.story.playEntries((this.storyMap.events || {})[name]);
   }
