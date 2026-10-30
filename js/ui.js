@@ -150,18 +150,19 @@ const UI = {
     el.classList.add('show');
   },
 
-  // CG: 화면 가득. assets/cg/cg번호.png 가 있으면 그 그림, 없으면 검은 화면에 'CG 번호 + 대본의 설명'
+  // CG: 화면 가득. assets/cg/cg_번호(두 자리).png 가 있으면 그 그림, 없으면 검은 화면에 'CG 번호 + 대본의 설명'
   cg(no, desc) {
+    const file = `assets/cg/cg_${String(no).padStart(2, '0')}.png`;
     const el = this.el('.fx-cg');
     const img = el.querySelector('img');
     const ph = el.querySelector('.fx-cg-ph');
     const esc = (t) => String(t).replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-    ph.innerHTML = `<b>CG ${no}</b><span>${esc(desc || '')}</span><small class="dev-only">assets/cg/cg${no}.png</small>`;
+    ph.innerHTML = `<b>CG ${no}</b><span>${esc(desc || '')}</span><small class="dev-only">${file}</small>`;
     img.style.display = 'none';
     ph.style.display = '';
     img.onload = () => { img.style.display = ''; ph.style.display = 'none'; };
     img.onerror = () => { img.removeAttribute('src'); };
-    img.src = `assets/cg/cg${no}.png`;
+    img.src = file;
     el.classList.add('show');
   },
 

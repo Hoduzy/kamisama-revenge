@@ -241,6 +241,8 @@ class GameScene extends Phaser.Scene {
     const g = this.add.graphics().setScrollFactor(0).setDepth(-100);
     g.fillGradientStyle(0x0b0d22, 0x0b0d22, 0x262a52, 0x262a52, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
     const groundScrollY = LEVEL.height - GAME_HEIGHT; // 땅에 서 있을 때 카메라 위치
+    this.stageBgs = [];
+    if (LEVEL.backgrounds) return this.createStageBackgrounds(groundScrollY);
     ['bg_far', 'bg_mid', 'bg_near'].forEach((name, i) => {
       const s = Sprites.sheet(name);
       if (!s || !this.textures.exists(name)) return;
@@ -250,6 +252,35 @@ class GameScene extends Phaser.Scene {
       const img = this.add.image(0, y, name).setOrigin(0, 0).setScale(S).setScrollFactor(p, p).setDepth(-90 + i * 10);
       // 앞쪽 레이어일수록 어둡게 (manifest 의 tint) — 캐릭터가 배경에 묻히지 않게
       if (s.tint) img.setTint(Phaser.Display.Color.HexStringToColor(s.tint).color);
+    });
+  }
+
+  // 구역 배경: 한 장짜리 그림을 구역마다. 그림 아래 바닥 띠(floorBand) 윗선이 땅 윗면에 온다 (screenBottom).
+  // 텍스처는 '반전A, A, 반전A' 띠라 구역 안에서 어디로 가도 빈 곳이 없다
+  createStageBackgrounds(groundScrollY) {
+    LEVEL.backgrounds.forEach((d, i) => {
+      const s = Sprites.sheet(d.key);
+      if (!s || !this.textures.exists(d.key)) return;
+      const S = s.displayScale;
+      const p = s.parallax;
+      const W = s.width;
+      // 카메라 중심이 anchorX 일 때 그림의 anchor 위치(가운데 A 기준)가 화면 가운데
+      const x = GAME_WIDTH / 2 + (d.anchorX - GAME_WIDTH / 2) * p - (W + s.anchor * W) * S;
+      const y = s.screenBottom - s.height * S + groundScrollY * p;
+      const img = this.add.image(x, y, d.key).setOrigin(0, 0).setScale(S).setScrollFactor(p, p).setDepth(-90 + i);
+      this.stageBgs.push({ ...d, img });
+    });
+    this.updateStageBackgrounds();
+  }
+
+  // 구역 경계 앞뒤 BG_FADE px 동안 다음 배경이 겹쳐 나타난다 (앞 배경은 그 밑에 그대로)
+  updateStageBackgrounds() {
+    const F = 160;
+    const cx = this.cameras.main.scrollX + GAME_WIDTH / 2;
+    this.stageBgs.forEach((b, i) => {
+      const on = cx >= b.x0 - F && cx <= b.x1 + F;
+      b.img.setVisible(on);
+      if (on) b.img.setAlpha(i === 0 ? 1 : Phaser.Math.Clamp((cx - (b.x0 - F)) / (2 * F), 0, 1));
     });
   }
 
@@ -390,6 +421,7 @@ class GameScene extends Phaser.Scene {
     for (const e of this.enemies) e.update(dt, player);
     for (const t of this.trees) t.update(dt);
     for (const t of Object.values(this.decorTrees)) t.update(dt);
+    if (this.stageBgs.length) this.updateStageBackgrounds();
     this.updateMood(dt);
     this.updateMemories();
 
@@ -797,11 +829,21 @@ class GameScene extends Phaser.Scene {
   // ───────── 장식 나무 / 화면 분위기 / 연출 도우미 ─────────
   createDecorTree(d) {
     const t = new CherryTree(this, d.x, d.y);
+    t.noLabel = true;
     if (t.sprite) t.sprite.setScale(d.scale || 1).setDepth(0);
     t.canopyY = d.y - (d.y - t.canopyY) * (d.scale || 1);
     t.canopyW *= d.scale || 1;
     if (d.bloomed) t.bloom(false);
     if (d.burning && t.sprite) t.sprite.setTint(0xff8a5a);
+    if (d.hidden) {
+      // 배경 그림 속 나무를 쓴다: 나무 그림은 숨기고 꽃잎 효과 위치만 맞춘다
+      if (t.sprite) t.sprite.setVisible(false);
+      if (t.container) t.container.setVisible(false);
+      if (d.canopy) {
+        t.canopyY = d.canopy.y;
+        t.canopyW = d.canopy.w;
+      }
+    }
     t.burning = !!d.burning;
     return t;
   }
@@ -809,7 +851,9 @@ class GameScene extends Phaser.Scene {
   // dusk(해 질 녘 주황) / night / fire(붉은빛 + 불티)
   setMood(mood) {
     this.mood = mood;
-    const tone = { dusk: [0xff8a3d, 0.16], night: [0x101040, 0.12], fire: [0xff3010, 0.2] }[mood];
+    // 구역 배경 그림이 있는 맵은 그림에 이미 색이 있어 불(fire)만 살짝 붉게 + 불티
+    const tone = this.stageBgs.length ? { fire: [0xff3010, 0.12] }[mood]
+      : { dusk: [0xff8a3d, 0.16], night: [0x101040, 0.12], fire: [0xff3010, 0.2] }[mood];
     if (tone) this.moodLayer.setFillStyle(tone[0], tone[1]);
     else this.moodLayer.setFillStyle(0, 0);
   }

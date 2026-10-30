@@ -94,6 +94,17 @@ LEVELS.prologue = {
   spawn: { x: 120, y: 560 },
   mood: 'dusk', // 화면 색: dusk(해 질 녘) / night / fire (gameplay 'mood'·'fireArrows' 로 바뀜)
 
+  // 구역 배경 (assets/sprites/bg_pro_*.png, tools/process_sprites.py 로 전처리). x0~x1 구역에서 보이고
+  // 경계에서 겹쳐 바뀐다. anchorX: 그림의 기준 가로 위치(manifest 의 anchor)가 화면 가운데 올 때의 카메라 중심 x.
+  // 축제 광장과 불타는 광장은 같은 곳이라 둘 다 큰 벚나무 줄기를 그 광장의 나무 자리(decorTrees)에 맞춘다
+  backgrounds: [
+    { key: 'bg_pro_yard', x0: 0, x1: 1640, anchorX: 820 },
+    { key: 'bg_pro_forge', x0: 1640, x1: 2330, anchorX: 1985 },
+    { key: 'bg_pro_festival', x0: 2330, x1: 3120, anchorX: 2760 },
+    { key: 'bg_pro_alley', x0: 3120, x1: 4400, anchorX: 3760 },
+    { key: 'bg_pro_burning', x0: 4400, x1: 6300, anchorX: 5680 },
+  ],
+
   ground: [
     { x: 0, y: 620, w: 3700, h: 100 },
     { x: 700, y: 572, w: 44, h: 48 },     // 연습장 낮은 담 (점프 튜토리얼)
@@ -128,10 +139,10 @@ LEVELS.prologue = {
     { x: 3240, y: 620 }, // 불타는 골목 입구 (S0-5)
     { x: 4480, y: 620 }, // 대장간 앞 (S0-6)
   ],
-  // 체크포인트가 아닌 장식 나무: 축제 광장의 큰 벚나무(하루가 피움), 불타는 광장의 큰 벚나무
+  // 광장의 큰 벚나무는 배경 그림 속 나무라 나무 그림은 숨기고(hidden) 꽃 피는 효과만 그 자리(canopy)에 낸다
   decorTrees: [
-    { id: 'festival', x: 2760, y: 620, scale: 1.5 },
-    { id: 'burning', x: 5680, y: 620, scale: 1.5, bloomed: true, burning: true },
+    { id: 'festival', x: 2760, y: 620, hidden: true, canopy: { y: 300, w: 230 } },
+    { id: 'burning', x: 5680, y: 620, bloomed: true, burning: true, hidden: true, canopy: { y: 300, w: 230 } },
   ],
 
   // 인물(그림만, 판정 없음). look: haru(주인공 그림을 물들임) / 그 밖엔 실루엣 + 이름

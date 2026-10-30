@@ -72,7 +72,7 @@ class CherryTree {
     scene.time.delayedCall(90, () => scene.spawnPetals(this.x, this.canopyY, 25, 110));
     const ring = scene.add.circle(this.x, this.canopyY, 30).setStrokeStyle(4, 0xff9eb8).setDepth(12);
     scene.tweens.add({ targets: ring, scale: 4, alpha: 0, duration: 450, onComplete: () => ring.destroy() });
-    scene.popText(this.x, this.y - Sprites.height('tree', 150) - 16, '벚꽃나무', '#ff8fb1');
+    if (!this.noLabel) scene.popText(this.x, this.y - Sprites.height('tree', 150) - 16, '벚꽃나무', '#ff8fb1'); // 장식 나무는 체크포인트가 아니라 글자 없음
     scene.cameras.main.shake(120, 0.004);
   }
 

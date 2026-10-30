@@ -1475,6 +1475,101 @@
       },
       "screenBottom": 520,
       "tint": "#6e6c8a"
+    },
+    "bg_pro_yard": {
+      "file": "bg_pro_yard.png",
+      "source": "bg_pro_yard.png",
+      "width": 512,
+      "height": 341,
+      "dot": 3.0,
+      "displayScale": 2,
+      "parallax": 0.15,
+      "floorBand": 0.15,
+      "screenBottom": 542,
+      "anchor": 0.5,
+      "stage": true,
+      "strip": {
+        "file": "bg_pro_yard_strip.png",
+        "width": 1536,
+        "height": 341,
+        "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+      }
+    },
+    "bg_pro_forge": {
+      "file": "bg_pro_forge.png",
+      "source": "bg_pro_forge.png",
+      "width": 512,
+      "height": 342,
+      "dot": 3.0,
+      "displayScale": 2,
+      "parallax": 0.15,
+      "floorBand": 0.15,
+      "screenBottom": 543,
+      "anchor": 0.5,
+      "stage": true,
+      "strip": {
+        "file": "bg_pro_forge_strip.png",
+        "width": 1536,
+        "height": 342,
+        "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+      }
+    },
+    "bg_pro_festival": {
+      "file": "bg_pro_festival.png",
+      "source": "bg_pro_festival.png",
+      "width": 512,
+      "height": 341,
+      "dot": 3.0,
+      "displayScale": 2,
+      "parallax": 0.15,
+      "floorBand": 0.15,
+      "screenBottom": 542,
+      "anchor": 0.62,
+      "stage": true,
+      "strip": {
+        "file": "bg_pro_festival_strip.png",
+        "width": 1536,
+        "height": 341,
+        "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+      }
+    },
+    "bg_pro_alley": {
+      "file": "bg_pro_alley.png",
+      "source": "bg_pro_alley.png",
+      "width": 512,
+      "height": 341,
+      "dot": 3.0,
+      "displayScale": 2,
+      "parallax": 0.15,
+      "floorBand": 0.15,
+      "screenBottom": 542,
+      "anchor": 0.5,
+      "stage": true,
+      "strip": {
+        "file": "bg_pro_alley_strip.png",
+        "width": 1536,
+        "height": 341,
+        "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+      }
+    },
+    "bg_pro_burning": {
+      "file": "bg_pro_burning.png",
+      "source": "bg_pro_burning.png",
+      "width": 512,
+      "height": 341,
+      "dot": 3.0,
+      "displayScale": 2,
+      "parallax": 0.15,
+      "floorBand": 0.15,
+      "screenBottom": 542,
+      "anchor": 0.62,
+      "stage": true,
+      "strip": {
+        "file": "bg_pro_burning_strip.png",
+        "width": 1536,
+        "height": 341,
+        "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+      }
     }
   },
   "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.",
@@ -1483,5 +1578,31 @@
     "gameHeight": 540,
     "stageWidth": 7000,
     "stageHeight": 720
+  },
+  "cg": {
+    "cg_01": {
+      "file": "../cg/cg_01.png",
+      "source": "cg_01.png",
+      "width": 512,
+      "height": 288,
+      "dot": 3.0,
+      "crop": {
+        "top": 80,
+        "bottom": 80
+      },
+      "cg": true
+    },
+    "cg_02": {
+      "file": "../cg/cg_02.png",
+      "source": "cg_02.png",
+      "width": 512,
+      "height": 288,
+      "dot": 3.0,
+      "crop": {
+        "top": 40,
+        "bottom": 120
+      },
+      "cg": true
+    }
   }
 }

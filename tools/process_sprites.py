@@ -71,7 +71,24 @@ SHEETS = {
     # tint: 게임에서 곱할 색. 앞쪽 레이어일수록 어둡게 해서 캐릭터가 묻히지 않게 한다
     'bg_mid': dict(kind='background', parallax=0.3, screenBottom=470, tint='#9a98b8'),
     'bg_near': dict(kind='background', parallax=0.6, screenBottom=520, tint='#6e6c8a'),
+    # 프롤로그 구역 배경 (한 장짜리 그림). 게임에서 구역마다 바뀌고 경계에서 겹쳐 바뀐다 (level.js 의 backgrounds)
+    # 그림 아래 15% 는 바닥 띠 → 그 윗선(85%)이 땅 타일 윗면에 오게 놓는다. anchor: 구역 기준점에 맞출 그림 속 가로 위치(0~1)
+    # 축제 광장과 불타는 광장은 같은 곳이라 큰 벚나무 줄기(anchor)를 같은 자리에 맞춘다
+    'bg_pro_yard': dict(kind='stage_bg', anchor=0.5),
+    'bg_pro_forge': dict(kind='stage_bg', anchor=0.5),
+    'bg_pro_festival': dict(kind='stage_bg', anchor=0.62),
+    'bg_pro_alley': dict(kind='stage_bg', anchor=0.5),
+    'bg_pro_burning': dict(kind='stage_bg', anchor=0.62),
+    # CG: 16:9 로 위아래를 잘라 화면 가득. top: 위에서 자를 비율(나머지는 아래에서). 결과는 assets/cg/
+    'cg_01': dict(kind='cg', top=0.5),
+    'cg_02': dict(kind='cg', top=0.25),  # 위쪽 하쿠야 후광이 잘리지 않게 위는 덜 자른다
 }
+
+# 구역 배경·CG 는 원본마다 도트 크기 추정이 흔들려서(2.7~6) 같은 값으로 줄인다 → 화면에서 도트 크기가 모두 같다
+STAGE_BG_DOT = 3.0
+STAGE_BG_FLOOR = 0.15        # 그림 아래 바닥 띠 비율
+GROUND_SCREEN_Y = 440        # 땅에 서 있을 때 땅 윗면의 화면 높이 (땅 620 - 카메라 180)
+STAGE_BG_PARALLAX = 0.15
 
 # 배경은 화면에 이 배율로 그린다고 보고 스테이지를 덮는지 계산한다 (배경 1도트 = 화면 2px).
 # 캐릭터는 1도트 = 1px. 배경을 1배로 두면 높이가 화면 절반밖에 안 된다.
@@ -541,6 +558,39 @@ def process_background(a, out_dir, name, source, parallax, display=BG_DISPLAY_SC
     return entry
 
 
+def process_stage_bg(a, out_dir, name, source, cfg):
+    """구역 배경: 도트 해상도로 줄이고, 좌우로 반전 사본을 붙인 띠(반전A, A, 반전A)도 만든다.
+    화면 배율은 바닥 띠 윗선이 땅 윗면(GROUND_SCREEN_Y)에 왔을 때 그림 위쪽이 화면 위를 덮는 가장 작은 정수."""
+    small = downscale(a, STAGE_BG_DOT)
+    small[..., 3] = 255
+    Image.fromarray(small).save(out_dir / f'{name}.png')
+    h, w = small.shape[:2]
+    display = max(2, math.ceil(GROUND_SCREEN_Y / (h * (1 - STAGE_BG_FLOOR))))
+    strip = np.concatenate([small[:, ::-1], small, small[:, ::-1]], axis=1)
+    Image.fromarray(strip).save(out_dir / f'{name}_strip.png')
+    return dict(file=f'{name}.png', source=source, width=int(w), height=int(h), dot=STAGE_BG_DOT,
+                displayScale=display, parallax=STAGE_BG_PARALLAX, floorBand=STAGE_BG_FLOOR,
+                screenBottom=round(GROUND_SCREEN_Y + h * display * STAGE_BG_FLOOR),
+                anchor=cfg['anchor'], stage=True,
+                strip=dict(file=f'{name}_strip.png', width=int(strip.shape[1]), height=int(h),
+                           pattern='반전A, A, 반전A (가운데 A 가 원본)'))
+
+
+def process_cg(a, name, source, cfg):
+    """CG: 16:9 로 위아래를 잘라 도트 해상도로 줄여 assets/cg/ 에 저장 (화면 가득 늘려 보여 준다)"""
+    h, w = a.shape[:2]
+    ch = round(w * 9 / 16)
+    cut = max(0, h - ch)
+    top = round(cut * cfg.get('top', 0.5))
+    small = downscale(a[top:top + ch], STAGE_BG_DOT)
+    small[..., 3] = 255
+    cg_dir = ROOT / 'assets/cg'
+    cg_dir.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(small).save(cg_dir / f'{name}.png')
+    return dict(file=f'../cg/{name}.png', source=source, width=int(small.shape[1]), height=int(small.shape[0]),
+                dot=STAGE_BG_DOT, crop=dict(top=top, bottom=h - top - ch), cg=True)
+
+
 # ───────── preview.html ─────────
 
 def write_preview(manifest, out_dir, src_rel):
@@ -797,16 +847,24 @@ def main():
         if not path.exists():
             print(f'  ! {path.name} 없음 — 건너뜀')
             continue
-        if cfg.get('opaque'):
+        kind = cfg.get('kind')
+        if cfg.get('opaque') or kind in ('stage_bg', 'cg'):
             a, removed = np.array(Image.open(path).convert('RGBA')), 0
         else:
             a, removed = remove_background(Image.open(path))
         source = path.name
-        kind = cfg.get('kind')
         if kind == 'tiles':
             entry = process_tiles(a, cfg, out, source)
             manifest['sheets'][name] = entry
             note = f"타일 {entry['frames']}개"
+        elif kind == 'stage_bg':
+            entry = process_stage_bg(a, out, name, source, cfg)
+            manifest['sheets'][name] = entry
+            note = f"{entry['width']}×{entry['height']}  화면 {entry['displayScale']}배 · 바닥 띠 {int(STAGE_BG_FLOOR * 100)}%"
+        elif kind == 'cg':
+            entry = process_cg(a, name, source, cfg)
+            manifest.setdefault('cg', {})[name] = entry
+            note = f"{entry['width']}×{entry['height']} (원본 위 {entry['crop']['top']}px · 아래 {entry['crop']['bottom']}px 잘라냄) → assets/cg/{name}.png"
         elif kind == 'background':
             entry = process_background(a, out, name, source, cfg['parallax'], cfg.get('display', BG_DISPLAY_SCALE))
             entry['screenBottom'] = cfg['screenBottom']
@@ -860,7 +918,7 @@ def main():
                 note = (f"{entry['frames']}프레임 칸 {entry['frameWidth']}×{entry['frameHeight']}  키 {min(hs)}~{max(hs)}"
                         + (f"  머리배율 {extra['headScaleVsIdle']}" if 'headScaleVsIdle' in extra else '')
                         + ('  ⚠ 머리 일치도 낮음' if extra.get('headConfidence', 1) < 0.7 else ''))
-        dot_shown = manifest['sheets'].get(name, {}).get('dot') or round(dot, 2)
+        dot_shown = (manifest['sheets'].get(name) or manifest.get('cg', {}).get(name) or {}).get('dot') or round(dot, 2)
         print(f'  {name:<20} 도트 {dot_shown:>5}px  흰 배경 제거 {removed:>7}px  → {note}')
 
     manifest['note'] = 'tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.'
