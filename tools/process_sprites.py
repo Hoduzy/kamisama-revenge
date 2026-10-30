@@ -33,6 +33,7 @@ ROOT = Path(__file__).resolve().parent.parent
 #   ('reference', 키)  player_idle 서 있는 키를 이 값으로. 다른 주인공 시트 배율의 기준이 된다
 #   ('head',)          머리 크기가 player_idle 과 같아지도록 (시트 전체에 한 배율)
 #                      자동 측정이 틀리면 head_scale=0.9 처럼 'idle 대비 이 시트 머리 크기'를 직접 적는다
+# adjust: 위 계산이 끝난 뒤 이 시트만 추가로 곱하는 배율 (눈으로 보고 미세 조정. 다른 시트에는 영향 없음)
 #   ('height', 키, i)  i 번째 프레임 키를 이 값으로 (i 없으면 가장 큰 프레임)
 #   ('max', 크기)      프레임 중 가장 긴 변을 이 값으로 (이펙트)
 PLAYER_HEIGHT = 96
@@ -40,14 +41,15 @@ PLAYER6 = dict(frames=6, facing='right', anchor='feet', pad=2, size=('head',))
 ENEMY4 = dict(frames=4, facing='left', anchor='feet', pad=6, labels=['idle', 'windup', 'attack', 'death'])
 
 SHEETS = {
-    'player_idle': dict(PLAYER6, size=('reference', PLAYER_HEIGHT)),
+    # idle 은 다른 시트의 기준(머리 크기·96도트)으로만 쓰고, 그림 자체는 adjust 로 조금 줄인다
+    'player_idle': dict(PLAYER6, size=('reference', PLAYER_HEIGHT), adjust=0.85),
     'player_run': dict(PLAYER6),
     'player_jump': dict(PLAYER6, labels=['crouch', 'rise', 'apex', 'fall', 'land', 'recover']),
     'player_dash': dict(PLAYER6),
     'player_iaido_ready': dict(PLAYER6),
     'player_iaido_slash': dict(PLAYER6),
     'player_parry': dict(PLAYER6),
-    'player_death': dict(PLAYER6),
+    'player_death': dict(PLAYER6, adjust=0.70),
     # 적은 가면이라 주인공 얼굴과 비교할 수 없어 서 있는(idle) 키로 맞춘다
     'enemy_sword': dict(ENEMY4, size=('height', 100, 0)),
     'enemy_ninja': dict(ENEMY4, size=('height', 100, 0)),
@@ -570,6 +572,8 @@ function sheetCanvas(img, s) {
   return c;
 }
 
+const IDLE_H = M.sheets.player_idle && M.sheets.player_idle.heights
+  ? [...M.sheets.player_idle.heights].sort((a, b) => a - b)[M.sheets.player_idle.heights.length >> 1] : 96;
 // 같은 바닥선 위에 나란히 세워 크기를 비교한다
 const LINEUP = [
   { title: '주인공 시트 전체 (머리 크기 기준 정규화)', names: Object.keys(M.sheets).filter(n => n.startsWith('player_')), body: true },
@@ -591,7 +595,7 @@ function renderLineup() {
       box,
       el('div', { className: 'legend' },
         el('span', {}, el('i', { style: 'border-color:#d6336c' }), '바닥선'),
-        el('span', {}, el('i', { style: 'border-color:#2563eb;border-top-style:dashed' }), `키 ${M.sheets.player_idle ? 96 : ''}도트 (idle 기준)`),
+        el('span', {}, el('i', { style: 'border-color:#2563eb;border-top-style:dashed' }), `idle 서 있는 키 ${IDLE_H}도트`),
         el('span', {}, el('i', { style: 'border-color:#16a34a' }), '주인공 판정 박스 ' + (M.sheets.player_idle && M.sheets.player_idle.body ? M.sheets.player_idle.body.width + '×' + M.sheets.player_idle.body.height : ''))));
     list.append(sec);
     const imgs = {};
@@ -617,14 +621,14 @@ function drawLineups() {
       g.fillStyle = '#333';
       const short = n.replace('player_', '').replace('enemy_', '');
       g.fillText(short, cx, base + 10 * z);
-      const k = s.headScaleVsIdle != null ? '머리 ' + s.headScaleVsIdle + (s.headConfidence < 0.7 ? ' ⚠' : '') : '';
+      const k = (s.headScaleVsIdle != null ? '머리 ' + s.headScaleVsIdle + (s.headConfidence < 0.7 ? ' ⚠' : '') : '') + (s.adjust ? ' ×' + s.adjust : '');
       g.fillStyle = s.headConfidence < 0.7 ? '#c2410c' : '#666';
       g.fillText(k, cx, base + 20 * z);
       x += s.frameWidth + L.gap;
     }
     g.strokeStyle = '#d6336c'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, base); g.lineTo(L.c.width, base); g.stroke();
     g.strokeStyle = '#2563eb'; g.lineWidth = 1; g.setLineDash([6, 4]); g.beginPath();
-    g.moveTo(0, base - 96 * z + .5); g.lineTo(L.c.width, base - 96 * z + .5); g.stroke(); g.setLineDash([]);
+    g.moveTo(0, base - IDLE_H * z + .5); g.lineTo(L.c.width, base - IDLE_H * z + .5); g.stroke(); g.setLineDash([]);
   }
 }
 
@@ -764,10 +768,15 @@ def main():
                     frames, lift, dot = fit_to(a, cfg, dot, frame_height(idx), size[1])
                 else:
                     frames, lift = process_frames(a, cfg, dot)
+                if cfg.get('adjust'):
+                    dot = dot / cfg['adjust']
+                    frames, lift = process_frames(a, cfg, dot)
+                    extra['adjust'] = cfg['adjust']
                 entry = save_sheet(name, frames, cfg, dot, out, source, lift)
                 entry.update(extra)
-                manifest['sheets'][name] = entry
                 hs = [f.shape[0] for f in frames]
+                entry['heights'] = hs
+                manifest['sheets'][name] = entry
                 note = (f"{entry['frames']}프레임 칸 {entry['frameWidth']}×{entry['frameHeight']}  키 {min(hs)}~{max(hs)}"
                         + (f"  머리배율 {extra['headScaleVsIdle']}" if 'headScaleVsIdle' in extra else '')
                         + ('  ⚠ 머리 일치도 낮음' if extra.get('headConfidence', 1) < 0.7 else ''))

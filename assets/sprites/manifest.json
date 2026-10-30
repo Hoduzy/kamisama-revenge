@@ -3,20 +3,20 @@
     "player_idle": {
       "file": "player_idle.png",
       "source": "player_idle.png",
-      "frameWidth": 52,
-      "frameHeight": 99,
+      "frameWidth": 46,
+      "frameHeight": 84,
       "frames": 6,
       "origin": {
         "x": 0.5,
         "y": 1.0
       },
-      "dot": 6.12,
+      "dot": 7.2,
       "facing": "right",
       "liftInSource": [
-        3,
-        3,
+        2,
+        2,
         0,
-        3,
+        2,
         0,
         0
       ],
@@ -26,7 +26,16 @@
         "width": 30,
         "height": 70,
         "note": "몸통 판정. 발바닥 중앙(origin) 기준"
-      }
+      },
+      "adjust": 0.85,
+      "heights": [
+        82,
+        82,
+        82,
+        82,
+        82,
+        82
+      ]
     },
     "player_run": {
       "file": "player_run.png",
@@ -76,6 +85,14 @@
           0.66,
           0.9
         ]
+      ],
+      "heights": [
+        69,
+        68,
+        70,
+        69,
+        70,
+        69
       ]
     },
     "player_jump": {
@@ -134,6 +151,14 @@
           0.67,
           0.88
         ]
+      ],
+      "heights": [
+        57,
+        73,
+        76,
+        76,
+        62,
+        57
       ]
     },
     "player_dash": {
@@ -176,6 +201,14 @@
           0.59,
           0.6
         ]
+      ],
+      "heights": [
+        57,
+        57,
+        57,
+        56,
+        57,
+        54
       ]
     },
     "player_iaido_ready": {
@@ -218,6 +251,14 @@
           0.75,
           0.84
         ]
+      ],
+      "heights": [
+        61,
+        61,
+        61,
+        61,
+        61,
+        60
       ]
     },
     "player_iaido_slash": {
@@ -260,6 +301,14 @@
           0.46,
           0.72
         ]
+      ],
+      "heights": [
+        67,
+        68,
+        69,
+        68,
+        66,
+        67
       ]
     },
     "player_parry": {
@@ -302,19 +351,27 @@
           0.16,
           0.62
         ]
+      ],
+      "heights": [
+        71,
+        72,
+        80,
+        80,
+        72,
+        71
       ]
     },
     "player_death": {
       "file": "player_death.png",
       "source": "player_death.png",
-      "frameWidth": 110,
-      "frameHeight": 101,
+      "frameWidth": 78,
+      "frameHeight": 72,
       "frames": 6,
       "origin": {
         "x": 0.5,
         "y": 1.0
       },
-      "dot": 3.9,
+      "dot": 5.57,
       "facing": "right",
       "liftInSource": [
         1,
@@ -352,6 +409,15 @@
           0.33,
           0.62
         ]
+      ],
+      "adjust": 0.7,
+      "heights": [
+        70,
+        62,
+        52,
+        38,
+        30,
+        22
       ]
     },
     "enemy_sword": {
@@ -377,6 +443,12 @@
         1,
         0,
         1
+      ],
+      "heights": [
+        100,
+        100,
+        73,
+        51
       ]
     },
     "enemy_ninja": {
@@ -396,6 +468,12 @@
         "windup",
         "attack",
         "death"
+      ],
+      "heights": [
+        100,
+        87,
+        90,
+        83
       ]
     },
     "boss": {
@@ -409,7 +487,10 @@
         "y": 1.0
       },
       "dot": 6.36,
-      "facing": "left"
+      "facing": "left",
+      "heights": [
+        190
+      ]
     },
     "tree": {
       "file": "tree.png",
@@ -425,6 +506,10 @@
       "labels": [
         "bare",
         "bloom"
+      ],
+      "heights": [
+        189,
+        192
       ]
     },
     "portraits": {
@@ -442,6 +527,11 @@
         "neutral",
         "angry",
         "sad"
+      ],
+      "heights": [
+        107,
+        107,
+        107
       ]
     },
     "ui_icons": {
@@ -460,6 +550,12 @@
         "iaido",
         "stack_empty",
         "stack_full"
+      ],
+      "heights": [
+        47,
+        47,
+        47,
+        47
       ]
     },
     "fx_petals": {
