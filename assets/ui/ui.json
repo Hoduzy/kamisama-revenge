@@ -1,0 +1,187 @@
+{
+  "ui_dialogue_frame": {
+    "file": "ui_dialogue_frame.png",
+    "source": "ui_dialogue_frame.png",
+    "width": 729,
+    "height": 199,
+    "dot": 2.93,
+    "slice": [
+      40,
+      72,
+      40,
+      72
+    ],
+    "fill": true
+  },
+  "ui_nameplate": {
+    "file": "ui_nameplate.png",
+    "source": "ui_nameplate.png",
+    "width": 410,
+    "height": 103,
+    "dot": 5.14,
+    "slice": [
+      12,
+      70,
+      38,
+      96
+    ],
+    "fill": true,
+    "content": [
+      100,
+      18,
+      340,
+      60
+    ]
+  },
+  "ui_skill_frame_a": {
+    "file": "ui_skill_frame_a.png",
+    "source": "ui_skill_set.png",
+    "width": 187,
+    "height": 167,
+    "dot": 3.11,
+    "slice": [
+      29,
+      28,
+      24,
+      40
+    ],
+    "window": [
+      40,
+      29,
+      159,
+      143
+    ]
+  },
+  "ui_skill_frame_b": {
+    "file": "ui_skill_frame_b.png",
+    "source": "ui_skill_set.png",
+    "width": 185,
+    "height": 167,
+    "dot": 3.11,
+    "slice": [
+      29,
+      39,
+      24,
+      28
+    ],
+    "window": [
+      28,
+      29,
+      146,
+      143
+    ]
+  },
+  "ui_scabbard": {
+    "file": "ui_scabbard.png",
+    "source": "ui_skill_set.png",
+    "width": 555,
+    "height": 96,
+    "dot": 3.11,
+    "sockets": [
+      [
+        271,
+        33
+      ],
+      [
+        314,
+        33
+      ],
+      [
+        356,
+        33
+      ],
+      [
+        398,
+        33
+      ],
+      [
+        440,
+        33
+      ]
+    ],
+    "socketRadius": 13
+  },
+  "ui_scroll_open": {
+    "file": "ui_scroll_open.png",
+    "source": "ui_scroll_set.png",
+    "width": 404,
+    "height": 193,
+    "dot": 3.71
+  },
+  "ui_scroll_closed": {
+    "file": "ui_scroll_closed.png",
+    "source": "ui_scroll_set.png",
+    "width": 44,
+    "height": 177,
+    "dot": 3.71
+  },
+  "ui_plaque": {
+    "file": "ui_plaque.png",
+    "source": "ui_plaque.png",
+    "width": 292,
+    "height": 178,
+    "dot": 5.16,
+    "slice": [
+      66,
+      40,
+      50,
+      80
+    ],
+    "fill": true,
+    "content": [
+      80,
+      66,
+      257,
+      128
+    ]
+  },
+  "ui_medallion": {
+    "file": "ui_medallion.png",
+    "source": "ui_medallion_set.png",
+    "width": 203,
+    "height": 198,
+    "dot": 4.06,
+    "inner": [
+      101,
+      104,
+      66
+    ]
+  },
+  "ui_medallion_pressed": {
+    "file": "ui_medallion_pressed.png",
+    "source": "ui_medallion_set.png",
+    "width": 202,
+    "height": 198,
+    "dot": 4.06,
+    "inner": [
+      101,
+      104,
+      66
+    ]
+  },
+  "ui_scroll_roller_l": {
+    "file": "ui_scroll_roller_l.png",
+    "source": "ui_scroll_set.png (ui_scroll_open 에서 나눔)",
+    "width": 40,
+    "height": 193
+  },
+  "ui_scroll_paper": {
+    "file": "ui_scroll_paper.png",
+    "source": "ui_scroll_set.png (ui_scroll_open 에서 나눔)",
+    "width": 326,
+    "height": 193,
+    "slice": [
+      12,
+      80,
+      12,
+      90
+    ],
+    "fill": true
+  },
+  "ui_scroll_roller_r": {
+    "file": "ui_scroll_roller_r.png",
+    "source": "ui_scroll_set.png (ui_scroll_open 에서 나눔)",
+    "width": 38,
+    "height": 193
+  }
+}

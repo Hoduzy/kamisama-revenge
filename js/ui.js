@@ -1,25 +1,35 @@
 // 글자 전용 HTML 레이어. Phaser 캔버스(도트, pixelArt) 위에 같은 크기·위치로 겹쳐서
 // 대사·HUD·피해 숫자 같은 글자를 브라우저가 매끈하게 그리게 한다.
 // 안쪽 좌표는 게임 좌표(960×540) 그대로이고, 레이어 전체를 캔버스 크기에 맞게 scale 한다.
+// UI 그림(assets/ui/, tools/process_ui.py)은 틀이면 9-slice(border-image)로 늘려 쓴다. 정보는 assets/ui/ui.json
+const UI_DIR = 'assets/ui/';
+
 const UI = {
   root: null,
   scene: null,
   floats: [],
-  skills: [],
+  meta: {},
 
-  init(game) {
+  init(game, meta) {
     this.game = game;
+    this.meta = meta || {};
     this.root = document.getElementById('ui');
     this.root.style.width = GAME_WIDTH + 'px';
     this.root.style.height = GAME_HEIGHT + 'px';
+    const sockets = (this.meta.ui_scabbard && this.meta.ui_scabbard.sockets) || [];
     this.root.innerHTML = `
-      <div class="hud-tr"><button type="button" class="input-mode" tabindex="-1"></button><span class="debug">판정 표시 (H)</span></div>
-      <div class="hud-hint"></div>
+      <div class="hud-counters"><div class="plaque"><b>死</b><span class="deaths">0</span></div><div class="plaque"><b>斬</b><span class="kills">0</span></div></div>
+      <div class="hud-tr"><button type="button" class="pause-btn" tabindex="-1" aria-label="일시정지"><i></i><i></i></button><span class="debug">판정 표시 (H)</span></div>
       <div class="boss"><div class="boss-name"></div><div class="boss-bar"><div class="boss-fill"></div></div></div>
-      <div class="skill-labels"></div>
+      <div class="hud-skills">
+        <div class="scabbard">${sockets.map(() => '<i class="sock"><span></span></i>').join('')}</div>
+        <div class="sk" data-skill="slash"><div class="sk-icon"></div><div class="sk-ink"></div><div class="sk-frame"></div><b class="sk-key">U</b></div>
+        <div class="sk" data-skill="iaido"><div class="sk-icon"></div><div class="sk-ink"></div><div class="sk-frame"></div><b class="sk-key">I</b></div>
+      </div>
       <div class="floats"></div>
+      <div class="ctx-hints"></div>
       <div class="stage-title"><div class="t1"></div><div class="t2"></div></div>
-      <div class="banner"></div>
+      <div class="result"></div>
       <div class="fx-fade"></div>
       <div class="fx-lb top"></div><div class="fx-lb bottom"></div>
       <div class="fx-cg"><img alt=""><div class="fx-cg-ph"></div></div>
@@ -34,24 +44,17 @@ const UI = {
       <div class="fx-prompt"></div>
       <div class="fx-skip"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" cx="18" cy="18" r="15" pathLength="100"/></svg><span>건너뛰기</span></div>`;
     this.el = (sel) => this.root.querySelector(sel);
-    // 조작 방식 바꾸기 (터치 ↔ 키보드). 포커스를 가져가지 않게 해서 Space 가 버튼을 다시 누르지 않도록
-    const modeBtn = this.el('.input-mode');
-    const showMode = () => {
-      const touch = TouchPad.mode === 'touch';
-      modeBtn.textContent = touch ? '조작: 터치' : '조작: 키보드';
-      modeBtn.title = '눌러서 ' + (touch ? '키보드' : '터치') + ' 조작으로 바꾸기';
-    };
-    modeBtn.addEventListener('pointerdown', (e) => {
+    this.setupSkillHud(sockets);
+    // 일시정지 버튼 (화면 오른쪽 위). 포커스를 가져가지 않게 해서 Space 가 버튼을 다시 누르지 않도록
+    this.el('.pause-btn').addEventListener('pointerdown', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      TouchPad.toggleMode();
+      PauseMenu.open();
     });
     document.addEventListener('inputmodechange', () => {
-      showMode();
-      this.controlsHint();
       if (this.promptText) this.prompt(this.promptText);
+      this.refreshCtxHints();
     });
-    showMode();
     const layout = () => this.layout();
     window.addEventListener('resize', layout);
     game.scale.on('resize', layout);
@@ -74,10 +77,12 @@ const UI = {
     this.floats.forEach((f) => f.el.remove());
     this.floats = [];
     this.el('.floats').innerHTML = '';
-    this.el('.skill-labels').innerHTML = '';
-    this.skills = [];
     this.boss(false);
-    this.banner(null);
+    this.hideResult();
+    this.setCounters(0, 0);
+    this.el('.ctx-hints').innerHTML = '';
+    this.ctxHints = {};
+    this.skillState = null;
     this.el('.stage-title').classList.remove('show');
     this.fxReset();
     this.layout();
@@ -267,21 +272,133 @@ const UI = {
     return { el, remove: () => { f.until = 0; } };
   },
 
-  // 조작 안내 (지금 조작 방식에 맞게)
-  controlsHint() {
-    this.hint(TouchPad.mode === 'touch'
-      ? '◀ ▶ 이동 · JUMP 점프 · ATK 공격 · DASH 대시 · 베기·발도 스킬'
-      : 'A/D 이동 · Space 점프 · J 공격 · K 대시 · U 대쉬베기 · I 발도 · R 재시작');
-  },
-
   debug(on) { this.el('.debug').style.display = on ? '' : 'none'; },
 
-  hint(text, ms = 4500) {
-    const h = this.el('.hud-hint');
-    h.textContent = text;
-    h.classList.add('show');
-    clearTimeout(this.hintTimer);
-    this.hintTimer = setTimeout(() => h.classList.remove('show'), ms);
+  // ───────── 9-slice ─────────
+  // el 에 UI 그림 name 을 9-slice 틀로 입힌다. scale: 그림 1px 이 화면 몇 px 인지 (모서리 장식 크기)
+  nine(el, name, scale = 1) {
+    const m = this.meta[name];
+    if (!m || !m.slice) return;
+    const [t, r, b, l] = m.slice;
+    Object.assign(el.style, {
+      borderStyle: 'solid',
+      borderWidth: `${t * scale}px ${r * scale}px ${b * scale}px ${l * scale}px`,
+      borderImageSource: `url(${UI_DIR}${m.file})`,
+      borderImageSlice: `${t} ${r} ${b} ${l}${m.fill ? ' fill' : ''}`,
+      borderImageRepeat: 'stretch',
+    });
+  },
+
+  // ───────── 상단 카운터 (나무 명패: 死 사망 · 斬 처치) ─────────
+  setCounters(deaths, kills) {
+    const d = this.el('.deaths');
+    const k = this.el('.kills');
+    if (d.textContent !== String(deaths)) d.textContent = deaths;
+    if (k.textContent !== String(kills)) k.textContent = kills;
+  },
+
+  // ───────── 스킬 칸 · 칼집 게이지 (왼쪽 아래) ─────────
+  setupSkillHud(sockets) {
+    const fa = this.meta.ui_skill_frame_a;
+    const fb = this.meta.ui_skill_frame_b;
+    const sc = this.meta.ui_scabbard;
+    const S = 0.385; // 스킬 틀 187×167 → 약 72×64
+    this.el('.hud-skills').querySelectorAll('.sk').forEach((el, i) => {
+      const f = i === 0 ? fa : fb;
+      if (!f) return;
+      const [x0, y0, x1, y1] = f.window;
+      el.style.width = f.width * S + 'px';
+      el.style.height = f.height * S + 'px';
+      el.querySelector('.sk-frame').style.backgroundImage = `url(${UI_DIR}${f.file})`;
+      // 아이콘·먹물은 틀 안쪽 창에
+      for (const c of ['.sk-icon', '.sk-ink']) {
+        Object.assign(el.querySelector(c).style, {
+          left: x0 * S + 'px', top: y0 * S + 'px', width: (x1 - x0) * S + 'px', height: (y1 - y0) * S + 'px',
+        });
+      }
+      el.querySelector('.sk-icon').style.backgroundPosition = `${i === 0 ? 0 : 100 / 3}% 0`;
+    });
+    if (sc) {
+      const SS = 0.46; // 칼집 555×96 → 약 255×44
+      const box = this.el('.scabbard');
+      box.style.width = sc.width * SS + 'px';
+      box.style.height = sc.height * SS + 'px';
+      box.style.backgroundImage = `url(${UI_DIR}${sc.file})`;
+      const r = sc.socketRadius * SS;
+      box.querySelectorAll('.sock').forEach((s, i) => {
+        const [x, y] = sockets[i];
+        Object.assign(s.style, { left: x * SS - r + 'px', top: y * SS - r + 'px', width: r * 2 + 'px', height: r * 2 + 'px' });
+      });
+    }
+  },
+
+  // st: { slash: { frac, active, locked }, iaido: {...}, sakura, sakuraLocked }  frac: 남은 쿨타임 비율(1 → 0)
+  updateSkills(st) {
+    const prev = this.skillState || {};
+    const hud = this.el('.hud-skills');
+    hud.querySelectorAll('.sk').forEach((el) => {
+      const s = st[el.dataset.skill];
+      const p = prev[el.dataset.skill] || {};
+      if (s.locked !== p.locked) el.classList.toggle('locked', s.locked);
+      if (s.active !== p.active) el.classList.toggle('active', s.active);
+      // 먹물: 쿨타임이 시작되면 칸을 가득 덮고, 위에서부터 빠져 아래로 내려간다
+      const h = Math.round(s.frac * 1000) / 10;
+      if (h !== p.h) el.querySelector('.sk-ink').style.setProperty('--f', h / 100);
+      if (h === 0 && p.h > 0) {
+        el.classList.remove('ready');
+        void el.offsetWidth;
+        el.classList.add('ready'); // 다 빠지면 톡 빛남
+      }
+      s.h = h;
+    });
+    if (st.sakuraLocked !== prev.sakuraLocked) this.el('.scabbard').classList.toggle('locked', st.sakuraLocked);
+    // 벚꽃 스택: 소켓에 꽃이 하나씩 피어난다. 발도로 쓰면 흩날린다
+    const n = st.sakura;
+    const was = prev.sakura || 0;
+    if (n !== was) {
+      this.el('.scabbard').querySelectorAll('.sock').forEach((s, i) => {
+        if (i < n && i >= was) {
+          s.classList.remove('scatter');
+          s.classList.add('on');
+        } else if (i >= n && i < was) {
+          s.classList.remove('on');
+          s.classList.add('scatter');
+        }
+      });
+    }
+    this.skillState = st;
+  },
+
+  // ───────── 1-1 조작 안내: 그 행동이 필요한 자리에 작게 ─────────
+  // h: { id, x, y, kb, touch }  (월드 좌표)
+  showCtxHint(h) {
+    if (this.ctxHints[h.id]) return;
+    const el = document.createElement('div');
+    el.className = 'float ctx-hint';
+    this.el('.ctx-hints').append(el);
+    const f = { el, wx: h.x, wy: h.y, until: Infinity, hint: h };
+    this.ctxHints[h.id] = f;
+    this.floats.push(f);
+    this.renderCtxHint(f);
+    this.place(f);
+  },
+
+  renderCtxHint(f) {
+    const text = TouchPad.mode === 'touch' ? f.hint.touch : f.hint.kb;
+    // [키] 설명 — 대괄호 안은 키 모양으로
+    f.el.innerHTML = `<span>${text.replace(/\[([^\]]+)\]/g, '<kbd>$1</kbd>')}</span>`;
+  },
+
+  refreshCtxHints() {
+    for (const f of Object.values(this.ctxHints || {})) this.renderCtxHint(f);
+  },
+
+  hideCtxHint(id) {
+    const f = this.ctxHints[id];
+    if (!f) return;
+    delete this.ctxHints[id];
+    f.el.classList.add('out');
+    f.until = performance.now() + 400;
   },
 
   boss(visible, name = '', ratio = 1) {
@@ -301,27 +418,68 @@ const UI = {
     s.classList.add('show');
   },
 
-  banner(html) {
-    const b = this.el('.banner');
-    b.style.display = html ? '' : 'none';
-    if (html) b.innerHTML = html;
+  // ───────── 결과창: 두루마리 ─────────
+  // 닫힌 두루마리가 위에서 내려와 좌우로 펼쳐지고 → 붓글씨 「討伐」을 한 획씩 → 붉은 도장 쾅(onStamp) → 처치·사망 수.
+  // 다 나오는 데 걸리는 ms 를 돌려준다
+  result({ kills = 0, deaths = 0, onStamp } = {}) {
+    const el = this.el('.result');
+    const m = this.meta;
+    const P = 1.55; // 두루마리 그림 배율
+    const paper = m.ui_scroll_paper || { width: 326, height: 193 };
+    const rl = m.ui_scroll_roller_l || { width: 40 };
+    const rr = m.ui_scroll_roller_r || { width: 38 };
+    const H = paper.height * P;
+    const W = paper.width * P;
+    // 붓글씨: 획마다 path, 획 길이에 비례한 시간으로 차례로 쓴다
+    let t = 0;
+    const strokes = [];
+    const glyph = (ch, ox) => (KANJI_STROKES[ch] || []).map((d) => {
+      strokes.push(t);
+      t += 0.16;
+      return `<path d="${d}" transform="translate(${ox} 0)" style="--d:${strokes[strokes.length - 1]}s"/>`;
+    }).join('');
+    const svg = `<svg class="rs-kanji" viewBox="0 0 218 109"><defs><filter id="rs-brush" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3"/>
+      <feDisplacementMap in="SourceGraphic" scale="2.6"/></filter></defs><g>${glyph('討', 0)}${glyph('伐', 109)}</g></svg>`;
+    const write0 = 1.45; // 펼쳐진 뒤 쓰기 시작
+    const stampAt = write0 + t + 0.25;
+    const touch = TouchPad.mode === 'touch';
+    el.style.setProperty('--write0', write0 + 's');
+    el.style.setProperty('--stamp', stampAt + 's');
+    el.innerHTML = `
+      <div class="rs-drop"><img class="rs-closed" src="${UI_DIR}ui_scroll_closed.png" alt=""></div>
+      <div class="rs-open" style="width:${W + (rl.width + rr.width) * P}px;height:${H}px">
+        <div class="rs-paper" style="left:${rl.width * P}px;width:${W}px;height:${H}px">
+          ${svg}
+          <div class="rs-seal"><span>仇</span><span>討</span></div>
+          <div class="rs-stats"><span>斬 ${kills}</span><span>死 ${deaths}</span></div>
+          <div class="rs-again">${touch ? '화면을 누르면' : '점프 · 공격으로'} 다시 시작</div>
+        </div>
+        <img class="rs-roller l" src="${UI_DIR}ui_scroll_roller_l.png" alt="" style="width:${rl.width * P}px">
+        <img class="rs-roller r" src="${UI_DIR}ui_scroll_roller_r.png" alt="" style="width:${rr.width * P}px">
+      </div>`;
+    el.querySelector('.rs-paper').style.backgroundImage = `url(${UI_DIR}${paper.file || 'ui_scroll_paper.png'})`;
+    el.querySelectorAll('.rs-kanji path').forEach((p) => {
+      const len = p.getTotalLength();
+      p.style.strokeDasharray = len;
+      p.style.strokeDashoffset = len;
+    });
+    el.classList.remove('show');
+    void el.offsetWidth;
+    el.classList.add('show');
+    clearTimeout(this.stampTimer);
+    this.stampTimer = setTimeout(() => {
+      el.classList.add('stamped');
+      if (onStamp) onStamp();
+    }, stampAt * 1000 + 120);
+    return (stampAt + 0.9) * 1000;
   },
 
-  // 스킬 아이콘(Phaser 그림) 위에 얹는 키 글자·남은 쿨타임 숫자
-  addSkillLabel(x, y, key) {
-    const d = document.createElement('div');
-    d.className = 'skill-label';
-    d.style.left = x + 'px';
-    d.style.top = y + 'px';
-    d.innerHTML = `<span class="key">${key}</span><span class="cd"></span>`;
-    this.el('.skill-labels').append(d);
-    this.skills.push(d.querySelector('.cd'));
-    return this.skills.length - 1;
-  },
-
-  setCooldown(i, text) {
-    const el = this.skills[i];
-    if (el && el.textContent !== text) el.textContent = text;
+  hideResult() {
+    const el = this.el('.result');
+    clearTimeout(this.stampTimer);
+    el.classList.remove('show', 'stamped');
+    el.innerHTML = '';
   },
 
   // 월드 좌표에 붙어 떠오르는 글자 (피해 숫자, '패링!' 등). kind: 'damage' | 'pop'

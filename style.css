@@ -51,12 +51,13 @@ body.touch #touch-controls {
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.28);
-  border: 2px solid rgba(255, 255, 255, 0.55);
-  color: rgba(255, 255, 255, 0.9);
-  font: 700 28px/96px system-ui, -apple-system, sans-serif;
+  background: url(assets/ui/ui_medallion.png) center / 100% 100% no-repeat;
+  color: #f5e6c8;
+  font: 400 26px/96px 'Song Myung', serif;
   text-align: center;
+  text-shadow: 0 0 4px #000, 0 1px 2px #000;
   touch-action: none;
+  image-rendering: pixelated;
 }
 
 .btn.small {
@@ -75,8 +76,7 @@ body.touch #touch-controls {
 }
 
 .btn.active {
-  background: rgba(0, 0, 0, 0.55);
-  border-color: #fff;
+  background-image: url(assets/ui/ui_medallion_pressed.png);
   transform: scale(0.94);
 }
 
@@ -91,7 +91,7 @@ body.touch #touch-controls {
 }
 
 .btn.skill {
-  border-color: rgba(255, 158, 184, 0.9);
+  color: #ffc4d4;
 }
 
 .btn.skill.cooldown {
@@ -111,8 +111,13 @@ body.in-dialogue #touch-controls .pad {
   --vermilion: #a51d2d;
   --ink: #f3eee4;
   --sakura: #ff9eb8;
-  --font-story: 'Gowun Batang', 'Nanum Myeongjo', serif;
-  --font-ui: 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+  /* 고딕체는 쓰지 않는다: 제목·숫자·한자 = Song Myung, 대사·작은 글 = Gowun Batang */
+  --font-story: 'Gowun Batang', serif;
+  --font-title: 'Song Myung', 'Gowun Batang', serif;
+  --font-ui: 'Gowun Batang', serif;
+  --sumi: rgba(14, 11, 16, 0.86);
+  /* 붓으로 칠하듯 드러나는 마스크 (왼쪽 불투명 + 붓털 가장자리) */
+  --brush-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 100' preserveAspectRatio='none'%3E%3Crect x='0' y='0' width='140' height='100'/%3E%3Crect x='139' y='0.0' width='13.8' height='4.6' rx='2.0'/%3E%3Crect x='139' y='4.0' width='9.8' height='6.0' rx='2.7'/%3E%3Crect x='139' y='9.4' width='25.0' height='5.5' rx='2.5'/%3E%3Crect x='139' y='14.3' width='32.4' height='3.4' rx='1.4'/%3E%3Crect x='139' y='17.1' width='28.5' height='3.3' rx='1.3'/%3E%3Crect x='139' y='19.7' width='10.7' height='3.4' rx='1.4'/%3E%3Crect x='139' y='22.5' width='49.0' height='5.0' rx='2.2'/%3E%3Crect x='139' y='27.0' width='17.6' height='3.7' rx='1.5'/%3E%3Crect x='139' y='30.0' width='55.3' height='5.9' rx='2.7'/%3E%3Crect x='139' y='35.3' width='26.6' height='5.7' rx='2.5'/%3E%3Crect x='139' y='40.4' width='8.4' height='7.5' rx='3.4'/%3E%3Crect x='139' y='47.3' width='21.1' height='7.0' rx='3.2'/%3E%3Crect x='139' y='53.7' width='12.1' height='3.7' rx='1.6'/%3E%3Crect x='139' y='56.8' width='48.4' height='4.5' rx='1.9'/%3E%3Crect x='139' y='60.7' width='36.2' height='3.9' rx='1.7'/%3E%3Crect x='139' y='64.0' width='25.4' height='6.0' rx='2.7'/%3E%3Crect x='139' y='69.4' width='9.3' height='5.6' rx='2.5'/%3E%3Crect x='139' y='74.4' width='16.7' height='3.4' rx='1.4'/%3E%3Crect x='139' y='77.1' width='28.2' height='6.2' rx='2.8'/%3E%3Crect x='139' y='82.7' width='36.4' height='4.5' rx='2.0'/%3E%3Crect x='139' y='86.6' width='21.6' height='5.1' rx='2.3'/%3E%3Crect x='139' y='91.2' width='42.3' height='6.7' rx='3.0'/%3E%3Crect x='139' y='97.2' width='35.9' height='4.2' rx='1.8'/%3E%3C/svg%3E");
 }
 
 #ui {
@@ -130,36 +135,42 @@ body.in-dialogue #touch-controls .pad {
 
 #ui > div, #dialogue { position: absolute; }
 
-.hud-tr, .float span, .skill-label {
+.hud-tr, .float span {
   text-shadow: 0 0 2px #0b0a12, 0 0 2px #0b0a12, 0 1px 3px #0b0a12, 0 0 6px rgba(11, 10, 18, 0.8);
 }
 
-.hud-tr { right: 24px; top: 16px; font-size: 18px; font-weight: 700; text-align: right; }
-.hud-tr .input-mode {
-  pointer-events: auto; cursor: pointer; font: inherit; font-size: 13px; font-weight: 500; color: var(--ink);
-  padding: 4px 12px; background: rgba(13, 17, 43, 0.75); border: 1px solid var(--gold-soft); border-radius: 14px;
+.hud-tr { right: 14px; top: 10px; text-align: right; z-index: 55; }
+.hud-tr .debug { display: block; margin-top: 2px; font-size: 12px; color: #4ade80; }
+/* 일시정지: 둥근 메달 + 두 줄 */
+.pause-btn {
+  pointer-events: auto; cursor: pointer; position: relative; width: 40px; height: 39px; padding: 0; border: 0;
+  background: url(assets/ui/ui_medallion.png) center / 100% 100% no-repeat; image-rendering: pixelated;
 }
-.hud-tr .input-mode:hover { border-color: var(--gold); }
-.hud-tr .debug { display: block; margin-top: 4px; font-size: 12px; font-weight: 500; color: #4ade80; }
+.pause-btn:active { background-image: url(assets/ui/ui_medallion_pressed.png); }
+.pause-btn i { position: absolute; top: 13px; width: 4px; height: 13px; background: #f5e6c8; box-shadow: 0 0 2px #000; }
+.pause-btn i:first-child { left: 15px; }
+.pause-btn i:last-child { left: 21px; }
 
-.hud-hint {
-  left: 0; right: 0; top: 62px; text-align: center; font-size: 15px; color: #d8d2e6;
-  text-shadow: 0 0 3px #0b0a12, 0 1px 3px #0b0a12; opacity: 0; transition: opacity 0.8s;
+/* 왼쪽 위: 나무 명패 카운터 (死 사망 · 斬 처치) */
+.hud-counters { left: 10px; top: 8px; display: flex; gap: 2px; }
+.hud-counters .plaque {
+  position: relative; width: 79px; height: 48px; background: url(assets/ui/ui_plaque.png) center / 100% 100% no-repeat;
+  image-rendering: pixelated; font-family: var(--font-title); color: #2a1a14; text-align: center;
 }
-.hud-hint.show { opacity: 1; }
+/* 종이 칸(그림의 80~257 × 66~128px)에 글자 */
+.hud-counters .plaque b, .hud-counters .plaque span { position: absolute; top: 17px; line-height: 18px; font-size: 15px; font-weight: 400; }
+.hud-counters .plaque b { left: 25px; color: #8e1b24; }
+.hud-counters .plaque span { left: 44px; min-width: 20px; text-align: left; }
 
 .boss { left: 50%; top: 12px; width: 380px; transform: translateX(-50%); text-align: center; }
-.boss-name { font-family: var(--font-story); font-weight: 700; font-size: 17px; color: #f5e6c8; text-shadow: 0 0 3px #000, 0 1px 3px #000; margin-bottom: 4px; }
+.boss-name { font-family: var(--font-title); font-weight: 400; font-size: 17px; color: #f5e6c8; text-shadow: 0 0 3px #000, 0 1px 3px #000; margin-bottom: 4px; }
 .boss-bar { height: 10px; border: 1px solid var(--gold); background: #1a1420; }
 .boss-fill { height: 100%; background: linear-gradient(#e43b3b, #a51d2d); transition: width 0.15s; }
 
-.skill-label { width: 48px; height: 48px; transform: translate(-50%, -50%); }
-.skill-label .key { position: absolute; left: 3px; top: 0; font-size: 11px; font-weight: 700; }
-.skill-label .cd { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; }
 
 .floats { left: 0; top: 0; }
 .float { position: absolute; left: 0; top: 0; }
-.float span { display: block; transform: translate(-50%, -50%); font-weight: 800; white-space: nowrap; animation: float-rise linear forwards; }
+.float span { display: block; transform: translate(-50%, -50%); font-family: var(--font-title); font-weight: 400; white-space: nowrap; animation: float-rise linear forwards; }
 .float.pop span { font-family: var(--font-story); animation-name: float-pop; }
 @keyframes float-rise {
   from { transform: translate(-50%, -50%); opacity: 1; }
@@ -176,56 +187,53 @@ body.in-dialogue #touch-controls .pad {
 
 .stage-title { left: 0; right: 0; top: 150px; text-align: center; opacity: 0; }
 .stage-title.show { animation: title-in 2.1s ease forwards; }
-.stage-title .t1 { font-family: var(--font-story); font-weight: 700; font-size: 42px; letter-spacing: 0.08em; text-shadow: 0 0 4px #000, 0 2px 8px #000; }
+.stage-title .t1 { font-family: var(--font-title); font-weight: 400; font-size: 42px; letter-spacing: 0.08em; text-shadow: 0 0 4px #000, 0 2px 8px #000; }
 .stage-title .t2 { margin-top: 4px; font-family: var(--font-story); font-size: 22px; color: var(--sakura); text-shadow: 0 0 4px #000, 0 2px 6px #000; }
 @keyframes title-in { 0% { opacity: 0; transform: translateY(8px); } 15%, 80% { opacity: 1; transform: none; } 100% { opacity: 0; } }
 
-.banner {
-  left: 50%; top: 50%; width: 480px; padding: 28px 24px; transform: translate(-50%, -60%);
-  background: var(--navy); border: 1px solid var(--gold); box-shadow: inset 0 0 0 4px var(--navy), inset 0 0 0 5px var(--gold-soft);
-  text-align: center; font-family: var(--font-story); font-size: 20px; line-height: 1.7;
-}
-.banner b { display: block; font-size: 40px; letter-spacing: 0.1em; color: #f5e6c8; }
-.banner small { display: block; margin-top: 10px; font-family: var(--font-ui); font-size: 14px; color: #bdb6cc; }
 
 /* ───────── 대화창 ───────── */
-#dialogue { inset: 0; display: none; opacity: 0; transform: translateY(26px); transition: opacity 0.22s ease, transform 0.22s ease; }
+#dialogue { inset: 0; display: none; opacity: 0; transition: opacity 0.12s ease; }
 #dialogue.open { display: block; }
-#dialogue.show { opacity: 1; transform: none; }
+#dialogue.show { opacity: 1; }
 
+/* 틀: ui_dialogue_frame 9-slice (dialogue.js 가 UI.nine 으로 입힘). 안쪽 여백은 틀 두께 뒤에 */
 .dlg-panel {
-  position: absolute; left: 36px; right: 36px; bottom: 16px; height: 132px; box-sizing: border-box;
-  padding: 30px 46px 14px;
-  background: var(--navy);
-  border: 1px solid var(--gold);
-  box-shadow: inset 0 0 0 4px var(--navy), inset 0 0 0 5px var(--gold-soft), 0 6px 24px rgba(0, 0, 0, 0.5);
-  border-radius: 3px;
+  position: absolute; left: 28px; right: 28px; bottom: 10px; height: 146px; box-sizing: border-box;
+  padding: 8px 26px 4px; image-rendering: pixelated;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
 }
-.dlg-corner { position: absolute; width: 20px; height: 20px; }
-.dlg-corner svg { width: 100%; height: 100%; fill: var(--sakura); filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6)); }
-.dlg-corner .c { fill: var(--gold); }
-.dlg-corner.tl { left: -10px; top: -10px; }
-.dlg-corner.tr { right: -10px; top: -10px; transform: rotate(36deg); }
-.dlg-corner.bl { left: -10px; bottom: -10px; transform: rotate(18deg); }
-.dlg-corner.br { right: -10px; bottom: -10px; transform: rotate(54deg); }
-
+/* 이름표: ui_nameplate 9-slice. 글자는 붉은 판 위 */
 .dlg-name {
-  position: absolute; left: 30px; top: -19px; padding: 4px 20px 5px;
-  background: var(--vermilion); color: #fff; border: 1px solid var(--gold);
-  font-family: var(--font-story); font-weight: 700; font-size: 19px; letter-spacing: 0.06em;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  position: absolute; left: 42px; bottom: 136px; height: 26px; min-width: 70px; box-sizing: content-box;
+  line-height: 26px; text-align: center; image-rendering: pixelated;
+  font-family: var(--font-title); font-weight: 400; font-size: 19px; letter-spacing: 0.08em; color: #fdf0dc;
+  text-shadow: 0 1px 2px #2a0008, 0 0 4px rgba(42, 0, 8, 0.8);
 }
-.dlg-hint { position: absolute; right: 22px; top: 8px; font-size: 11px; color: rgba(243, 238, 228, 0.42); }
+.dlg-hint { position: absolute; right: 6px; top: -2px; font-size: 11px; color: rgba(243, 238, 228, 0.45); }
+
+/* 등장: 붓으로 칠하듯 왼쪽 → 오른쪽 (붓결이 남는 가장자리 마스크가 지나간다) */
+#dialogue.show .dlg-panel, #dialogue.show .dlg-name {
+  -webkit-mask-image: var(--brush-mask); mask-image: var(--brush-mask);
+  -webkit-mask-size: 300% 100%; mask-size: 300% 100%;
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  animation: brush-reveal 0.55s cubic-bezier(0.3, 0.6, 0.35, 1) both;
+}
+#dialogue.show .dlg-name { animation-duration: 0.4s; }
+@keyframes brush-reveal {
+  from { -webkit-mask-position: 100% 0; mask-position: 100% 0; }
+  to { -webkit-mask-position: 0 0; mask-position: 0 0; }
+}
 .dlg-text { font-family: var(--font-story); font-size: 22px; line-height: 1.6; color: var(--ink); word-break: keep-all; }
 .dlg-text .h { visibility: hidden; }
 #dialogue.narration .dlg-text { font-style: italic; color: #cfc8da; text-align: center; padding-top: 6px; }
-.dlg-next { position: absolute; right: 22px; bottom: 10px; color: var(--gold); font-size: 15px; opacity: 0; }
+.dlg-next { position: absolute; right: 4px; bottom: 0; color: var(--gold); font-size: 15px; opacity: 0; }
 .dlg-next.on { animation: dlg-blink 0.9s steps(2, jump-none) infinite; }
 @keyframes dlg-blink { 0% { opacity: 1; } 100% { opacity: 0; } }
 
 /* 초상화: 패널 위로 크게 튀어나옴. 아래쪽은 패널 뒤로 숨는다 */
 .dlg-portrait {
-  position: absolute; bottom: 112px; display: none;
+  position: absolute; bottom: 124px; display: none;
   background-repeat: no-repeat; image-rendering: pixelated;
   filter: brightness(0.35) saturate(0.5); transition: filter 0.2s ease;
 }
@@ -238,7 +246,7 @@ body.in-dialogue #touch-controls .pad {
 @keyframes portrait-in-left { from { transform: translateX(-36px); opacity: 0; } }
 @keyframes portrait-in-right { from { transform: translateX(36px); opacity: 0; } }
 /* 도트 그림이 아직 없는 인물의 임시 초상화: 금색 액자 */
-.dlg-portrait.boxed { bottom: 132px; border: 2px solid var(--gold); box-shadow: 0 0 0 4px var(--navy), 0 6px 16px rgba(0, 0, 0, 0.5); }
+.dlg-portrait.boxed { bottom: 150px; border: 2px solid var(--gold); box-shadow: 0 0 0 4px var(--navy), 0 6px 16px rgba(0, 0, 0, 0.5); }
 
 /* ───────── 컷신 연출 (js/story-player.js) ───────── */
 #ui .fx-fade { inset: 0; background: #000; opacity: 0; transition-property: opacity; transition-timing-function: ease; z-index: 20; }
@@ -246,7 +254,8 @@ body.in-dialogue #touch-controls .pad {
 #ui .fx-lb.top { top: 0; }
 #ui .fx-lb.bottom { bottom: 0; }
 #ui .fx-lb.on { height: 58px; }
-#ui.cinema .hud-tr, #ui.cinema .boss, #ui.cinema .skill-labels, #ui.cinema .hud-hint { opacity: 0; transition: opacity 0.3s; }
+#ui.cinema .hud-tr, #ui.cinema .boss, #ui.cinema .hud-skills, #ui.cinema .hud-counters, #ui.cinema .ctx-hints { opacity: 0; transition: opacity 0.3s; }
+body.in-dialogue #ui .hud-skills, body.in-dialogue #ui .ctx-hints { opacity: 0; }
 #dialogue { z-index: 35; }
 
 /* 붓 글씨: 글자마다 번지며 써짐 */
@@ -266,7 +275,7 @@ body.in-dialogue #touch-controls .pad {
 
 #ui .fx-title {
   left: 0; right: 0; top: 42%; transform: translateY(-50%); text-align: center; z-index: 30;
-  font-family: var(--font-story); font-weight: 700; font-size: 46px; letter-spacing: 0.14em; color: #f5e6c8;
+  font-family: var(--font-title); font-weight: 400; font-size: 46px; letter-spacing: 0.14em; color: #f5e6c8;
   text-shadow: 0 0 8px #000, 0 3px 14px #000; opacity: 0; transition: opacity 0.4s;
 }
 #ui .fx-title::before, #ui .fx-title::after { content: ''; display: block; width: 240px; height: 1px; margin: 14px auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
@@ -276,7 +285,7 @@ body.in-dialogue #touch-controls .pad {
 
 #ui .fx-bossname {
   left: 0; right: 0; top: 38%; text-align: center; z-index: 30;
-  font-family: var(--font-story); font-weight: 700; font-size: 52px; letter-spacing: 0.1em; color: #fff;
+  font-family: var(--font-title); font-weight: 400; font-size: 52px; letter-spacing: 0.1em; color: #fff;
   text-shadow: 0 0 6px #000, 4px 4px 0 rgba(165, 29, 45, 0.85); opacity: 0; transition: opacity 0.4s;
 }
 #ui .fx-bossname.show { opacity: 1; }
@@ -287,7 +296,7 @@ body.in-dialogue #touch-controls .pad {
   font-family: var(--font-story); opacity: 0; pointer-events: none;
 }
 #ui .fx-item small { display: block; font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.3em; color: var(--gold); }
-#ui .fx-item b { display: block; margin-top: 4px; font-size: 24px; color: #f5e6c8; }
+#ui .fx-item b { display: block; margin-top: 4px; font-family: var(--font-title); font-weight: 400; font-size: 24px; color: #f5e6c8; }
 #ui .fx-item.show { animation: item-in 2.2s ease forwards; }
 @keyframes item-in { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.85); } 15%, 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); } }
 
@@ -295,7 +304,7 @@ body.in-dialogue #touch-controls .pad {
 #ui .fx-cg.show { opacity: 1; }
 .fx-cg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
 .fx-cg-ph { text-align: center; font-family: var(--font-story); color: #fff; padding: 40px 80px 160px; }
-.fx-cg-ph b { display: block; font-size: 40px; letter-spacing: 0.12em; }
+.fx-cg-ph b { display: block; font-family: var(--font-title); font-weight: 400; font-size: 40px; letter-spacing: 0.12em; }
 .fx-cg-ph span { display: block; margin-top: 14px; font-size: 22px; line-height: 1.6; word-break: keep-all; }
 .fx-cg-ph small { display: block; margin-top: 18px; font-family: var(--font-ui); font-size: 12px; color: #888; }
 .dev-only { display: none !important; }
@@ -312,7 +321,7 @@ body.dev-mode .dev-only { display: block !important; }
 #ui .fx-choice { left: 0; right: 0; top: 44%; display: flex; justify-content: center; gap: 70px; z-index: 40; opacity: 0; transition: opacity 0.4s; }
 #ui .fx-choice.show { opacity: 1; pointer-events: auto; }
 .fx-choice button {
-  font-family: var(--font-story); font-weight: 700; font-size: 38px; letter-spacing: 0.1em; color: rgba(245, 240, 230, 0.55);
+  font-family: var(--font-title); font-weight: 400; font-size: 38px; letter-spacing: 0.1em; color: rgba(245, 240, 230, 0.55);
   background: none; border: none; padding: 8px 18px; cursor: pointer; text-shadow: 0 0 8px #000; transition: color 0.15s, transform 0.15s;
 }
 .fx-choice button.sel { color: #fff; transform: scale(1.12); text-shadow: 0 0 8px #000, 0 0 18px rgba(255, 158, 184, 0.8); }
@@ -348,7 +357,7 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
   animation: bubble-in 3s ease forwards; position: relative;
 }
 .float.bubble .bubble-box::after { content: ''; position: absolute; left: 50%; bottom: -7px; margin-left: -6px; border: 6px solid transparent; border-top-color: rgba(245, 240, 228, 0.96); border-bottom: 0; }
-.float.bubble i { display: block; font-style: normal; font-family: var(--font-ui); font-size: 11px; font-weight: 700; color: #a5582d; }
+.float.bubble i { display: block; font-style: normal; font-family: var(--font-title); font-size: 12px; font-weight: 400; color: #a5582d; }
 @keyframes bubble-in { 0% { opacity: 0; transform: translate(-50%, -90%) scale(0.85); } 8%, 88% { opacity: 1; transform: translate(-50%, -100%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -100%); } }
 
 /* ───────── 개발 메뉴 (F1, js/dev-menu.js) ───────── */
@@ -384,3 +393,133 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 }
 #ui .fx-prompt.show { opacity: 1; transform: translate(-50%, 0); }
 .float.npc-tag span { animation: none; font-weight: 500; display: block; transform: translate(-50%, -100%); font-size: 12px; color: #f3eee4; white-space: nowrap; text-shadow: 0 0 3px #000, 0 0 3px #000; opacity: 0.85; }
+
+/* ───────── 왼쪽 아래: 스킬 칸 2개 + 칼집 게이지 (게임 화면 위에 겹침) ───────── */
+.hud-skills { left: 10px; bottom: 8px; width: 430px; height: 90px; }
+.hud-skills .sk { position: absolute; bottom: 16px; image-rendering: pixelated; transition: opacity 0.3s; }
+.hud-skills .sk[data-skill="slash"] { left: 0; }
+.hud-skills .sk[data-skill="iaido"] { left: 74px; }
+.hud-skills .sk.locked, .hud-skills .scabbard.locked { opacity: 0; visibility: hidden; }
+.sk-icon, .sk-ink, .sk-frame { position: absolute; }
+/* 아이콘: assets/sprites/ui_icons.png 의 0번(대쉬베기)·1번(발도) 칸 */
+.sk-icon { background: url(assets/sprites/ui_icons.png) 0 0 / 400% 100% no-repeat; image-rendering: pixelated; }
+/* 먹물: 쿨타임 동안 아이콘을 덮고 위에서부터 빠진다 (--f = 남은 비율) */
+.sk-ink {
+  --f: 0; background: linear-gradient(to bottom, rgba(14, 11, 16, 0.55), var(--sumi) 30%);
+  clip-path: inset(calc((1 - var(--f)) * 100%) 0 0 0);
+}
+.sk-frame { inset: 0; background: center / 100% 100% no-repeat; }
+.sk-key {
+  position: absolute; left: 0; right: 0; bottom: -17px; text-align: center;
+  font-family: var(--font-title); font-weight: 400; font-size: 14px; color: #f5e6c8;
+  text-shadow: 0 0 3px #000, 0 1px 2px #000;
+}
+.sk.active .sk-frame { filter: drop-shadow(0 0 5px rgba(255, 158, 184, 0.95)); }
+.sk.ready .sk-icon { animation: sk-ready 0.35s ease-out; }
+@keyframes sk-ready { 0% { filter: brightness(2.2); } 100% { filter: none; } }
+
+/* 칼집 게이지: 스킬 칸 오른쪽, 땅 띠 위 (캐릭터를 가리지 않게) */
+.scabbard { position: absolute; left: 156px; bottom: 26px; background: center / 100% 100% no-repeat; image-rendering: pixelated; transition: opacity 0.3s; }
+.scabbard .sock { position: absolute; display: block; }
+/* 꽃: ui_icons 3번 칸(활짝 핀 벚꽃) */
+.scabbard .sock span {
+  position: absolute; inset: -3px; background: url(assets/sprites/ui_icons.png) 100% 0 / 400% 100% no-repeat;
+  image-rendering: pixelated; opacity: 0; transform: scale(0) rotate(-120deg);
+}
+.scabbard .sock.on span { animation: sakura-bloom 0.42s cubic-bezier(0.2, 1.6, 0.5, 1) forwards; }
+.scabbard .sock.scatter span { animation: sakura-scatter 0.5s ease-in forwards; }
+@keyframes sakura-bloom {
+  0% { opacity: 0; transform: scale(0) rotate(-120deg); filter: brightness(2); }
+  60% { opacity: 1; transform: scale(1.35) rotate(10deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); filter: none; }
+}
+@keyframes sakura-scatter {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: translate(10px, -22px) scale(0.4) rotate(160deg); }
+}
+
+/* ───────── 1-1 조작 안내: 그 자리에 작게 ───────── */
+.ctx-hints { left: 0; top: 0; }
+.float.ctx-hint span {
+  display: block; transform: translate(-50%, -100%); white-space: nowrap; animation: ctx-in 0.35s ease-out both;
+  font-family: var(--font-ui); font-size: 13px; color: #f3eee4; text-shadow: 0 0 3px #000, 0 0 3px #000, 0 1px 2px #000;
+}
+.float.ctx-hint.out span { animation: ctx-out 0.35s ease-in forwards; }
+.float.ctx-hint kbd {
+  display: inline-block; min-width: 14px; margin-right: 5px; padding: 1px 5px; border: 1px solid var(--gold);
+  border-radius: 3px; background: rgba(14, 11, 16, 0.8); font-family: var(--font-title); font-size: 13px; color: #f5e6c8; text-align: center;
+}
+@keyframes ctx-in { from { opacity: 0; transform: translate(-50%, -80%); } to { opacity: 1; transform: translate(-50%, -100%); } }
+@keyframes ctx-out { to { opacity: 0; transform: translate(-50%, -130%); } }
+
+/* ───────── 결과창: 두루마리 ───────── */
+#ui .result { inset: 0; z-index: 48; display: none; }
+#ui .result.show { display: block; }
+.result .rs-drop { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.result .rs-closed { display: block; height: 260px; image-rendering: pixelated; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.6)); }
+.result.show .rs-drop { animation: rs-drop 0.65s cubic-bezier(0.3, 1.4, 0.5, 1) both, rs-hide 0.01s linear 0.95s forwards; }
+@keyframes rs-drop { from { transform: translate(-50%, -190%); } to { transform: translate(-50%, -50%); } }
+@keyframes rs-hide { to { visibility: hidden; } }
+.result .rs-open { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); visibility: hidden; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.6)); }
+.result.show .rs-open { animation: rs-show 0.01s linear 0.95s forwards; }
+@keyframes rs-show { to { visibility: visible; } }
+/* 펼침: 종이는 가운데서 좌우로 드러나고 축은 가운데에서 양끝으로 */
+.result .rs-paper { position: absolute; top: 0; background: center / 100% 100% no-repeat; image-rendering: pixelated; clip-path: inset(0 50% 0 50%); }
+.result.show .rs-paper { animation: rs-unroll 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.95s forwards; }
+@keyframes rs-unroll { to { clip-path: inset(0 0 0 0); } }
+.result .rs-roller { position: absolute; top: 0; height: 100%; image-rendering: pixelated; }
+.result .rs-roller.l { left: 0; }
+.result .rs-roller.r { right: 0; }
+.result.show .rs-roller.l { animation: rs-roll-l 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.95s both; }
+.result.show .rs-roller.r { animation: rs-roll-r 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.95s both; }
+@keyframes rs-roll-l { from { left: calc(50% - 31px); } to { left: 0; } }
+@keyframes rs-roll-r { from { right: calc(50% - 30px); } to { right: 0; } }
+/* 붓글씨 「討伐」: 획마다 먹이 그어진다 (--d = 시작 시각) */
+.rs-kanji { position: absolute; left: 50%; top: 12%; width: 62%; transform: translateX(-50%); overflow: visible; }
+.rs-kanji path {
+  fill: none; stroke: #1d1418; stroke-width: 7.5; stroke-linecap: round; stroke-linejoin: round;
+}
+/* 붓 자국: 가장자리를 거칠게 흔들고(번짐) 먹 농담을 살짝 */
+.rs-kanji g { filter: url(#rs-brush); opacity: 0.94; }
+.result.show .rs-kanji path { animation: rs-stroke 0.2s ease-in calc(var(--write0) + var(--d)) forwards; }
+@keyframes rs-stroke { to { stroke-dashoffset: 0; } }
+/* 붉은 도장: 쾅 */
+.rs-seal {
+  position: absolute; right: 13%; top: 46%; width: 46px; height: 46px; display: grid; grid-template-columns: 1fr;
+  align-content: center; justify-items: center; background: #b3202c; border-radius: 4px; opacity: 0;
+  box-shadow: inset 0 0 0 2px #e8c9b8, inset 0 0 6px rgba(0, 0, 0, 0.4);
+  font-family: var(--font-title); font-size: 17px; line-height: 19px; color: #f6e3d6;
+}
+.result.stamped .rs-seal { animation: rs-stamp 0.22s cubic-bezier(0.5, 0, 0.75, 0) forwards; }
+@keyframes rs-stamp {
+  0% { opacity: 0; transform: scale(2.6) rotate(-14deg); }
+  100% { opacity: 0.93; transform: scale(1) rotate(-6deg); }
+}
+.result.stamped .rs-open { animation: rs-show 0.01s linear forwards, rs-shake 0.3s linear 0.2s; }
+@keyframes rs-shake {
+  0%, 100% { transform: translate(-50%, -50%); }
+  20% { transform: translate(calc(-50% + 3px), calc(-50% - 2px)); }
+  40% { transform: translate(calc(-50% - 3px), calc(-50% + 2px)); }
+  60% { transform: translate(calc(-50% + 2px), calc(-50% + 1px)); }
+  80% { transform: translate(calc(-50% - 1px), calc(-50% - 1px)); }
+}
+.rs-stats, .rs-again { position: absolute; left: 0; right: 0; text-align: center; opacity: 0; }
+.rs-stats { bottom: 31%; display: flex; justify-content: center; gap: 26px; font-family: var(--font-title); font-size: 17px; color: #3a2a24; }
+.rs-again { bottom: 23%; font-family: var(--font-ui); font-size: 11px; color: #6e5a4e; }
+.result.stamped .rs-stats, .result.stamped .rs-again { animation: rs-fade 0.5s ease 0.45s forwards; }
+@keyframes rs-fade { to { opacity: 1; } }
+
+/* ───────── 일시정지 메뉴 (js/pause-menu.js) ───────── */
+#pause-menu { position: absolute; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; background: rgba(8, 6, 12, 0.55); pointer-events: auto; }
+#pause-menu.show { display: flex; }
+.pm-board { width: 430px; min-height: 250px; padding: 4px 18px 8px; image-rendering: pixelated; text-align: center; color: #2a1a14; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6)); }
+.pm-board h2 { margin: 0 0 8px; font-family: var(--font-title); font-weight: 400; font-size: 26px; letter-spacing: 0.2em; color: #5a1018; }
+.pm-items { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
+.pm-items button {
+  font-family: var(--font-title); font-weight: 400; font-size: 18px; color: #3a2a24; background: none; border: 0; padding: 3px 0; cursor: pointer;
+}
+.pm-items button.sel { color: #a51d2d; }
+.pm-items button.sel::before { content: '❀ '; }
+.pm-controls { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 2px 8px; margin: 0; padding: 6px 10px; border-radius: 4px; background: rgba(236, 222, 196, 0.88); text-align: left; font-family: var(--font-ui); font-size: 12px; color: #3a2a24; }
+.pm-controls dt { font-family: var(--font-title); color: #8e1b24; text-align: right; }
+.pm-controls dd { margin: 0; }

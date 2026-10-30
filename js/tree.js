@@ -10,13 +10,14 @@ class CherryTree {
     this.petalTimer = Math.random();
 
     if (Sprites.has(scene, 'tree')) {
-      this.sprite = scene.add.sprite(x, groundY, 'tree', 0).setOrigin(0.5, 1).setDepth(2);
+      // 캐릭터(6~10)·인물(8)보다 뒤, 땅 타일(1)보다도 뒤
+      this.sprite = scene.add.sprite(x, groundY, 'tree', 0).setOrigin(0.5, 1).setDepth(0.5);
       this.canopyY = groundY - Sprites.height('tree', 190) * 0.62; // 꽃이 모인 높이
       this.canopyW = 120;
       return;
     }
 
-    const c = this.container = scene.add.container(x, groundY).setDepth(2);
+    const c = this.container = scene.add.container(x, groundY).setDepth(0.5);
     const bark = 0x4a3b35;
     c.add(scene.add.rectangle(0, -45, 14, 90, bark));
     c.add(scene.add.rectangle(-16, -92, 6, 46, bark).setAngle(-38));

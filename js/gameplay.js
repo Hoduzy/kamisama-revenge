@@ -70,7 +70,7 @@ class StoryGameplay {
         done: () => Math.abs(p.body.center.x - x0) > 140 || Math.abs(p.body.center.x - LEVEL.spawn.x) > 300,
       },
       jump: {
-        kb: 'Space 로 점프해서 낮은 담 넘기', touch: 'JUMP 로 점프해서 낮은 담 넘기',
+        kb: 'Space 로 점프해서 낮은 담 넘기', touch: '점프 버튼으로 낮은 담 넘기',
         done: () => p.body.left > 760 && p.grounded,
       },
       dashSlash: {
@@ -166,7 +166,7 @@ class StoryGameplay {
 
   do_npcPlace(c) {
     const n = this.npc(c.who);
-    if (n) n.place(this.point(c.at), c.face);
+    if (n && this.point(c.at) != null) n.place(this.point(c.at), c.face);
   }
 
   do_npcFace(c) {

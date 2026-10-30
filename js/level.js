@@ -78,6 +78,17 @@ LEVELS.town = {
     { x: 5810, y: 620 },
   ],
 
+  // 1-1 조작 안내 (1장일 때만, 처음 한 번). 주인공이 from~to 에 있으면 x,y 자리에 작게 뜨고,
+  // act 행동을 하면(이 자리 전에 이미 했어도) 다시 나오지 않는다. [키] 는 키 모양으로 그린다
+  hints: [
+    { id: 'move', act: 'move', x: 230, y: 520, from: 0, to: 600, kb: '[A][D] 이동', touch: '[◀][▶] 이동' },
+    { id: 'attack', act: 'attack', x: 780, y: 520, from: 560, to: 1000, kb: '[J] 공격', touch: '[공격] 베기' },
+    { id: 'jump', act: 'jump', x: 1060, y: 540, from: 900, to: 1180, kb: '[Space] 점프', touch: '[점프] 뛰어넘기' },
+    { id: 'dash', act: 'dash', x: 1310, y: 540, from: 1230, to: 1420, kb: '[K] 대시 — 잠깐 무적', touch: '[대시] 잠깐 무적' },
+    { id: 'skill1', act: 'skill1', x: 1440, y: 540, from: 1380, to: 1600, kb: '[U] 대쉬베기 — 벚꽃이 쌓인다', touch: '[베기] 대쉬베기 — 벚꽃이 쌓인다' },
+    { id: 'skill2', act: 'skill2', x: 1640, y: 480, from: 1560, to: 2150, kb: '[I] 발도 — 수리검을 받아친다', touch: '[발도] 수리검을 받아친다' },
+  ],
+
   // 기억 조각 (data/story/memories.json 의 번호). chapter 가 그 장일 때만 나온다
   memories: [
     { no: 1, chapter: 'ch1', x: 900, y: 372 },   // 1-1 지붕 끝 굴뚝 뒤 (높은 발판)

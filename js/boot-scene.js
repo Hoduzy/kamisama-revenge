@@ -10,10 +10,12 @@ class BootScene extends Phaser.Scene {
     this.load.json('story-memories', 'data/story/memories.json');
     for (const id of STORY_FILES) this.load.json('story-' + id, `data/story/${id}.json`);
     this.load.json('sprites', SPRITE_DIR + 'manifest.json');
+    this.load.json('ui', UI_DIR + 'ui.json'); // UI 그림 크기·9-slice (tools/process_ui.py)
   }
 
   create() {
-    if (!UI.root) UI.init(this.game);
+    if (!UI.root) UI.init(this.game, this.cache.json.get('ui'));
+    PauseMenu.init(this.game);
     const characters = this.cache.json.get('story-characters');
     const manifest = this.cache.json.get('sprites');
     if (!characters || !manifest) {

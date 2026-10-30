@@ -4,7 +4,9 @@
 const SPRITE_DIR = 'assets/sprites/';
 
 // 바닥/발판에 쓸 타일 (assets/sprites/tiles/)
-const GROUND_TILES = { top: 'tile_r3_c00', platform: 'tile_r2_c00' };
+const GROUND_TILES = { top: 'tile_r3_c00', platform: 'tile_r2_c00', fill: 'tile_r2_c06' };
+// 바닥 타일 밝기: 윗면·발판 70%, 그 아래 돌담 55% (배경 그림과 어울리게)
+const GROUND_TINT = { top: 0xb3b3b3, fill: 0x8c8c8c };
 
 const Sprites = {
   manifest: null,

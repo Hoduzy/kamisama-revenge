@@ -1,13 +1,12 @@
-// 대화창 (HTML 레이어 #ui 안). 에도 시대풍: 짙은 남색 반투명 패널 + 얇은 금색 테두리 + 모서리 벚꽃,
-// 패널 위 왼쪽 빨간 이름표, 패널 위로 크게 튀어나온 초상화(말하는 쪽 왼/오른쪽, 안 말하는 쪽은 어둡게).
+// 대화창 (HTML 레이어 #ui 안). 에도 시대풍: 대화창 틀(ui_dialogue_frame) + 붉은 이름표(ui_nameplate), 둘 다 9-slice.
+// 나타날 때 붓으로 칠하듯 왼쪽 → 오른쪽으로 드러난다(style.css 의 brush-reveal).
+// 패널 위로 크게 튀어나온 초상화(말하는 쪽 왼/오른쪽, 안 말하는 쪽은 어둡게).
 // 한 줄씩 보여 주는 방식: open() → line(명령) 을 await → close(). 컷신 엔진(js/story-player.js)이 부른다.
 //   say   : 초상화 + 이름표 + 대사
 //   think : 아카네 속마음. 초상화 반투명, 글자 회색
 //   voice : 초상화·이름표 없이 글자만. style pink(하루) / goldTremble(하쿠야, 떨리는 금색) / plain
 // 넘기기: Space / J / Enter / 화면 탭, 길게 누르면 장면 전체 건너뛰기 (조작 가능 컷신은 Enter·탭, 또는 자동으로 넘어감).
 // 인물 설정(data/story/characters.json): sprite(도트 초상화 시트 + 표정), image, color. 둘 다 없으면 실루엣(js/portraits.js)
-const SAKURA_SVG = `<svg viewBox="-10 -10 20 20" aria-hidden="true">${[0, 72, 144, 216, 288]
-  .map((a) => `<ellipse cx="0" cy="-5" rx="3.6" ry="5" transform="rotate(${a})"/>`).join('')}<circle r="2" class="c"/></svg>`;
 
 class DialogueBox {
   constructor(scene) {
@@ -21,13 +20,15 @@ class DialogueBox {
         <div class="dlg-portrait left"></div>
         <div class="dlg-portrait right"></div>
         <div class="dlg-panel">
-          ${['tl', 'tr', 'bl', 'br'].map((c) => `<span class="dlg-corner ${c}">${SAKURA_SVG}</span>`).join('')}
-          <div class="dlg-name"></div>
           <div class="dlg-hint"></div>
           <div class="dlg-text"></div>
           <div class="dlg-next">▼</div>
-        </div>`;
+        </div>
+        <div class="dlg-name"></div>`;
       document.getElementById('ui').append(root);
+      // 틀(ui_dialogue_frame)·이름표(ui_nameplate) 9-slice. 이름표는 패널 밖이라 패널의 붓 마스크에 잘리지 않는다
+      UI.nine(root.querySelector('.dlg-panel'), 'ui_dialogue_frame', 0.66);
+      UI.nine(root.querySelector('.dlg-name'), 'ui_nameplate', 0.5);
     }
     this.root = root;
     this.portraits = { left: root.querySelector('.dlg-portrait.left'), right: root.querySelector('.dlg-portrait.right') };

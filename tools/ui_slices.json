@@ -1,0 +1,12 @@
+{
+  "_설명": "process_ui.py 가 ui.json 에 합치는 값 (출력 그림 px). slice: 9-slice [위, 오른쪽, 아래, 왼쪽]. content: 글자·그림이 들어갈 안쪽 [x0, y0, x1, y1]",
+  "ui_dialogue_frame": { "slice": [40, 72, 40, 72], "fill": true },
+  "ui_nameplate": { "slice": [12, 70, 38, 96], "fill": true, "content": [100, 18, 340, 60] },
+  "ui_plaque": { "slice": [66, 40, 50, 80], "fill": true, "content": [80, 66, 257, 128] },
+  "ui_scroll_paper": { "slice": [12, 80, 12, 90], "fill": true },
+  "ui_skill_frame_a": { "slice": [29, 28, 24, 40], "window": [40, 29, 159, 143] },
+  "ui_skill_frame_b": { "slice": [29, 39, 24, 28], "window": [28, 29, 146, 143] },
+  "ui_scabbard": { "sockets": [[271, 33], [314, 33], [356, 33], [398, 33], [440, 33]], "socketRadius": 13 },
+  "ui_medallion": { "inner": [101, 104, 66] },
+  "ui_medallion_pressed": { "inner": [101, 104, 66] }
+}

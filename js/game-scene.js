@@ -10,7 +10,13 @@ class GameScene extends Phaser.Scene {
     //   ?memories=18  기억 조각 개수 (진엔딩 분기 확인용)
     //   ?dev=1        개발 모드 (F1 개발 메뉴에서도 켜고 끔)
     const params = new URLSearchParams(location.search);
-    this.chapter = this.registry.get('chapterOverride') || params.get('chapter') || 'ch1';
+    // ?scene= 만 주면 그 장면이 속한 장(맵)으로 시작한다
+    const sceneParam = params.get('scene');
+    const sceneChapter = sceneParam && STORY_FILES.find((id) => {
+      const ch = this.cache.json.get('story-' + id);
+      return ch && STORY_MAP[id] && ch.scenes.some((s) => s.id === sceneParam);
+    });
+    this.chapter = this.registry.get('chapterOverride') || params.get('chapter') || sceneChapter || 'ch1';
     this.chapterNo = STORY_FILES.indexOf(this.chapter);
     this.storyMap = STORY_MAP[this.chapter] || {};
     window.LEVEL = levelFor(this.chapter);
@@ -21,6 +27,8 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, L.width, L.height);
 
     this.hitStopTimer = 0;
+    this.kills = 0;  // 斬 (결과창·상단 카운터)
+    this.deaths = 0; // 死
     this.cleared = false;
     this.shurikens = [];
 
@@ -36,9 +44,14 @@ class GameScene extends Phaser.Scene {
       if (tiled) {
         rect.setVisible(false);
         if (r.x >= 0 && r.x < L.width) {
-          // 윗면 한 줄 = 갓돌 있는 돌담 타일, 그 아래는 어두운 돌색
-          this.add.rectangle(r.x, r.y, r.w, r.h, COLORS.groundFill).setOrigin(0).setDepth(1);
-          this.add.tileSprite(r.x, r.y, r.w, Math.min(32, r.h), GROUND_TILES.top).setOrigin(0).setDepth(1);
+          // 윗면 한 줄 = 갓돌 있는 돌담 타일, 그 아래는 돌담 타일을 더 어둡게 (검은 띠 대신).
+          // 배경과 어울리게 밝기 70% (아래는 55%)
+          if (Sprites.has(this, GROUND_TILES.fill)) {
+            this.add.tileSprite(r.x, r.y, r.w, r.h, GROUND_TILES.fill).setOrigin(0).setDepth(1).setTint(GROUND_TINT.fill);
+          } else {
+            this.add.rectangle(r.x, r.y, r.w, r.h, COLORS.groundFill).setOrigin(0).setDepth(1);
+          }
+          this.add.tileSprite(r.x, r.y, r.w, Math.min(32, r.h), GROUND_TILES.top).setOrigin(0).setDepth(1).setTint(GROUND_TINT.top);
         }
       }
     }
@@ -50,7 +63,7 @@ class GameScene extends Phaser.Scene {
       this.platforms.add(rect);
       if (tiled) {
         rect.setVisible(false);
-        this.add.tileSprite(r.x, r.y, r.w, r.h, GROUND_TILES.platform).setOrigin(0).setDepth(1);
+        this.add.tileSprite(r.x, r.y, r.w, r.h, GROUND_TILES.platform).setOrigin(0).setDepth(1).setTint(GROUND_TINT.top);
       }
       rect.body.checkCollision.down = false;
       rect.body.checkCollision.left = false;
@@ -88,6 +101,7 @@ class GameScene extends Phaser.Scene {
       this.gates.add(rect);
     }
     this.createMemories(L);
+    this.setupCtxHints(L);
     this.mood = null;
     this.moodLayer = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0).setOrigin(0).setScrollFactor(0).setDepth(-60);
     this.emberTimer = 0;
@@ -128,7 +142,8 @@ class GameScene extends Phaser.Scene {
     const only = this.registry.get('devPlay') || (!this.registry.get('sceneTestDone') && (params.get('scene') || params.get('story')));
     this.registry.remove('devPlay');
     if (only) {
-      // 장면 하나만 (개발 메뉴 / ?scene=)
+      // 장면 하나만 (개발 메뉴 / ?scene=). 맵 위치 장면이 줄줄이 따라 나오지 않게 위치 트리거는 막아 둔다
+      (this.storyMap.triggers || []).forEach((t, i) => this.firedTriggers.add(i));
       this.registry.set('sceneTestDone', true);
       this.registry.set('chapterStarted', true);
       this.story.play(only === 'test_dialogue' ? 'TEST' : only);
@@ -284,53 +299,8 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // 글자(안내·보스 이름·결과)는 HTML 글자 레이어(UI)에 그린다. 그림만 캔버스에
+  // HUD(카운터·스킬 칸·칼집 게이지·보스·결과)는 모두 HTML 글자 레이어(UI)에. 그림만 캔버스에
   createHud() {
-    if (!this.skillLocks.size) UI.controlsHint(); // 프롤로그는 연습장 튜토리얼이 대신 알려 준다
-    this.createSkillHud();
-  }
-
-  // 화면 하단: 스킬 쿨타임 2칸 + 벚꽃 스택 5칸
-  createSkillHud() {
-    const cx = GAME_WIDTH / 2;
-    const y = GAME_HEIGHT - 40;
-    const depth = 100;
-    this.hudPanel = this.add.rectangle(cx, y, 330, 64, 0x0d0c16, 0.55).setScrollFactor(0).setDepth(depth);
-    const icons = Sprites.has(this, 'ui_icons');
-
-    // frame: ui_icons 의 칸 (0 대쉬 스킬, 1 발도 스킬)
-    const makeIcon = (x, name, key, frame) => {
-      const icon = {};
-      if (icons) {
-        icon.bg = this.add.image(x, y, 'ui_icons', frame).setScrollFactor(0).setDepth(depth);
-        icon.label = this.add.text(0, 0, '').setVisible(false);
-      } else {
-        icon.bg = this.add.rectangle(x, y, 48, 48, 0x222222).setScrollFactor(0).setDepth(depth);
-        icon.label = this.add.text(x, y + 2, name, { fontFamily: 'system-ui, sans-serif', fontSize: '15px', fontStyle: 'bold', color: '#fff' })
-          .setOrigin(0.5).setScrollFactor(0).setDepth(depth + 1);
-      }
-      // 쿨타임 동안 위에서부터 덮이는 막 (그림) + 키 글자·남은 초 (HTML)
-      icon.shade = this.add.rectangle(x, y + 24, 48, 48, 0x0d0c16, 0.7).setOrigin(0.5, 1)
-        .setScrollFactor(0).setDepth(depth + 2);
-      icon.label_i = UI.addSkillLabel(x, y, key);
-      icon.border = this.add.rectangle(x, y, 52, 52).setStrokeStyle(3, 0xff7aa2).setScrollFactor(0)
-        .setDepth(depth + 3).setVisible(false);
-      return icon;
-    };
-    this.skillIcons = {
-      slash: makeIcon(cx - 130, '베기', 'U', 0),
-      iaido: makeIcon(cx - 74, '발도', 'I', 1),
-    };
-
-    // 벚꽃 스택: ui_icons 2번(빈칸) / 3번(채움)을 반 크기로
-    this.sakuraTex = icons ? { off: ['ui_icons', 2], on: ['ui_icons', 3], scale: 0.5 } : { off: ['sakura-off'], on: ['sakura-on'], scale: 1 };
-    this.sakuraIcons = [];
-    for (let i = 0; i < TUNING.sakuraMax; i++) {
-      this.sakuraIcons.push(this.add.image(cx - 20 + i * 30, y, ...this.sakuraTex.off).setScale(this.sakuraTex.scale)
-        .setScrollFactor(0).setDepth(depth));
-    }
-    this.lastSakura = 0;
-
     this.touchSkillBtns = {
       slash: document.querySelector('.btn[data-action="skill1"]'),
       iaido: document.querySelector('.btn[data-action="skill2"]'),
@@ -338,46 +308,27 @@ class GameScene extends Phaser.Scene {
     this.applySkillLocks();
   }
 
-  updateSkillIcon(icon, btn, remaining, total, active) {
-    const frac = Phaser.Math.Clamp(remaining / total, 0, 1);
-    icon.shade.setVisible(frac > 0);
-    icon.shade.setSize(48, 48 * frac);
-    UI.setCooldown(icon.label_i, frac > 0 ? remaining.toFixed(1) : '');
-    icon.label.setVisible(frac <= 0);
-    icon.border.setVisible(active);
-    if (btn) {
-      const cls = frac > 0 ? 'cooldown' : '';
-      if (btn.dataset.cd !== cls) {
-        btn.dataset.cd = cls;
-        btn.classList.toggle('cooldown', frac > 0);
-      }
-    }
-  }
-
   updateHud() {
     const boss = this.boss;
     const bossOn = !!boss && !boss.dormant && !boss.dead;
     UI.boss(bossOn, this.bossDisplayName, bossOn ? boss.hp / boss.cfg.hp : 0);
+    UI.setCounters(this.deaths, this.kills);
 
     const sk = this.player.skills;
-    this.updateSkillIcon(this.skillIcons.slash, this.touchSkillBtns.slash, sk.slashCooldown,
-      TUNING.dashSlash.cooldown, sk.slashing);
-    // 발도는 준비 중이면 테두리 강조
-    this.updateSkillIcon(this.skillIcons.iaido, this.touchSkillBtns.iaido, sk.iaidoCooldown,
-      TUNING.iaido.cooldown, sk.charging);
-
-    if (sk.sakura !== this.lastSakura) {
-      this.sakuraIcons.forEach((icon, i) => {
-        const on = i < sk.sakura;
-        icon.setTexture(...(on ? this.sakuraTex.on : this.sakuraTex.off));
-        // 새로 켜진 칸은 톡 튀게
-        if (on && i >= this.lastSakura) {
-          const base = this.sakuraTex.scale;
-          icon.setScale(base * 1.6);
-          this.tweens.add({ targets: icon, scale: base, duration: 200, ease: 'Back.easeOut' });
-        }
-      });
-      this.lastSakura = sk.sakura;
+    const lock = this.skillLocks;
+    const slash = Phaser.Math.Clamp(sk.slashCooldown / TUNING.dashSlash.cooldown, 0, 1);
+    const iaido = Phaser.Math.Clamp(sk.iaidoCooldown / TUNING.iaido.cooldown, 0, 1);
+    UI.updateSkills({
+      slash: { frac: slash, active: sk.slashing, locked: lock.has('dashSlash') },
+      iaido: { frac: iaido, active: sk.charging, locked: lock.has('iaido') }, // 발도는 준비 중이면 테두리 빛남
+      sakura: sk.sakura,
+      sakuraLocked: lock.has('dashSlash'),
+    });
+    // 터치 버튼도 쿨타임 동안 흐리게
+    for (const [k, frac] of [['slash', slash], ['iaido', iaido]]) {
+      const btn = this.touchSkillBtns[k];
+      const cd = frac > 0;
+      if (btn && btn.classList.contains('cooldown') !== cd) btn.classList.toggle('cooldown', cd);
     }
   }
 
@@ -412,7 +363,7 @@ class GameScene extends Phaser.Scene {
 
     if (this.cleared) {
       const c = this.controls.state;
-      if (this.canRestart && (c.jump.pressed || c.attack.pressed)) this.scene.restart();
+      if (this.canRestart && (c.jump.pressed || c.attack.pressed || tapped)) this.scene.restart();
       return;
     }
 
@@ -422,6 +373,7 @@ class GameScene extends Phaser.Scene {
     for (const t of this.trees) t.update(dt);
     for (const t of Object.values(this.decorTrees)) t.update(dt);
     if (this.stageBgs.length) this.updateStageBackgrounds();
+    this.updateCtxHints();
     this.updateMood(dt);
     this.updateMemories();
 
@@ -556,6 +508,7 @@ class GameScene extends Phaser.Scene {
   killPlayer(fell = false) {
     const player = this.player;
     if (player.dead) return;
+    this.deaths += 1;
     const x = player.body.center.x;
     const y = Math.min(player.body.center.y, LEVEL.height - 20);
     this.spawnBurst(x, y, 0xd62828, 12);
@@ -699,6 +652,7 @@ class GameScene extends Phaser.Scene {
 
   onEnemyKilled(enemy, byPlayer) {
     this.events.emit('enemyKilled', enemy);
+    if (byPlayer && enemy.type !== 'dummy') this.kills += 1;
     if (enemy.type === 'boss') {
       this.doHitStop(0.25);
       this.cameras.main.shake(400, 0.015);
@@ -806,22 +760,14 @@ class GameScene extends Phaser.Scene {
   unlockSkill(name) {
     this.skillLocks.delete(name);
     this.applySkillLocks();
-    const icon = this.skillIcons[name === 'dashSlash' ? 'slash' : 'iaido'];
-    this.tweens.add({ targets: icon.bg, scale: { from: 1.6, to: 1 }, duration: 300, ease: 'Back.easeOut' });
+    // 새로 배운 칸이 톡 튀어나온다
+    const el = UI.el(`.sk[data-skill="${name === 'dashSlash' ? 'slash' : 'iaido'}"]`);
+    if (el && el.animate) el.animate([{ transform: 'scale(1.5)', filter: 'brightness(2)' }, { transform: 'scale(1)', filter: 'none' }], { duration: 350, easing: 'ease-out' });
   }
 
+  // 배우기 전(프롤로그)엔 스킬 칸·칼집 게이지·터치 버튼을 숨긴다 (HUD 는 updateHud 가 잠금 상태를 넘김)
   applySkillLocks() {
     const lock = this.skillLocks;
-    const show = (icon, on) => {
-      for (const o of [icon.bg, icon.label, icon.shade, icon.border]) if (on === false) o.setVisible(false);
-      if (on) icon.bg.setVisible(true);
-      UI.skills[icon.label_i].parentElement.style.display = on ? '' : 'none';
-    };
-    show(this.skillIcons.slash, !lock.has('dashSlash'));
-    show(this.skillIcons.iaido, !lock.has('iaido'));
-    // 벚꽃 스택 칸은 대쉬베기를 배울 때 처음 나온다
-    for (const i of this.sakuraIcons) i.setVisible(!lock.has('dashSlash'));
-    this.hudPanel.setVisible(lock.size < 2);
     this.touchSkillBtns.slash.style.visibility = lock.has('dashSlash') ? 'hidden' : '';
     this.touchSkillBtns.iaido.style.visibility = lock.has('iaido') ? 'hidden' : '';
   }
@@ -898,6 +844,7 @@ class GameScene extends Phaser.Scene {
 
   // 잠긴 장면에서 주인공을 걷게 (물리가 멈춰 있어 위치를 직접 옮긴다). 멀면 가까이 옮긴 뒤 걷는다
   movePlayerTo(x, speed) {
+    if (x == null) return Promise.resolve(); // 이 맵에 없는 위치
     const p = this.player;
     const b = p.body;
     const y = b.y;
@@ -980,6 +927,34 @@ class GameScene extends Phaser.Scene {
     b.reset(x, b.center.y);
   }
 
+  // ───────── 1-1 조작 안내 (LEVEL.hints): 처음 한 번, 그 행동이 필요한 자리에 작게 ─────────
+  setupCtxHints(L) {
+    this.hintsDone = new Set();
+    try { JSON.parse(localStorage.getItem('kamisama-hints') || '[]').forEach((id) => this.hintsDone.add(id)); } catch (e) { /* 저장소를 못 쓰면 이번만 */ }
+    this.ctxHints = this.chapter === 'ch1' ? (L.hints || []).filter((h) => !this.hintsDone.has(h.id)) : [];
+  }
+
+  updateCtxHints() {
+    if (!this.ctxHints.length) return;
+    const c = this.controls.state;
+    const did = { move: c.left.down || c.right.down, jump: c.jump.pressed, attack: c.attack.pressed,
+      dash: c.dash.pressed, skill1: c.skill1.pressed, skill2: c.skill2.pressed };
+    const x = this.player.body.center.x;
+    const quiet = this.story.blocking || this.player.dead;
+    this.ctxHints = this.ctxHints.filter((h) => {
+      if (did[h.act]) {
+        // 이미 해 봤으면 다시 안 나온다
+        UI.hideCtxHint(h.id);
+        this.hintsDone.add(h.id);
+        try { localStorage.setItem('kamisama-hints', JSON.stringify([...this.hintsDone])); } catch (e) { /* 무시 */ }
+        return false;
+      }
+      if (!quiet && this.stageNo === 1 && x >= h.from && x <= h.to) UI.showCtxHint(h);
+      else UI.hideCtxHint(h.id);
+      return true;
+    });
+  }
+
   // ───────── 기억 조각 (data/story/memories.json, 위치는 LEVEL.memories) ─────────
   createMemories(L) {
     const data = this.cache.json.get('story-memories') || {};
@@ -1040,16 +1015,21 @@ class GameScene extends Phaser.Scene {
     this.physics.world.pause();
   }
 
+  // 결과창: 두루마리가 내려와 펼쳐지고 「討伐」 → 도장이 찍힐 때 화면이 살짝 흔들린다
   triggerClear() {
     this.cleared = true;
     this.physics.world.pause();
-    UI.banner('<b>끝</b><small>점프 / 공격으로 다시 시작</small>');
-    this.allowRestartSoon();
+    const ms = UI.result({
+      kills: this.kills,
+      deaths: this.deaths,
+      onStamp: () => this.cameras.main.shake(180, 0.006),
+    });
+    this.allowRestartSoon(ms);
   }
 
-  allowRestartSoon() {
+  allowRestartSoon(ms = 500) {
     this.canRestart = false;
-    this.time.delayedCall(500, () => { this.canRestart = true; });
+    this.time.delayedCall(ms, () => { this.canRestart = true; });
   }
 
   // 떠오르는 글자는 HTML 레이어에 (월드 좌표를 따라 움직임)
