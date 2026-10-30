@@ -38,28 +38,31 @@ window.LEVEL = {
     { x: 4880, y: 440, w: 200, h: 20 },
   ],
 
-  // type: walker(좌우 순찰) / hopper(플레이어를 향해 점프)
-  // minX/maxX: 순찰 범위
+  // type: swordsman(근접 검사) / thrower(투척병)
+  // minX/maxX: 움직일 수 있는 범위
   enemies: [
-    { type: 'walker', x: 900, y: 580, minX: 700, maxX: 1090 },
-    { type: 'walker', x: 1500, y: 580, minX: 1260, maxX: 1690 },
-    { type: 'walker', x: 800, y: 360, minX: 765, maxX: 935 },
-    { type: 'hopper', x: 2400, y: 580, minX: 2160, maxX: 2620 },
-    { type: 'walker', x: 3050, y: 460, minX: 2955, maxX: 3145 },
-    { type: 'walker', x: 3300, y: 580, minX: 2810, maxX: 3810 },
-    { type: 'hopper', x: 3600, y: 580, minX: 2810, maxX: 3810 },
-    { type: 'walker', x: 3580, y: 250, minX: 3485, maxX: 3695 },
-    { type: 'hopper', x: 4500, y: 580, minX: 4310, maxX: 4690 },
-    { type: 'walker', x: 5000, y: 580, minX: 4790, maxX: 5250 },
-    { type: 'walker', x: 4980, y: 400, minX: 4885, maxX: 5075 },
+    { type: 'swordsman', x: 900, y: 580, minX: 700, maxX: 1090 },
+    { type: 'thrower', x: 860, y: 360, minX: 765, maxX: 935 },
+    { type: 'swordsman', x: 1550, y: 580, minX: 1260, maxX: 1690 },
+    { type: 'thrower', x: 1520, y: 440, minX: 1425, maxX: 1595 },
+    { type: 'swordsman', x: 2450, y: 580, minX: 2160, maxX: 2620 },
+    { type: 'swordsman', x: 3150, y: 580, minX: 2810, maxX: 3810 },
+    { type: 'thrower', x: 3300, y: 350, minX: 3205, maxX: 3395 },
+    { type: 'swordsman', x: 3550, y: 580, minX: 2810, maxX: 3810 },
+    { type: 'thrower', x: 3600, y: 250, minX: 3485, maxX: 3695 },
+    { type: 'thrower', x: 3990, y: 400, minX: 3915, maxX: 4045 },
+    { type: 'swordsman', x: 4550, y: 580, minX: 4310, maxX: 4690 },
+    { type: 'thrower', x: 4980, y: 400, minX: 4885, maxX: 5075 },
+    { type: 'swordsman', x: 5100, y: 580, minX: 4790, maxX: 5250 },
   ],
 
-  // 이 x 를 지나면 낙사 시 여기서 다시 시작
-  checkpoints: [
-    { x: 120, y: 560 },
-    { x: 1300, y: 560 },
-    { x: 2850, y: 560 },
-    { x: 4350, y: 560 },
+  // 벚꽃나무(체크포인트). x, 땅 높이 y. 첫 나무는 처음부터 만개.
+  trees: [
+    { x: 120, y: 620 },
+    { x: 1310, y: 620 },
+    { x: 2210, y: 620 },
+    { x: 2880, y: 620 },
+    { x: 4380, y: 620 },
   ],
 
   goal: { x: 5300, y: 620 },

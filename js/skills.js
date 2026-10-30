@@ -148,8 +148,7 @@ class Skills {
       this.addSakura(S.stacksPerHit);
       this.scene.showDamage(ex, ey - 20, S.damage, '#d6336c');
       this.scene.spawnPetals(ex, ey, 5, 50);
-      this.scene.doHitStop(0.04);
-      this.scene.cameras.main.shake(70, 0.004);
+      this.scene.hitImpact();
     }
   }
 
@@ -192,10 +191,17 @@ class Skills {
     enemy.hurt(dir, I.parryDamage, I.parryKnockback);
 
     scene.showDamage(ex, ey - 20, I.parryDamage, '#d6336c');
+    this.parryFx((p.body.center.x + ex) / 2, ey);
+  }
+
+  // 패링 성공 연출 (검이든 수리검이든 공통)
+  parryFx(x, y) {
+    const p = this.player;
+    const scene = this.scene;
     scene.popText(p.body.center.x, p.body.top - 30, '패링!', '#d6336c');
     const ring = scene.add.rectangle(p.body.center.x, p.body.center.y, 50, 60).setStrokeStyle(4, 0xff7aa2).setDepth(12);
     scene.tweens.add({ targets: ring, scale: 2.2, alpha: 0, duration: 260, onComplete: () => ring.destroy() });
-    scene.spawnPetals((p.body.center.x + ex) / 2, ey, 8, 60);
+    scene.spawnPetals(x, y, 8, 60);
     scene.doHitStop(0.1);
     scene.cameras.main.shake(120, 0.006);
   }
@@ -241,7 +247,7 @@ class Skills {
     p.body.setVelocityX(f * I.lungeSpeed);
     p.scaleX = 1.5;
     p.scaleY = 0.7;
-    scene.doHitStop(hits ? 0.14 : 0.05);
+    scene.doHitStop(hits ? I.hitStop : 0.05);
     scene.cameras.main.shake(hits ? 220 : 120, hits ? 0.012 : 0.005);
   }
 

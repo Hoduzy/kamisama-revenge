@@ -35,20 +35,56 @@ window.TUNING = {
   airHitBounce: 260,     // 공중에서 적을 때리면 살짝 떠오름
   stompBounce: 560,
 
-  // 피격
-  maxHp: 5,
-  invulnTime: 1.0,
-  hurtLockTime: 0.2,
+  // 피격: 체력 1칸. 맞으면 즉시 죽고 마지막 벚꽃나무에서 부활
+  respawnInvuln: 1.0,    // 부활 직후 무적
+  interruptInvuln: 0.6,  // 발도가 끊겼을 때 무적 (연속 피격 방지)
+  hurtLockTime: 0.2,     // 발도가 끊겼을 때 조작 불가 시간
   hurtKnockX: 380,
   hurtKnockY: 420,
 
-  // 연출
-  hitStop: 0.06,
+  // 타격감: 적을 벨 때
+  hitStop: 0.05,
+  hitShake: { duration: 90, intensity: 0.005 },
 
-  // 적 체력
-  enemyHp: { walker: 4, hopper: 3 },
   attackDamage: 1,       // 기본 공격(J)
   stompDamage: 2,        // 밟기
+
+  // 벚꽃나무(체크포인트)
+  treeActivateRadius: 70,
+
+  // 근접 검사
+  swordsman: {
+    hp: 3,
+    patrolSpeed: 70,
+    chaseSpeed: 150,
+    aggroRange: 320,     // 이 거리 안에 들어오면 쫓아옴
+    attackRange: 72,     // 이 거리 안이면 공격 시작
+    windup: 0.4,         // 빨간 예고 표시 시간
+    activeTime: 0.1,     // 베기 판정 시간
+    recover: 0.45,       // 공격 후 빈틈
+    cooldown: 0.6,
+    reach: 78,           // 베기 판정 폭(몸 앞쪽부터)
+    height: 50,
+    lunge: 160,          // 벨 때 내딛는 속도
+  },
+
+  // 원거리 투척병
+  thrower: {
+    hp: 2,
+    range: 520,          // 이 거리 안이면 수리검을 던짐
+    windup: 0.3,
+    cooldown: 1.6,
+    retreatRange: 150,   // 이보다 가까우면 뒤로 물러남
+    retreatSpeed: 110,
+  },
+
+  shuriken: {
+    speed: 420,
+    life: 3,
+    radius: 7,
+    reflectSpeedMult: 1.4, // 패링으로 되돌려 보낼 때 속도 배율
+    reflectDamage: 2,
+  },
 
   // 벚꽃 스택
   sakuraMax: 5,
@@ -76,6 +112,7 @@ window.TUNING = {
     lungeSpeed: 650,     // 벨 때 앞으로 내딛는 속도
     parryDamage: 2,      // 패링당한 적이 받는 피해
     parryKnockback: 480,
+    hitStop: 0.12,       // 발도는 일반 베기보다 묵직하게
   },
 };
 

@@ -22,7 +22,6 @@ class Player {
     this.slash = scene.add.rectangle(0, 0, TUNING.attackRange, TUNING.attackHeight, 0x000000, 0.22)
       .setDepth(11).setVisible(false);
 
-    this.hp = TUNING.maxHp;
     this.facing = 1;
     this.scaleX = 1;
     this.scaleY = 1;
@@ -225,12 +224,10 @@ class Player {
     this.scene.spawnDust(this.body.center.x, this.body.bottom, 4);
   }
 
-  // nonLethal: 체력이 1 밑으로 내려가지 않음 (발도 준비 후반에 맞았을 때)
-  hurt(fromX, nonLethal = false) {
-    if (this.invuln > 0 || this.dead) return false;
+  // 발도 준비 후반에 맞았을 때: 죽지 않고 밀려나며 잠깐 조작 불가
+  stagger(fromX) {
     const T = TUNING;
-    this.hp = nonLethal ? Math.max(1, this.hp - 1) : this.hp - 1;
-    this.invuln = T.invulnTime;
+    this.invuln = T.interruptInvuln;
     this.hurtLock = T.hurtLockTime;
     this.endDash();
     this.isJumping = false;
@@ -238,7 +235,6 @@ class Player {
     this.body.setVelocity(away * T.hurtKnockX, -T.hurtKnockY);
     this.scaleX = 1.3;
     this.scaleY = 0.75;
-    return true;
   }
 
   respawn(x, y) {
@@ -249,7 +245,13 @@ class Player {
     this.isJumping = false;
     this.coyote = 0;
     this.jumpBuffer = 0;
-    this.invuln = TUNING.invulnTime;
+    this.attackTimer = 0;
+    this.hurtLock = 0;
+    this.body.setVelocity(0, 0);
+    this.facing = 1;
+    this.scaleX = 0.7;
+    this.scaleY = 1.35;
+    this.invuln = TUNING.respawnInvuln;
   }
 
   // 현재 공격 판정 사각형 (공격 중이 아니면 null)

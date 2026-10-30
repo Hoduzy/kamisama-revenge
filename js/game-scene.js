@@ -11,9 +11,9 @@ class GameScene extends Phaser.Scene {
 
     this.kills = 0;
     this.hitStopTimer = 0;
+    this.deaths = 0;
     this.cleared = false;
-    this.gameOver = false;
-    this.checkpoint = L.checkpoints[0];
+    this.shurikens = [];
 
     this.createTextures();
     this.createBackground();
@@ -39,6 +39,11 @@ class GameScene extends Phaser.Scene {
     this.add.rectangle(g.x, g.y - 70, 6, 140, 0x444444);
     this.add.rectangle(g.x + 22, g.y - 125, 40, 26, 0x444444);
     this.goalZone = new Phaser.Geom.Rectangle(g.x - 30, g.y - 160, 60, 160);
+
+    // 벚꽃나무 (첫 나무는 처음부터 만개)
+    this.trees = L.trees.map((t) => new CherryTree(this, t.x, t.y));
+    this.trees[0].bloom(false);
+    this.activeTree = this.trees[0];
 
     this.controls = new Controls(this);
     this.player = new Player(this, L.spawn.x, L.spawn.y);
@@ -66,7 +71,10 @@ class GameScene extends Phaser.Scene {
     this.createHud();
 
     this.input.keyboard.on('keydown-R', () => this.scene.restart());
-    const sync = () => this.player.syncVisual();
+    const sync = () => {
+      this.player.syncVisual();
+      for (const e of this.enemies) e.syncVisual();
+    };
     this.events.on('postupdate', sync);
     this.events.once('shutdown', () => {
       this.events.off('postupdate', sync);
@@ -75,8 +83,19 @@ class GameScene extends Phaser.Scene {
   }
 
   createTextures() {
-    if (this.textures.exists('petal')) return;
+    if (this.textures.exists('shuriken')) return;
     const g = this.make.graphics({ x: 0, y: 0 }, false);
+    // 수리검: 4갈래 별
+    const pts = [];
+    for (let i = 0; i < 8; i++) {
+      const a = (i * Math.PI) / 4;
+      const r = i % 2 === 0 ? 9 : 2.5;
+      pts.push(new Phaser.Math.Vector2(9 + Math.cos(a) * r, 9 + Math.sin(a) * r));
+    }
+    g.fillStyle(0x2b2b2b).fillPoints(pts, true);
+    g.fillStyle(0xeeebe4).fillCircle(9, 9, 1.5);
+    g.generateTexture('shuriken', 18, 18);
+    g.clear();
     // 흩날리는 꽃잎
     g.fillStyle(0xffffff).fillEllipse(6, 4, 12, 8);
     g.generateTexture('petal', 12, 8);
@@ -118,12 +137,10 @@ class GameScene extends Phaser.Scene {
   }
 
   createHud() {
-    this.hpPips = [];
-    for (let i = 0; i < TUNING.maxHp; i++) {
-      this.hpPips.push(this.add.rectangle(24 + i * 26, 24, 18, 18, COLORS.player)
-        .setOrigin(0, 0).setScrollFactor(0).setDepth(100));
-    }
     const style = { fontFamily: 'system-ui, -apple-system, sans-serif', fontSize: '20px', color: '#222' };
+    // 체력 1칸 + 사망 횟수
+    this.add.rectangle(24, 24, 18, 18, COLORS.player).setOrigin(0, 0).setScrollFactor(0).setDepth(100);
+    this.deathText = this.add.text(52, 22, '사망 0', style).setScrollFactor(0).setDepth(100);
     this.koText = this.add.text(GAME_WIDTH - 24, 22, 'KO 0', style).setOrigin(1, 0).setScrollFactor(0).setDepth(100);
     const hint = this.add.text(GAME_WIDTH / 2, 70,
       'A/D 이동 · Space 점프 · J 공격 · K 대시 · U 대쉬베기 · I 발도 · R 재시작',
@@ -196,7 +213,7 @@ class GameScene extends Phaser.Scene {
   }
 
   updateHud() {
-    this.hpPips.forEach((pip, i) => pip.setFillStyle(i < this.player.hp ? COLORS.player : 0xbbbbbb));
+    this.deathText.setText('사망 ' + this.deaths);
     this.koText.setText('KO ' + this.kills);
 
     const sk = this.player.skills;
@@ -232,7 +249,7 @@ class GameScene extends Phaser.Scene {
 
     this.controls.update();
 
-    if (this.cleared || this.gameOver) {
+    if (this.cleared) {
       const c = this.controls.state;
       if (this.canRestart && (c.jump.pressed || c.attack.pressed)) this.scene.restart();
       return;
@@ -241,25 +258,22 @@ class GameScene extends Phaser.Scene {
     const player = this.player;
     player.update(dt, this.controls);
     for (const e of this.enemies) e.update(dt, player);
+    for (const t of this.trees) t.update(dt);
 
     this.checkAttackHits();
     player.skills.checkSlashHits(this.enemies);
+    this.updateShurikens(dt);
 
-    // 체크포인트
-    for (const cp of LEVEL.checkpoints) {
-      if (player.body.center.x >= cp.x && cp.x > this.checkpoint.x) this.checkpoint = cp;
+    // 벚꽃나무 활성화
+    for (const t of this.trees) {
+      if (!t.active && t.isNear(player.body)) {
+        t.bloom();
+        this.activeTree = t;
+      }
     }
 
     // 낙사
-    if (player.body.top > LEVEL.height + 60) {
-      player.hp -= 1;
-      this.cameras.main.shake(150, 0.006);
-      if (player.hp <= 0) {
-        this.triggerGameOver();
-      } else {
-        player.respawn(this.checkpoint.x, this.checkpoint.y);
-      }
-    }
+    if (player.body.top > LEVEL.height + 60) this.killPlayer();
 
     // 골
     if (Phaser.Geom.Rectangle.Overlaps(this.goalZone, this.bodyRect(player.body))) this.triggerClear();
@@ -275,6 +289,12 @@ class GameScene extends Phaser.Scene {
     return new Phaser.Geom.Rectangle(body.x, body.y, body.width, body.height);
   }
 
+  // 적을 벨 때 공통 타격감: 짧은 히트스톱 + 화면 흔들림
+  hitImpact() {
+    this.doHitStop(TUNING.hitStop);
+    this.cameras.main.shake(TUNING.hitShake.duration, TUNING.hitShake.intensity);
+  }
+
   checkAttackHits() {
     const player = this.player;
     const rect = player.getAttackRect();
@@ -288,50 +308,164 @@ class GameScene extends Phaser.Scene {
       if (!player.grounded && player.body.velocity.y > -TUNING.airHitBounce) {
         player.body.setVelocityY(-TUNING.airHitBounce);
       }
-      this.doHitStop(TUNING.hitStop);
-      this.cameras.main.shake(80, 0.004);
+      this.hitImpact();
     }
   }
 
+  // 적의 공격이 플레이어에게 닿았을 때.
+  // 반환: 'ignored'(무적) / 'parried'(발도 패링) / 'interrupted'(발도 끊김) / 'killed'
+  hitPlayer(fromX) {
+    const player = this.player;
+    const skills = player.skills;
+    if (player.dead || this.cleared) return 'ignored';
+    if (skills.parrying) return 'parried';
+    if (player.invuln > 0 || skills.slashInvuln || player.dashing) return 'ignored';
+    if (skills.charging) {
+      // 발도 준비 후반: 스킬이 끊기고 쿨타임 시작. 죽지는 않음
+      skills.interruptIaido();
+      player.stagger(fromX);
+      this.popText(player.body.center.x, player.body.top - 30, '끊김', '#555');
+      this.cameras.main.shake(160, 0.008);
+      this.doHitStop(0.08);
+      return 'interrupted';
+    }
+    this.killPlayer();
+    return 'killed';
+  }
+
+  // 검사의 베기 판정. 맞혔으면(무시되지 않았으면) true
+  enemySwordHit(enemy, rect) {
+    if (!Phaser.Geom.Rectangle.Overlaps(rect, this.bodyRect(this.player.body))) return false;
+    const result = this.hitPlayer(enemy.body.center.x);
+    if (result === 'parried') this.player.skills.parry(enemy);
+    return result !== 'ignored';
+  }
+
+  killPlayer() {
+    const player = this.player;
+    const x = player.body.center.x;
+    const y = Math.min(player.body.center.y, LEVEL.height - 20);
+    this.deaths += 1;
+    this.spawnBurst(x, y, COLORS.player, 16);
+    this.cameras.main.shake(220, 0.01);
+    this.clearShurikens();
+
+    // 마지막으로 만개시킨 벚꽃나무에서 즉시 부활
+    const t = this.activeTree;
+    player.respawn(t.x + 24, t.y - 20);
+    this.cameras.main.centerOn(t.x + 24 + 90, t.y - 100);
+    this.lookAhead = -90;
+    this.spawnPetals(t.x, t.y - 60, 18, 80);
+  }
+
+  // ───────── 수리검 ─────────
+
+  spawnShuriken(enemy, player) {
+    const S = TUNING.shuriken;
+    const x = enemy.body.center.x + enemy.facing * 14;
+    const y = enemy.body.center.y - 6;
+    const angle = Math.atan2(player.body.center.y - y, player.body.center.x - x);
+    const img = this.add.image(x, y, 'shuriken').setDepth(14);
+    this.shurikens.push({
+      img, x, y, vx: Math.cos(angle) * S.speed, vy: Math.sin(angle) * S.speed,
+      life: S.life, owner: 'enemy', source: enemy,
+    });
+  }
+
+  updateShurikens(dt) {
+    const S = TUNING.shuriken;
+    const player = this.player;
+    const playerRect = this.bodyRect(player.body);
+    const attackRect = player.getAttackRect();
+
+    for (let i = this.shurikens.length - 1; i >= 0; i--) {
+      const s = this.shurikens[i];
+      s.life -= dt;
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      s.img.setPosition(s.x, s.y);
+      s.img.angle += 1100 * dt;
+
+      if (s.life <= 0 || this.isSolidAt(s.x, s.y)) {
+        this.removeShuriken(i, true);
+        continue;
+      }
+      const circle = new Phaser.Geom.Circle(s.x, s.y, S.radius);
+
+      if (s.owner === 'enemy') {
+        // 기본 공격으로 쳐낼 수 있다
+        if (attackRect && Phaser.Geom.Intersects.CircleToRectangle(circle, attackRect)) {
+          this.removeShuriken(i, true);
+          this.doHitStop(0.03);
+          continue;
+        }
+        if (!Phaser.Geom.Intersects.CircleToRectangle(circle, playerRect)) continue;
+        const result = this.hitPlayer(s.x);
+        if (result === 'parried') {
+          this.reflectShuriken(s);
+          player.skills.parryFx(s.x, s.y);
+        } else if (result === 'killed') {
+          break; // 사망 시 수리검은 모두 정리되었음
+        } else if (result !== 'ignored') {
+          this.removeShuriken(i, false);
+        }
+      } else {
+        // 패링으로 되돌아간 수리검은 적을 맞힌다
+        for (const e of this.enemies) {
+          if (e.dead || !Phaser.Geom.Intersects.CircleToRectangle(circle, this.bodyRect(e.body))) continue;
+          e.hurt(Math.sign(s.vx) || 1, S.reflectDamage);
+          this.showDamage(e.body.center.x, e.body.center.y - 20, S.reflectDamage, '#d6336c');
+          this.hitImpact();
+          this.removeShuriken(i, true);
+          break;
+        }
+      }
+    }
+  }
+
+  reflectShuriken(s) {
+    const S = TUNING.shuriken;
+    const speed = Math.hypot(s.vx, s.vy) * S.reflectSpeedMult;
+    if (s.source && !s.source.dead) {
+      const a = Math.atan2(s.source.body.center.y - s.y, s.source.body.center.x - s.x);
+      s.vx = Math.cos(a) * speed;
+      s.vy = Math.sin(a) * speed;
+    } else {
+      s.vx = -s.vx * S.reflectSpeedMult;
+      s.vy = -s.vy * S.reflectSpeedMult;
+    }
+    s.owner = 'player';
+    s.life = S.life;
+    s.img.setTint(0xff7aa2);
+  }
+
+  removeShuriken(i, withSpark) {
+    const s = this.shurikens[i];
+    if (withSpark) this.spawnBurst(s.x, s.y, 0x555555, 4);
+    s.img.destroy();
+    this.shurikens.splice(i, 1);
+  }
+
+  clearShurikens() {
+    for (let i = this.shurikens.length - 1; i >= 0; i--) this.removeShuriken(i, false);
+  }
+
+  // 수리검은 땅·벽에 박히고 얇은 발판은 통과한다
+  isSolidAt(x, y) {
+    if (y > LEVEL.height + 50 || x < -50 || x > LEVEL.width + 50) return true;
+    return LEVEL.ground.some((r) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h);
+  }
+
+  // 몸끼리 부딪히는 건 피해가 없다. 위에서 떨어지면 밟기만 판정
   onPlayerTouchEnemy(enemy) {
     const player = this.player;
-    if (!enemy || enemy.dead || player.dead) return;
+    if (!enemy || enemy.dead || player.dead || player.skills.busy) return;
     const pb = player.body;
     const eb = enemy.body;
-    const skills = player.skills;
-
-    if (skills.slashInvuln) return; // 대쉬베기 중(+직후 잠깐) 무적
-
-    if (skills.charging) {
-      // 발도 준비 전반: 패링. 공격한 적이 피해를 받음
-      if (skills.parrying) {
-        if (enemy.parryImmune <= 0) skills.parry(enemy);
-        return;
-      }
-      // 준비 후반: 맞으면 스킬이 끊기고 쿨타임 시작. 죽지는 않음
-      if (player.hurt(eb.center.x, true)) {
-        skills.interruptIaido();
-        this.popText(pb.center.x, pb.top - 30, '끊김', '#555');
-        this.cameras.main.shake(160, 0.008);
-        this.doHitStop(0.08);
-      }
-      return;
-    }
-
-    // 위에서 밟기
     if (pb.velocity.y > 0 && pb.bottom - eb.top < 18) {
       enemy.hurt(Math.sign(eb.center.x - pb.center.x) || player.facing, TUNING.stompDamage);
       player.bounce(TUNING.stompBounce);
-      this.doHitStop(TUNING.hitStop);
-      this.cameras.main.shake(80, 0.004);
-      return;
-    }
-
-    if (player.dashing) return; // 대시 중엔 몸통 무적
-    if (player.hurt(eb.center.x)) {
-      this.cameras.main.shake(160, 0.008);
-      this.doHitStop(0.08);
-      if (player.hp <= 0) this.triggerGameOver();
+      this.hitImpact();
     }
   }
 
@@ -348,18 +482,6 @@ class GameScene extends Phaser.Scene {
     this.cleared = true;
     this.physics.world.pause();
     this.banner.setText('CLEAR!\nKO ' + this.kills + '\n\n점프 / 공격으로 다시 시작');
-    this.banner.setFontSize(40);
-    this.allowRestartSoon();
-  }
-
-  triggerGameOver() {
-    this.gameOver = true;
-    this.player.dead = true;
-    this.player.hp = 0;
-    this.updateHud();
-    this.physics.world.pause();
-    this.cameras.main.shake(250, 0.01);
-    this.banner.setText('GAME OVER\n\n점프 / 공격으로 다시 시작');
     this.banner.setFontSize(40);
     this.allowRestartSoon();
   }
