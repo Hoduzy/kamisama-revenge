@@ -24,7 +24,6 @@ class Npc {
     this.visible = true;
     if (data.look === 'villager' && Sprites.has(scene, data.sheet)) {
       this.poses = { idle: `${data.sheet}_dance`, dance: `${data.sheet}_dance`, run: `${data.sheet}_flee`, flee: `${data.sheet}_flee` };
-      this.sheetFacing = 'right';
     } else if (NPC_POSES[data.look] && Sprites.has(scene, [].concat(NPC_POSES[data.look].idle)[0])) {
       this.poses = NPC_POSES[data.look];
     }
@@ -89,7 +88,9 @@ class Npc {
     const s = this.sprite;
     s.setPosition(Math.round(this.x), Math.round(this.y));
     // 그림이 바라보는 쪽(sheetFacing)과 다르면 뒤집는다
-    s.setFlipX(this.poses ? (this.facing < 0) === (this.sheetFacing === 'right') : this.facing < 0);
+    // 지금 보이는 시트가 그려진 방향(manifest 의 facing)과 가려는 방향이 다르면 뒤집는다
+    const drawn = this.poses ? ((Sprites.sheet(s.texture.key) || {}).facing || this.sheetFacing) : 'right';
+    s.setFlipX((this.facing < 0) === (drawn === 'right'));
     s.setVisible(this.visible);
     this.tag.el.style.display = this.visible && this.name && this.data.look !== 'villager' && this.pose !== 'down' ? '' : 'none';
   }

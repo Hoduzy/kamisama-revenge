@@ -198,8 +198,20 @@ class StoryPlayer {
   }
 
   async runList(cmds, sc) {
-    for (const c of cmds || []) {
+    const list = cmds || [];
+    for (let i = 0; i < list.length; i++) {
       if (this.stopped) return;
+      const c = list[i];
+      // 명전 바로 뒤에 CG 가 오면 검은 화면 아래에 CG 를 먼저 깔고 밝아진다 (게임 화면이 잠깐 비치지 않게)
+      if (c.cmd === 'fadeIn' && list[i + 1] && list[i + 1].cmd === 'cg' && !this.skipping) {
+        const g = list[++i];
+        this.dialogue.hide();
+        UI.cg(g.no, g.desc);
+        this.faded = false;
+        UI.fade(0, c.duration ?? 0.8);
+        await this.wait((c.duration ?? 0.8) * 1000 + 1800, true);
+        continue;
+      }
       await this.exec(c, sc);
     }
   }

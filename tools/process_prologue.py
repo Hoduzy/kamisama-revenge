@@ -56,18 +56,18 @@ SHEET_SCALE = {
     'hakuya_hurt': 0.65, 'hakuya_kneel': 0.65,
 }
 
-# 시트: 원본 이름 → (인물, 프레임 수, 바라보는 방향, 프레임 이름)
+# 시트: 원본 이름 → (인물, 프레임 수, 바라보는 방향, 프레임 이름). 새 그림은 모두 왼쪽을 보고 그려져 있다 (아카네만 오른쪽)
 SHEETS = {
     'haru_ref': ('haru', 4, 'left', ['front', 'side', 'back', 'three_quarter']),
-    'haru_idle': ('haru', 4, 'right', None),
-    'haru_attack': ('haru', 6, 'right', ['ready', 'raise', 'overhead', 'swing', 'thrust', 'recover']),
-    'haru_death': ('haru', 6, 'right', None),
-    'haru_reach': ('haru', 4, 'right', ['kneel', 'reach', 'glow', 'petals']),
+    'haru_idle': ('haru', 4, 'left', None),
+    'haru_attack': ('haru', 6, 'left', ['ready', 'raise', 'overhead', 'swing', 'thrust', 'recover']),
+    'haru_death': ('haru', 6, 'left', None),
+    'haru_reach': ('haru', 4, 'left', ['kneel', 'reach', 'glow', 'petals']),
     'soichiro_give': ('soichiro', 4, 'left', None),
-    'soichiro_forge': ('soichiro', 6, 'right', ['ready', 'raise', 'top', 'strike', 'spark', 'recover']),
-    'soichiro_guard': ('soichiro', 4, 'right', None),
-    'soichiro_attack': ('soichiro', 4, 'right', ['raise', 'swing', 'smash', 'recover']),
-    'soichiro_kneel': ('soichiro', 5, 'right', None),
+    'soichiro_forge': ('soichiro', 6, 'left', ['ready', 'raise', 'top', 'strike', 'spark', 'recover']),
+    'soichiro_guard': ('soichiro', 4, 'left', None),
+    'soichiro_attack': ('soichiro', 4, 'left', ['raise', 'swing', 'smash', 'recover']),
+    'soichiro_kneel': ('soichiro', 5, 'left', None),
     'hakuya_ref': ('hakuya', 4, 'left', ['front', 'side', 'back', 'three_quarter']),
     'hakuya_walk': ('hakuya', 6, 'left', None),
     'hakuya_barrier': ('hakuya', 4, 'left', None),
@@ -76,9 +76,9 @@ SHEETS = {
     'hakuya_thrust': ('hakuya', 5, 'left', None),
     'hakuya_hurt': ('hakuya', 4, 'left', None),
     'hakuya_kneel': ('hakuya', 6, 'left', None),
-    'villager_man': ('villager_man', 10, 'right', ['dance'] * 6 + ['flee'] * 4),
-    'villager_woman': ('villager_woman', 10, 'right', ['dance'] * 6 + ['flee'] * 4),
-    'villager_child': ('villager_child', 8, 'right', None),
+    'villager_man': ('villager_man', 10, 'left', ['dance'] * 6 + ['flee'] * 4),
+    'villager_woman': ('villager_woman', 10, 'left', ['dance'] * 6 + ['flee'] * 4),
+    'villager_child': ('villager_child', 8, 'left', None),
 }
 
 # 조각마다 따로 저장하는 시트. 반짝이·부스러기가 흩어져 있어 자동으로 못 나누므로 원본 좌표 상자를 손으로 정했다
@@ -106,6 +106,14 @@ GROUPS = {
     'fx_red_sun_grow': ['fx_red_sun_0', 'fx_red_sun_1', 'fx_red_sun_2', 'fx_red_sun_3', 'fx_red_sun_4'],
     'fx_barrier': ['fx_barrier_0', 'fx_barrier_1', 'fx_barrier_2', 'fx_barrier_3'],
     'fx_barrier_break': ['fx_barrier_break_0', 'fx_barrier_break_1', 'fx_barrier_break_2', 'fx_barrier_break_3'],
+}
+
+# 대화창 초상화 시트: 원본 → 프레임 이름 (data/story/characters.json 의 표정이 이 칸을 가리킨다)
+PORTRAIT_SHEETS = {
+    'portraits_village': ['girl_happy', 'girl_cry', 'man_laugh', 'man_shock'],
+    'portraits_soichiro': ['smile', 'worried', 'wounded'],
+    'portraits_haru': ['smile', 'scared', 'crying'],
+    'portraits_hakuya': ['smile', 'laugh', 'angry'],
 }
 
 # 마을 사람 옷 색 변형: (색상 회전 °, 채도 배율, 밝기 배율)
@@ -139,6 +147,25 @@ def remove_outer_white(a, min_size=500):
 def load(name):
     a = np.array(Image.open(SRC / f'{name}.png').convert('RGBA'))
     return a, remove_outer_white(a)
+
+
+def load_portrait(name):
+    """초상화: 투명 배경이면 load 와 같고, 흰 배경(RGB)이면 테두리에서 흰색을 걷어 낸 뒤
+    후광 안쪽처럼 흰 배경이 갇힌 곳(배경색과 거의 같은 넓은 덩어리 + 그 둘레의 밝은 잡티)도 지운다"""
+    from scipy import ndimage
+    img = Image.open(SRC / f'{name}.png')
+    if img.mode == 'RGBA' and np.array(img)[..., 3].min() < 16:
+        return load(name)
+    raw = np.array(img.convert('RGBA')).astype(int)
+    a, removed = ps.remove_background(img)
+    d = np.abs(a[..., :3].astype(int) - raw[3, 3, :3]).max(2)
+    c = (a[..., 3] > 0) & (d <= 16)
+    lab, n = ndimage.label(c)
+    sizes = ndimage.sum(c, lab, range(1, n + 1))
+    m = np.isin(lab, [i + 1 for i, z in enumerate(sizes) if z >= 150])
+    m |= ndimage.binary_dilation(m, iterations=3) & (a[..., 3] > 0) & (d <= 40)
+    a[m] = 0
+    return a, removed + int(m.sum())
 
 
 def split_frames(a, count):
@@ -313,15 +340,18 @@ def main():
                 (OUT / f'{n}.png').unlink(missing_ok=True)
         report.append((src, f"조각 {len(p['boxes'])}개", f'도트 {dot:.2f}', '', f'흰 배경 {removed}px' if removed else ''))
 
-    # 5. 마을 사람 초상화 (아카네 초상화와 같은 높이 108)
-    a, _ = load('portraits_village')
-    parts = split_frames(a, 4)
+    # 5. 대화창 초상화 (아카네 초상화와 같은 높이 108)
     target = sheets['portraits']['frameHeight'] - 1
-    dot = max(p.shape[0] for p in parts) / target
-    frames = [shrink(p, dot) for p in parts]
-    e = ps.save_sheet('portraits_village', frames, dict(anchor='bbox', pad=1, labels=['girl_happy', 'girl_cry', 'man_laugh', 'man_shock']), dot, OUT, 'portraits_village.png')
-    sheets['portraits_village'] = e
-    report.append(('portraits_village', '4프레임', f"{e['frameWidth']}×{e['frameHeight']}", '', ''))
+    for name, labels in PORTRAIT_SHEETS.items():
+        if not (SRC / f'{name}.png').exists():
+            continue
+        a, removed = load_portrait(name)
+        parts = split_frames(a, len(labels))
+        dot = max(p.shape[0] for p in parts) / target
+        frames = [shrink(p, dot) for p in parts]
+        e = ps.save_sheet(name, frames, dict(anchor='bbox', pad=1, labels=labels), dot, OUT, f'{name}.png')
+        sheets[name] = e
+        report.append((name, f'{len(labels)}프레임', f"{e['frameWidth']}×{e['frameHeight']}", ', '.join(labels), f'흰 배경 {removed}px' if removed else ''))
 
     man_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     ps.write_preview(manifest, OUT, src_rel='../raw/')

@@ -320,8 +320,9 @@
       },
       "commands": [
         {
-          "cmd": "note",
-          "text": "검은 화면."
+          "cmd": "fadeOut",
+          "duration": 0,
+          "src": "검은 화면."
         },
         {
           "cmd": "note",

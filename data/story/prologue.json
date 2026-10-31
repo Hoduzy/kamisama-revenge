@@ -12,8 +12,9 @@
       },
       "commands": [
         {
-          "cmd": "note",
-          "text": "완전한 검은 화면."
+          "cmd": "fadeOut",
+          "duration": 0,
+          "src": "완전한 검은 화면."
         },
         {
           "cmd": "sfx",
@@ -526,7 +527,7 @@
         {
           "cmd": "say",
           "speaker": "soichiro",
-          "face": "angry",
+          "face": "wounded",
           "text": "왜 왔어! 뒷산으로 가라고 했잖아!",
           "side": "right"
         },
@@ -547,7 +548,7 @@
         {
           "cmd": "say",
           "speaker": "soichiro",
-          "face": "sad",
+          "face": "wounded",
           "text": "…많이 컸구나. 그 칼, 잘 맞네.",
           "side": "right"
         },
@@ -565,7 +566,7 @@
         {
           "cmd": "say",
           "speaker": "soichiro",
-          "face": "sad",
+          "face": "wounded",
           "text": "엄마한테 가. 엄마는… 너를 지키려고 저기 있는 거다. 가.",
           "side": "right"
         },
@@ -579,7 +580,7 @@
         {
           "cmd": "say",
           "speaker": "soichiro",
-          "face": "smile",
+          "face": "wounded",
           "text": "이름. 꼭 지어라.",
           "side": "right"
         },
@@ -645,7 +646,7 @@
         {
           "cmd": "say",
           "speaker": "hakuya",
-          "face": "smile",
+          "face": "laugh",
           "text": "오랜만이야, 누나. 여전히 꽃을 잘 피우네.",
           "side": "left"
         },
@@ -666,7 +667,7 @@
         {
           "cmd": "say",
           "speaker": "hakuya",
-          "face": "smile",
+          "face": "laugh",
           "text": "그 아이는 어디 있어?",
           "side": "left"
         },
@@ -697,7 +698,7 @@
         {
           "cmd": "say",
           "speaker": "hakuya",
-          "face": "smile",
+          "face": "laugh",
           "text": "아, 거기 있었구나.",
           "side": "left"
         },

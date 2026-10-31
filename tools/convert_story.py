@@ -66,6 +66,13 @@ for _id, st in (('village_child', 'bun'), ('villager', 'topknot'), ('village_gra
     PORTRAITS[_id] = {'color': '#e8e0d0', 'portrait': P(st, hair='#4a3a30', eyes='#1a1a1a', skin='#e6c8aa', clothes='#5a5048', bg='#2a2622')}
 # 마을 사람 도트 초상화 (portraits_village: 0 아이 웃음, 1 아이 울음, 2 남자 웃음, 3 남자 놀람)
 PORTRAITS['village_child']['sprite'] = {'key': 'portraits_village', 'faces': {'neutral': 0, 'smile': 0, 'surprised': 0, 'sad': 1, 'scared': 1, 'angry': 1, 'serious': 0}}
+# 가족·하쿠야 도트 초상화 (tools/process_prologue.py). 표정 → 칸
+PORTRAITS['haru']['sprite'] = {'key': 'portraits_haru', 'faces': {
+    'neutral': 0, 'smile': 0, 'serious': 0, 'surprised': 1, 'scared': 1, 'angry': 1, 'sad': 2, 'crying': 2}}
+PORTRAITS['soichiro']['sprite'] = {'key': 'portraits_soichiro', 'faces': {
+    'neutral': 0, 'smile': 0, 'serious': 1, 'sad': 1, 'surprised': 1, 'scared': 1, 'angry': 2, 'wounded': 2}}
+PORTRAITS['hakuya']['sprite'] = {'key': 'portraits_hakuya', 'faces': {
+    'neutral': 0, 'smile': 0, 'serious': 0, 'sad': 0, 'laugh': 1, 'surprised': 2, 'angry': 2}}
 PORTRAITS['villager']['sprite'] = {'key': 'portraits_village', 'faces': {'neutral': 2, 'smile': 2, 'surprised': 3, 'sad': 3, 'scared': 3, 'angry': 3, 'serious': 3}}
 
 CHAPTERS = [  # (파일 이름, 대본의 장 제목 머리말 시작)
@@ -89,6 +96,9 @@ GAMEPLAY_WORDS = ('성공 시', '때마다', '반복', '튜토리얼', '안내',
 
 # 규칙으로 뽑기 어려운 문장은 원문 그대로 짝지어 둔다 (원문 문장 → 명령 목록)
 OVERRIDES = {
+    # 검은 화면에서 시작하는 장면: 바로 암전 (자막이 게임 화면 위가 아니라 검은 바탕에 나오게)
+    '완전한 검은 화면.': [{'cmd': 'fadeOut', 'duration': 0}],
+    '검은 화면.': [{'cmd': 'fadeOut', 'duration': 0}],
     '검은 칼집의 칼을 건넨다.': [{'cmd': 'note', 'text': '검은 칼집의 칼을 건넨다.'}],
     '아이템 획득 연출 (칼이 화면 가운데서 빛남).': [{'cmd': 'giveItem', 'name': '아카네의 칼 (이름 없음)'}],
     '타이틀 로고가 붓으로 써지며 등장.': [{'cmd': 'titleCard', 'text': '카미사마 복수극', 'style': 'logo'}],
@@ -192,6 +202,29 @@ GAMEPLAY = {
         '꽃잎이 아카네를 싣고 하늘로 날아간다.': [G('carryAway')],
     },
 }
+
+
+# 장면마다 표정을 고정: (장면, 화자) → 표정. 대장간 앞(S0-6) 소이치로는 다친 얼굴, 불타는 광장(S0-7) 하쿠야의 미소는 비웃음
+FACE_OVERRIDES = {('S0-6', 'soichiro'): 'wounded', ('S0-7', 'hakuya', 'smile'): 'laugh'}
+
+
+def apply_face_overrides(chapters):
+    def walk(cmds, sid):
+        for c in cmds or []:
+            if c.get('cmd') in ('say', 'think'):
+                k3 = (sid, c.get('speaker'), c.get('face'))
+                k2 = (sid, c.get('speaker'))
+                if k3 in FACE_OVERRIDES:
+                    c['face'] = FACE_OVERRIDES[k3]
+                elif k2 in FACE_OVERRIDES:
+                    c['face'] = FACE_OVERRIDES[k2]
+            for k in ('then', 'else', 'commands'):
+                walk(c.get(k), sid)
+            for o in c.get('options', []) + c.get('cases', []):
+                walk(o.get('commands'), sid)
+    for ch in chapters.values():
+        for sc in ch['scenes']:
+            walk(sc['commands'], sc['id'])
 
 
 def apply_gameplay(chapters):
@@ -796,6 +829,7 @@ def main():
     conv = Converter(lines)
     chapters, memories = conv.run()
     apply_gameplay(chapters)
+    apply_face_overrides(chapters)
     OUT.mkdir(parents=True, exist_ok=True)
     meta = {'source': src.name, 'faces': FACES, 'voiceStyles': VOICE_STYLE}
     for name, ch in chapters.items():

@@ -27,6 +27,19 @@
       "skin": "#f2dccb",
       "clothes": "#7a2a3e",
       "bg": "#33262c"
+    },
+    "sprite": {
+      "key": "portraits_haru",
+      "faces": {
+        "neutral": 0,
+        "smile": 0,
+        "serious": 0,
+        "surprised": 1,
+        "scared": 1,
+        "angry": 1,
+        "sad": 2,
+        "crying": 2
+      }
     }
   },
   "soichiro": {
@@ -40,6 +53,19 @@
       "skin": "#e2c2a2",
       "clothes": "#3d4a5c",
       "bg": "#2a2a30"
+    },
+    "sprite": {
+      "key": "portraits_soichiro",
+      "faces": {
+        "neutral": 0,
+        "smile": 0,
+        "serious": 1,
+        "sad": 1,
+        "surprised": 1,
+        "scared": 1,
+        "angry": 2,
+        "wounded": 2
+      }
     }
   },
   "tanukichi": {
@@ -65,6 +91,18 @@
       "skin": "#fafafa",
       "clothes": "#e8e2d0",
       "bg": "#2a2410"
+    },
+    "sprite": {
+      "key": "portraits_hakuya",
+      "faces": {
+        "neutral": 0,
+        "smile": 0,
+        "serious": 0,
+        "sad": 0,
+        "laugh": 1,
+        "surprised": 2,
+        "angry": 2
+      }
     }
   },
   "hakuya_young": {
