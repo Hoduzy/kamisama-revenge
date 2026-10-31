@@ -277,6 +277,19 @@ class Enemy {
     this.scene.onEnemyKilled(this, withEffect);
   }
 
+  // 보스(하쿠야) 시트 한 번 재생. hold: 끝난 그림을 유지 (아니면 기본 그림으로)
+  playAnim(key, hold = false) {
+    const s = this.sprite;
+    if (!s || !this.scene.anims.exists(key)) return;
+    this.animLock = true;
+    s.play(key);
+    s.once('animationcomplete', () => {
+      if (hold) return;
+      this.animLock = false;
+      s.setTexture(this.sheet, 0);
+    });
+  }
+
   // 물리 스텝 이후: 피격 깜빡임, 예고 표시 위치
   syncVisual(dt = 0) {
     if (this.dead) return;
@@ -293,7 +306,9 @@ class Enemy {
         : Math.abs(b.velocity.x) > 30 ? 'run' : 'idle';
       if (pose !== n.pose) n.setPose(pose);
       else n.sync();
-      n.sprite.setTint(this.flash > 0 ? 0xffffff : winding && Math.floor(this.stateTimer * 10) % 2 ? 0xff9090 : 0xffc4d4);
+      if (this.flash > 0) n.sprite.setTint(0xffffff);
+      else if (winding && Math.floor(this.stateTimer * 10) % 2) n.sprite.setTint(0xff9090); // 베기 예고: 붉게 깜빡임
+      else n.sprite.clearTint();
     } else if (this.type === 'trainer') {
       // 그림 없음
     } else if (this.sprite) {
@@ -303,6 +318,12 @@ class Enemy {
       if (this.type === 'swordsman') frame = winding ? 1 : (this.state === 'attack' || this.state === 'recover') ? 2 : 0;
       else if (this.type === 'thrower') frame = this.throwPose > 0 ? 1 : 0;
       if (this.type !== 'boss' && this.type !== 'dummy') s.setFrame(frame);
+      // 보스: 움직이면 걷기(하쿠야 걷기 시트가 있으면), 멈추면 기본 그림
+      if (this.type === 'boss' && !this.animLock && this.scene.anims.exists('hakuya_walk')) {
+        const walking = Math.abs(b.velocity.x) > 25;
+        if (walking && s.anims.currentAnim?.key !== 'hakuya_walk') s.play('hakuya_walk');
+        else if (!walking && s.texture.key !== this.sheet) s.setTexture(this.sheet, 0);
+      }
       if (this.flash > 0) s.setTintFill(0xffffff);
       else if (winding && Math.floor(this.stateTimer * 16) % 2) s.setTint(0xff8080); // 공격 직전 붉게 깜빡임
       else s.clearTint();

@@ -111,7 +111,7 @@ window.TUNING = {
   // 보스: 근접 검사 AI + 부채꼴 수리검. 맞아도 공격이 끊기지 않음(슈퍼아머)
   boss: {
     hp: 24,
-    body: { width: 60, height: 140 },  // 그림 키 190 중 목 아래 몸통 (후광·흰 머리·큰 칼 제외)
+    body: { width: 36, height: 76 },   // 그림(하쿠야) 키 95 중 목 아래 몸통 (후광·흰 머리·큰 칼 제외)
     patrolSpeed: 0,
     chaseSpeed: 170,
     aggroRange: 1400,
@@ -180,6 +180,9 @@ window.TUNING = {
     hitStop: 0.12,       // 발도는 일반 베기보다 묵직하게
   },
 };
+
+// 게임 제목 (타이틀 로고에 붓글씨로 써 넣는다. 정해지면 여기만 바꾸면 된다)
+window.GAME_TITLE = '카미사마';
 
 window.GAME_WIDTH = 960;
 window.GAME_HEIGHT = 540;

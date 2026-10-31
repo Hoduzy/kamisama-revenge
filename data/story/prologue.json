@@ -59,6 +59,95 @@
       ]
     },
     {
+      "id": "S0-3",
+      "place": "대장간",
+      "trigger": {
+        "raw": "장 시작 (S0-1 바로 다음, 연습장 S0-2 앞)",
+        "type": "chapterStart",
+        "note": "S0-1 바로 다음, 연습장 S0-2 앞"
+      },
+      "commands": [
+        {
+          "cmd": "sfx",
+          "name": "쇠 두드리는 소리",
+          "src": "쇠 두드리는 소리."
+        },
+        {
+          "cmd": "gameplay",
+          "do": "npcPose",
+          "who": "soichiro",
+          "pose": "forge",
+          "text": "불꽃이 튄다."
+        },
+        {
+          "cmd": "sfx",
+          "name": "담금질 (치익)",
+          "src": "소이치로가 칼날을 물에 담그자 치익 소리와 하얀 김."
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "딱 맞춰 왔구나. 이거 들어 봐.",
+          "side": "right"
+        },
+        {
+          "cmd": "gameplay",
+          "do": "npcPose",
+          "who": "soichiro",
+          "pose": "give",
+          "text": "검은 칼집의 칼을 건넨다."
+        },
+        {
+          "cmd": "giveItem",
+          "name": "아카네의 칼 (이름 없음)",
+          "src": "아이템 획득 연출 (칼이 화면 가운데서 빛남)."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…이거, 내 거야?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "neutral",
+          "text": "열일곱 살 생일 선물. 엄마가 쓰던 것보다 조금 가볍게 했다. 네 손은 엄마보다 작으니까.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "이름은?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "이 칼 이름은 네가 지어. 다 자란 다음에.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…나 다 자랐는데.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "이름 짓는 걸 미루는 동안은 아직 아니라는 거다. 자, 축제 가자. 엄마가 기다려.",
+          "side": "right"
+        }
+      ]
+    },
+    {
       "id": "S0-2",
       "place": "마을 연습장",
       "trigger": {
@@ -170,7 +259,10 @@
           "side": "right"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcPose",
+          "who": "haru",
+          "pose": "guard",
           "text": "하루가 목검을 허리에 대고 자세를 낮춘다."
         },
         {
@@ -225,88 +317,6 @@
           "speaker": "haru",
           "face": "smile",
           "text": "백한 번째에는 알아듣겠지.",
-          "side": "right"
-        }
-      ]
-    },
-    {
-      "id": "S0-3",
-      "place": "대장간",
-      "trigger": {
-        "raw": "위치 도달",
-        "type": "reach"
-      },
-      "commands": [
-        {
-          "cmd": "sfx",
-          "name": "쇠 두드리는 소리",
-          "src": "쇠 두드리는 소리."
-        },
-        {
-          "cmd": "note",
-          "text": "불꽃이 튄다."
-        },
-        {
-          "cmd": "sfx",
-          "name": "담금질 (치익)",
-          "src": "소이치로가 칼날을 물에 담그자 치익 소리와 하얀 김."
-        },
-        {
-          "cmd": "say",
-          "speaker": "soichiro",
-          "face": "smile",
-          "text": "딱 맞춰 왔구나. 이거 들어 봐.",
-          "side": "right"
-        },
-        {
-          "cmd": "note",
-          "text": "검은 칼집의 칼을 건넨다."
-        },
-        {
-          "cmd": "giveItem",
-          "name": "아카네의 칼 (이름 없음)",
-          "src": "아이템 획득 연출 (칼이 화면 가운데서 빛남)."
-        },
-        {
-          "cmd": "say",
-          "speaker": "akane",
-          "face": "surprised",
-          "text": "…이거, 내 거야?",
-          "side": "left"
-        },
-        {
-          "cmd": "say",
-          "speaker": "soichiro",
-          "face": "neutral",
-          "text": "열일곱 살 생일 선물. 엄마가 쓰던 것보다 조금 가볍게 했다. 네 손은 엄마보다 작으니까.",
-          "side": "right"
-        },
-        {
-          "cmd": "say",
-          "speaker": "akane",
-          "face": "neutral",
-          "text": "이름은?",
-          "side": "left"
-        },
-        {
-          "cmd": "say",
-          "speaker": "soichiro",
-          "face": "smile",
-          "text": "이 칼 이름은 네가 지어. 다 자란 다음에.",
-          "side": "right"
-        },
-        {
-          "cmd": "say",
-          "speaker": "akane",
-          "face": "neutral",
-          "text": "…나 다 자랐는데.",
-          "side": "left"
-        },
-        {
-          "cmd": "say",
-          "speaker": "soichiro",
-          "face": "smile",
-          "text": "이름 짓는 걸 미루는 동안은 아직 아니라는 거다. 자, 축제 가자. 엄마가 기다려.",
           "side": "right"
         }
       ]
@@ -495,12 +505,22 @@
         },
         {
           "cmd": "gameplay",
+          "do": "npcPose",
+          "who": "soichiro",
+          "pose": "attack",
+          "text": "소이치로가 망치 하나로 신도 셋을 막고 있다."
+        },
+        {
+          "cmd": "gameplay",
           "do": "spawn",
           "group": "smithy",
           "text": "소이치로가 망치 하나로 신도 셋을 막고 있다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcPose",
+          "who": "soichiro",
+          "pose": "guard",
           "text": "어깨에 화살이 꽂혀 있다."
         },
         {
@@ -754,7 +774,10 @@
           "side": "left"
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "npcPose",
+          "who": "haru",
+          "pose": "reach",
           "text": "하루가 마지막 힘으로 손을 뻗는다."
         },
         {
@@ -793,7 +816,10 @@
           "text": "꽃잎이 아카네를 싣고 하늘로 날아간다."
         },
         {
-          "cmd": "note",
+          "cmd": "gameplay",
+          "do": "bossAnim",
+          "anim": "hakuya_hurt",
+          "hold": true,
           "text": "하쿠야가 손을 뻗지만 꽃잎이 그의 손을 벤다."
         },
         {

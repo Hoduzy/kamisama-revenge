@@ -275,6 +275,18 @@
       "skin": "#e6c8aa",
       "clothes": "#5a5048",
       "bg": "#2a2622"
+    },
+    "sprite": {
+      "key": "portraits_village",
+      "faces": {
+        "neutral": 0,
+        "smile": 0,
+        "surprised": 0,
+        "sad": 1,
+        "scared": 1,
+        "angry": 1,
+        "serious": 0
+      }
     }
   },
   "villager": {
@@ -288,6 +300,18 @@
       "skin": "#e6c8aa",
       "clothes": "#5a5048",
       "bg": "#2a2622"
+    },
+    "sprite": {
+      "key": "portraits_village",
+      "faces": {
+        "neutral": 2,
+        "smile": 2,
+        "surprised": 3,
+        "sad": 3,
+        "scared": 3,
+        "angry": 3,
+        "serious": 3
+      }
     }
   },
   "village_grandma": {

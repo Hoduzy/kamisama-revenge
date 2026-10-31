@@ -144,6 +144,21 @@
   - 불타는 광장 4400~6300 (그림 왼쪽의 불타는 대장간이 대장간 앞 S0-6 자리)
 - 축제 광장과 불타는 광장은 같은 곳이라, 두 그림의 큰 벚나무 줄기(그림 가로 62%)를 각 광장의 나무 자리(2760, 5680)에 똑같이 맞췄다. 배율·패럴랙스도 같다. 광장 나무는 배경 속 나무를 쓰고, 꽃 피는 효과만 그 자리에 낸다.
 
+### 프롤로그 인물·마을 사람·소품 (`python3 tools/process_prologue.py`)
+
+- **크기**: 머리 높이를 아카네(player_idle)와 맞춘다. 하루 ×1.05, 소이치로 ×1.15, 하쿠야 ×1.2, 마을 남자·여자 ×1.0, 아이 ×0.9.
+  - 머리 높이는 확대한 그림에 눈금을 대고 손으로 쟀다(`CHARACTERS`). 하루·하쿠야의 크림색 옷이 피부로 잡혀서 자동으로는 틀렸다.
+  - 같은 인물의 다른 시트는 머리 띠를 본으로 크기를 맞춰 보고(OpenCV), 점수가 낮은 시트는 같은 캔버스의 서 있는 키를 견주어 손으로 정했다(`SHEET_SCALE`).
+- **배경**: 투명으로 왔지만, 바깥과 이어진 큰 흰 덩어리가 남아 있으면 그것만 지운다. 이번 그림들에는 없었다.
+- **boss 시트**: 하쿠야 기준 그림 정면으로 바꿨다. 판정은 `config.js`의 `boss.body` 36×76.
+- **마을 남자·여자**: 옷 색만 바꾼 변형 `_v1`~`_v3`가 있다. 피부·머리는 그대로다.
+  - 축제에서 춤추다가 불화살이 떨어지면 양쪽으로 도망친다.
+  - 불타는 골목에서는 신도가 들이닥치면 도망친다.
+- **소품·이펙트 시트**: 조각마다 나눈다(원본 좌표 상자는 손으로 정함). 금빛 막·빛은 반투명을 살린다.
+- **타이틀**: 로고 문양(`logo_emblem`) 위에 Nanum Brush Script로 `GAME_TITLE`(config.js, 지금은 「카미사마」)을 붓글씨처럼 쓴다.
+- **대본 순서**: S0-3 대장간(칼 선물)이 S0-2 연습장 앞으로 왔다. 맵도 대장간 0~700 → 연습장 700~2330 순서다.
+- 확인: `assets/sprites/preview.html` (프롤로그 인물 줄 세우기, 마을 사람 색 변형 포함)
+
 ## UI (에도풍)
 
 - 원본 `assets/raw/ui_*.png` → `python3 tools/process_ui.py` → `assets/ui/*.png` + `assets/ui/ui.json`.
@@ -188,6 +203,7 @@
 - `js/sprites.js` — 스프라이트 애니메이션·이펙트 도우미
 - `tools/process_sprites.py` — 원본 도트 이미지 전처리
 - `tools/process_ui.py` / `tools/ui_slices.json` — UI 그림 전처리, 9-slice 값
+- `tools/process_prologue.py` — 프롤로그 인물·마을 사람·소품·이펙트 전처리 (scipy, opencv-python-headless 필요)
 - `js/player.js` / `js/enemy.js` — 주인공, 적
 - `js/level.js` — 맵(`LEVELS.town`, `LEVELS.prologue`), 스토리 트리거 ↔ 장면 id 표(`STORY_MAP`)
 - `js/game-scene.js` — 충돌, 전투, 카메라, HUD

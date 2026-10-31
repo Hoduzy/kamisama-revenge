@@ -281,7 +281,20 @@ body.in-dialogue #ui .hud-skills, body.in-dialogue #ui .ctx-hints { opacity: 0; 
 #ui .fx-title::before, #ui .fx-title::after { content: ''; display: block; width: 240px; height: 1px; margin: 14px auto; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 #ui .fx-title.show { opacity: 1; }
 #ui .fx-title.red { color: #e43b3b; }
-#ui .fx-title.logo { font-size: 60px; letter-spacing: 0.2em; }
+/* 게임 타이틀: 로고 문양 위에 붓글씨 제목 */
+#ui .fx-title.logo { top: 50%; font-size: 0; letter-spacing: 0; }
+#ui .fx-title.logo::before, #ui .fx-title.logo::after { display: none; }
+.fx-title .logo-emblem {
+  display: block; margin: 0 auto; height: 360px; image-rendering: pixelated; opacity: 0;
+  filter: drop-shadow(0 0 18px rgba(0, 0, 0, 0.8)); animation: logo-emblem-in 1.4s ease-out forwards;
+}
+@keyframes logo-emblem-in { from { opacity: 0; transform: scale(0.92); } to { opacity: 0.92; transform: none; } }
+.fx-title .logo-text {
+  position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%);
+  font-family: 'Nanum Brush Script', var(--font-title); font-size: 118px; line-height: 1; letter-spacing: 0.04em;
+  color: #f7efe2; text-shadow: 0 0 3px #1a0a0e, 4px 5px 0 #8e1b24, 0 0 26px rgba(0, 0, 0, 0.9);
+}
+.fx-title .logo-text span { animation-duration: 0.7s; }
 
 #ui .fx-bossname {
   left: 0; right: 0; top: 38%; text-align: center; z-index: 30;

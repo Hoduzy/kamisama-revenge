@@ -1,5 +1,15 @@
 // 이야기 속 인물(NPC): 그림만 있고 판정은 없다. 대본의 gameplay 명령(js/gameplay.js)이 움직인다.
-// look: 'haru' = 주인공 그림을 분홍빛으로 물들여 씀(하루는 아카네의 엄마) / 'silhouette' = 검은 실루엣 + 이름표
+// look: 'haru' / 'soichiro' = 프롤로그 인물 시트 (tools/process_prologue.py)
+//       'villager' = 마을 사람 시트(data.sheet, 색 변형 _v1~_v3 포함). 춤(dance) · 도망(flee)
+//       'silhouette' = 그림이 없을 때 검은 실루엣 + 이름표
+// 자세(pose) → 애니메이션(또는 [시트, 칸]). run 이 없으면 idle 을 재생한 채로 미끄러진다
+const NPC_POSES = {
+  haru: { idle: 'haru_idle', run: 'haru_idle', guard: ['haru_attack', 0], slash: ['haru_attack', 3],
+    attack: 'haru_attack', down: 'haru_death', reach: 'haru_reach' },
+  soichiro: { idle: ['soichiro_give', 0], run: ['soichiro_give', 0], forge: 'soichiro_forge', give: 'soichiro_give',
+    guard: 'soichiro_guard', attack: 'soichiro_attack', kneel: 'soichiro_kneel', down: 'soichiro_kneel' },
+};
+
 class Npc {
   constructor(scene, data) {
     this.scene = scene;
@@ -12,21 +22,40 @@ class Npc {
     this.facing = data.face || 1;
     this.pose = 'idle';
     this.visible = true;
-    this.useSprite = data.look === 'haru' && Sprites.has(scene, 'player_idle');
-    if (this.useSprite) {
-      // 주인공 그림은 오른쪽을 보고 있다
-      this.sprite = scene.add.sprite(this.x, this.y, 'player_idle', 0).setOrigin(0.5, 1).setDepth(8)
-        .setTint(0xffc4d4).setScale(1.12);
-      this.sprite.play('player_idle');
-      // 아카네와 구분되게 분홍 윤곽 빛 (WebGL 일 때)
-      if (this.sprite.preFX) this.sprite.preFX.addGlow(0xff9eb8, 2, 0, false, 0.1, 8);
+    if (data.look === 'villager' && Sprites.has(scene, data.sheet)) {
+      this.poses = { idle: `${data.sheet}_dance`, dance: `${data.sheet}_dance`, run: `${data.sheet}_flee`, flee: `${data.sheet}_flee` };
+      this.sheetFacing = 'right';
+    } else if (NPC_POSES[data.look] && Sprites.has(scene, [].concat(NPC_POSES[data.look].idle)[0])) {
+      this.poses = NPC_POSES[data.look];
+    }
+    if (this.poses) {
+      const first = this.poses.idle;
+      const key = Array.isArray(first) ? first[0] : first;
+      const tex = scene.anims.exists(key) ? scene.anims.get(key).frames[0].textureKey : key;
+      this.sheetFacing = (Sprites.sheet(tex) || {}).facing || 'right';
+      this.sprite = scene.add.sprite(this.x, this.y, tex, 0).setOrigin(0.5, 1).setDepth(8);
+      // 축제 사람들은 같은 춤을 같은 박자로 추지 않게 시작 칸을 흩뜨린다
+      this.applyPose('idle', true);
     } else {
       const key = Npc.silhouetteTexture(scene, data);
       this.sprite = scene.add.image(this.x, this.y, key).setOrigin(0.5, 1).setDepth(8);
     }
-    // 이름표 (HTML 글자, 머리 위를 따라다님)
-    this.tag = UI.tag(() => [this.x, this.y - this.sprite.displayHeight - 8], this.name);
+    // 이름표 (HTML 글자, 머리 위를 따라다님). 마을 사람은 이름표 없음
+    this.tag = UI.tag(() => [this.x, this.y - this.sprite.displayHeight - 8], data.look === 'villager' ? '' : this.name);
     this.sync();
+  }
+
+  // 자세 → 그림. 애니메이션 이름이면 재생, [시트, 칸] 이면 멈춘 그림
+  applyPose(pose, randomStart = false) {
+    const p = this.poses[pose] || this.poses.idle;
+    const s = this.sprite;
+    if (Array.isArray(p)) {
+      s.anims.stop();
+      s.setTexture(p[0], p[1]);
+    } else if (this.scene.anims.exists(p)) {
+      const anim = this.scene.anims.get(p);
+      s.play({ key: p, startFrame: randomStart ? Math.floor(Math.random() * anim.frames.length) : 0 }, true);
+    }
   }
 
   // 실루엣 그림: 머리·몸통·소매. 키(tall)·아이(small)에 따라 크기만 다르다
@@ -59,21 +88,18 @@ class Npc {
   sync() {
     const s = this.sprite;
     s.setPosition(Math.round(this.x), Math.round(this.y));
-    s.setFlipX(this.useSprite ? this.facing < 0 : this.facing < 0);
+    // 그림이 바라보는 쪽(sheetFacing)과 다르면 뒤집는다
+    s.setFlipX(this.poses ? (this.facing < 0) === (this.sheetFacing === 'right') : this.facing < 0);
     s.setVisible(this.visible);
-    this.tag.el.style.display = this.visible && this.pose !== 'down' ? '' : 'none';
+    this.tag.el.style.display = this.visible && this.name && this.data.look !== 'villager' && this.pose !== 'down' ? '' : 'none';
   }
 
   setPose(pose) {
     this.pose = pose;
     const s = this.sprite;
-    s.setAngle(0).setScale(this.useSprite ? 1.12 : 1);
-    if (this.useSprite) {
-      if (pose === 'run') s.play('player_run', true);
-      else if (pose === 'idle') s.play('player_idle', true);
-      else if (pose === 'guard') { s.anims.stop(); s.setTexture('player_iaido_ready', 3); }
-      else if (pose === 'slash') { s.anims.stop(); s.setTexture('player_iaido_slash', 3); }
-      else if (pose === 'down') s.play('player_death');
+    s.setAngle(0).setScale(1);
+    if (this.poses) {
+      this.applyPose(pose);
     } else if (pose === 'kneel') {
       s.setScale(1, 0.7);
     } else if (pose === 'down') {
@@ -122,6 +148,13 @@ class Npc {
         },
       });
     });
+  }
+
+  // 축제 → 불: 도망치는 그림으로 화면 밖까지 달려가 사라진다
+  flee(dir = this.data.flee || -1, skip = false) {
+    if (skip || !this.visible) return this.hide();
+    const target = this.x + dir * 700;
+    this.moveTo(target, 260 + Math.random() * 80).then(() => this.hide());
   }
 
   // 제자리 깡충 (환호)

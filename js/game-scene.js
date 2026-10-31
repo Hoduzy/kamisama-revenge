@@ -751,7 +751,7 @@ class GameScene extends Phaser.Scene {
     e.kill(false);
     this.enemies = this.enemies.filter((x) => x !== e);
     if (n) {
-      n.sprite.setTint(0xffc4d4);
+      n.sprite.clearTint();
       n.place(n.x, Math.sign(this.player.body.center.x - n.x) || -1);
     }
   }

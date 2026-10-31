@@ -57,6 +57,36 @@ const Sprites = {
     add('fx_slash', 'fx_slash', [0, 1, 2, 3], 24);
     add('fx_parry_flash', 'fx_parry_flash', [0, 1, 2, 3], 20);
     add('fx_sakura_burst', 'fx_sakura_burst', [0, 1, 2, 3], 16);
+    // 프롤로그 인물 (tools/process_prologue.py)
+    const n = (sheet) => (this.sheet(sheet) ? [...Array(this.sheet(sheet).frames).keys()] : []);
+    add('haru_idle', 'haru_idle', n('haru_idle'), 5, -1);
+    add('haru_attack', 'haru_attack', n('haru_attack'), 12);
+    add('haru_death', 'haru_death', n('haru_death'), 8);
+    add('haru_reach', 'haru_reach', n('haru_reach'), 5);
+    add('soichiro_forge', 'soichiro_forge', n('soichiro_forge'), 9, -1);
+    add('soichiro_give', 'soichiro_give', n('soichiro_give'), 4);
+    add('soichiro_guard', 'soichiro_guard', n('soichiro_guard'), 5, -1);
+    add('soichiro_attack', 'soichiro_attack', n('soichiro_attack'), 10, -1);
+    add('soichiro_kneel', 'soichiro_kneel', n('soichiro_kneel'), 6);
+    add('hakuya_walk', 'hakuya_walk', n('hakuya_walk'), 8, -1);
+    add('hakuya_barrier', 'hakuya_barrier', n('hakuya_barrier'), 8);
+    add('hakuya_dash', 'hakuya_dash', n('hakuya_dash'), 20);
+    add('hakuya_iaido', 'hakuya_iaido', n('hakuya_iaido'), 12);
+    add('hakuya_thrust', 'hakuya_thrust', n('hakuya_thrust'), 10);
+    add('hakuya_hurt', 'hakuya_hurt', n('hakuya_hurt'), 8);
+    add('hakuya_kneel', 'hakuya_kneel', n('hakuya_kneel'), 6);
+    add('fx_barrier', 'fx_barrier', [0, 1, 2, 3], 10);
+    add('fx_barrier_break', 'fx_barrier_break', [0, 1, 2, 3], 14);
+    add('fx_red_sun_grow', 'fx_red_sun_grow', [0, 1, 2, 3, 4], 8);
+    // 마을 사람: 앞 6칸 춤, 뒤 4칸 도망 (색 변형 시트도 같은 칸)
+    for (const base of ['villager_man', 'villager_woman']) {
+      for (const v of ['', '_v1', '_v2', '_v3']) {
+        add(`${base}${v}_dance`, base + v, [0, 1, 2, 3, 4, 5], 8, -1);
+        add(`${base}${v}_flee`, base + v, [6, 7, 8, 9], 12, -1);
+      }
+    }
+    add('villager_child_dance', 'villager_child', n('villager_child'), 8, -1);
+    add('villager_child_flee', 'villager_child', [4, 5, 6, 7], 12, -1);
   },
 
   // 캐릭터 위에 겹쳐 한 번 재생하고 사라지는 이펙트

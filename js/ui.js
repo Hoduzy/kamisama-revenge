@@ -135,10 +135,13 @@ const UI = {
   },
   hide(sel) { this.el(sel).classList.remove('show'); },
 
+  // 장 제목 카드. style 'logo' = 게임 타이틀: 로고 문양(logo_emblem) 위에 붓글씨로 GAME_TITLE 을 쓴다 (대본의 글자 대신)
   titleCard(text, { color, style } = {}) {
     const el = this.el('.fx-title');
     el.className = 'fx-title show' + (color === 'red' ? ' red' : '') + (style === 'logo' ? ' logo' : '');
-    return this.brush(el, text, 90);
+    if (style !== 'logo') return this.brush(el, text, 90);
+    el.innerHTML = `<img class="logo-emblem" src="${SPRITE_DIR}logo_emblem.png" alt=""><div class="logo-text"></div>`;
+    return this.brush(el.querySelector('.logo-text'), GAME_TITLE, 260) + 600;
   },
 
   bossName(text) {

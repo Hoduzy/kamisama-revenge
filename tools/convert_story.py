@@ -64,6 +64,9 @@ for _id in ('cultist', 'ninja', 'cult_exec_a', 'cult_exec_b', 'gunner_a', 'gunne
 for _id, st in (('village_child', 'bun'), ('villager', 'topknot'), ('village_grandma', 'bun'), ('village_elder', 'topknot'),
                 ('rice_seller', 'topknot'), ('maid', 'bun')):
     PORTRAITS[_id] = {'color': '#e8e0d0', 'portrait': P(st, hair='#4a3a30', eyes='#1a1a1a', skin='#e6c8aa', clothes='#5a5048', bg='#2a2622')}
+# 마을 사람 도트 초상화 (portraits_village: 0 아이 웃음, 1 아이 울음, 2 남자 웃음, 3 남자 놀람)
+PORTRAITS['village_child']['sprite'] = {'key': 'portraits_village', 'faces': {'neutral': 0, 'smile': 0, 'surprised': 0, 'sad': 1, 'scared': 1, 'angry': 1, 'serious': 0}}
+PORTRAITS['villager']['sprite'] = {'key': 'portraits_village', 'faces': {'neutral': 2, 'smile': 2, 'surprised': 3, 'sad': 3, 'scared': 3, 'angry': 3, 'serious': 3}}
 
 CHAPTERS = [  # (파일 이름, 대본의 장 제목 머리말 시작)
     ('prologue', '## 프롤로그'), ('ch1', '## 1장'), ('ch2', '## 2장'), ('ch3', '## 3장'), ('ch4', '## 4장'),
@@ -130,6 +133,10 @@ OVERRIDES = {
 # gameplay 명령은 js/gameplay.js 가 실행한다 ({cmd:'gameplay', do: 동작, ...}). 빈 목록이면 메모만 지운다(앞 명령에 포함됨)
 G = lambda do, **kw: {'cmd': 'gameplay', 'do': do, **kw}
 GAMEPLAY = {
+    'S0-3': {
+        '불꽃이 튄다.': [G('npcPose', who='soichiro', pose='forge')],
+        '검은 칼집의 칼을 건넨다.': [G('npcPose', who='soichiro', pose='give')],
+    },
     'S0-2': {
         '해 질 녘.': [G('mood', mood='dusk')],
         '이동 튜토리얼 표시.': [G('tutorial', step='move')],
@@ -138,6 +145,7 @@ GAMEPLAY = {
         '낮은 담을 넘는다.': [G('npcMove', who='haru', to='haruDrill')],
         '허수아비 3개.': [G('spawn', group='dummies')],
         '대쉬 베기 튜토리얼.': [G('tutorial', step='dashSlash')],
+        '하루가 목검을 허리에 대고 자세를 낮춘다.': [G('npcPose', who='haru', pose='guard')],
         '벨 때마다 칼에 분홍 꽃잎이 하나씩 붙는다 (벚꽃 스택 UI 처음 등장).': [],
         '발도 튜토리얼.': [G('tutorial', step='iaido')],
         '하루가 목검으로 천천히 공격한다.': [],
@@ -157,7 +165,8 @@ GAMEPLAY = {
         '가면 신도 2명.': [G('fight', group='alley')],
     },
     'S0-6': {
-        '소이치로가 망치 하나로 신도 셋을 막고 있다.': [G('npcPlace', who='soichiro', at='smithyFront', face=1), G('spawn', group='smithy')],
+        '소이치로가 망치 하나로 신도 셋을 막고 있다.': [G('npcPlace', who='soichiro', at='smithyFront', face=1), G('npcPose', who='soichiro', pose='attack'), G('spawn', group='smithy')],
+        '어깨에 화살이 꽂혀 있다.': [G('npcPose', who='soichiro', pose='guard')],
         '플레이어가 신도들을 벤다.': [G('fight', group='smithy', slowmoLast=True)],
         '마지막 신도를 베는 순간 슬로모션.': [],
         '소이치로가 무릎을 꿇는다.': [G('npcPose', who='soichiro', pose='kneel')],
@@ -174,6 +183,8 @@ GAMEPLAY = {
         '하쿠야의 발도.': [G('hakuyaIaido')],
         '아카네가 날아가 쓰러진다.': [],
         '사망 연출이 나오지만 화면이 멈추지 않는다.': [],
+        '하루가 마지막 힘으로 손을 뻗는다.': [G('npcPose', who='haru', pose='reach')],
+        '하쿠야가 손을 뻗지만 꽃잎이 그의 손을 벤다.': [G('bossAnim', anim='hakuya_hurt', hold=True)],
         '하루가 아카네 앞을 막아선다.': [G('npcMove', who='haru', to='player', offset=60, wait=True)],
         '하쿠야의 칼이 하루를 꿰뚫는다.': [G('stab', who='haru')],
         '꽃잎 한 장이 떨어진다.': [G('petal')],

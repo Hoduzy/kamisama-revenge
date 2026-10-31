@@ -67,11 +67,12 @@ class StoryGameplay {
       move: {
         // 대사 도중 이미 걸어 왔으면 바로 통과
         kb: 'A · D 로 걷기', touch: '◀ ▶ 로 걷기',
-        done: () => Math.abs(p.body.center.x - x0) > 140 || Math.abs(p.body.center.x - LEVEL.spawn.x) > 300,
+        // 대사 도중 이미 담 앞까지 걸어 왔으면 바로 통과 (담에 막혀 140px 를 더 못 가므로)
+        done: () => Math.abs(p.body.center.x - x0) > 140 || x0 > this.point('wall') - 400,
       },
       jump: {
         kb: 'Space 로 점프해서 낮은 담 넘기', touch: '점프 버튼으로 낮은 담 넘기',
-        done: () => p.body.left > 760 && p.grounded,
+        done: () => p.body.left > this.point('wall') + 60 && p.grounded,
       },
       dashSlash: {
         kb: 'U 대쉬베기로 허수아비 3개 베기 — 벨 때마다 칼에 꽃잎이 쌓인다',
@@ -220,15 +221,18 @@ class StoryGameplay {
       await this.wait(1700, skip);
     }
     scene.setMood('fire');
-    // 마을 사람들은 흩어지고, 하루는 광장으로 달려간다
+    // 마을 사람들은 비명을 지르며 양쪽으로 흩어지고, 하루는 광장으로 달려간다
     for (const n of Object.values(scene.npcs)) {
-      if (n.data.festival || n.id === 'haru') n.hide();
+      if (n.data.festival) n.flee(n.data.flee, skip);
+      else if (n.id === 'haru') n.hide();
     }
   }
 
   // ───────── 전투 ─────────
   do_spawn(c) {
     this.scene.spawnGroup(c.group);
+    // 그 자리 마을 사람들(npcs 의 같은 이름 표시)은 도망친다
+    for (const n of Object.values(this.scene.npcs)) if (n.data[c.group]) n.flee(n.data.flee);
   }
 
   async do_fight(c) {
@@ -279,8 +283,17 @@ class StoryGameplay {
     if (haru) haru.moveTo(this.point('fireHaruAside'), 200);
     let hits = 0;
     let t = 0;
+    // 금빛 막: 하쿠야를 감싸며 생겨나 전투 내내 따라다닌다
+    const dome = Sprites.has(scene, 'fx_barrier')
+      ? scene.add.sprite(boss.body.center.x, boss.body.bottom + 4, 'fx_barrier', 0).setOrigin(0.5, 1).setDepth(11).setAlpha(0.6)
+      : null;
+    if (dome) dome.play('fx_barrier');
+    boss.playAnim('hakuya_barrier');
+    const follow = () => { if (dome) dome.setPosition(boss.body.center.x, boss.body.bottom + 4); };
+    scene.events.on('postupdate', follow);
     await this.unlocked(async () => {
       boss.barrier = true;
+      boss.barrierFx = dome;
       scene.wakeBoss();
       scene.nonLethal = (fromX) => {
         hits++;
@@ -299,6 +312,9 @@ class StoryGameplay {
       boss.setState('patrol');
       UI.boss(false);
     });
+    scene.events.off('postupdate', follow);
+    if (dome) scene.tweens.add({ targets: dome, alpha: 0, duration: 500, onComplete: () => dome.destroy() });
+    boss.barrierFx = null;
   }
 
   // 하쿠야의 발도: 단숨에 파고들어 베고, 아카네는 날아가 쓰러진다 (부활하지 않음)
@@ -312,6 +328,7 @@ class StoryGameplay {
     boss.facing = dir;
     if (!skip) {
       scene.cameras.main.flash(120, 255, 220, 120);
+      boss.playAnim('hakuya_iaido', true);
       await this.story.wait(350);
       scene.dashBossTo(p.body.center.x - dir * 70);
       Sprites.fx(scene, 'fx_slash', p.body.center.x, p.body.center.y, { flipX: dir > 0, tint: 0xffd166, depth: 15, scale: 3 });
@@ -328,6 +345,7 @@ class StoryGameplay {
     const scene = this.scene;
     const n = this.npc(c.who);
     if (!n) return;
+    if (scene.boss) scene.boss.playAnim('hakuya_thrust', true);
     if (!skip) {
       Sprites.fx(scene, 'fx_slash', n.x, n.y - 40, { flipX: true, tint: 0xffd166, depth: 15, scale: 2 });
       scene.cameras.main.flash(300, 200, 0, 0);
@@ -337,6 +355,11 @@ class StoryGameplay {
     }
     n.setPose('down');
     await this.wait(800, skip);
+  }
+
+  // 보스(하쿠야) 그림 한 번 재생: c.anim, c.hold = 끝난 그림 유지
+  do_bossAnim(c) {
+    if (this.scene.boss) this.scene.boss.playAnim(c.anim, !!c.hold);
   }
 
   async do_petal(c, skip) {

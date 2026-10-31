@@ -654,6 +654,9 @@ const IDLE_H = M.sheets.player_idle && M.sheets.player_idle.heights
 const LINEUP = [
   { title: '주인공 시트 전체 (머리 크기 기준 정규화)', names: Object.keys(M.sheets).filter(n => n.startsWith('player_')), body: true },
   { title: '적 · 보스 · 벚꽃나무와 비교', names: ['player_idle', 'enemy_sword', 'enemy_ninja', 'boss', 'tree'], body: true },
+  { title: '프롤로그 인물 (머리 크기: 하루 ×1.05 · 소이치로 ×1.15 · 하쿠야 ×1.2 · 마을 사람 ×1.0 · 아이 ×0.9)',
+    names: ['player_idle', 'haru_idle', 'haru_ref', 'soichiro_give', 'soichiro_guard', 'hakuya_ref', 'hakuya_walk', 'villager_man', 'villager_woman', 'villager_child'] },
+  { title: '마을 사람 색 변형', names: ['villager_man', 'villager_man_v1', 'villager_man_v2', 'villager_man_v3', 'villager_woman', 'villager_woman_v1', 'villager_woman_v2', 'villager_woman_v3', 'villager_child'] },
 ];
 const lineups = [];
 function renderLineup() {
@@ -761,10 +764,13 @@ function render() {
     const sec = el('section');
     const info = s.tiles ? `타일 ${s.tiles.length}개 · 32×32 · 도트 ${s.dot}px`
       : s.frames ? `${s.frames}프레임 · 칸 ${s.frameWidth}×${s.frameHeight} · 도트 ${s.dot}px` + (s.facing ? ` · ${s.facing === 'right' ? '오른쪽' : '왼쪽'} 봄` : '')
-      : `${s.width}×${s.height} · 도트 ${s.dot}px · 패럴랙스 ${s.parallax} · 화면 ${s.displayScale}배로 그리면 한 장 ${s.coverage.onePx}px, 필요 ${s.coverage.needPx}px → ` + (s.coverage.covered ? '한 장으로 충분' : `${s.coverage.copies}장 거울 반복`);
+      : s.coverage ? `${s.width}×${s.height} · 도트 ${s.dot}px · 패럴랙스 ${s.parallax} · 화면 ${s.displayScale}배로 그리면 한 장 ${s.coverage.onePx}px, 필요 ${s.coverage.needPx}px → ` + (s.coverage.covered ? '한 장으로 충분' : `${s.coverage.copies}장 거울 반복`)
+      : s.stage ? `${s.width}×${s.height} · 도트 ${s.dot}px · 구역 배경 · 화면 ${s.displayScale}배 · 아래 ${Math.round(s.floorBand * 100)}% 바닥 띠`
+      : `${s.width}×${s.height} · 도트 ${s.dot}px · 한 장 (소품·이펙트 조각)`;
     sec.append(el('h2', { textContent: name }), el('div', { className: 'meta', textContent: info + (s.labels ? ' · ' + s.labels.join(', ') : '') }));
+    const srcFile = s.source.split(' ')[0];
     const orig = el('div', {}, el('div', { className: 'label', textContent: '원본 ' + s.source }),
-      el('div', { className: 'box orig' }, el('img', { src: SRC + s.source, loading: 'lazy' })));
+      el('div', { className: 'box orig' }, el('img', { src: SRC + srcFile, loading: 'lazy' })));
     const outBox = el('div', { className: 'box' });
     const out = el('div', {}, el('div', { className: 'label', textContent: '결과 ' + s.file }), outBox);
     sec.append(el('div', { className: 'row' }, orig, out));
@@ -782,7 +788,7 @@ function render() {
         g.fillStyle = 'rgba(214,51,108,.9)';
         for (let x = s.width; x < img.width; x += s.width) { g.fillRect(x, 0, 1, 8); g.fillRect(x, c.height - 8, 1, 8); }
         outBox.append(c);
-        out.append(el('div', { className: 'label', textContent: s.strip ? `↑ ${s.strip.file} (${s.strip.width}×${s.strip.height}) · A, 반전A 번갈아 ${s.coverage.copies}장 · 분홍 눈금 = 경계` : '↑ 원본 그대로 한 장' }));
+        out.append(el('div', { className: 'label', textContent: s.strip ? `↑ ${s.strip.file} (${s.strip.width}×${s.strip.height}) · ${s.strip.pattern || ''} · 분홍 눈금 = 경계` : '↑ 한 장' }));
       } else {
         outBox.append(sheetCanvas(img, s));
         if (s.frames > 1) {
