@@ -39,23 +39,24 @@
           "text": "붉은 태양 문양이 먹물처럼 번지며 화면을 채웠다가 사라진다."
         },
         {
+          "cmd": "cg",
+          "image": "bg_pro_yard",
+          "desc": "해 질 녘 연습장 전경",
+          "motion": "pan",
+          "src": "해 질 녘 연습장 전경이 검은 화면에서 떠오르며 천천히 옆으로 패닝."
+        },
+        {
           "cmd": "caption",
           "text": "에도에서 서쪽으로 사흘. 지도에 없는 마을, 사쿠라자와."
+        },
+        {
+          "cmd": "cgEnd",
+          "src": "전경이 천천히 사라진다."
         },
         {
           "cmd": "fadeIn",
           "duration": 0.8,
           "src": "명전."
-        },
-        {
-          "cmd": "cg",
-          "no": 1,
-          "desc": "축제 밤의 가족",
-          "src": "벚꽃이 만개한 산골 마을 전경(CG 1: 축제 밤의 가족)이 천천히 아래로 패닝."
-        },
-        {
-          "cmd": "cameraPan",
-          "dir": "down"
         }
       ]
     },
@@ -143,7 +144,7 @@
           "cmd": "say",
           "speaker": "soichiro",
           "face": "smile",
-          "text": "이름 짓는 걸 미루는 동안은 아직 아니라는 거다. 자, 축제 가자. 엄마가 기다려.",
+          "text": "이름 짓는 걸 미루는 동안은 아직 아니라는 거다. 엄마한테 가 봐. 연습장에서 기다린다.",
           "side": "right"
         }
       ]
@@ -332,6 +333,15 @@
       "controllable": true,
       "commands": [
         {
+          "cmd": "fadeOut",
+          "duration": 0.8,
+          "src": "0.8초 암전."
+        },
+        {
+          "cmd": "caption",
+          "text": "그날 밤, 벚꽃 축제."
+        },
+        {
           "cmd": "gameplay",
           "do": "festival",
           "text": "등롱이 줄지어 걸리고 마을 사람들이 고양이귀 가면을 쓰고 춤춘다."
@@ -340,6 +350,11 @@
           "cmd": "bgm",
           "name": "밝은 축제 피리·북",
           "src": "밝은 축제 BGM (피리·북)."
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.8,
+          "src": "명전."
         },
         {
           "cmd": "say",
@@ -364,10 +379,21 @@
           "text": "마을 사람들 환호."
         },
         {
+          "cmd": "cg",
+          "no": 1,
+          "desc": "축제 밤의 가족",
+          "motion": "zoom",
+          "src": "CG 1: 축제 밤의 가족이 천천히 떠오른다."
+        },
+        {
           "cmd": "think",
           "speaker": "akane",
           "text": "…엄마는 매년 이걸 한다. 나도 언젠간 할 수 있을까.",
           "side": "left"
+        },
+        {
+          "cmd": "cgEnd",
+          "src": "CG가 천천히 사라진다."
         },
         {
           "cmd": "note",

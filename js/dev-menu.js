@@ -122,7 +122,8 @@ const DevMenu = {
     rows.forEach((r, i) => {
       if (r.chapter !== chapter) {
         chapter = r.chapter;
-        html += `<div class="dm-ch">${chapter}</div>`;
+        const playable = STORY_MAP[chapter] && STORY_MAP[chapter].start;
+        html += `<div class="dm-ch">${chapter}${playable ? ` <button type="button" class="dm-play" data-ch="${chapter}">▶ 처음부터 이어서</button>` : ''}</div>`;
       }
       html += `<div class="dm-row${i === this.sel ? ' sel' : ''}${played.includes(r.id) ? ' played' : ''}" data-id="${r.id}">
         <b>${r.id}</b><span class="dm-place">${esc(r.place)}</span>${r.tags.map((t) => `<i>${t}</i>`).join('')}
@@ -130,6 +131,7 @@ const DevMenu = {
     });
     this.list.innerHTML = html || '<div class="dm-empty">맞는 장면이 없다</div>';
     for (const row of this.list.querySelectorAll('.dm-row')) row.onclick = () => this.playScene(row.dataset.id);
+    for (const b of this.list.querySelectorAll('.dm-play')) b.onclick = (e) => { e.stopPropagation(); this.playChapter(b.dataset.ch); };
     const s = this.list.querySelector('.sel');
     if (s) s.scrollIntoView({ block: 'nearest' });
   },
@@ -158,6 +160,21 @@ const DevMenu = {
   },
 
   // 그 장면이 속한 장으로 게임을 다시 시작하고 장면 하나만 바로 재생
+  // 그 장을 처음부터 실제 게임처럼 이어서 (장 시작 장면 → 맵 위치·벚꽃나무·보스 장면 → 다음 장)
+  playChapter(chapter) {
+    const reg = this.game.registry;
+    const story = this.gameScene.story;
+    const mine = (id) => story.scenes[id] && story.scenes[id].chapter === chapter;
+    reg.set('storyPlayed', (reg.get('storyPlayed') || []).filter((id) => !mine(id)));
+    reg.set('storyDone', (reg.get('storyDone') || []).filter((id) => !mine(id)));
+    reg.set('chapterOverride', chapter);
+    reg.set('chapterStarted', false);
+    reg.remove('devPlay');
+    this.close();
+    StoryAudio.stopBgm(0.2);
+    this.gameScene.scene.restart();
+  },
+
   playScene(id) {
     const r = this.all.find((x) => x.id === id);
     const reg = this.game.registry;

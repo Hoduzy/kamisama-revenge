@@ -141,17 +141,36 @@ class GameScene extends Phaser.Scene {
     this.input.on('pointerdown', () => { this.tapped = true; });
     const only = this.registry.get('devPlay') || (!this.registry.get('sceneTestDone') && (params.get('scene') || params.get('story')));
     this.registry.remove('devPlay');
-    if (only) {
-      // 장면 하나만 (개발 메뉴 / ?scene=). 맵 위치 장면이 줄줄이 따라 나오지 않게 위치 트리거는 막아 둔다
-      (this.storyMap.triggers || []).forEach((t, i) => this.firedTriggers.add(i));
-      this.registry.set('sceneTestDone', true);
-      this.registry.set('chapterStarted', true);
-      this.story.play(only === 'test_dialogue' ? 'TEST' : only);
-    } else if (!this.registry.get('chapterStarted')) {
-      // 장 시작 장면들 (R 재시작 시엔 생략)
-      this.registry.set('chapterStarted', true);
-      this.story.playEntries(this.storyMap.start).then(() => {
-        if (this.storyMap.then === 'clear') this.triggerClear();
+    const startStory = () => {
+      UI.loading(false);
+      if (only) {
+        // 장면 하나만 (개발 메뉴 / ?scene=). 맵 위치 장면이 줄줄이 따라 나오지 않게 위치 트리거는 막아 둔다
+        (this.storyMap.triggers || []).forEach((t, i) => this.firedTriggers.add(i));
+        this.registry.set('sceneTestDone', true);
+        this.registry.set('chapterStarted', true);
+        this.story.play(only === 'test_dialogue' ? 'TEST' : only);
+      } else if (!this.registry.get('chapterStarted')) {
+        // 장 시작 장면들 (R 재시작 시엔 생략)
+        this.registry.set('chapterStarted', true);
+        this.story.playEntries(this.storyMap.start).then(() => {
+          if (this.storyMap.then === 'clear') this.triggerClear();
+        });
+      }
+    };
+    // 로딩 화면: 이 장(과 따로 재생할 장면의 장)의 CG·컷신 그림을 모두 불러온 뒤 시작 (컷신 도중에 불러오지 않게)
+    const onlyScene = only && this.story.scenes[only === 'test_dialogue' ? 'TEST' : only];
+    const chapters = [this.chapter, onlyScene && onlyScene.chapter].filter(Boolean);
+    const paths = CgCache.pathsOf(this.story, chapters);
+    if (paths.every((p) => CgCache.status(p) === 'ok' || CgCache.status(p) === 'missing')) {
+      startStory();
+    } else {
+      this.storyLoading = true;
+      UI.loading(true);
+      CgCache.preload(this.story, chapters).then(() => {
+        if (!this.sys.isActive() && !this.sys.isPaused()) return; // 그사이 장면이 다시 시작됨
+        this.storyLoading = false;
+        UI.loading(false);
+        startStory();
       });
     }
 
@@ -342,6 +361,7 @@ class GameScene extends Phaser.Scene {
       if (!this.cutscene) this.physics.world.resume();
     }
 
+    if (this.storyLoading) return; // 장 시작 로딩 중
     this.controls.update();
     const tapped = this.tapped;
     this.tapped = false;

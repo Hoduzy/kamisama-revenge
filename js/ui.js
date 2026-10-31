@@ -30,6 +30,7 @@ const UI = {
       <div class="ctx-hints"></div>
       <div class="stage-title"><div class="t1"></div><div class="t2"></div></div>
       <div class="result"></div>
+      <div class="loading"><span>불러오는 중</span></div>
       <div class="fx-fade"></div>
       <div class="fx-lb top"></div><div class="fx-lb bottom"></div>
       <div class="fx-cg"><img alt=""><div class="fx-cg-ph"></div></div>
@@ -159,20 +160,47 @@ const UI = {
   },
 
   // CG: 화면 가득. assets/cg/cg_번호(두 자리).png 가 있으면 그 그림, 없으면 검은 화면에 'CG 번호 + 대본의 설명'
-  cg(no, desc) {
-    const file = `assets/cg/cg_${String(no).padStart(2, '0')}.png`;
+  // 그림은 장을 시작할 때 CgCache 가 미리 불러 둔다. 자리표시는 파일이 정말 없을 때만 (불러오는 중이면 검은 화면)
+  // c: 대본의 cg 명령 { no | image, desc, motion: 'zoom'(1.0→1.05 천천히 확대) | 'pan'(천천히 옆으로) }
+  cg(c) {
+    const file = CgCache.path(c);
     const el = this.el('.fx-cg');
     const img = el.querySelector('img');
     const ph = el.querySelector('.fx-cg-ph');
     const esc = (t) => String(t).replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
-    ph.innerHTML = `<b>CG ${no}</b><span>${esc(desc || '')}</span><small class="dev-only">${file}</small>`;
+    const label = c.no != null ? `CG ${c.no}` : '';
+    ph.innerHTML = `<b>${label}</b><span>${esc(c.desc || '')}</span><small class="dev-only">${file}</small>`;
+    const showImg = () => { img.style.display = ''; ph.style.display = 'none'; };
+    const showPh = () => { img.style.display = 'none'; ph.style.display = ''; };
     img.style.display = 'none';
-    ph.style.display = '';
-    img.onload = () => { img.style.display = ''; ph.style.display = 'none'; };
-    img.onerror = () => { img.removeAttribute('src'); };
-    img.src = file;
+    ph.style.display = 'none';
+    img.className = 'motion-' + (c.motion || 'zoom');
+    const st = CgCache.status(file);
+    if (st === 'ok') {
+      img.src = file; // 이미 디코딩되어 있어 바로 그려진다
+      showImg();
+    } else if (st === 'missing') {
+      showPh();
+    } else {
+      // 미리 불러오지 못한 그림(예외): 다 불러올 때까지 검은 화면, 없을 때만 자리표시
+      CgCache.load(file).then((ok) => { if (ok) { img.src = file; showImg(); } else showPh(); });
+    }
+    el.classList.remove('show');
+    void el.offsetWidth;
     el.classList.add('show');
   },
+
+  // CG 걷기: sec 초 동안 페이드아웃. 걸리는 ms 를 돌려준다 (떠 있지 않으면 0)
+  cgHide(sec = 0.8) {
+    const el = this.el('.fx-cg');
+    if (!el.classList.contains('show')) return 0;
+    el.style.transitionDuration = sec + 's';
+    el.classList.remove('show');
+    setTimeout(() => { el.style.transitionDuration = ''; }, sec * 1000 + 50);
+    return sec * 1000;
+  },
+
+  loading(on) { this.el('.loading').classList.toggle('show', on); },
 
   // 길게 눌러 건너뛰기 게이지 (0~1, 0 이면 숨김)
   skipGauge(r) {

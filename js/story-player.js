@@ -157,6 +157,7 @@ class StoryPlayer {
     const controllable = !!sc.controllable;
     const played = this.scene.registry.get('storyPlayed');
     if (!played.includes(sc.id)) played.push(sc.id);
+    this.cinema = false; // 레터박스 중인지
     if (!controllable) this.lock(true);
     this.dialogue.open(this.characters, { controllable });
     try {
@@ -167,6 +168,12 @@ class StoryPlayer {
     if (this.stopped) return;
     // 정리: 대화창 닫기, 연출 걷기, 느린 화면·카메라 원래대로, 게임 재개
     this.dialogue.close();
+    // CG 가 남아 있으면 페이드아웃이 끝난 뒤 다음 장면으로
+    if (!this.skipping) {
+      const ms = UI.cgHide(0.8);
+      if (ms) await new Promise((r) => setTimeout(r, ms));
+    }
+    this.cinema = false;
     for (const s of ['.fx-cg', '.fx-caption', '.fx-title', '.fx-bossname', '.fx-choice']) UI.hide(s);
     UI.letterbox(false);
     UI.prompt(null);
@@ -202,16 +209,6 @@ class StoryPlayer {
     for (let i = 0; i < list.length; i++) {
       if (this.stopped) return;
       const c = list[i];
-      // 명전 바로 뒤에 CG 가 오면 검은 화면 아래에 CG 를 먼저 깔고 밝아진다 (게임 화면이 잠깐 비치지 않게)
-      if (c.cmd === 'fadeIn' && list[i + 1] && list[i + 1].cmd === 'cg' && !this.skipping) {
-        const g = list[++i];
-        this.dialogue.hide();
-        UI.cg(g.no, g.desc);
-        this.faded = false;
-        UI.fade(0, c.duration ?? 0.8);
-        await this.wait((c.duration ?? 0.8) * 1000 + 1800, true);
-        continue;
-      }
       await this.exec(c, sc);
     }
   }
@@ -240,17 +237,24 @@ class StoryPlayer {
       case 'fadeOut':
         this.faded = true;
         dlg.hide();
+        if (sc.controllable) this.lock(true); // 암전 동안은 걷지 않게
+        UI.cgHide(skip ? 0 : c.duration ?? 0.8); // 떠 있던 CG 도 함께 어두워진다 (CG 가 검은 막보다 위라서)
         UI.fade(1, skip ? 0 : c.duration ?? 0.8);
         if (!skip) await this.wait((c.duration ?? 0.8) * 1000);
         break;
-      case 'fadeIn':
+      case 'fadeIn': {
+        // CG 가 떠 있으면 먼저 페이드아웃 (검은 화면 위에서) → 그다음 밝아진다
+        const ms = UI.cgHide(skip ? 0 : 0.8);
+        if (ms && !skip) await this.wait(ms);
         this.faded = false;
         UI.fade(0, skip ? 0 : c.duration ?? 0.8);
-        UI.hide('.fx-cg');
         if (!skip) await this.wait((c.duration ?? 0.8) * 1000);
+        if (sc.controllable && !this.cinema) this.lock(false);
         break;
+      }
       case 'letterbox':
         UI.letterbox(c.on, skip);
+        this.cinema = !!c.on;
         // 조작 가능 컷신이라도 레터박스가 있는 동안은 조작 잠금
         if (sc.controllable) this.lock(!!c.on);
         break;
@@ -273,12 +277,26 @@ class StoryPlayer {
         UI.audioCue(c.name === 'stop' ? '효과음 멈춤' : `🔊 ${c.name}${StoryAudio.src('sfx', c.name) ? '' : ' (파일 없음)'}`);
         break;
       case 'cg':
-        // 화면 가득. 다음 대사는 CG 위에 나오고, CG 는 페이드인·카메라 이동·다음 CG·장면 끝에서 걷힌다
+        // 화면 가득. 검은 바탕에서 0.8초 떠오르고(아주 느리게 확대·패닝), 다음 대사는 CG 위에 나온다.
+        // cgEnd · 암전 · 명전 · 카메라 이동 · 장면 끝에서 0.8초 페이드아웃으로 걷힌다
         if (skip) break;
         dlg.hide();
-        UI.cg(c.no, c.desc);
-        await this.wait(1800, true);
+        if (sc.controllable) this.lock(true); // CG 가 떠 있는 동안은 걷지 않게
+        UI.cg(c);
+        await this.wait(800);
+        await this.wait(1000, true);
         break;
+      case 'cgEnd': {
+        if (skip) {
+          UI.cgHide(0);
+        } else {
+          dlg.hide();
+          const ms = UI.cgHide(0.8);
+          if (ms) await this.wait(ms + 150);
+        }
+        if (sc.controllable && !this.cinema && !this.faded) this.lock(false);
+        break;
+      }
       case 'titleCard': {
         if (skip) break;
         dlg.hide();
@@ -314,7 +332,7 @@ class StoryPlayer {
       case 'cameraPan':
         if (skip) break;
         dlg.hide();
-        UI.hide('.fx-cg');
+        { const ms = UI.cgHide(0.8); if (ms) await this.wait(ms); }
         await this.pan(c);
         break;
       case 'setFlag':
