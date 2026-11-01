@@ -408,7 +408,8 @@ class StoryPlayer {
     if (this.skipping) return Promise.resolve();
     return new Promise((resolve) => {
       const w = { skippable, done: false, resolve: () => { if (!w.done) { w.done = true; resolve(); } } };
-      w.timer = setTimeout(w.resolve, ms);
+      // 장면 시계로 잰다 → 일시정지하면 컷신(자막·자동 넘김 …)도 같이 멈춘다
+      w.timer = this.scene.time.delayedCall(ms, w.resolve);
       this.waiters.push(w);
     });
   }
@@ -417,7 +418,7 @@ class StoryPlayer {
     this.waiters = this.waiters.filter((w) => {
       if (w.done) return false;
       if (onlySkippable && !w.skippable) return true;
-      clearTimeout(w.timer);
+      if (w.timer) w.timer.remove(false);
       w.resolve();
       return false;
     });

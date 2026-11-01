@@ -479,19 +479,33 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 @keyframes ctx-out { to { opacity: 0; transform: translate(-50%, -130%); } }
 
 /* ───────── 일시정지 메뉴 (js/pause-menu.js) ───────── */
-#pause-menu { position: absolute; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; background: rgba(8, 6, 12, 0.55); pointer-events: auto; }
+#pause-menu { position: absolute; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; background: rgba(8, 6, 12, 0.6); pointer-events: auto; }
 #pause-menu.show { display: flex; }
-.pm-board { width: 430px; min-height: 250px; padding: 4px 18px 8px; image-rendering: pixelated; text-align: center; color: #2a1a14; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6)); }
-.pm-board h2 { margin: 0 0 8px; font-family: var(--font-title); font-weight: 400; font-size: 26px; letter-spacing: 0.2em; color: #5a1018; }
-.pm-items { display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px; }
-.pm-items button {
-  font-family: var(--font-title); font-weight: 400; font-size: 18px; color: #3a2a24; background: none; border: 0; padding: 3px 0; cursor: pointer;
+.pm-wrap { display: flex; flex-direction: column; align-items: center; }
+.pm-wrap h2 { margin: 0 0 -6px; font-family: var(--font-title); font-weight: 400; font-size: 30px; letter-spacing: 0.3em; padding-left: 0.3em; color: #f5e6c8;
+  text-shadow: 0 0 4px #000, 0 2px 8px #000, 2px 2px 0 #8e1b24; }
+/* 현판 292×178 을 2배 그대로. 글은 종이의 깨끗한 부분(원본 x 56~236, y 68~130)에만 — 왼쪽 벚꽃 가지·테두리를 피함 */
+.pm-board { position: relative; width: 584px; height: 356px; background: url(assets/ui/ui_plaque.png) 0 0 / 100% 100% no-repeat;
+  image-rendering: pixelated; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.6)); }
+.pm-paper { position: absolute; left: 112px; top: 136px; width: 360px; height: 124px; }
+.pm-page { position: absolute; inset: 0; display: none; }
+.pm-page.show { display: grid; }
+.pm-main { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); align-items: center; justify-items: center; }
+.pm-main button, .pm-back {
+  font-family: var(--font-title); font-weight: 400; font-size: 18px; color: #3a2a24; background: none; border: 0; padding: 2px 8px; cursor: pointer; white-space: nowrap;
+  text-shadow: 0 0 3px #efe3cc, 0 0 6px #efe3cc, 0 0 10px rgba(239, 227, 204, 0.9); /* 먹 번짐 위에서도 읽히게 */
 }
-.pm-items button.sel { color: #a51d2d; }
-.pm-items button.sel::before { content: '❀ '; }
-.pm-controls { display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 2px 8px; margin: 0; padding: 6px 10px; border-radius: 4px; background: rgba(236, 222, 196, 0.88); text-align: left; font-family: var(--font-ui); font-size: 12px; color: #3a2a24; }
+.pm-main button.sel { color: #a51d2d; }
+.pm-main button.sel::before { content: '❀ '; }
+.pm-main button.sel::after { content: ' ❀'; visibility: hidden; } /* 꽃 표시가 있어도 글자가 가운데에 남게 */
+.pm-help { grid-template-rows: 1fr auto; justify-items: center; }
+.pm-controls { display: grid; grid-template-columns: auto auto auto auto; gap: 0 8px; margin: 0; align-content: center;
+  font-family: var(--font-ui); font-size: 12px; line-height: 17px; color: #3a2a24; text-shadow: 0 0 3px #efe3cc, 0 0 6px #efe3cc; }
 .pm-controls dt { font-family: var(--font-title); color: #8e1b24; text-align: right; }
-.pm-controls dd { margin: 0; }
+.pm-controls dd { margin: 0 8px 0 0; }
+.pm-back { font-size: 14px; color: #a51d2d; padding: 0 8px; }
+/* 일시정지 중엔 글자 레이어의 애니메이션도 멈춘다 (메뉴 자신은 빼고) */
+#ui.game-paused > :not(#pause-menu), #ui.game-paused > :not(#pause-menu) * { animation-play-state: paused !important; }
 
 .dm-play { margin-left: 10px; font: inherit; font-size: 11px; letter-spacing: 0; padding: 1px 8px; background: #3a2140; color: #ffd6e0; border: 1px solid var(--sakura); border-radius: 3px; cursor: pointer; }
 
@@ -564,3 +578,4 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 .cl-save { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
 .cl-msg { min-height: 16px; margin: 4px 0 0; font-size: 11px; color: #9fe0a0; }
 .cl-sub { margin: 10px 0 4px !important; color: #ffd6e0 !important; }
+body.game-paused #touch-controls { visibility: hidden; }

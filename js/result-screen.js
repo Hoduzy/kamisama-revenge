@@ -35,7 +35,8 @@ class ResultScreen {
   // 시간(ms) — speed 가 1 보다 작으면 느리게 (시험용)
   T(ms) { return ms / this.R.speed; }
 
-  wait(ms) { return new Promise((r) => setTimeout(r, this.T(ms))); }
+  // 장면 시계로 잰다 (일시정지하면 결과 화면도 멈춘다)
+  wait(ms) { return new Promise((r) => this.scene.time.delayedCall(this.T(ms), r)); }
 
   tween(cfg) {
     return new Promise((resolve) => {
