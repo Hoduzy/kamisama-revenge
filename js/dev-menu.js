@@ -18,7 +18,7 @@ const DevMenu = {
     el.id = 'dev-menu';
     el.innerHTML = `
       <div class="dm-box">
-        <div class="dm-head"><b>개발 메뉴</b><span>F1 · Esc 닫기</span></div>
+        <div class="dm-head"><b>개발 메뉴</b><button type="button" class="dm-cine">🎬 연출 시험</button><span>F1 · Esc 닫기</span></div>
         <div class="dm-opts">
           <label><input type="checkbox" class="dm-dev"> 개발 모드 (연출 메모·소리 이름 표시)</label>
           <label>기억 조각 <input type="number" class="dm-mem" min="0" max="30" value="0"></label>
@@ -48,6 +48,8 @@ const DevMenu = {
     };
     this.search.oninput = () => { this.sel = 0; this.render(); };
     el.addEventListener('pointerdown', (e) => { if (e.target === el) this.close(); });
+    // 연출 도구 시험 창 (게임을 멈추지 않는 옆 창)
+    el.querySelector('.dm-cine').onclick = () => { this.close(); CineLab.open(); };
 
     // 메뉴 안의 키 입력은 게임으로 보내지 않는다 (Phaser 가 Space·A·D 등을 가로채지 않게)
     el.addEventListener('keydown', (e) => {

@@ -136,6 +136,36 @@ window.TUNING = {
     sfxVolume: 0.8,
   },
 
+  // <cine> 연출 도구 (js/cinematics.js). F1 → '연출 시험'에서 바꾸고 저장할 수 있다 (이 표시 줄은 지우지 말 것)
+  cine: {
+    lookAhead: 0.15,
+    lookAheadLerp: 2.5,
+    followLerpX: 0.12,
+    followLerpY: 0.12,
+    shake: {
+      weak: { ms: 120, amount: 0.003 },
+      mid: { ms: 240, amount: 0.007 },
+      strong: { ms: 420, amount: 0.014 }
+    },
+    hitStop: 0.08,
+    slowmoScale: 0.3,
+    slowmoSec: 1.2,
+    slowmoReturn: 0.4,
+    zoomIn: 1.3,
+    zoomOut: 0.8,
+    zoomMs: 700,
+    letterboxSec: 0.4,
+    moodSec: 2,
+    vignette: 0.55,
+    cutInHold: 0.9,
+    guideIdle: 3,
+    foregroundParallax: 1.3,
+    duckVolume: 0.35,
+    duckDuringDialogue: true,
+    sfxVolume: 0.8
+  },
+  // </cine>
+
   // 대화
   dialogue: {
     charsPerSecond: 32,

@@ -31,6 +31,11 @@ const UI = {
       <div class="stage-title"><div class="t1"></div><div class="t2"></div></div>
       <div class="result"></div>
       <div class="loading"><span>불러오는 중</span></div>
+      <div class="cine-cutin"><div class="cc-lines"></div><div class="cc-eyes"></div></div>
+      <div class="cine-objective"></div>
+      <div class="cine-arrow"><svg viewBox="0 0 60 60"><defs><filter id="cine-brush" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="5"/><feDisplacementMap in="SourceGraphic" scale="3.5"/></filter></defs>
+        <path d="M14 8 L50 30 L14 52 Q22 30 14 8 Z"/></svg></div>
       <div class="fx-fade"></div>
       <div class="fx-lb top"></div><div class="fx-lb bottom"></div>
       <div class="fx-cg"><img alt=""><div class="fx-cg-ph"></div></div>
@@ -45,6 +50,10 @@ const UI = {
       <div class="fx-prompt"></div>
       <div class="fx-skip"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" cx="18" cy="18" r="15" pathLength="100"/></svg><span>건너뛰기</span></div>`;
     this.el = (sel) => this.root.querySelector(sel);
+    // 비네트는 HUD 글자보다 아래에 깔리도록 맨 앞에 둔다
+    const vig = document.createElement('div');
+    vig.className = 'cine-vignette';
+    this.root.prepend(vig);
     this.setupSkillHud(sockets);
     // 일시정지 버튼 (화면 오른쪽 위). 포커스를 가져가지 않게 해서 Space 가 버튼을 다시 누르지 않도록
     this.el('.pause-btn').addEventListener('pointerdown', (e) => {
@@ -109,9 +118,10 @@ const UI = {
     f.style.opacity = to;
   },
 
-  letterbox(on, instant = false) {
+  // 위아래 검은 띠가 sec(기본 TUNING.cine.letterboxSec = 0.4초) 동안 미끄러져 들어온다
+  letterbox(on, instant = false, sec = TUNING.cine.letterboxSec) {
     for (const b of this.root.querySelectorAll('.fx-lb')) {
-      b.style.transitionDuration = instant ? '0s' : '';
+      b.style.transitionDuration = instant ? '0s' : sec + 's';
       b.classList.toggle('on', on);
     }
     this.root.classList.toggle('cinema', on); // 레터박스 중엔 HUD 를 숨긴다
@@ -198,6 +208,89 @@ const UI = {
     el.classList.remove('show');
     setTimeout(() => { el.style.transitionDuration = ''; }, sec * 1000 + 50);
     return sec * 1000;
+  },
+
+  // ───────── 연출 도구 (js/cinematics.js) ─────────
+  cineVignette(amount, sec = 0.6) {
+    const el = this.el('.cine-vignette');
+    if (!el) return;
+    el.style.transitionDuration = sec + 's';
+    el.style.opacity = amount;
+  },
+
+  // 컷인: 가로 띠가 열리고 초상화의 눈 부분만 크게. ch = characters.json 인물 (sprite 시트 + 표정)
+  cineCutIn(ch, face, hold, eyes0 = { x: 0.5, y: 0.45 }) {
+    const el = this.el('.cine-cutin');
+    const eyes = el.querySelector('.cc-eyes');
+    const sp = ch.sprite;
+    const sheet = sp && Sprites.sheet(sp.key);
+    if (sheet) {
+      const frame = (sp.faces && (sp.faces[face] ?? sp.faces.neutral)) || 0;
+      const W = 620; // 초상화 한 칸을 이 폭으로 (약 6배)
+      const k = W / sheet.frameWidth;
+      // 두 눈 한가운데가 띠의 가운데에 오게
+      const ex = eyes0.x * W;
+      const ey = eyes0.y * sheet.frameHeight * k;
+      Object.assign(eyes.style, {
+        backgroundImage: `url(${SPRITE_DIR}${sheet.file})`,
+        backgroundSize: `${sheet.frameWidth * sheet.frames * k}px ${sheet.frameHeight * k}px`,
+        backgroundPosition: `${GAME_WIDTH / 2 - ex - frame * W}px ${60 - ey}px`,
+      });
+    } else {
+      eyes.style.backgroundImage = '';
+    }
+    el.classList.remove('open', 'close');
+    void el.offsetWidth;
+    el.classList.add('open');
+    clearTimeout(this.cutTimer);
+    this.cutTimer = setTimeout(() => {
+      el.classList.add('close');
+      setTimeout(() => el.classList.remove('open', 'close'), 240);
+    }, 300 + hold * 1000);
+  },
+
+  // 목표 자막: 새 목표는 위쪽 가운데에 크게 나왔다가 작아지며 왼쪽 위 구석으로. null 이면 지움
+  cineObjective(text) {
+    const el = this.el('.cine-objective');
+    if (!el) return;
+    clearTimeout(this.objTimer);
+    if (!text) { el.className = 'cine-objective'; return; }
+    el.textContent = `〈${text}〉`;
+    el.className = 'cine-objective';
+    void el.offsetWidth;
+    el.className = 'cine-objective show big';
+    this.objTimer = setTimeout(() => { el.className = 'cine-objective show'; }, 1700);
+  },
+
+  // 길 안내 화살표: dir 1 = 오른쪽 끝, -1 = 왼쪽 끝, null = 숨김
+  cineArrow(dir) {
+    const el = this.el('.cine-arrow');
+    if (!el) return;
+    const want = dir ? (dir > 0 ? 'cine-arrow show r' : 'cine-arrow show l') : 'cine-arrow';
+    if (el.className !== want) el.className = want;
+  },
+
+  // 행동 안내 아이콘: 머리 위에 붓 테두리 키. 지울 때는 cineActionHintDone
+  cineActionHint(target, A) {
+    const el = document.createElement('div');
+    el.className = 'float cine-key';
+    const label = TouchPad.mode === 'touch' ? A.touch : A.kb;
+    el.innerHTML = `<span>${label.split(' ').map((k) => `<b>${k}</b>`).join('')}</span>`;
+    this.el('.floats').append(el);
+    const f = { el, target, until: Infinity };
+    this.floats.push(f);
+    this.place(f);
+    el.cineFloat = f;
+    return el;
+  },
+
+  // 그 행동을 했을 때: 먹물처럼 번지며 사라짐
+  cineActionHintDone(el, instant) {
+    if (!el) return;
+    const f = el.cineFloat;
+    if (instant) { f.until = 0; return; }
+    el.classList.add('ink');
+    f.until = performance.now() + 600;
   },
 
   loading(on) { this.el('.loading').classList.toggle('show', on); },

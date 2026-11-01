@@ -160,6 +160,7 @@ class StoryPlayer {
     this.cinema = false; // 레터박스 중인지
     if (!controllable) this.lock(true);
     this.dialogue.open(this.characters, { controllable });
+    if (TUNING.cine.duckDuringDialogue) CineSound.duck(true); // 장면 동안 음악 작게
     try {
       await this.runList(sc.commands, sc);
     } catch (e) {
@@ -168,6 +169,7 @@ class StoryPlayer {
     if (this.stopped) return;
     // 정리: 대화창 닫기, 연출 걷기, 느린 화면·카메라 원래대로, 게임 재개
     this.dialogue.close();
+    if (TUNING.cine.duckDuringDialogue) CineSound.duck(false);
     // CG 가 남아 있으면 페이드아웃이 끝난 뒤 다음 장면으로
     if (!this.skipping) {
       const ms = UI.cgHide(0.8);
@@ -259,20 +261,26 @@ class StoryPlayer {
         if (sc.controllable) this.lock(!!c.on);
         break;
       case 'shake':
-        if (!skip) cam.shake(c.strength === 'strong' ? 420 : 220, c.strength === 'strong' ? 0.014 : 0.005);
+        // level: weak | mid | strong (예전 대본의 strength: 'strong' 도 받음), dir: both | v | h
+        if (!skip) scene.cine.shake(c.level || (c.strength === 'strong' ? 'strong' : 'mid'), c.dir || 'both');
         break;
       case 'flash':
-        if (!skip) cam.flash(c.soft ? 900 : 260, ...(c.color === 'red' ? [255, 40, 40] : [255, 255, 255]));
+        // color: white | red | gold
+        if (!skip) scene.cine.flash(c.color || 'white', c.ms ?? (c.soft ? 900 : 260));
         break;
       case 'slowmo':
-        if (!skip) this.startSlowmo(c.seconds ?? 1.2, c.scale ?? 0.3);
+        if (!skip) this.startSlowmo(c.seconds ?? TUNING.cine.slowmoSec, c.scale ?? TUNING.cine.slowmoScale, c.back);
         break;
       case 'bgm':
+        // id: assets/bgm/<id> (연출 도구) / name: 대본의 곡 이름 (data/story/audio.json)
+        if (c.id || c.id === null) { CineSound.bgm(c.id, c.fade ?? 1); break; }
         StoryAudio.playBgm(c.name);
         UI.audioCue(c.name === 'stop' ? '♪ BGM 멈춤' : `♪ BGM: ${c.name}${StoryAudio.src('bgm', c.name) ? '' : ' (파일 없음)'}`);
         break;
       case 'sfx':
         if (skip) break;
+        // id: 효과음 프리셋/파일 (assets/sfx/<id>, 없으면 ZzFX 임시 소리) / name: 대본의 소리 이름 (audio.json)
+        if (c.id) { CineSound.sfx(c.id, { volume: c.volume ?? 1, pitch: c.pitch ?? 0.05, distant: c.distant }); break; }
         StoryAudio.playSfx(c.name, c.distant);
         UI.audioCue(c.name === 'stop' ? '효과음 멈춤' : `🔊 ${c.name}${StoryAudio.src('sfx', c.name) ? '' : ' (파일 없음)'}`);
         break;
@@ -378,7 +386,8 @@ class StoryPlayer {
       case 'section':
         break;
       default:
-        console.warn('[story] 모르는 명령', c);
+        // 연출 도구 명령 (camZoom, cutIn, particles, light, objective … docs/cinematics.md)
+        if (!(await scene.cine.command(c, skip))) console.warn('[story] 모르는 명령', c);
     }
   }
 
@@ -448,22 +457,13 @@ class StoryPlayer {
     }
   }
 
-  startSlowmo(sec, scale) {
-    const scene = this.scene;
-    scene.physics.world.timeScale = 1 / scale; // Arcade 는 값이 클수록 느려진다
-    scene.tweens.timeScale = scale;
-    scene.anims.globalTimeScale = scale;
-    clearTimeout(this.slowTimer);
-    this.slowTimer = setTimeout(() => this.endSlowmo(), sec * 1000);
+  // 슬로모션은 연출 도구에 맡긴다 (끝날 때 부드럽게 1배로 돌아옴)
+  startSlowmo(sec, scale, back) {
+    this.scene.cine.slowmo(scale, sec, back ?? TUNING.cine.slowmoReturn);
   }
 
   endSlowmo() {
-    const scene = this.scene;
-    clearTimeout(this.slowTimer);
-    if (!scene.physics || !scene.physics.world) return;
-    scene.physics.world.timeScale = 1;
-    scene.tweens.timeScale = 1;
-    scene.anims.globalTimeScale = 1;
+    if (this.scene.cine) this.scene.cine.endSlowmo();
   }
 
   // ───────── 매 프레임 입력 ─────────

@@ -15,6 +15,7 @@
 """
 import argparse
 import json
+import unicodedata
 import re
 from collections import Counter, OrderedDict
 from pathlib import Path
@@ -831,7 +832,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--src', default=None)
     args = ap.parse_args()
-    src = Path(args.src) if args.src else next((ROOT / 'docs').glob('*.md'))
+    # docs/ 의 대본 원고 (이름에 '대본'이 들어간 파일. cinematics.md 같은 다른 문서는 건너뜀)
+    src = Path(args.src) if args.src else next(p for p in sorted((ROOT / 'docs').glob('*.md'))
+                                                       if '대본' in unicodedata.normalize('NFC', p.name))  # 맥에서 올린 이름은 자모가 풀려 있음
     lines = src.read_text(encoding='utf-8').split('\n')
     conv = Converter(lines)
     chapters, memories = conv.run()

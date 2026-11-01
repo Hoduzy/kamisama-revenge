@@ -250,10 +250,11 @@ body.in-dialogue #touch-controls .pad {
 
 /* ───────── 컷신 연출 (js/story-player.js) ───────── */
 #ui .fx-fade { inset: 0; background: #000; opacity: 0; transition-property: opacity; transition-timing-function: ease; z-index: 20; }
-#ui .fx-lb { left: 0; right: 0; height: 0; background: #000; z-index: 21; transition: height 0.45s ease; }
-#ui .fx-lb.top { top: 0; }
-#ui .fx-lb.bottom { bottom: 0; }
-#ui .fx-lb.on { height: 58px; }
+/* 레터박스: 높이 고정, 화면 밖에서 미끄러져 들어온다 (시간은 TUNING.cine.letterboxSec) */
+#ui .fx-lb { left: 0; right: 0; height: 58px; background: #000; z-index: 21; transition: transform 0.4s cubic-bezier(0.3, 0.7, 0.3, 1); }
+#ui .fx-lb.top { top: 0; transform: translateY(-101%); }
+#ui .fx-lb.bottom { bottom: 0; transform: translateY(101%); }
+#ui .fx-lb.on { transform: none; }
 #ui.cinema .hud-tr, #ui.cinema .boss, #ui.cinema .hud-skills, #ui.cinema .hud-counters, #ui.cinema .ctx-hints { opacity: 0; transition: opacity 0.3s; }
 body.in-dialogue #ui .hud-skills, body.in-dialogue #ui .ctx-hints { opacity: 0; }
 #dialogue { z-index: 35; }
@@ -549,3 +550,72 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 .pm-controls dd { margin: 0; }
 
 .dm-play { margin-left: 10px; font: inherit; font-size: 11px; letter-spacing: 0; padding: 1px 8px; background: #3a2140; color: #ffd6e0; border: 1px solid var(--sakura); border-radius: 3px; cursor: pointer; }
+
+/* ───────── 연출 도구 (js/cinematics.js) ───────── */
+/* 비네트: 가장자리를 어둡게 (HUD 글자보다 아래) */
+#ui .cine-vignette { inset: 0; opacity: 0; transition: opacity 0.6s ease;
+  background: radial-gradient(ellipse at 50% 48%, rgba(0,0,0,0) 45%, rgba(4,2,8,0.55) 75%, rgba(2,0,4,0.92) 100%); }
+
+/* 컷인: 가운데 가로 띠가 0.3초 만에 열리고 눈 부분만 크게 */
+#ui .cine-cutin { left: 0; right: 0; top: 50%; height: 120px; margin-top: -60px; z-index: 58; display: none; overflow: hidden;
+  transform: scaleY(0); background: #0b0810; box-shadow: 0 -2px 0 #d4a24a, 0 2px 0 #d4a24a, 0 0 30px rgba(0,0,0,0.8); }
+#ui .cine-cutin.open { display: block; animation: cc-open 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) forwards; }
+#ui .cine-cutin.close { animation: cc-close 0.22s ease-in forwards; }
+@keyframes cc-open { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes cc-close { from { transform: scaleY(1); } to { transform: scaleY(0); opacity: 0.6; } }
+.cine-cutin .cc-eyes { position: absolute; inset: 0; background-repeat: no-repeat; image-rendering: pixelated; }
+.cine-cutin.open .cc-eyes { animation: cc-eyes 1.6s ease-out forwards; }
+@keyframes cc-eyes { from { transform: translateX(46px); } to { transform: translateX(-10px); } }
+/* 속도선: 띠를 가로지르는 흰 줄 */
+.cine-cutin .cc-lines { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0.35; mix-blend-mode: screen;
+  background: repeating-linear-gradient(180deg, transparent 0 9px, rgba(255,255,255,0.25) 9px 10px, transparent 10px 23px); }
+.cine-cutin.open .cc-lines { animation: cc-lines 0.3s linear infinite; }
+@keyframes cc-lines { from { background-position: 0 0; } to { background-position: 0 23px; } }
+
+/* 목표 자막: 크게 나왔다가 왼쪽 위로 */
+#ui .cine-objective { left: 14px; top: 62px; z-index: 46; opacity: 0; font-family: var(--font-title); font-size: 17px; color: #f5e6c8;
+  text-shadow: 0 0 3px #000, 0 0 6px #000, 1px 1px 0 #8e1b24; transform-origin: 0 0;
+  transition: opacity 0.4s, left 0.8s cubic-bezier(0.5, 0, 0.2, 1), top 0.8s cubic-bezier(0.5, 0, 0.2, 1), transform 0.8s cubic-bezier(0.5, 0, 0.2, 1); }
+#ui .cine-objective.show { opacity: 1; }
+#ui .cine-objective.big { left: 50%; top: 150px; transform: translateX(-50%) scale(2.3); transform-origin: 50% 0; }
+
+/* 길 안내 화살표: 화면 끝에서 맥박처럼 */
+#ui .cine-arrow { top: 50%; margin-top: -34px; width: 60px; height: 60px; z-index: 46; opacity: 0; transition: opacity 0.4s; display: none; }
+#ui .cine-arrow.show { display: block; opacity: 1; animation: cine-pulse 1s ease-in-out infinite; }
+#ui .cine-arrow.r { right: 18px; }
+#ui .cine-arrow.l { left: 18px; transform: scaleX(-1); }
+.cine-arrow svg { width: 100%; height: 100%; }
+.cine-arrow path { fill: #f3e6cf; stroke: #8e1b24; stroke-width: 3; filter: url(#cine-brush); }
+@keyframes cine-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+#ui .cine-arrow.l { animation-name: cine-pulse; }
+
+/* 행동 안내 키: 머리 위, 붓 테두리. 하면 먹물처럼 번지며 사라짐 */
+.float.cine-key span { display: flex; gap: 4px; transform: translate(-50%, -100%); animation: cine-key-in 0.35s ease-out both, cine-bob 1.4s ease-in-out 0.35s infinite; }
+.float.cine-key b { display: inline-block; min-width: 22px; padding: 3px 7px; text-align: center; font-family: var(--font-title); font-weight: 400;
+  font-size: 15px; color: #f5e6c8; background: rgba(14, 10, 16, 0.82); border: 2px solid #f3e6cf; border-radius: 6px 3px 7px 4px;
+  box-shadow: 0 0 0 1px #2a1810, 0 2px 6px rgba(0,0,0,0.6); filter: url(#cine-brush); }
+.float.cine-key.ink span { animation: cine-ink 0.6s ease-out forwards; }
+@keyframes cine-key-in { from { opacity: 0; transform: translate(-50%, -70%) scale(0.7); } to { opacity: 1; transform: translate(-50%, -100%); } }
+@keyframes cine-bob { 0%, 100% { margin-top: 0; } 50% { margin-top: -4px; } }
+@keyframes cine-ink { 0% { opacity: 1; filter: blur(0); transform: translate(-50%, -100%) scale(1); }
+  100% { opacity: 0; filter: blur(6px); transform: translate(-50%, -100%) scale(1.9); } }
+/* 터치 버튼도 같이 빛남 */
+.btn.cine-glow { box-shadow: 0 0 0 3px rgba(255, 214, 140, 0.9), 0 0 22px 6px rgba(255, 180, 90, 0.7); animation: cine-pulse 1s ease-in-out infinite; }
+
+/* ───────── 연출 시험 (js/cine-lab.js) ───────── */
+.dm-cine { margin-left: auto; margin-right: 12px; font: inherit; font-size: 13px; padding: 3px 10px; background: #3a2140; color: #ffd6e0; border: 1px solid var(--sakura); border-radius: 4px; cursor: pointer; }
+#cine-lab { position: fixed; right: 0; top: 0; bottom: 0; width: 320px; z-index: 1000; display: none; overflow-y: auto; box-sizing: border-box;
+  padding: 10px 12px 30px; background: rgba(16, 18, 38, 0.93); border-left: 1px solid var(--gold); font-family: var(--font-ui); color: #e8e4ee; font-size: 13px; }
+#cine-lab.show { display: block; }
+.cl-head { display: flex; justify-content: space-between; align-items: center; }
+.cl-head b { font-size: 16px; color: #f5e6c8; }
+.cl-note { margin: 4px 0 8px; font-size: 11px; color: #8a8496; }
+#cine-lab section { margin: 10px 0; }
+#cine-lab h3 { margin: 0 0 6px; font-size: 12px; color: var(--gold); letter-spacing: 0.08em; font-weight: 400; }
+.cl-btns { display: flex; flex-wrap: wrap; gap: 4px; }
+#cine-lab button { font: inherit; font-size: 12px; padding: 4px 8px; background: #2a2f55; color: inherit; border: 1px solid #4a5080; border-radius: 4px; cursor: pointer; }
+#cine-lab button:hover { border-color: var(--gold); }
+.cl-slider { display: grid; grid-template-columns: 92px 1fr 46px 26px; gap: 6px; align-items: center; margin: 3px 0; }
+.cl-slider output { font-family: monospace; font-size: 11px; color: #f5e6c8; }
+.cl-save { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.cl-msg { min-height: 16px; margin: 4px 0 0; font-size: 11px; color: #9fe0a0; }

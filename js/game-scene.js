@@ -114,9 +114,9 @@ class GameScene extends Phaser.Scene {
     this.physics.add.overlap(this.player.obj, this.enemyGroup, (p, eObj) => this.onPlayerTouchEnemy(eObj.enemy));
 
     const cam = this.cameras.main;
-    cam.startFollow(this.player.obj, true, 0.14, 0.12);
     cam.setDeadzone(60, 90);
-    this.lookAhead = 0;
+    this.cine = new Cinematics(this); // 연출 도구: 카메라 룩어헤드·흔들림·빛·입자·길 안내 …
+    this.cine.follow();
 
     this.boss = this.enemies.find((e) => e.type === 'boss');
     // 프롤로그: 대쉬베기·발도는 연습장에서 배우기 전엔 못 씀
@@ -161,12 +161,14 @@ class GameScene extends Phaser.Scene {
     const onlyScene = only && this.story.scenes[only === 'test_dialogue' ? 'TEST' : only];
     const chapters = [this.chapter, onlyScene && onlyScene.chapter].filter(Boolean);
     const paths = CgCache.pathsOf(this.story, chapters);
-    if (paths.every((p) => CgCache.status(p) === 'ok' || CgCache.status(p) === 'missing')) {
+    const sfxIds = CineSound.idsOf(this.story, chapters).filter((id) => !(id in CineSound.files));
+    if (!sfxIds.length && paths.every((p) => CgCache.status(p) === 'ok' || CgCache.status(p) === 'missing')) {
       startStory();
     } else {
       this.storyLoading = true;
       UI.loading(true);
-      CgCache.preload(this.story, chapters).then(() => {
+      // 그림 + 이 장이 쓰는 효과음 파일(assets/sfx) 찾기
+      Promise.all([CgCache.preload(this.story, chapters), CineSound.probe(sfxIds)]).then(() => {
         if (!this.sys.isActive() && !this.sys.isPaused()) return; // 그사이 장면이 다시 시작됨
         this.storyLoading = false;
         UI.loading(false);
@@ -359,6 +361,7 @@ class GameScene extends Phaser.Scene {
       this.hitStopTimer -= dt;
       if (this.hitStopTimer > 0) return;
       if (!this.cutscene) this.physics.world.resume();
+      this.cine.onHitStopEnd();
     }
 
     if (this.storyLoading) return; // 장 시작 로딩 중
@@ -429,9 +432,8 @@ class GameScene extends Phaser.Scene {
       });
     }
 
-    // 카메라 룩어헤드: 바라보는 방향을 더 보여줌
-    this.lookAhead += (-player.facing * 90 - this.lookAhead) * Math.min(1, dt * 3);
-    this.cameras.main.setFollowOffset(this.lookAhead, 40);
+    // 카메라: 움직이는 쪽을 화면 폭 15% 더 보여주는 룩어헤드 + 길 안내·빛 깜빡임 (js/cinematics.js)
+    this.cine.update(dt);
 
     this.updateHud();
   }
@@ -547,8 +549,8 @@ class GameScene extends Phaser.Scene {
     const player = this.player;
     const t = this.activeTree;
     player.respawn(t.x + 24, t.y - TUNING.playerBody.height / 2 - 2);
-    this.cameras.main.centerOn(t.x + 24 + 90, t.y - 100);
-    this.lookAhead = -90;
+    this.cine.snapCamera(1);
+    this.cameras.main.centerOn(t.x + 24 + GAME_WIDTH * TUNING.cine.lookAhead, t.y - 100);
     this.spawnPetals(t.x, t.y - 60, 18, 80);
   }
 
