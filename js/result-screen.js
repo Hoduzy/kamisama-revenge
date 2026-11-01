@@ -7,7 +7,7 @@
 //  6 히트스톱 + 흰 플래시 + 강한 흔들림
 //  7 두루마리가 궤적을 따라 잘려(같은 그림 + 다각형 마스크) 조각마다 단면을 달고 날아감, 종이 조각·꽃잎이 흩날림
 //  8 먹물이 번지고 「討伐」이 왼쪽 → 오른쪽으로 붓질하듯 드러남 → 북 소리 + 작은 흔들림
-//  9 斬 · 死 · 시간 · 기억 조각이 차례로, 마지막에 '점프 · 공격으로 계속'
+//  9 처치 · 죽음 · 시간 · 기억 조각이 차례로, 마지막에 '점프 · 공격으로 계속'
 // 보스를 쓰러뜨렸을 때는 4~6 을 두 번 (두 번째는 좌우 반전 → X 자) 하고 두루마리가 네 조각으로 흩어진다.
 // 게임 화면(주 카메라)과 결과 화면(덧씌운 카메라)을 나눠, 어둡게·탈색은 게임 화면에만 걸린다.
 const RESULT_DIR = 'assets/result/';
@@ -129,18 +129,18 @@ class ResultScreen {
     // 3. 장 이름: 한 글자씩 (붓 소리)
     const title = stats.title || '';
     const chars = [...title];
-    const style = { fontFamily: "'Nanum Brush Script', 'Song Myung', serif", fontSize: `${R.titleSize}px`, color: '#2a1416' };
+    const style = PixelFont.style(R.titleSize, { color: '#2a1416' });
     const probe = s.make.text({ text: title, style }, false);
     const tw = probe.width;
     probe.destroy();
-    let x = cx - tw / 2;
+    let x = Math.round(cx - tw / 2);
     this.titleChars = [];
     for (const ch of chars) {
-      const t = this.add(s.add.text(x, cy, ch, style).setOrigin(0, 0.5).setAlpha(0).setScale(1.25), 12);
+      const t = this.add(s.add.text(x, cy, ch, style).setOrigin(0, 0.5).setAlpha(0), 12);
       this.titleChars.push(t);
       x += t.width;
       if (ch.trim()) CineSound.sfx('swish', { volume: 0.7, pitch: 0.15 });
-      s.tweens.add({ targets: t, alpha: 1, scale: 1, duration: this.T(160), ease: 'Quad.easeOut' });
+      s.tweens.add({ targets: t, alpha: 1, duration: this.T(160), ease: 'Quad.easeOut' }); // 픽셀 글꼴이라 크기는 그대로 (비정수 배율이면 흐려짐)
       await this.wait(R.titleCharMs);
     }
     await this.wait(250);
@@ -393,12 +393,12 @@ class ResultScreen {
     const mm = Math.floor(st.time / 60);
     const ss = String(Math.floor(st.time % 60)).padStart(2, '0');
     const items = [
-      `斬 ${st.kills}`,
-      `死 ${st.deaths}`,
+      `처치 ${st.kills}`,
+      `죽음 ${st.deaths}`,
       `시간 ${mm}:${ss}`,
       `기억 조각 ${st.memories ? `${st.memories[0]}/${st.memories[1]}` : '—'}`,
     ];
-    const style = { fontFamily: "'Song Myung', serif", fontSize: `${R.statsSize}px`, color: '#f5e6c8', stroke: '#1a0e10', strokeThickness: 4 };
+    const style = PixelFont.style(R.statsSize, { color: '#f5e6c8', stroke: '#1a0e10', strokeThickness: 4 });
     const y = Math.min(GAME_HEIGHT - 110, this.kanjiBottom + 26);
     const gap = 34;
     const texts = items.map((t) => s.make.text({ text: t, style }, false));
@@ -414,7 +414,7 @@ class ResultScreen {
     }
     const touch = TouchPad.mode === 'touch';
     const again = this.add(s.add.text(GAME_WIDTH / 2, y + 42, touch ? '화면을 눌러 계속' : '점프 · 공격으로 계속',
-      { fontFamily: "'Gowun Batang', serif", fontSize: '15px', color: '#d8cdb8', stroke: '#1a0e10', strokeThickness: 3 })
+      PixelFont.style(16, { color: '#d8cdb8', stroke: '#1a0e10', strokeThickness: 4 }))
       .setOrigin(0.5).setAlpha(0), 50);
     s.tweens.add({ targets: again, alpha: { from: 0.25, to: 1 }, duration: this.T(1100), yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
   }

@@ -57,13 +57,20 @@ const Portraits = (function () {
 
     // 이름 첫 글자
     const initial = [...(ch.name || '?')][0];
-    g.font = '700 120px "Gowun Batang", serif';
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    g.fillStyle = '#f3eee4';
+    // 둥근모꼴 48px 로 작은 캔버스에 쓴 뒤 3배로 (도트 그대로) 키워 붙인다
+    const t = document.createElement('canvas');
+    t.width = t.height = 48;
+    const tg = t.getContext('2d');
+    tg.font = `48px ${PixelFont.STACK}`;
+    tg.textAlign = 'center';
+    tg.textBaseline = 'middle';
+    tg.fillStyle = '#f3eee4';
+    tg.fillText(initial, 24, 25);
+    PixelFont.crisp(t, tg);
+    g.imageSmoothingEnabled = false;
     g.shadowColor = color;
     g.shadowBlur = 18;
-    g.fillText(initial, 200, 182);
+    g.drawImage(t, 200 - 72, 182 - 72, 144, 144);
     return c.toDataURL();
   }
 
@@ -72,7 +79,7 @@ const Portraits = (function () {
     silhouette(id, ch) {
       if (cache[id]) return cache[id];
       const url = draw(ch);
-      if (!document.fonts || document.fonts.check('700 120px "Gowun Batang"')) cache[id] = url;
+      if (!document.fonts || document.fonts.check(`48px ${PixelFont.FAMILY}`)) cache[id] = url;
       return url;
     },
   };

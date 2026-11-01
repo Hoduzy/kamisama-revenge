@@ -1,6 +1,10 @@
 // 조작감 튜닝 값. 단위: px, px/s, px/s², 초.
 // 숫자만 바꿔서 손맛을 조절할 수 있도록 한 곳에 모아 둔다.
 window.TUNING = {
+  // 화면 배율 (js/pixel-font.js). 게임 1px = 기기 화면 정수 픽셀이 되게 맞춰 글자·도트가 흐려지지 않는다.
+  // 창이 작아 정수배면 화면을 minFill(70%)보다 덜 채울 때만 비정수 배율로 꽉 채운다 (휴대폰 등).
+  screen: { integerScale: true, minFill: 0.7 },
+
   // 수평 이동
   maxRunSpeed: 340,
   groundAccel: 5200,     // 지상 가속 (0 → 최고속까지 약 0.065초)
@@ -179,7 +183,7 @@ window.TUNING = {
     dropMs: 650,
     unrollMs: 500,
     titleCharMs: 150,
-    titleSize: 46,
+    titleSize: 48,   // 16 · 32 · 48 (둥근모꼴)
     handEnterMs: 300,
     handEnterDist: 520,
     glintMs: 260,
@@ -203,7 +207,7 @@ window.TUNING = {
     kanjiGlow: 0.85,
     kanjiY: 0.42,
     statsGap: 100,
-    statsSize: 22
+    statsSize: 32    // 16 · 32 · 48
   },
   // </result>
 

@@ -260,7 +260,7 @@
           "cmd": "say",
           "speaker": "akane",
           "face": "serious",
-          "text": "하루사쿠라(春桜). 엄마 이름이랑, 엄마 꽃.",
+          "text": "하루사쿠라. 엄마 이름이랑, 엄마 꽃.",
           "portrait": false,
           "side": "left"
         },
@@ -519,7 +519,7 @@
           "cmd": "say",
           "speaker": "akane",
           "face": "serious",
-          "text": "하루사쿠라(春桜). 엄마 이름이랑, 엄마 꽃.",
+          "text": "하루사쿠라. 엄마 이름이랑, 엄마 꽃.",
           "side": "left"
         },
         {
@@ -646,7 +646,7 @@
         },
         {
           "cmd": "caption",
-          "text": "終"
+          "text": "끝"
         }
       ],
       "condition": {

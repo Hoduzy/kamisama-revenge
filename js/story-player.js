@@ -282,7 +282,7 @@ class StoryPlayer {
         // id: 효과음 프리셋/파일 (assets/sfx/<id>, 없으면 ZzFX 임시 소리) / name: 대본의 소리 이름 (audio.json)
         if (c.id) { CineSound.sfx(c.id, { volume: c.volume ?? 1, pitch: c.pitch ?? 0.05, distant: c.distant }); break; }
         StoryAudio.playSfx(c.name, c.distant);
-        UI.audioCue(c.name === 'stop' ? '효과음 멈춤' : `🔊 ${c.name}${StoryAudio.src('sfx', c.name) ? '' : ' (파일 없음)'}`);
+        UI.audioCue(c.name === 'stop' ? '효과음 멈춤' : `소리: ${c.name}${StoryAudio.src('sfx', c.name) ? '' : ' (파일 없음)'}`);
         break;
       case 'cg':
         // 화면 가득. 검은 바탕에서 0.8초 떠오르고(아주 느리게 확대·패닝), 다음 대사는 CG 위에 나온다.

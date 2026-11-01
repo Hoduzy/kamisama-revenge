@@ -18,7 +18,7 @@ const DevMenu = {
     el.id = 'dev-menu';
     el.innerHTML = `
       <div class="dm-box">
-        <div class="dm-head"><b>개발 메뉴</b><button type="button" class="dm-cine">🎬 연출 시험</button><span>F1 · Esc 닫기</span></div>
+        <div class="dm-head"><b>개발 메뉴</b><button type="button" class="dm-cine">연출 시험</button><span>F1 · Esc 닫기</span></div>
         <div class="dm-opts">
           <label><input type="checkbox" class="dm-dev"> 개발 모드 (연출 메모·소리 이름 표시)</label>
           <label>기억 조각 <input type="number" class="dm-mem" min="0" max="30" value="0"></label>

@@ -18,7 +18,7 @@ const UI = {
     this.root.style.height = GAME_HEIGHT + 'px';
     const sockets = (this.meta.ui_scabbard && this.meta.ui_scabbard.sockets) || [];
     this.root.innerHTML = `
-      <div class="hud-counters"><div class="plaque"><b>死</b><span class="deaths">0</span></div><div class="plaque"><b>斬</b><span class="kills">0</span></div></div>
+      <div class="hud-counters"><div class="plaque"><b>죽음</b><span class="deaths">0</span></div><div class="plaque"><b>처치</b><span class="kills">0</span></div></div>
       <div class="hud-tr"><button type="button" class="pause-btn" tabindex="-1" aria-label="일시정지"><i></i><i></i></button><span class="debug">판정 표시 (H)</span></div>
       <div class="boss"><div class="boss-name"></div><div class="boss-bar"><div class="boss-fill"></div></div></div>
       <div class="hud-skills">
@@ -32,9 +32,7 @@ const UI = {
       <div class="loading"><span>불러오는 중</span></div>
       <div class="cine-cutin"><div class="cc-lines"></div><div class="cc-eyes"></div></div>
       <div class="cine-objective"></div>
-      <div class="cine-arrow"><svg viewBox="0 0 60 60"><defs><filter id="cine-brush" x="-10%" y="-10%" width="120%" height="120%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="5"/><feDisplacementMap in="SourceGraphic" scale="3.5"/></filter></defs>
-        <path d="M14 8 L50 30 L14 52 Q22 30 14 8 Z"/></svg></div>
+      <div class="cine-arrow"><i class="px-arrow r"></i></div>
       <div class="fx-fade"></div>
       <div class="fx-lb top"></div><div class="fx-lb bottom"></div>
       <div class="fx-cg"><img alt=""><div class="fx-cg-ph"></div></div>
@@ -145,12 +143,20 @@ const UI = {
   hide(sel) { this.el(sel).classList.remove('show'); },
 
   // 장 제목 카드. style 'logo' = 게임 타이틀: 로고 문양(logo_emblem) 위에 붓글씨로 GAME_TITLE 을 쓴다 (대본의 글자 대신)
-  titleCard(text, { color, style } = {}) {
+  titleCard(text, { color, style, sub } = {}) {
     const el = this.el('.fx-title');
     el.className = 'fx-title show' + (color === 'red' ? ' red' : '') + (style === 'logo' ? ' logo' : '');
     if (style !== 'logo') return this.brush(el, text, 90);
-    el.innerHTML = `<img class="logo-emblem" src="${SPRITE_DIR}logo_emblem.png" alt=""><div class="logo-text"></div>`;
-    return this.brush(el.querySelector('.logo-text'), GAME_TITLE, 260) + 600;
+    el.innerHTML = `<img class="logo-emblem" src="${SPRITE_DIR}logo_emblem.png" alt=""><div class="logo-text"></div>`
+      + (sub ? `<div class="logo-sub"></div>` : '');
+    const ms = this.brush(el.querySelector('.logo-text'), GAME_TITLE, 260) + 600;
+    // 장 이름 (프롤로그 = '서장'): 로고가 다 써진 뒤 아래에
+    if (sub) {
+      const sb = el.querySelector('.logo-sub');
+      this.brush(sb, sub, 120);
+      sb.querySelectorAll('span').forEach((sp) => { sp.style.animationDelay = parseFloat(sp.style.animationDelay) + ms - 300 + 'ms'; });
+    }
+    return ms + (sub ? 400 : 0);
   },
 
   bossName(text) {
@@ -412,7 +418,7 @@ const UI = {
     });
   },
 
-  // ───────── 상단 카운터 (나무 명패: 死 사망 · 斬 처치) ─────────
+  // ───────── 상단 카운터 (나무 명패: 죽음 · 처치) ─────────
   setCounters(deaths, kills) {
     const d = this.el('.deaths');
     const k = this.el('.kills');

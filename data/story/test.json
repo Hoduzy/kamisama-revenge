@@ -14,7 +14,7 @@
         { "cmd": "caption", "text": "연출 엔진 테스트 장면." },
         { "cmd": "caption", "text": "검은 화면 위에 붓 자막이 한 획씩 써진다." },
         { "cmd": "fadeIn", "duration": 0.8 },
-        { "cmd": "titleCard", "text": "第一章 · 에도의 밤" },
+        { "cmd": "titleCard", "text": "제1장 · 에도의 밤" },
         { "cmd": "letterbox", "on": true },
         { "cmd": "bgm", "name": "잔잔한 피리" },
         { "cmd": "say", "speaker": "haru", "face": "smile", "text": "늦었네. 또 대장간에서 아빠 망치질 구경했지?", "side": "right" },
@@ -50,7 +50,7 @@
           ] }
         ] },
         { "cmd": "fadeOut", "duration": 0.8 },
-        { "cmd": "titleCard", "text": "第一章 · 끝" },
+        { "cmd": "titleCard", "text": "제1장 · 끝" },
         { "cmd": "fadeIn", "duration": 0.8 }
       ]
     }

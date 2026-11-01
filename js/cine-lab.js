@@ -1,4 +1,4 @@
-// 연출 시험 (F1 개발 메뉴 → '🎬 연출 시험'): 연출 도구(js/cinematics.js)를 버튼 하나씩 눌러 본다.
+// 연출 시험 (F1 개발 메뉴 → '연출 시험'): 연출 도구(js/cinematics.js)를 버튼 하나씩 눌러 본다.
 // 게임은 멈추지 않으니 걸어 다니면서 시험할 수 있다. 슬라이더는 TUNING.cine 을 바로 바꾸고,
 // '브라우저에 저장'(이 브라우저에서만) 또는 'config.js 로 저장'(파일 고르기 창 / 다운로드)으로 남긴다.
 const CineLab = {
@@ -130,8 +130,8 @@ const CineLab = {
       ['조각 거리', 'result.pieceDist', 200, 1400, 10, res(true)],
       ['조각 회전(도)', 'result.pieceSpin', 0, 180, 1, res(true)],
       ['먹물 크기', 'result.inkScale', 2, 12, 0.5, res(false)],
-      ['討伐 써짐(ms)', 'result.kanjiMs', 200, 2000, 10, res(false)],
-      ['討伐 크기', 'result.kanjiScale', 0.5, 2, 0.05, res(false)],
+      ['토벌 글씨 써짐(ms)', 'result.kanjiMs', 200, 2000, 10, res(false)],
+      ['토벌 글씨 크기', 'result.kanjiScale', 0.5, 2, 0.05, res(false)],
     ];
   },
 
@@ -157,7 +157,7 @@ const CineLab = {
     el.id = 'cine-lab';
     const esc = (t) => String(t).replace(/[&<>]/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m]));
     this.actions = [];
-    let html = `<div class="cl-head"><b>🎬 연출 시험</b><button type="button" class="cl-close">닫기</button></div>
+    let html = `<div class="cl-head"><b>연출 시험</b><button type="button" class="cl-close">닫기</button></div>
       <p class="cl-note">게임은 계속 움직인다. 걸으면서 눌러 보세요.</p>`;
     html += '<section><h3>수치 (TUNING.cine · TUNING.result)</h3>';
     this.sliders().forEach(([label, path, min, max, step], i) => {

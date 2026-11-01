@@ -19,6 +19,8 @@ import unicodedata
 import re
 from collections import Counter, OrderedDict
 from pathlib import Path
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'data/story'
@@ -109,7 +111,7 @@ OVERRIDES = {
     '명전.': [{'cmd': 'fadeIn', 'duration': 0.8}],
     '검은 칼집의 칼을 건넨다.': [{'cmd': 'note', 'text': '검은 칼집의 칼을 건넨다.'}],
     '아이템 획득 연출 (칼이 화면 가운데서 빛남).': [{'cmd': 'giveItem', 'name': '아카네의 칼 (이름 없음)'}],
-    '타이틀 로고가 붓으로 써지며 등장.': [{'cmd': 'titleCard', 'text': '카미사마 복수극', 'style': 'logo'}],
+    '타이틀 로고가 붓으로 써지며 등장.': [{'cmd': 'titleCard', 'text': '카미사마 복수극', 'style': 'logo', 'sub': '서장'}],
     'BGM이 얇아지고 물방울 소리.': [{'cmd': 'bgm', 'name': '(현재 곡 작게)', 'volume': 0.4}, {'cmd': 'sfx', 'name': '물방울'}],
     '화면이 하얗게 번진다.': [{'cmd': 'flash', 'color': 'white', 'soft': True}],
     '화면이 순간 하얘지고 안개 속에서 목소리가 들린다.': [{'cmd': 'flash', 'color': 'white'}],
@@ -139,7 +141,7 @@ OVERRIDES = {
     '부채 펴는 소리.': [{'cmd': 'sfx', 'name': '부채 펴는 소리'}],
     '바람에 대나무가 서로 부딪히는 소리.': [{'cmd': 'sfx', 'name': '대나무 부딪히는 소리'}],
     '바람 소리가 BGM보다 크다.': [{'cmd': 'sfx', 'name': '바람', 'loud': True}],
-    '장 제목 카드: 〈第六章 · 천년벚나무〉 — 이 장만 제목 글자가 붉은색.': [{'cmd': 'titleCard', 'text': '第六章 · 천년벚나무', 'color': 'red'}],
+    '장 제목 카드: 〈제6장 · 천년벚나무〉 — 이 장만 제목 글자가 붉은색.': [{'cmd': 'titleCard', 'text': '제6장 · 천년벚나무', 'color': 'red'}],
     '벚꽃나무에 다가가 꽃이 피는 순간, 화면이 순간 하얘지고 안개 속에서 목소리가 들린다.': [{'cmd': 'flash', 'color': 'white'}],
     'CG 없음, 실제 게임 화면을 카메라가 위로 천천히 올려다본다.': [{'cmd': 'cameraPan', 'dir': 'up', 'slow': True}],
     '2페이즈 체력바: 〈천년벚나무 · 하쿠야〉.': [{'cmd': 'bossName', 'text': '천년벚나무 · 하쿠야', 'phase': 2}],
@@ -312,7 +314,7 @@ def direction_commands(sentence):
     m = re.search(r'CG\s*(\d+)(?::\s*([^)]+?))?(?:\)|\.|$)', s)
     if m:
         cmds.append({'cmd': 'cg', 'no': int(m.group(1)), **({'desc': m.group(2).strip()} if m.group(2) else {})})
-    m = re.search(r'(?:장 제목 카드:\s*)?〈(第.+?)〉', s)
+    m = re.search(r'(?:장 제목 카드:\s*)?〈(제\d+장.+?)〉', s)
     if m:
         cmds.append({'cmd': 'titleCard', 'text': m.group(1)})
     m = re.search(r'(?:보스 이름 붓 자막|\d페이즈 체력바|보스 체력바):\s*[〈"“](.+?)[〉"”]', s)
@@ -854,6 +856,12 @@ def main():
     print(f"장면 {tot['scenes']} · say {tot['say']} · think {tot['think']} · voice {tot['voice']} · 자막 {tot['caption']} · 풀 {tot['pool']} · 연출 명령 {tot['dir']} · note {tot['note']}")
     if conv.unknown_speakers:
         print('인물 표에 없는 화자:', dict(conv.unknown_speakers))
+    # 둥근모꼴에 없는 글자 경고 (tools/check_glyphs.py)
+    try:
+        import check_glyphs
+        check_glyphs.report()
+    except ImportError as e:  # fontTools 가 없으면: pip install fonttools
+        print('글꼴 검사를 건너뜀:', e)
 
 
 if __name__ == '__main__':

@@ -54,7 +54,7 @@ class Enemy {
     this.telegraph = scene.add.rectangle(0, 0, 10, 10, 0xff1f1f, 0.3)
       .setStrokeStyle(2, 0xff1f1f).setDepth(7).setVisible(false);
     this.alert = scene.add.text(0, 0, '!', {
-      fontFamily: "'Song Myung', serif", fontSize: '28px', color: '#ff1f1f',
+      fontFamily: PixelFont.STACK, fontSize: '32px', color: '#ff1f1f',
       stroke: '#fff', strokeThickness: 4,
     }).setOrigin(0.5, 1).setDepth(15).setVisible(false);
     // 닌자: 던지기 직전 머리 위 반짝임
