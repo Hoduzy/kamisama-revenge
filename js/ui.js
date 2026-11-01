@@ -18,7 +18,6 @@ const UI = {
     this.root.style.height = GAME_HEIGHT + 'px';
     const sockets = (this.meta.ui_scabbard && this.meta.ui_scabbard.sockets) || [];
     this.root.innerHTML = `
-      <div class="hud-counters"><div class="plaque"><b>죽음</b><span class="deaths">0</span></div><div class="plaque"><b>처치</b><span class="kills">0</span></div></div>
       <div class="hud-tr"><button type="button" class="pause-btn" tabindex="-1" aria-label="일시정지"><i></i><i></i></button><span class="debug">판정 표시 (H)</span></div>
       <div class="boss"><div class="boss-name"></div><div class="boss-bar"><div class="boss-fill"></div></div></div>
       <div class="hud-skills">
@@ -85,7 +84,6 @@ const UI = {
     this.floats = [];
     this.el('.floats').innerHTML = '';
     this.boss(false);
-    this.setCounters(0, 0);
     this.el('.ctx-hints').innerHTML = '';
     this.ctxHints = {};
     this.skillState = null;
@@ -416,14 +414,6 @@ const UI = {
       borderImageSlice: `${t} ${r} ${b} ${l}${m.fill ? ' fill' : ''}`,
       borderImageRepeat: 'stretch',
     });
-  },
-
-  // ───────── 상단 카운터 (나무 명패: 죽음 · 처치) ─────────
-  setCounters(deaths, kills) {
-    const d = this.el('.deaths');
-    const k = this.el('.kills');
-    if (d.textContent !== String(deaths)) d.textContent = deaths;
-    if (k.textContent !== String(kills)) k.textContent = kills;
   },
 
   // ───────── 스킬 칸 · 칼집 게이지 (왼쪽 아래) ─────────

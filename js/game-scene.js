@@ -28,8 +28,8 @@ class GameScene extends Phaser.Scene {
 
     this.hitStopTimer = 0;
     this.playTime = 0; // 결과 화면의 시간 (컷신으로 멈춘 동안은 세지 않음)
-    this.kills = 0;  // 斬 (결과창·상단 카운터)
-    this.deaths = 0; // 死
+    this.kills = 0;  // 처치 (결과 화면)
+    this.deaths = 0; // 죽음 (결과 화면)
     this.cleared = false;
     this.shurikens = [];
 
@@ -334,7 +334,6 @@ class GameScene extends Phaser.Scene {
     const boss = this.boss;
     const bossOn = !!boss && !boss.dormant && !boss.dead;
     UI.boss(bossOn, this.bossDisplayName, bossOn ? boss.hp / boss.cfg.hp : 0);
-    UI.setCounters(this.deaths, this.kills);
 
     const sk = this.player.skills;
     const lock = this.skillLocks;

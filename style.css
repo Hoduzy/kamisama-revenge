@@ -169,15 +169,6 @@ body.in-dialogue #touch-controls .pad {
 .pause-btn i:first-child { left: 15px; }
 .pause-btn i:last-child { left: 21px; }
 
-/* 왼쪽 위: 나무 명패 카운터 (죽음 · 처치). 명패 그림(292×178)을 0.4배로 → 종이 칸 x 22~94, y 27~52 */
-.hud-counters { left: 10px; top: 6px; display: flex; gap: 4px; }
-.hud-counters .plaque {
-  position: relative; width: 117px; height: 71px; background: url(assets/ui/ui_plaque.png) center / 100% 100% no-repeat;
-  image-rendering: pixelated; font-family: var(--font-title); color: #2a1a14;
-}
-.hud-counters .plaque b, .hud-counters .plaque span { position: absolute; top: 32px; line-height: 16px; font-size: 16px; }
-.hud-counters .plaque b { left: 26px; color: #8e1b24; }
-.hud-counters .plaque span { left: 64px; min-width: 24px; text-align: left; }
 
 .boss { left: 50%; top: 12px; width: 380px; transform: translateX(-50%); text-align: center; }
 .boss-name { font-family: var(--font-title); font-weight: 400; font-size: 16px; color: #f5e6c8; text-shadow: 0 0 3px #000, 0 1px 3px #000; margin-bottom: 4px; }
@@ -272,7 +263,7 @@ body.in-dialogue #touch-controls .pad {
 #ui .fx-lb.top { top: 0; transform: translateY(-101%); }
 #ui .fx-lb.bottom { bottom: 0; transform: translateY(101%); }
 #ui .fx-lb.on { transform: none; }
-#ui.cinema .hud-tr, #ui.cinema .boss, #ui.cinema .hud-skills, #ui.cinema .hud-counters, #ui.cinema .ctx-hints { opacity: 0; transition: opacity 0.3s; }
+#ui.cinema .hud-tr, #ui.cinema .boss, #ui.cinema .hud-skills, #ui.cinema .ctx-hints { opacity: 0; transition: opacity 0.3s; }
 body.in-dialogue #ui .hud-skills, body.in-dialogue #ui .ctx-hints { opacity: 0; }
 #dialogue { z-index: 35; }
 
@@ -554,7 +545,7 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 @keyframes cc-lines { from { background-position: 0 0; } to { background-position: 0 23px; } }
 
 /* 목표 자막: 크게 나왔다가 왼쪽 위로 */
-#ui .cine-objective { left: 14px; top: 62px; z-index: 46; opacity: 0; font-family: var(--font-title); font-size: 16px; color: #f5e6c8;
+#ui .cine-objective { left: 14px; top: 16px; z-index: 46; opacity: 0; font-family: var(--font-title); font-size: 16px; color: #f5e6c8;
   text-shadow: 0 0 3px #000, 0 0 6px #000, 1px 1px 0 #8e1b24; transform-origin: 0 0;
   transition: opacity 0.4s, left 0.8s cubic-bezier(0.5, 0, 0.2, 1), top 0.8s cubic-bezier(0.5, 0, 0.2, 1), transform 0.8s cubic-bezier(0.5, 0, 0.2, 1); }
 #ui .cine-objective.show { opacity: 1; }
