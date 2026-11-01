@@ -8,7 +8,7 @@
 (function applySavedCine() {
   try {
     const saved = JSON.parse(localStorage.getItem('kamisama-cine') || 'null');
-    if (!saved) return;
+    if (!saved) throw 0;
     const merge = (dst, src) => {
       for (const [k, v] of Object.entries(src)) {
         if (v && typeof v === 'object' && dst[k] && typeof dst[k] === 'object') merge(dst[k], v);
@@ -17,6 +17,10 @@
     };
     merge(TUNING.cine, saved);
   } catch (e) { /* 저장소를 못 쓰면 config.js 값 그대로 */ }
+  try {
+    const r = JSON.parse(localStorage.getItem('kamisama-result') || 'null');
+    if (r) for (const [k, v] of Object.entries(r)) if (k in TUNING.result) TUNING.result[k] = v;
+  } catch (e) { /* 무시 */ }
 })();
 
 // 화면 색감 (컬러 오버레이)

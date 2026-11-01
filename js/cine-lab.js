@@ -102,9 +102,10 @@ const CineLab = {
     ];
   },
 
-  // 슬라이더: [글, TUNING.cine 경로, 최소, 최대, 간격, 바로 시험]
+  // 슬라이더: [글, TUNING 경로(cine.… / result.…), 최소, 최대, 간격, 바로 시험]
   sliders() {
     const C = () => this.cine;
+    const res = (boss) => () => this.playResult(boss);
     return [
       ['흔들림 약', 'shake.weak.amount', 0, 0.02, 0.0005, () => C().shake('weak')],
       ['흔들림 중', 'shake.mid.amount', 0, 0.03, 0.0005, () => C().shake('mid')],
@@ -113,14 +114,42 @@ const CineLab = {
       ['히트스톱 시간(초)', 'hitStop', 0, 0.4, 0.01, () => C().hitStop()],
       ['줌 인 배율', 'zoomIn', 1, 2, 0.05, () => C().zoom(TUNING.cine.zoomIn)],
       ['줌 아웃 배율', 'zoomOut', 0.5, 1, 0.05, () => C().zoom(TUNING.cine.zoomOut)],
+      ['— 결과 화면 —'],
+      ['전체 빠르기', 'result.speed', 0.1, 2, 0.05, res(false)],
+      ['두루마리 폭', 'result.scrollWidth', 0.3, 0.9, 0.01, res(false)],
+      ['어둡게', 'result.darken', 0, 1, 0.05, res(false)],
+      ['히트스톱 처음(초)', 'result.hitStop1', 0, 0.5, 0.01, res(false)],
+      ['떨어짐(ms)', 'result.dropMs', 100, 1500, 10, res(false)],
+      ['펼침(ms)', 'result.unrollMs', 100, 1500, 10, res(false)],
+      ['손 들어옴(ms)', 'result.handEnterMs', 50, 1000, 10, res(false)],
+      ['베기 각도(도)', 'result.slashAngle', 100, 175, 1, res(false)],
+      ['베기(ms)', 'result.slashMs', 40, 500, 5, res(false)],
+      ['궤적 크기', 'result.slashScale', 1, 5, 0.1, res(false)],
+      ['히트스톱 베기(초)', 'result.hitStop2', 0, 0.5, 0.01, res(false)],
+      ['조각 날아감(ms)', 'result.pieceMs', 200, 1500, 10, res(true)],
+      ['조각 거리', 'result.pieceDist', 200, 1400, 10, res(true)],
+      ['조각 회전(도)', 'result.pieceSpin', 0, 180, 1, res(true)],
+      ['먹물 크기', 'result.inkScale', 2, 12, 0.5, res(false)],
+      ['討伐 써짐(ms)', 'result.kanjiMs', 200, 2000, 10, res(false)],
+      ['討伐 크기', 'result.kanjiScale', 0.5, 2, 0.05, res(false)],
     ];
   },
 
-  get(path) { return path.split('.').reduce((o, k) => o[k], TUNING.cine); },
+  // 결과 화면 시험: 지금 장면에서 바로 (끝나면 점프·공격으로 다시 시작)
+  playResult(boss) {
+    const s = this.scene;
+    if (!s || s.cleared) return this.msg('이미 결과 화면이다. 점프·공격으로 다시 시작한 뒤 눌러 주세요.');
+    s.triggerClear({ boss });
+  },
+
+  // 'result.…' 는 TUNING.result, 나머지는 TUNING.cine
+  root(path) { return path.startsWith('result.') ? [TUNING.result, path.slice(7)] : [TUNING.cine, path]; },
+  get(path) { const [r, p] = this.root(path); return p.split('.').reduce((o, k) => o[k], r); },
   set(path, v) {
-    const ks = path.split('.');
+    const [r, p] = this.root(path);
+    const ks = p.split('.');
     const last = ks.pop();
-    ks.reduce((o, k) => o[k], TUNING.cine)[last] = v;
+    ks.reduce((o, k) => o[k], r)[last] = v;
   },
 
   build() {
@@ -130,14 +159,16 @@ const CineLab = {
     this.actions = [];
     let html = `<div class="cl-head"><b>🎬 연출 시험</b><button type="button" class="cl-close">닫기</button></div>
       <p class="cl-note">게임은 계속 움직인다. 걸으면서 눌러 보세요.</p>`;
-    html += '<section><h3>수치 (TUNING.cine)</h3>';
+    html += '<section><h3>수치 (TUNING.cine · TUNING.result)</h3>';
     this.sliders().forEach(([label, path, min, max, step], i) => {
+      if (!path) { html += `<h3 class="cl-sub">${label}</h3>`; return; }
       html += `<label class="cl-slider"><span>${label}</span><input type="range" min="${min}" max="${max}" step="${step}" data-i="${i}">
         <output></output><button type="button" data-try="${i}">▶</button></label>`;
     });
     html += `<div class="cl-save"><button type="button" class="cl-local">브라우저에 저장</button>
       <button type="button" class="cl-file">config.js 로 저장</button><button type="button" class="cl-reset">되돌리기</button></div>
-      <p class="cl-msg"></p></section>`;
+      <p class="cl-msg"></p></section>
+      <section><h3>결과 화면</h3><div class="cl-btns"><button type="button" class="cl-res">결과 화면 (일반)</button><button type="button" class="cl-res-boss">결과 화면 (보스: X 자)</button></div></section>`;
     for (const [title, list] of this.sections()) {
       html += `<section><h3>${esc(title)}</h3><div class="cl-btns">`;
       for (const [label, fn] of list) {
@@ -167,6 +198,8 @@ const CineLab = {
     el.querySelector('.cl-local').onclick = () => this.saveLocal();
     el.querySelector('.cl-file').onclick = () => this.saveFile();
     el.querySelector('.cl-reset').onclick = () => this.reset();
+    el.querySelector('.cl-res').onclick = (e) => { this.playResult(false); e.target.blur(); };
+    el.querySelector('.cl-res-boss').onclick = (e) => { this.playResult(true); e.target.blur(); };
   },
 
   msg(t) { if (this.el) this.el.querySelector('.cl-msg').textContent = t; },
@@ -187,20 +220,25 @@ const CineLab = {
   saveLocal() {
     try {
       localStorage.setItem('kamisama-cine', JSON.stringify(TUNING.cine));
+      localStorage.setItem('kamisama-result', JSON.stringify(TUNING.result));
       this.msg('이 브라우저에 저장했다. 다른 기기·배포에도 쓰려면 config.js 로 저장.');
     } catch (e) { this.msg('브라우저 저장소를 쓸 수 없다.'); }
   },
 
-  // config.js 의 '// <cine>' ~ '// </cine>' 사이를 지금 값으로 바꾼 파일을 만든다.
+  // config.js 의 '// <cine>' ~ '// </cine>', '// <result>' ~ '// </result>' 사이를 지금 값으로 바꾼 파일을 만든다.
   // 크롬·엣지는 파일 고르기 창에서 저장소의 js/config.js 를 고르면 그 파일에 바로 쓴다. 그 밖엔 다운로드
   async saveFile() {
     let text;
     try { text = await (await fetch('js/config.js', { cache: 'no-store' })).text(); } catch (e) { return this.msg('config.js 를 읽지 못했다.'); }
-    const a = text.indexOf('  // <cine>');
-    const b = text.indexOf('  // </cine>');
-    if (a < 0 || b < 0) return this.msg('config.js 에 <cine> 표시 줄이 없다.');
-    const head = text.slice(a, text.indexOf('\n', a) + 1);
-    const out = text.slice(0, a) + head + '  cine: ' + this.serialize(TUNING.cine, '  ') + ',\n' + text.slice(b);
+    let out = text;
+    for (const name of ['cine', 'result']) {
+      const a = out.indexOf(`  // <${name}>`);
+      const b = out.indexOf(`  // </${name}>`);
+      if (a < 0 || b < 0) return this.msg(`config.js 에 <${name}> 표시 줄이 없다.`);
+      const head = out.slice(a, out.indexOf('\n', out.indexOf('\n', a) + 1) + 1); // 표시 줄 + 설명 줄
+      const keep = head.split('\n').filter((l) => l.trim().startsWith('//')).join('\n') + '\n';
+      out = out.slice(0, a) + keep + `  ${name}: ` + this.serialize(TUNING[name], '  ') + ',\n' + out.slice(b);
+    }
     if (window.showSaveFilePicker) {
       try {
         const h = await window.showSaveFilePicker({ suggestedName: 'config.js', types: [{ description: 'JavaScript', accept: { 'text/javascript': ['.js'] } }] });
@@ -226,7 +264,7 @@ const CineLab = {
   },
 
   reset() {
-    try { localStorage.removeItem('kamisama-cine'); } catch (e) { /* 무시 */ }
+    try { localStorage.removeItem('kamisama-cine'); localStorage.removeItem('kamisama-result'); } catch (e) { /* 무시 */ }
     this.msg('브라우저 저장값을 지웠다. 새로고침하면 config.js 값으로 돌아간다.');
   },
 };

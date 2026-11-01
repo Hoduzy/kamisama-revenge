@@ -78,6 +78,9 @@ const Sprites = {
     add('fx_barrier', 'fx_barrier', [0, 1, 2, 3], 10);
     add('fx_barrier_break', 'fx_barrier_break', [0, 1, 2, 3], 14);
     add('fx_red_sun_grow', 'fx_red_sun_grow', [0, 1, 2, 3, 4], 8);
+    // 결과 화면 (빠르기는 재생할 때 정함)
+    add('result_slash_anim', 'result_slash', [0, 1, 2, 3, 4], 24);
+    add('result_ink_anim', 'result_ink', [0, 1, 2, 3, 4], 10);
     // 마을 사람: 앞 6칸 춤, 뒤 4칸 도망 (색 변형 시트도 같은 칸)
     for (const base of ['villager_man', 'villager_woman']) {
       for (const v of ['', '_v1', '_v2', '_v3']) {

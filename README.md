@@ -161,7 +161,7 @@
 
 - 원본: `assets/raw/` → `python3 tools/process_sprites.py` → `assets/sprites/` (시트 PNG + `manifest.json` + `preview.html`)
 - 게임은 시작할 때 `manifest.json`을 읽어 시트·배경·타일을 불러온다 (`js/sprites.js`, `js/boot-scene.js`). 그림을 못 읽으면 예전 도형으로 그린다.
-- 판정은 그림과 별개인 몸통 사각형 (주인공 28×60). H 키로 판정 표시.
+- 판정은 그림과 별개인 몸통 사각형 (주인공 28×60). H 키로 판정 표시 (기본은 꺼짐).
 - 배경: bg_far(밤하늘·달, 0.05배 스크롤, 3배 확대) → bg_mid(마을, 0.3) → bg_near(난간, 0.6). 앞쪽일수록 어둡게 틴트.
 
 ### 프롤로그 그림 (CG·구역 배경)
@@ -212,8 +212,19 @@
 | `ui_medallion` / `_pressed` | 일시정지 버튼, 터치 버튼 |
 
 - **대화창**: 나타날 때 붓으로 칠하듯 왼쪽 → 오른쪽으로 드러난다(붓결 마스크).
-- **결과창**: 닫힌 두루마리가 위에서 내려와 좌우로 펼쳐진다 → 「討伐」을 한 획씩 붓으로 쓴다 → 붉은 도장 「仇討」가 쾅 찍히며 화면이 살짝 흔들린다 → 아래에 斬(처치)·死(사망) 수.
-  - 획순 데이터: [KanjiVG](http://kanjivg.tagaini.net) © Ulrich Apel, CC BY-SA 3.0 (`js/kanji-strokes.js`).
+- **결과 화면** (`js/result-screen.js`, 그림: `python3 tools/process_result.py` → `assets/result/`, 수치: `config.js`의 `TUNING.result`):
+  1. 히트스톱 → 게임 화면이 어두워지고 탈색 → 가장자리 장식 → 레터박스
+  2. 닫힌 두루마리가 떨어져 튕기고 펼쳐짐 (화면 폭 55%)
+  3. 장 이름을 한 글자씩
+  4. 1인칭 손이 오른쪽 위에서 들어와 칼날이 반짝
+  5. 손이 가로질러 베고 칼날 궤적이 재생됨 (각도 = `slashAngle`)
+  6. 히트스톱 + 흰 플래시 + 흔들림
+  7. 두루마리가 궤적대로 잘려(같은 구성을 다각형 마스크로 나눔) 단면을 달고 날아감, 종이 조각·꽃잎이 흩날림
+  8. 먹물이 번지고 「討伐」 그림이 왼쪽 → 오른쪽으로 붓질하듯 드러남 → 북 소리
+  9. 斬 · 死 · 시간 · 기억 조각 → '점프 · 공격으로 계속'
+  - 보스를 쓰러뜨렸을 때는 4~6을 좌우 반전해서 두 번 베고(X 자), 두루마리가 네 조각으로 흩어진다.
+  - 게임 화면과 결과 화면을 다른 카메라로 그려서, 어둡게·탈색은 게임 화면에만 걸린다.
+  - F1 → `🎬 연출 시험`: 결과 화면 슬라이더(빠르기, 두루마리 폭, 각도, 시간들, 크기)와 `결과 화면 (일반/보스)` 시험 버튼.
 - **상단 카운터**: 나무 명패 위 「死 0」 「斬 0」.
 - **왼쪽 아래**: 스킬 칸 2개(아래에 키 글자 U, I). 쿨타임 동안 아이콘 위의 먹물이 위에서부터 빠진다. 그 옆 칼집 게이지 소켓에 벚꽃 스택이 하나씩 피어나고, 발도로 쓰면 흩날린다.
 - **폰트**: 제목·숫자·한자는 Song Myung, 대사·작은 글은 Gowun Batang (고딕체 없음).
@@ -235,12 +246,13 @@
 - `js/cinematics.js` — 연출 도구 (카메라·시간·화면·빛·입자·길 안내·소리)
 - `js/cine-lab.js` — F1 연출 시험 창
 - `js/lib/zzfx.js` — ZzFX 임시 효과음 (MIT)
-- `js/kanji-strokes.js` — 결과창 붓글씨 획순 (KanjiVG)
+- `js/result-screen.js` — 결과 화면 (두루마리 베기 → 討伐)
 - `js/dialogue.js` / `js/portraits.js` / `js/boot-scene.js` — 대화창, 초상화 그리기, 대본·스프라이트 로딩
 - `js/ui.js` — HTML 글자 레이어 + 컷신 연출(페이드, 레터박스, 자막, CG, 선택지, 말풍선)
 - `js/sprites.js` — 스프라이트 애니메이션·이펙트 도우미
 - `tools/process_sprites.py` — 원본 도트 이미지 전처리
 - `tools/process_ui.py` / `tools/ui_slices.json` — UI 그림 전처리, 9-slice 값
+- `tools/process_result.py` — 결과 화면 그림 전처리
 - `tools/process_prologue.py` — 프롤로그 인물·마을 사람·소품·이펙트 전처리 (scipy, opencv-python-headless 필요)
 - `js/player.js` / `js/enemy.js` — 주인공, 적
 - `js/level.js` — 맵(`LEVELS.town`, `LEVELS.prologue`), 스토리 트리거 ↔ 장면 id 표(`STORY_MAP`)

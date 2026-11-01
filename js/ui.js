@@ -29,7 +29,6 @@ const UI = {
       <div class="floats"></div>
       <div class="ctx-hints"></div>
       <div class="stage-title"><div class="t1"></div><div class="t2"></div></div>
-      <div class="result"></div>
       <div class="loading"><span>불러오는 중</span></div>
       <div class="cine-cutin"><div class="cc-lines"></div><div class="cc-eyes"></div></div>
       <div class="cine-objective"></div>
@@ -88,7 +87,6 @@ const UI = {
     this.floats = [];
     this.el('.floats').innerHTML = '';
     this.boss(false);
-    this.hideResult();
     this.setCounters(0, 0);
     this.el('.ctx-hints').innerHTML = '';
     this.ctxHints = {};
@@ -396,7 +394,8 @@ const UI = {
     return { el, remove: () => { f.until = 0; } };
   },
 
-  debug(on) { this.el('.debug').style.display = on ? '' : 'none'; },
+  // 판정 표시 (H) 글자: 기본은 숨김, H 를 눌렀을 때만
+  debug(on) { this.el('.debug').classList.toggle('on', on); },
 
   // ───────── 9-slice ─────────
   // el 에 UI 그림 name 을 9-slice 틀로 입힌다. scale: 그림 1px 이 화면 몇 px 인지 (모서리 장식 크기)
@@ -542,69 +541,7 @@ const UI = {
     s.classList.add('show');
   },
 
-  // ───────── 결과창: 두루마리 ─────────
-  // 닫힌 두루마리가 위에서 내려와 좌우로 펼쳐지고 → 붓글씨 「討伐」을 한 획씩 → 붉은 도장 쾅(onStamp) → 처치·사망 수.
-  // 다 나오는 데 걸리는 ms 를 돌려준다
-  result({ kills = 0, deaths = 0, onStamp } = {}) {
-    const el = this.el('.result');
-    const m = this.meta;
-    const P = 1.55; // 두루마리 그림 배율
-    const paper = m.ui_scroll_paper || { width: 326, height: 193 };
-    const rl = m.ui_scroll_roller_l || { width: 40 };
-    const rr = m.ui_scroll_roller_r || { width: 38 };
-    const H = paper.height * P;
-    const W = paper.width * P;
-    // 붓글씨: 획마다 path, 획 길이에 비례한 시간으로 차례로 쓴다
-    let t = 0;
-    const strokes = [];
-    const glyph = (ch, ox) => (KANJI_STROKES[ch] || []).map((d) => {
-      strokes.push(t);
-      t += 0.16;
-      return `<path d="${d}" transform="translate(${ox} 0)" style="--d:${strokes[strokes.length - 1]}s"/>`;
-    }).join('');
-    const svg = `<svg class="rs-kanji" viewBox="0 0 218 109"><defs><filter id="rs-brush" x="-5%" y="-5%" width="110%" height="110%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3"/>
-      <feDisplacementMap in="SourceGraphic" scale="2.6"/></filter></defs><g>${glyph('討', 0)}${glyph('伐', 109)}</g></svg>`;
-    const write0 = 1.45; // 펼쳐진 뒤 쓰기 시작
-    const stampAt = write0 + t + 0.25;
-    const touch = TouchPad.mode === 'touch';
-    el.style.setProperty('--write0', write0 + 's');
-    el.style.setProperty('--stamp', stampAt + 's');
-    el.innerHTML = `
-      <div class="rs-drop"><img class="rs-closed" src="${UI_DIR}ui_scroll_closed.png" alt=""></div>
-      <div class="rs-open" style="width:${W + (rl.width + rr.width) * P}px;height:${H}px">
-        <div class="rs-paper" style="left:${rl.width * P}px;width:${W}px;height:${H}px">
-          ${svg}
-          <div class="rs-seal"><span>仇</span><span>討</span></div>
-          <div class="rs-stats"><span>斬 ${kills}</span><span>死 ${deaths}</span></div>
-          <div class="rs-again">${touch ? '화면을 누르면' : '점프 · 공격으로'} 다시 시작</div>
-        </div>
-        <img class="rs-roller l" src="${UI_DIR}ui_scroll_roller_l.png" alt="" style="width:${rl.width * P}px">
-        <img class="rs-roller r" src="${UI_DIR}ui_scroll_roller_r.png" alt="" style="width:${rr.width * P}px">
-      </div>`;
-    el.querySelector('.rs-paper').style.backgroundImage = `url(${UI_DIR}${paper.file || 'ui_scroll_paper.png'})`;
-    el.querySelectorAll('.rs-kanji path').forEach((p) => {
-      const len = p.getTotalLength();
-      p.style.strokeDasharray = len;
-      p.style.strokeDashoffset = len;
-    });
-    el.classList.remove('show');
-    void el.offsetWidth;
-    el.classList.add('show');
-    clearTimeout(this.stampTimer);
-    this.stampTimer = setTimeout(() => {
-      el.classList.add('stamped');
-      if (onStamp) onStamp();
-    }, stampAt * 1000 + 120);
-    return (stampAt + 0.9) * 1000;
-  },
 
-  hideResult() {
-    const el = this.el('.result');
-    clearTimeout(this.stampTimer);
-    el.classList.remove('show', 'stamped');
-    el.innerHTML = '';
-  },
 
   // 월드 좌표에 붙어 떠오르는 글자 (피해 숫자, '패링!' 등). kind: 'damage' | 'pop'
   float(wx, wy, text, { color = '#fff', size = 20, kind = 'damage', ms = 700 } = {}) {

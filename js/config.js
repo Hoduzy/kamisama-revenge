@@ -166,6 +166,47 @@ window.TUNING = {
   },
   // </cine>
 
+  // <result> 결과 화면 (js/result-screen.js). 시간은 ms(히트스톱만 초), 각도는 도, 크기는 화면 비율·배율.
+  // F1 → '연출 시험'의 '결과 화면' 슬라이더로 바꾸고 저장할 수 있다 (이 표시 줄은 지우지 말 것)
+  result: {
+    speed: 1,
+    hitStop1: 0.15,
+    darken: 0.6,
+    desaturate: 0.85,
+    darkenMs: 500,
+    scrollWidth: 0.55,
+    scrollY: 0.42,
+    dropMs: 650,
+    unrollMs: 500,
+    titleCharMs: 150,
+    titleSize: 46,
+    handEnterMs: 300,
+    handEnterDist: 520,
+    glintMs: 260,
+    slashAngle: 150,
+    slashMs: 100,
+    handTravel: 1300,
+    slashScale: 2.4,
+    slashAnimMs: 220,
+    hitStop2: 0.1,
+    pieceMs: 600,
+    pieceDist: 760,
+    pieceSpin: 35,
+    paperBits: 14,
+    petals: 10,
+    inkMs: 500,
+    inkScale: 5,
+    inkFade: 0.35,
+    kanjiMs: 800,
+    kanjiScale: 1,
+    kanjiJag: 9,
+    kanjiGlow: 0.85,
+    kanjiY: 0.42,
+    statsGap: 100,
+    statsSize: 22
+  },
+  // </result>
+
   // 대화
   dialogue: {
     charsPerSecond: 32,

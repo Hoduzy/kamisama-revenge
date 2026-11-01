@@ -140,7 +140,8 @@ body.in-dialogue #touch-controls .pad {
 }
 
 .hud-tr { right: 14px; top: 10px; text-align: right; z-index: 55; }
-.hud-tr .debug { display: block; margin-top: 2px; font-size: 12px; color: #4ade80; }
+.hud-tr .debug.on { display: block; }
+.hud-tr .debug { display: none; margin-top: 2px; font-size: 12px; color: #4ade80; }
 /* 일시정지: 둥근 메달 + 두 줄 */
 .pause-btn {
   pointer-events: auto; cursor: pointer; position: relative; width: 40px; height: 39px; padding: 0; border: 0;
@@ -477,63 +478,6 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 @keyframes ctx-in { from { opacity: 0; transform: translate(-50%, -80%); } to { opacity: 1; transform: translate(-50%, -100%); } }
 @keyframes ctx-out { to { opacity: 0; transform: translate(-50%, -130%); } }
 
-/* ───────── 결과창: 두루마리 ───────── */
-#ui .result { inset: 0; z-index: 48; display: none; }
-#ui .result.show { display: block; }
-.result .rs-drop { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
-.result .rs-closed { display: block; height: 260px; image-rendering: pixelated; filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.6)); }
-.result.show .rs-drop { animation: rs-drop 0.65s cubic-bezier(0.3, 1.4, 0.5, 1) both, rs-hide 0.01s linear 0.95s forwards; }
-@keyframes rs-drop { from { transform: translate(-50%, -190%); } to { transform: translate(-50%, -50%); } }
-@keyframes rs-hide { to { visibility: hidden; } }
-.result .rs-open { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); visibility: hidden; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.6)); }
-.result.show .rs-open { animation: rs-show 0.01s linear 0.95s forwards; }
-@keyframes rs-show { to { visibility: visible; } }
-/* 펼침: 종이는 가운데서 좌우로 드러나고 축은 가운데에서 양끝으로 */
-.result .rs-paper { position: absolute; top: 0; background: center / 100% 100% no-repeat; image-rendering: pixelated; clip-path: inset(0 50% 0 50%); }
-.result.show .rs-paper { animation: rs-unroll 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.95s forwards; }
-@keyframes rs-unroll { to { clip-path: inset(0 0 0 0); } }
-.result .rs-roller { position: absolute; top: 0; height: 100%; image-rendering: pixelated; }
-.result .rs-roller.l { left: 0; }
-.result .rs-roller.r { right: 0; }
-.result.show .rs-roller.l { animation: rs-roll-l 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.95s both; }
-.result.show .rs-roller.r { animation: rs-roll-r 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.95s both; }
-@keyframes rs-roll-l { from { left: calc(50% - 31px); } to { left: 0; } }
-@keyframes rs-roll-r { from { right: calc(50% - 30px); } to { right: 0; } }
-/* 붓글씨 「討伐」: 획마다 먹이 그어진다 (--d = 시작 시각) */
-.rs-kanji { position: absolute; left: 50%; top: 12%; width: 62%; transform: translateX(-50%); overflow: visible; }
-.rs-kanji path {
-  fill: none; stroke: #1d1418; stroke-width: 7.5; stroke-linecap: round; stroke-linejoin: round;
-}
-/* 붓 자국: 가장자리를 거칠게 흔들고(번짐) 먹 농담을 살짝 */
-.rs-kanji g { filter: url(#rs-brush); opacity: 0.94; }
-.result.show .rs-kanji path { animation: rs-stroke 0.2s ease-in calc(var(--write0) + var(--d)) forwards; }
-@keyframes rs-stroke { to { stroke-dashoffset: 0; } }
-/* 붉은 도장: 쾅 */
-.rs-seal {
-  position: absolute; right: 13%; top: 46%; width: 46px; height: 46px; display: grid; grid-template-columns: 1fr;
-  align-content: center; justify-items: center; background: #b3202c; border-radius: 4px; opacity: 0;
-  box-shadow: inset 0 0 0 2px #e8c9b8, inset 0 0 6px rgba(0, 0, 0, 0.4);
-  font-family: var(--font-title); font-size: 17px; line-height: 19px; color: #f6e3d6;
-}
-.result.stamped .rs-seal { animation: rs-stamp 0.22s cubic-bezier(0.5, 0, 0.75, 0) forwards; }
-@keyframes rs-stamp {
-  0% { opacity: 0; transform: scale(2.6) rotate(-14deg); }
-  100% { opacity: 0.93; transform: scale(1) rotate(-6deg); }
-}
-.result.stamped .rs-open { animation: rs-show 0.01s linear forwards, rs-shake 0.3s linear 0.2s; }
-@keyframes rs-shake {
-  0%, 100% { transform: translate(-50%, -50%); }
-  20% { transform: translate(calc(-50% + 3px), calc(-50% - 2px)); }
-  40% { transform: translate(calc(-50% - 3px), calc(-50% + 2px)); }
-  60% { transform: translate(calc(-50% + 2px), calc(-50% + 1px)); }
-  80% { transform: translate(calc(-50% - 1px), calc(-50% - 1px)); }
-}
-.rs-stats, .rs-again { position: absolute; left: 0; right: 0; text-align: center; opacity: 0; }
-.rs-stats { bottom: 31%; display: flex; justify-content: center; gap: 26px; font-family: var(--font-title); font-size: 17px; color: #3a2a24; }
-.rs-again { bottom: 23%; font-family: var(--font-ui); font-size: 11px; color: #6e5a4e; }
-.result.stamped .rs-stats, .result.stamped .rs-again { animation: rs-fade 0.5s ease 0.45s forwards; }
-@keyframes rs-fade { to { opacity: 1; } }
-
 /* ───────── 일시정지 메뉴 (js/pause-menu.js) ───────── */
 #pause-menu { position: absolute; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; background: rgba(8, 6, 12, 0.55); pointer-events: auto; }
 #pause-menu.show { display: flex; }
@@ -619,3 +563,4 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 .cl-slider output { font-family: monospace; font-size: 11px; color: #f5e6c8; }
 .cl-save { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
 .cl-msg { min-height: 16px; margin: 4px 0 0; font-size: 11px; color: #9fe0a0; }
+.cl-sub { margin: 10px 0 4px !important; color: #ffd6e0 !important; }

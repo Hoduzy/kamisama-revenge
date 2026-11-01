@@ -27,6 +27,7 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, L.width, L.height);
 
     this.hitStopTimer = 0;
+    this.playTime = 0; // 결과 화면의 시간 (컷신으로 멈춘 동안은 세지 않음)
     this.kills = 0;  // 斬 (결과창·상단 카운터)
     this.deaths = 0; // 死
     this.cleared = false;
@@ -384,6 +385,7 @@ class GameScene extends Phaser.Scene {
     });
     if (this.story.blocking) return;
 
+    if (!this.cleared) this.playTime += dt;
     if (this.cleared) {
       const c = this.controls.state;
       if (this.canRestart && (c.jump.pressed || c.attack.pressed || tapped)) this.scene.restart();
@@ -682,7 +684,7 @@ class GameScene extends Phaser.Scene {
       // 보스 후 → 장 끝 장면을 보고 클리어
       this.time.delayedCall(1200, async () => {
         await this.story.playEntries((this.storyMap.boss || {}).after);
-        this.triggerClear();
+        this.triggerClear({ boss: true });
       });
     }
   }
@@ -1037,21 +1039,24 @@ class GameScene extends Phaser.Scene {
     this.physics.world.pause();
   }
 
-  // 결과창: 두루마리가 내려와 펼쳐지고 「討伐」 → 도장이 찍힐 때 화면이 살짝 흔들린다
-  triggerClear() {
+  // 결과 화면 (js/result-screen.js): 두루마리를 베어 「討伐」. boss: 보스를 쓰러뜨렸으면 X 자로 두 번 벤다
+  triggerClear({ boss = false } = {}) {
+    if (this.cleared) return;
     this.cleared = true;
+    this.canRestart = false;
     this.physics.world.pause();
-    const ms = UI.result({
+    const mine = (LEVEL.memories || []).filter((m) => !m.chapter || m.chapter === this.chapter).map((m) => m.no);
+    const have = (this.registry.get('memories') || []).filter((n) => mine.includes(n)).length;
+    const ch = this.story.chapters[this.chapter] || {};
+    this.result = new ResultScreen(this);
+    this.result.play({
       kills: this.kills,
       deaths: this.deaths,
-      onStamp: () => this.cameras.main.shake(180, 0.006),
-    });
-    this.allowRestartSoon(ms);
-  }
-
-  allowRestartSoon(ms = 500) {
-    this.canRestart = false;
-    this.time.delayedCall(ms, () => { this.canRestart = true; });
+      time: this.playTime,
+      memories: mine.length ? [have, mine.length] : null,
+      title: ch.title || '',
+      boss,
+    }).then(() => { this.canRestart = true; });
   }
 
   // 떠오르는 글자는 HTML 레이어에 (월드 좌표를 따라 움직임)

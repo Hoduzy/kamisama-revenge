@@ -1,0 +1,135 @@
+{
+  "fx_slash_hand_1": {
+    "file": "fx_slash_hand_1.png",
+    "width": 480,
+    "height": 270,
+    "dot": 3.48,
+    "screen": true
+  },
+  "fx_slash_hand_2": {
+    "file": "fx_slash_hand_2.png",
+    "width": 480,
+    "height": 270,
+    "dot": 3.48,
+    "screen": true
+  },
+  "fx_slash_hand_3": {
+    "file": "fx_slash_hand_3.png",
+    "width": 480,
+    "height": 270,
+    "dot": 3.48,
+    "screen": true
+  },
+  "result_frame": {
+    "file": "result_frame.png",
+    "width": 480,
+    "height": 270,
+    "dot": 3.48,
+    "screen": true
+  },
+  "result_kanji": {
+    "file": "result_kanji.png",
+    "width": 431,
+    "height": 188,
+    "dot": 4.0
+  },
+  "result_ink": {
+    "file": "result_ink.png",
+    "frameWidth": 71,
+    "frameHeight": 41,
+    "frames": 5,
+    "dot": 7.72
+  },
+  "result_slash": {
+    "file": "result_slash.png",
+    "frameWidth": 84,
+    "frameHeight": 138,
+    "frames": 5,
+    "dot": 5.26,
+    "artAngle": 137.3
+  },
+  "result_edge_a": {
+    "file": "result_edge_a.png",
+    "width": 349,
+    "height": 18
+  },
+  "result_edge_b": {
+    "file": "result_edge_b.png",
+    "width": 349,
+    "height": 15
+  },
+  "result_piece_0": {
+    "file": "result_piece_0.png",
+    "width": 43,
+    "height": 43
+  },
+  "result_piece_1": {
+    "file": "result_piece_1.png",
+    "width": 17,
+    "height": 34
+  },
+  "result_piece_2": {
+    "file": "result_piece_2.png",
+    "width": 33,
+    "height": 34
+  },
+  "result_piece_3": {
+    "file": "result_piece_3.png",
+    "width": 43,
+    "height": 35
+  },
+  "result_piece_4": {
+    "file": "result_piece_4.png",
+    "width": 38,
+    "height": 24
+  },
+  "result_piece_5": {
+    "file": "result_piece_5.png",
+    "width": 24,
+    "height": 25
+  },
+  "result_piece_6": {
+    "file": "result_piece_6.png",
+    "width": 34,
+    "height": 34
+  },
+  "result_piece_7": {
+    "file": "result_piece_7.png",
+    "width": 25,
+    "height": 48
+  },
+  "result_petal_0": {
+    "file": "result_petal_0.png",
+    "width": 12,
+    "height": 11
+  },
+  "result_petal_1": {
+    "file": "result_petal_1.png",
+    "width": 9,
+    "height": 11
+  },
+  "result_petal_2": {
+    "file": "result_petal_2.png",
+    "width": 11,
+    "height": 11
+  },
+  "result_petal_3": {
+    "file": "result_petal_3.png",
+    "width": 10,
+    "height": 11
+  },
+  "result_petal_4": {
+    "file": "result_petal_4.png",
+    "width": 9,
+    "height": 9
+  },
+  "result_petal_5": {
+    "file": "result_petal_5.png",
+    "width": 10,
+    "height": 10
+  },
+  "_counts": {
+    "pieces": 8,
+    "petals": 6
+  }
+}

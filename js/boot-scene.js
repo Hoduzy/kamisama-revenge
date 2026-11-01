@@ -11,6 +11,7 @@ class BootScene extends Phaser.Scene {
     for (const id of STORY_FILES) this.load.json('story-' + id, `data/story/${id}.json`);
     this.load.json('sprites', SPRITE_DIR + 'manifest.json');
     this.load.json('ui', UI_DIR + 'ui.json'); // UI 그림 크기·9-slice (tools/process_ui.py)
+    this.load.json('result', RESULT_DIR + 'result.json'); // 결과 화면 그림 (tools/process_result.py)
   }
 
   create() {
@@ -24,6 +25,7 @@ class BootScene extends Phaser.Scene {
     StoryAudio.init(this.cache.json.get('story-audio'));
     DevMenu.init(this.game);
     if (manifest) Sprites.queue(this, manifest);
+    ResultScreen.preload(this, this.cache.json.get('result'));
 
     const start = () => {
       Sprites.createAnims(this);
