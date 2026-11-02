@@ -23,6 +23,8 @@
   } catch (e) { /* 무시 */ }
   try {
     // 스킬 수치 (연출 시험의 '스킬' 슬라이더)
+    const bs = JSON.parse(localStorage.getItem('kamisama-bgscale') || 'null');
+    if (bs) Object.assign(TUNING.bgScale, bs);
     const sk = JSON.parse(localStorage.getItem('kamisama-skills') || 'null');
     if (sk) for (const g of ['dashSlash', 'iaido', 'doubleJump']) for (const [k, v] of Object.entries(sk[g] || {})) if (k in TUNING[g]) TUNING[g][k] = v;
   } catch (e) { /* 무시 */ }
@@ -436,10 +438,11 @@ class Cinematics {
 
   // 빛을 받는 그림: 이미지·스프라이트·타일 (빛나는 것 = ADD 혼합, 화면 고정 오버레이는 제외)
   light2d(go) {
+    if (go && go.list && go instanceof Phaser.GameObjects.Container) { go.list.forEach((c) => this.light2d(c)); return; } // 구역 배경(컨테이너)
     if (!go || go.cineLit || go.noLight || !go.setPipeline) return;
     const G = Phaser.GameObjects;
     if (!(go instanceof G.Image || go instanceof G.Sprite || go instanceof G.TileSprite)) return;
-    if (go.blendMode === Phaser.BlendModes.ADD || go.scrollFactorX === 0) return;
+    if (go.blendMode === Phaser.BlendModes.ADD || (go.scrollFactorX === 0 && !go.parentContainer)) return;
     try { go.setPipeline('Light2D'); go.cineLit = true; } catch (e) { /* 이 그림은 빛을 못 받음 */ }
   }
 

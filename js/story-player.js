@@ -74,6 +74,10 @@ const StoryAudio = {
   },
 };
 
+// 대화 카메라를 유지하는 명령 (대사 사이에 끼어도 확대를 풀지 않음)
+const DIALOGUE_CAM_KEEP = ['say', 'think', 'voice', 'emote', 'emoteHold', 'face', 'wait', 'sfx', 'cutIn', 'act', 'anim', 'pose', 'sit', 'standUp',
+  'kneel', 'tremble', 'setFlag', 'note', 'bgm', 'bgmDuck', 'ambience', 'particles', 'propTint', 'giveItem', 'objective', 'mode', 'section', 'stopAnim', 'earTwitch'];
+
 class StoryPlayer {
   // BootScene 에서 읽어 둔 json 으로 만든다
   constructor(scene) {
@@ -175,6 +179,7 @@ class StoryPlayer {
     }
     if (this.stopped) return;
     // 정리: 대화창 닫기, 연출 걷기, 느린 화면·카메라 원래대로, 게임 재개
+    this.dialogueCamOff();
     this.dialogue.close();
     if (TUNING.cine.duckDuringDialogue) CineSound.duck(false);
     // CG 가 남아 있으면 페이드아웃이 끝난 뒤 다음 장면으로
@@ -266,8 +271,57 @@ class StoryPlayer {
     for (let i = 0; i < list.length; i++) {
       if (this.stopped) return;
       const c = list[i];
+      // 대화 카메라: 대사(대화창)가 이어지는 동안 1.25배 확대해 말하는 사람들을 대화창 위 공간 가운데로. 대사 아닌 연출이 오면 원래대로
+      if (['say', 'think'].includes(c.cmd)) this.dialogueCam(c);
+      else if (!DIALOGUE_CAM_KEEP.includes(c.cmd)) this.dialogueCamOff();
       await this.exec(c, sc);
     }
+  }
+
+  // ───────── 대화 카메라 ─────────
+  dialogueCam(c) {
+    const D = TUNING.dialogueCam;
+    const scene = this.scene;
+    const cine = scene.cine;
+    const cam = scene.cameras.main;
+    const A = scene.actors;
+    if (!D || this.skipping || this.dialogue.controllable || !A) return;
+    // 장면이 카메라를 직접 움직였으면(패닝 · 줌 · 다른 인물 따라가기) 건드리지 않는다
+    // 장면이 확대 · 다른 인물 따라가기 중이거나 CG 가 떠 있으면 건드리지 않는다 (한 곳을 비추는 패닝은 괜찮다: 끝나면 그 자리로 돌아감)
+    if (!this.dlgCam && (A.follow || Math.abs(cam.zoom - 1) > 0.01 || UI.cgShown)) return;
+    const a = A.get(c.speaker);
+    if (!a || a.visible === false) return;
+    this.dlgPeople = (this.dlgPeople || []).filter((p) => p !== a && p.visible !== false).slice(-1).concat(a);
+    // 너무 멀리 떨어진 사람은 빼고 (화면에 같이 담을 수 있는 만큼)
+    const ppl = this.dlgPeople.filter((p) => Math.abs(p.x - a.x) < GAME_WIDTH / D.zoom * 0.8);
+    const x = ppl.reduce((s, p) => s + p.x, 0) / ppl.length;
+    const y = ppl.reduce((s, p) => s + (p.y + p.headY) / 2, 0) / ppl.length;
+    // 대화창 위 공간의 가운데(화면 y = D.screenY)에 오도록: 화면 가운데에서 위로 (GAME_HEIGHT/2 - screenY)/zoom
+    const cy = y + (GAME_HEIGHT / 2 - D.screenY) / D.zoom;
+    if (!this.dlgCam) {
+      this.dlgCam = { following: cine.following, x: cam.midPoint.x, y: cam.midPoint.y };
+      // 맵 아래 끝에 막혀 인물을 대화창 위로 못 올리지 않게, 대화 동안만 카메라 경계를 아래로 넓힌다 (넓힌 곳은 대화창 뒤라 안 보임)
+      cam.setBounds(0, 0, LEVEL.width, LEVEL.height + 240);
+      cam.stopFollow();
+      cine.following = false;
+      cam.zoomTo(D.zoom, D.ms, 'Sine.easeInOut', true);
+    }
+    cam.pan(x, cy, D.ms, 'Sine.easeInOut', true);
+  }
+
+  dialogueCamOff() {
+    if (!this.dlgCam) return;
+    const prev = this.dlgCam;
+    this.dlgCam = null;
+    this.dlgPeople = [];
+    const cam = this.scene.cameras.main;
+    const cine = this.scene.cine;
+    const ms = TUNING.dialogueCam.ms;
+    cam.zoomTo(1, ms, 'Sine.easeInOut', true);
+    this.scene.time.delayedCall(ms + 30, () => { if (!this.dlgCam) cam.setBounds(0, 0, LEVEL.width, LEVEL.height); });
+    // 원래대로: 아카네를 따라가던 중이었으면 다시 따라가고, 한 곳을 비추던 중이었으면 그 자리로
+    if (prev.following) cine.follow();
+    else cam.pan(prev.x, prev.y, ms, 'Sine.easeInOut', true);
   }
 
   // ───────── 명령 하나 ─────────

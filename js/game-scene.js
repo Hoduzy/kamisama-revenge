@@ -305,6 +305,32 @@ class GameScene extends Phaser.Scene {
     this.updateStageBackgrounds();
   }
 
+  // 그림 맨 위 6줄의 평균 색 (A 부분)
+  topColor(key, W, H) {
+    this.topColors = this.topColors || {};
+    if (this.topColors[key] != null) return this.topColors[key];
+    let col = 0x14172e;
+    try {
+      const src = this.textures.get(key).getSourceImage();
+      const cv = document.createElement('canvas');
+      cv.width = W; cv.height = 6;
+      const g = cv.getContext('2d');
+      g.drawImage(src, W, 0, W, 6, 0, 0, W, 6);
+      const px = g.getImageData(0, 0, W, 6).data;
+      let r = 0, gg = 0, b = 0, n = 0;
+      for (let i = 0; i < px.length; i += 4) { r += px[i]; gg += px[i + 1]; b += px[i + 2]; n++; }
+      col = Phaser.Display.Color.GetColor(r / n, gg / n, b / n);
+    } catch (e) { /* 못 읽으면 밤색 */ }
+    this.topColors[key] = col;
+    return col;
+  }
+
+  // 배경 배율을 바꿨을 때 (연출 시험 슬라이더) 구역 배경을 다시 만든다
+  rebuildStageBackgrounds() {
+    for (const b of this.stageBgs) { b.img.destroy(); b.img = this.makeStageBg(b, b.i); }
+    this.updateStageBackgrounds();
+  }
+
   // 구역 배경 그림 하나. manifest 에 그림이 없으면 화면 크기 임시 그림(단색 + 장소 실루엣 + 이름표, js/placeholders.js)
   makeStageBg(d, i) {
     const s = Sprites.sheet(d.key);
@@ -312,15 +338,36 @@ class GameScene extends Phaser.Scene {
       Placeholders.background(this, d.key);
       return this.add.image(0, 0, d.key).setOrigin(0, 0).setScrollFactor(0).setDepth(-90 + i);
     }
-    const S = s.displayScale;
-    const p = s.parallax;
+    // 배율: config.js 의 TUNING.bgScale[그림] (배경 속 문 · 처마 아래 높이 = 아카네 키 × 1.4 가 되게 배경마다 잰 값). 없으면 manifest
     const W = s.width;
-    // 카메라 중심이 anchorX 일 때 그림의 anchor 위치(가운데 A 기준)가 화면 가운데
-    const x = GAME_WIDTH / 2 + (d.anchorX - GAME_WIDTH / 2) * p - (W + s.anchor * W) * S;
-    const y = s.screenBottom - s.height * S + this.groundScrollY * p;
-    const img = this.add.image(x, y, d.key).setOrigin(0, 0).setScale(S).setScrollFactor(p, p).setDepth(-90 + i);
+    const H = s.height;
+    // 다만 그림이 땅에서 화면 위 끝까지 거의 닿게 (TUNING.bgCover 비율 이상) — 문 기준 배율로는 위가 크게 비는 배경이 있다
+    const cover = (GAME_HEIGHT - 100) / (H * (1 - s.floorBand)) * (TUNING.bgCover ?? 0);
+    const S = Math.max((TUNING.bgScale && TUNING.bgScale[d.key]) || s.displayScale, cover);
+    const p = s.parallax;
+    const tex = this.textures.get(d.key);
+    // 띠 텍스처(반전A, A, 반전A)에서 'A, 반전A' 두 칸을 잘라 가로로 거울 반복 (배경을 줄여 구역보다 좁아져도 빈 곳 없이)
+    if (!tex.has('mirror')) {
+      tex.add('mirror', 0, W, 0, W * 2, H);
+      tex.add('top', 0, W, 0, W * 2, 1); // 맨 윗줄: 그림이 화면 위까지 안 닿으면 위로 늘려 하늘 · 천장을 잇는다
+    }
+    // 세로는 월드에 붙인다(스크롤 1): 그림의 바닥 띠 윗선이 땅 윗면(맵 바닥)에 오게. 가로만 패럴랙스
+    const floorY = LEVEL.height - 100;
+    const top = floorY - H * S * (1 - s.floorBand);
+    const span = GAME_WIDTH / p + 4000;          // 구역 어디서 보아도 덮을 만큼 넓게
+    // 가로: 카메라 가운데가 anchorX 일 때 그림의 anchor 위치(A 기준)가 화면 가운데
+    const x0 = GAME_WIDTH / 2 + (d.anchorX - GAME_WIDTH / 2) * p - span / 2;
+    const offset = (span / 2 - s.anchor * W * S) / S;   // A 의 anchor 가 x0 + span/2 에 오도록 타일 시작점
+    const c = this.add.container(0, 0).setScrollFactor(p, 1).setDepth(-90 + i);
+    const img = this.add.tileSprite(x0, top, span / S, H, d.key, 'mirror').setOrigin(0, 0).setScale(S);
+    img.tilePositionX = -offset;
+    const skyH = Math.max(0, top - (floorY - GAME_HEIGHT - 400));  // 점프 · 대화 카메라로 위를 봐도 비지 않게
+    // 그림 위: 맨 윗줄 몇 줄의 평균 색으로 채운다 (윗줄을 늘리면 세로 줄무늬가 생김) — 위가 하늘이면 하늘색, 천장이면 어두운 나무색
+    const sky = this.add.rectangle(x0, top - skyH, span, skyH + 2, this.topColor(d.key, W, H)).setOrigin(0, 0);
+    c.add([sky, img]);
     if (d.tint) img.setTint(d.tint);
-    return img;
+    c.setTint = (t) => { img.setTint(t); return c; };
+    return c;
   }
 
   // 대본 명령 stageBg: 구역(id)의 배경을 다른 그림으로 (P-14 잿더미 광장 등)

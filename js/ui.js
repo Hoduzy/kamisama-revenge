@@ -207,11 +207,13 @@ const UI = {
     el.classList.remove('show');
     void el.offsetWidth;
     el.classList.add('show');
+    this.cgShown = true;
   },
 
   // CG 걷기: sec 초 동안 페이드아웃. 걸리는 ms 를 돌려준다 (떠 있지 않으면 0)
   cgHide(sec = 0.8) {
     const el = this.el('.fx-cg');
+    this.cgShown = false;
     if (!el.classList.contains('show')) return 0;
     el.style.transitionDuration = sec + 's';
     el.classList.remove('show');
@@ -393,6 +395,7 @@ const UI = {
     const f = { el, target, until: performance.now() + ms };
     this.floats.push(f);
     this.place(f);
+    return f;
   },
 
   // 튜토리얼 안내 (화면 위쪽 가운데, 끝날 때까지 떠 있음). { kb, touch } — 조작 방식에 맞는 글. null 이면 숨김

@@ -111,6 +111,9 @@ class DialogueBox {
   // 한 줄 보여 주고, 넘길 때 끝나는 Promise
   line(c) {
     this.resolvePending();
+    // 조작 가능 컷신: 대화창 대신 말하는 인물 머리 위 작은 말풍선 (인물이 화면에 있을 때)
+    const actor = this.controllable && c.cmd !== 'voice' && this.scene.actors && this.scene.actors.get(c.speaker);
+    if (actor && actor.visible !== false) return this.bubbleLine(c, actor);
     this.show();
     const ch = this.characters[c.speaker] || {};
     const kind = c.cmd; // say | think | voice
@@ -165,7 +168,22 @@ class DialogueBox {
     return new Promise((resolve) => { this.pending = resolve; });
   }
 
+  bubbleLine(c, a) {
+    this.hide();
+    const ch = this.characters[c.speaker] || {};
+    const name = c.cmd === 'think' ? `${ch.name || ''} · 속마음` : (ch.name || '');
+    const T = TUNING.story;
+    const ms = (T.autoAdvanceBase + c.text.length * T.autoAdvancePerChar) * 1000 + 600;
+    const f = UI.bubble(() => [a.x, a.headY - 6], c.text, { name, ms: ms + 400 });
+    if (c.cmd === 'think') f.el.classList.add('think');
+    this.bubble = f;
+    this.chars = [];
+    this.bubbleLeft = ms / 1000;
+    return new Promise((resolve) => { this.pending = resolve; });
+  }
+
   resolvePending() {
+    if (this.bubble) { this.bubble.until = 0; this.bubble = null; }
     const p = this.pending;
     this.pending = null;
     if (p) p();
@@ -182,6 +200,11 @@ class DialogueBox {
   // 매 프레임 (컷신 엔진이 부른다). advance: 넘기기 입력
   update(dt, advance) {
     if (!this.active || !this.pending) return;
+    if (this.bubble) {
+      this.bubbleLeft -= dt;
+      if (advance || this.bubbleLeft <= 0) this.resolvePending();
+      return;
+    }
     if (advance) {
       if (this.typing) {
         this.reveal(this.chars.length);
