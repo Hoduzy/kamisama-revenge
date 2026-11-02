@@ -17,55 +17,6 @@
           "duration": 0
         },
         {
-          "cmd": "gameplay",
-          "do": "mood",
-          "mood": "fire"
-        },
-        {
-          "cmd": "gameplay",
-          "do": "bossLook",
-          "color": "black",
-          "x": "fireHakuya",
-          "face": -1,
-          "show": true
-        },
-        {
-          "cmd": "prop",
-          "id": "dbA0",
-          "key": "prop_debris_fire",
-          "at": 12080,
-          "scale": 0.7,
-          "depth": 3,
-          "label": ""
-        },
-        {
-          "cmd": "prop",
-          "id": "dbA1",
-          "key": "prop_debris_fire",
-          "at": 12420,
-          "scale": 0.5,
-          "depth": 3,
-          "label": ""
-        },
-        {
-          "cmd": "prop",
-          "id": "dbA2",
-          "key": "prop_debris_fire",
-          "at": 13250,
-          "scale": 0.7,
-          "depth": 3,
-          "label": ""
-        },
-        {
-          "cmd": "prop",
-          "id": "dbA3",
-          "key": "prop_debris_fire",
-          "at": 13520,
-          "scale": 0.5,
-          "depth": 3,
-          "label": ""
-        },
-        {
           "cmd": "ambience",
           "id": "fire",
           "every": 0.9,
@@ -77,252 +28,83 @@
           "seconds": 3
         },
         {
-          "cmd": "spawn",
-          "actor": "akane",
-          "at": "fireAkaneDown",
-          "face": "right",
+          "cmd": "cut",
+          "image": "cut_p0_1",
+          "fade": 1.2,
+          "zoomTo": 1.04,
+          "zoomSec": 4.5,
+          "breathe": true,
+          "embers": true,
           "src": "페이드인. 아주 낮은 시점. 불타는 광장 바닥에 아카네가 쓰러져 있다. 눈이 반쯤 떠져 있다. 화면 앞쪽은 흐릿한 불길."
         },
         {
-          "cmd": "pose",
-          "actor": "akane",
-          "pose": "down"
-        },
-        {
-          "cmd": "spawn",
-          "actor": "haru",
-          "at": "fireHaru",
-          "face": "right"
-        },
-        {
-          "cmd": "pose",
-          "actor": "haru",
-          "pose": "guard"
-        },
-        {
-          "cmd": "treeStage",
-          "tree": "burning",
-          "stage": "burning"
-        },
-        {
-          "cmd": "mood",
-          "to": "fireLow",
-          "seconds": 0
-        },
-        {
-          "cmd": "lights",
-          "on": true,
-          "ambient": "#6a5a66"
-        },
-        {
-          "cmd": "light",
-          "preset": "fire",
-          "x": "fireHakuya",
-          "y": 560,
-          "id": "plazaFire1"
-        },
-        {
-          "cmd": "light",
-          "preset": "fire",
-          "x": 12150,
-          "y": 600,
-          "id": "plazaFire2"
-        },
-        {
-          "cmd": "light",
-          "preset": "brazier",
-          "x": "plazaStump",
-          "y": 520,
-          "id": "plazaFire3"
-        },
-        {
-          "cmd": "light",
-          "preset": "torch",
-          "x": "fireAkaneDown",
-          "y": 590,
-          "id": "plazaFire4"
-        },
-        {
-          "cmd": "prop",
-          "id": "ff0",
-          "key": "fx_fire_small",
-          "at": 12180,
-          "anim": "fx_fire_small",
-          "loop": true,
-          "depth": 4,
-          "optional": true
-        },
-        {
-          "cmd": "prop",
-          "id": "ff1",
-          "key": "fx_fire_small",
-          "at": 12470,
-          "anim": "fx_fire_small",
-          "loop": true,
-          "depth": 4,
-          "optional": true
-        },
-        {
-          "cmd": "prop",
-          "id": "ff2",
-          "key": "fx_fire_small",
-          "at": 12690,
-          "anim": "fx_fire_small",
-          "loop": true,
-          "depth": 4,
-          "optional": true
-        },
-        {
-          "cmd": "prop",
-          "id": "ff3",
-          "key": "fx_fire_small",
-          "at": 12980,
-          "anim": "fx_fire_small",
-          "loop": true,
-          "depth": 4,
-          "optional": true
-        },
-        {
-          "cmd": "prop",
-          "id": "ff4",
-          "key": "fx_fire_small",
-          "at": 13280,
-          "anim": "fx_fire_small",
-          "loop": true,
-          "depth": 4,
-          "optional": true
-        },
-        {
-          "cmd": "camPan",
-          "x": "fireAkaneDown",
-          "offset": 300,
-          "seconds": 0.01
-        },
-        {
-          "cmd": "camZoom",
-          "zoom": 1.0,
-          "seconds": 0.01
-        },
-        {
-          "cmd": "camTilt",
-          "y": 0,
-          "ms": 10
-        },
-        {
-          "cmd": "foreground",
-          "preset": "pillar",
-          "x": 12565
-        },
-        {
-          "cmd": "foreground",
-          "preset": "fireWall",
-          "x": 13170
-        },
-        {
-          "cmd": "particles",
-          "preset": "embers",
-          "at": "fireAkaneDown",
-          "id": "p0embers"
-        },
-        {
-          "cmd": "vignette",
-          "amount": 0.55,
-          "seconds": 0.01
-        },
-        {
-          "cmd": "fadeIn",
-          "duration": 1.4
+          "cmd": "wait",
+          "seconds": 1.3
         },
         {
           "cmd": "wait",
-          "seconds": 1.6
+          "seconds": 1.2,
+          "src": "아카네의 시선 끝: 칼을 든 하루의 뒷모습. 그 너머 불길 속 흰 머리 사내의 실루엣. 얼굴은 보이지 않는다."
         },
         {
-          "cmd": "camPan",
-          "x": 12900,
-          "seconds": 1.8,
-          "src": "아카네의 시선 끝: 칼을 든 하루의 뒷모습. 그 너머 불길 속 흰 머리 사내의 실루엣. 얼굴은 보이지 않는다."
+          "cmd": "cut",
+          "image": "cut_p0_2",
+          "fade": 0.2,
+          "breathe": true,
+          "embers": true,
+          "src": "하루가 고개를 반쯤 돌려 아카네를 본다. 입술이 움직이지만 소리는 없다."
+        },
+        {
+          "cmd": "ambience",
+          "id": "fire",
+          "every": 0.9,
+          "volume": 0.15
+        },
+        {
+          "cmd": "bgmDuck",
+          "on": true
+        },
+        {
+          "cmd": "sfx",
+          "id": "heartbeat"
         },
         {
           "cmd": "wait",
           "seconds": 2.0
         },
         {
-          "cmd": "face",
-          "actor": "haru",
-          "dir": "akane",
-          "src": "하루가 고개를 반쯤 돌려 아카네를 본다. 입술이 움직이지만 소리는 없다."
-        },
-        {
-          "cmd": "wait",
-          "seconds": 1.2
-        },
-        {
-          "cmd": "face",
-          "actor": "haru",
-          "dir": "right"
-        },
-        {
-          "cmd": "wait",
-          "seconds": 0.6
-        },
-        {
-          "cmd": "foregroundClear",
+          "cmd": "cut",
+          "image": "cut_p0_3",
+          "fade": 0.2,
+          "zoomTo": 1.19,
+          "zoomSec": 2.5,
+          "breathe": false,
+          "flicker": {
+            "x": 0.575,
+            "y": 0.13
+          },
           "src": "꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다."
         },
         {
-          "cmd": "camPan",
-          "x": "fireAkaneDown",
-          "seconds": 0.9
+          "cmd": "wait",
+          "seconds": 1.5
         },
         {
-          "cmd": "camZoom",
-          "zoom": 2.2,
-          "seconds": 0.7
+          "cmd": "cutLids",
+          "seconds": 1.0
         },
         {
-          "cmd": "camTilt",
-          "y": 110,
-          "ms": 500
-        },
-        {
-          "cmd": "prop",
-          "id": "p0petal",
-          "key": "fx_petals",
-          "at": "fireAkaneDown",
-          "frame": 0,
-          "dy": -130,
-          "offset": 16,
-          "depth": 12
-        },
-        {
-          "cmd": "propMove",
-          "id": "p0petal",
-          "dy": 122,
-          "angle": 200,
-          "seconds": 2.2
-        },
-        {
-          "cmd": "propTint",
-          "id": "p0petal",
-          "color": "#ff5a20",
-          "seconds": 0.4
-        },
-        {
-          "cmd": "propTint",
-          "id": "p0petal",
-          "color": "#444444",
-          "alpha": 0,
-          "seconds": 0.7
-        },
-        {
-          "cmd": "propOff",
-          "id": "p0petal"
+          "cmd": "wait",
+          "seconds": 1.0
         },
         {
           "cmd": "fadeOut",
           "duration": 0,
           "src": "컷. 검은 화면. 완전한 침묵 2초."
+        },
+        {
+          "cmd": "cutEnd",
+          "fade": 0
         },
         {
           "cmd": "silence"
@@ -470,6 +252,11 @@
         {
           "cmd": "setFlag",
           "flag": "bellWrapped",
+          "value": false
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "swordGiven",
           "value": false
         },
         {
@@ -729,21 +516,11 @@
           "anim": "akane_ember"
         },
         {
-          "cmd": "prop",
-          "id": "spark",
-          "key": "glow",
-          "at": "sapling",
-          "offset": -14,
-          "dy": -14,
-          "depth": 12,
-          "fade": 0.2
-        },
-        {
-          "cmd": "propMove",
-          "id": "spark",
-          "dy": -16,
-          "seconds": 0.9,
-          "wait": false
+          "cmd": "bloomFlash",
+          "x": "sapling",
+          "y": 560,
+          "amount": 0.15,
+          "seconds": 0.8
         },
         {
           "cmd": "sfx",
@@ -1187,6 +964,11 @@
           "value": true
         },
         {
+          "cmd": "setFlag",
+          "flag": "swordGiven",
+          "value": false
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": "houseExit",
@@ -1354,6 +1136,15 @@
         {
           "cmd": "giveItem",
           "name": "아카네의 칼 (이름 없음)"
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "swordGiven",
+          "value": true
+        },
+        {
+          "cmd": "standUp",
+          "actor": "soichiro"
         },
         {
           "cmd": "say",
@@ -1552,7 +1343,7 @@
         {
           "cmd": "say",
           "speaker": "hana",
-          "face": "smile",
+          "face": "proud",
           "text": "아카네 언니! 이거 봐, 아빠가 만들어 줬어! 오늘 밤에 쓸 거야!",
           "side": "right"
         },
@@ -1566,7 +1357,7 @@
         {
           "cmd": "say",
           "speaker": "hana",
-          "face": "smile",
+          "face": "proud",
           "text": "언니도 오늘 꽃 피워?",
           "side": "right"
         },
@@ -1580,7 +1371,7 @@
         {
           "cmd": "say",
           "speaker": "hana",
-          "face": "smile",
+          "face": "proud",
           "text": "그럼 언니가 피울 땐 내가 제일 크게 박수 쳐 줄게!",
           "side": "right"
         },
@@ -1936,35 +1727,68 @@
           "src": "나그네가 숲길로 걸어 사라진다. 그가 앉았던 돌 위에 꽃잎 한 장이 떨어지는데, 닿는 순간 갈색으로 시든다. 아카네는 보지 못한다. 플레이어만 본다."
         },
         {
-          "cmd": "camPan",
-          "x": "gateStone",
-          "seconds": 0.8
-        },
-        {
-          "cmd": "prop",
-          "id": "witheredPetal",
-          "key": "fx_petals",
-          "at": "gateStone",
-          "frame": 1,
-          "dy": -170,
-          "depth": 12
-        },
-        {
-          "cmd": "propMove",
-          "id": "witheredPetal",
-          "dy": 150,
-          "angle": 160,
-          "seconds": 2.2
-        },
-        {
-          "cmd": "propTint",
-          "id": "witheredPetal",
-          "color": "#7a5530",
-          "seconds": 0.35
+          "cmd": "cut",
+          "image": "cut_p6_stone_1",
+          "fade": 0.4,
+          "zoomTo": 1.06,
+          "zoomSec": 4.8,
+          "focusY": 0.62
         },
         {
           "cmd": "wait",
-          "seconds": 1.0
+          "seconds": 0.9
+        },
+        {
+          "cmd": "cut",
+          "image": "cut_p6_stone_2",
+          "fade": 0.3,
+          "focusY": 0.62
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "cut",
+          "image": "cut_p6_stone_3",
+          "fade": 0.3,
+          "focusY": 0.62
+        },
+        {
+          "cmd": "bgm",
+          "id": null,
+          "fade": 0.3
+        },
+        {
+          "cmd": "silence"
+        },
+        {
+          "cmd": "sfx",
+          "id": "wind",
+          "volume": 0.6
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "cut",
+          "image": "cut_p6_stone_4",
+          "fade": 0.3,
+          "focusY": 0.62,
+          "petals": true
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "cutEnd",
+          "fade": 0.4
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.4
         },
         {
           "cmd": "camFollow",
@@ -2726,6 +2550,14 @@
           "stage": "bloom"
         },
         {
+          "cmd": "bloomFlash",
+          "x": "festivalTree",
+          "y": 330,
+          "amount": 0.35,
+          "seconds": 1.5,
+          "hold": true
+        },
+        {
           "cmd": "particles",
           "preset": "petals",
           "seconds": 3
@@ -2809,6 +2641,15 @@
           "desc": "가지 위에 겹친 두 손, 아카네 손바닥 아래에서 막 벌어지는 꽃 한 송이"
         },
         {
+          "cmd": "wait",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "cgGlow",
+          "amount": 0.22,
+          "seconds": 1.2
+        },
+        {
           "cmd": "say",
           "speaker": "akane",
           "face": "surprised",
@@ -2861,7 +2702,7 @@
         {
           "cmd": "say",
           "speaker": "hana",
-          "face": "smile",
+          "face": "cheer",
           "text": "언니가 피웠다! 내가 제일 크게 박수 쳤어!",
           "side": "right"
         },
@@ -3166,6 +3007,15 @@
           "tree": "festival",
           "stage": "burning",
           "wipe": 0.8
+        },
+        {
+          "cmd": "brighten",
+          "amount": 0,
+          "seconds": 0.6
+        },
+        {
+          "cmd": "lightOff",
+          "id": "bloomLight"
         },
         {
           "cmd": "particles",
@@ -3954,7 +3804,7 @@
         {
           "cmd": "say",
           "speaker": "hana",
-          "face": "scared",
+          "face": "cry",
           "text": "언니… 할머니가, 할머니가 안에…",
           "side": "right"
         },
@@ -4005,7 +3855,7 @@
         {
           "cmd": "say",
           "speaker": "hana",
-          "face": "sad",
+          "face": "worried",
           "text": "언니는?",
           "side": "right"
         },

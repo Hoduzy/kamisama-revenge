@@ -42,6 +42,7 @@ const CgCache = {
     const walk = (cmds) => {
       for (const c of cmds || []) {
         if (c.cmd === 'cg') out.add(this.path(c));
+        if (c.cmd === 'cut') out.add(`assets/cg/${c.image}.png`); // 컷 연출 그림도 미리
         for (const k of ['then', 'else', 'commands']) walk(c[k]);
         for (const o of [...(c.options || []), ...(c.cases || [])]) walk(o.commands);
       }

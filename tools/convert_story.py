@@ -96,6 +96,9 @@ PORTRAITS['hakuya']['sprite'] = {'key': 'portraits_hakuya', 'faces': {
 PORTRAITS['wanderer'] = {'sprite': {'key': 'portraits_pro2', 'faces': {
     'neutral': 3, 'serious': 3, 'sad': 3, 'surprised': 3, 'angry': 3, 'scared': 3, 'smile': 4}}}
 PORTRAITS['dumpling_grandma'] = {'color': '#e8e0d0', 'sprite': {'key': 'portraits_pro2', 'faces': {'neutral': 5}}}
+# 하나 (portrait_hana: 0 가면 자랑, 1 박수 환호, 2 깨진 가면 울음, 3 걱정)
+PORTRAITS['hana'] = {'color': '#ffb7c5', 'sprite': {'key': 'portrait_hana', 'faces': {
+    'neutral': 0, 'smile': 0, 'proud': 0, 'cheer': 1, 'cry': 2, 'scared': 2, 'sad': 3, 'worried': 3, 'surprised': 3}}}
 PORTRAITS['villager']['sprite'] = {'key': 'portraits_village', 'faces': {'neutral': 2, 'smile': 2, 'surprised': 3, 'sad': 3, 'scared': 3, 'angry': 3, 'serious': 3}}
 
 CHAPTERS = [  # (파일 이름, 대본의 장 제목 머리말 시작)
@@ -183,6 +186,8 @@ GAMEPLAY = {
 FACE_OVERRIDES = {('P-10b', 'soichiro', 'sad'): 'wounded', ('P-11', 'hakuya', 'smile'): 'laugh',
                   # 새 아카네 초상: P-3 · P-8 의 웃음은 활짝 웃는 얼굴, 비 오는 P-12 ~ P-14 의 슬픔 · 분노는 젖은 얼굴
                   ('P-3', 'akane', 'smile'): 'happy', ('P-8', 'akane', 'smile'): 'happy',
+                  ('P-5', 'hana', 'smile'): 'proud', ('P-8', 'hana', 'smile'): 'cheer',
+                  ('P-10', 'hana', 'scared'): 'cry', ('P-10', 'hana', 'sad'): 'worried',
                   **{(p, 'akane', 'sad'): 'rain_sad' for p in ('P-12', 'P-13', 'P-14')},
                   **{(p, 'akane', 'angry'): 'rain_hate' for p in ('P-12', 'P-13', 'P-14')}}
 

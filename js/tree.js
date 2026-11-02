@@ -69,6 +69,15 @@ class CherryTree {
     if (show) s.setVisible(true);
     const sc = this.scene;
     if (this.fire) { this.fire.destroy(); this.fire = null; }
+    // 만개: 나무 뒤에 부드러운 분홍 광채 (아주 천천히 맥박). 다른 단계에선 끈다
+    if (this.glow) { this.glow.destroy(); this.glow = null; }
+    if (stage === 'bloom' && sc.textures.exists('cine-soft')) {
+      this.glow = sc.add.image(this.x, this.canopyY, 'cine-soft').setDepth(s.depth - 0.05)
+        .setScale(this.canopyW * 2.6 / 24, this.canopyW * 2.2 / 24).setTint(0xff9ec0).setAlpha(0.32).setBlendMode(Phaser.BlendModes.ADD);
+      this.glow.noLight = true;
+      sc.tweens.add({ targets: this.glow, alpha: 0.5, scaleX: this.glow.scaleX * 1.06, scaleY: this.glow.scaleY * 1.06,
+        duration: 2600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
     // painted: 배경 그림(bg_pro_burning)에 이미 불타는 큰 나무가 그려져 있는 곳 → 나무 그림은 숨기고 불티만 (P-0 · P-11 광장)
     if (stage === 'painted') {
       s.setVisible(false);
@@ -133,6 +142,9 @@ class CherryTree {
     scene.time.delayedCall(90, () => scene.spawnPetals(this.x, this.canopyY, 25, 110));
     const ring = scene.add.circle(this.x, this.canopyY, 30).setStrokeStyle(4, 0xff9eb8).setDepth(12);
     scene.tweens.add({ targets: ring, scale: 4, alpha: 0, duration: 450, onComplete: () => ring.destroy() });
+    // 꽃이 필 때 분홍빛이 퍼지며 장면이 잠깐 밝아짐 (작게)
+    // (장식 큰 벚나무는 장면이 bloomFlash 로 따로 정한다)
+    if (!this.noLabel && scene.cine && scene.cine.bloomFlash) scene.cine.bloomFlash(this.x, this.canopyY, 0.15, 0.8);
     if (!this.noLabel) scene.popText(this.x, this.y - Sprites.height('tree', 150) - 16, '벚꽃나무', '#ff8fb1'); // 장식 나무는 체크포인트가 아니라 글자 없음
     scene.cameras.main.shake(120, 0.004);
   }

@@ -409,7 +409,22 @@
   },
   "hana": {
     "name": "하나",
-    "side": "auto"
+    "side": "auto",
+    "color": "#ffb7c5",
+    "sprite": {
+      "key": "portrait_hana",
+      "faces": {
+        "neutral": 0,
+        "smile": 0,
+        "proud": 0,
+        "cheer": 1,
+        "cry": 2,
+        "scared": 2,
+        "sad": 3,
+        "worried": 3,
+        "surprised": 3
+      }
+    }
   },
   "wanderer": {
     "name": "나그네",

@@ -35,6 +35,7 @@ const UI = {
       <div class="fx-fade"></div>
       <div class="fx-lb top"></div><div class="fx-lb bottom"></div>
       <div class="fx-cg"><img alt=""><div class="fx-cg-ph"></div></div>
+      <div class="fx-cut"><div class="cut-stage"></div><div class="cut-edge"></div><div class="cut-fx"></div><div class="cut-lid top"></div><div class="cut-lid bottom"></div></div>
       <div class="fx-caption"></div>
       <div class="fx-title"></div>
       <div class="fx-bossname"></div>
@@ -208,6 +209,109 @@ const UI = {
     void el.offsetWidth;
     el.classList.add('show');
     this.cgShown = true;
+  },
+
+  // ───────── 컷 연출 (P-0 1인칭 3컷, P-6 바위 4컷): 화면 가득 그림 한 장씩, 크로스페이드 · 느린 확대 · 효과 ─────────
+  // c: { image(assets/cg/<이름>.png), fade(초, 처음이면 검은 화면에서), zoomTo · zoomSec(지금 배율에서 천천히), focusY(0~1 세로 기준),
+  //      breathe(가장자리가 숨 쉬듯 흐려짐), embers(아래에서 불티), flicker: {x, y}(그림 안 자리 0~1, 불씨 깜빡임), petals(꽃잎이 왼쪽 위로 날아감) }
+  cut(c) {
+    const root = this.el('.fx-cut');
+    const stage = root.querySelector('.cut-stage');
+    const fxl = root.querySelector('.cut-fx');
+    const first = !root.classList.contains('show');
+    if (first) {
+      stage.innerHTML = '';
+      fxl.innerHTML = '';
+      this.cutZoom = 1;
+      stage.style.transition = 'none';
+      stage.style.transform = 'scale(1)';
+      root.querySelectorAll('.cut-lid').forEach((l) => { l.style.transition = 'none'; l.style.height = '0'; });
+      root.classList.add('show');
+    }
+    const fade = (c.fade ?? 0.3) * 1000;
+    const pane = document.createElement('div');
+    pane.className = 'cut-pane';
+    const img = new Image();
+    img.src = `assets/cg/${c.image}.png`;
+    pane.append(img);
+    const place = () => {
+      const r = (img.naturalWidth || 16) / (img.naturalHeight || 9);
+      const w = Math.max(GAME_WIDTH, GAME_HEIGHT * r);
+      const h = w / r;
+      Object.assign(pane.style, { width: w + 'px', height: h + 'px', left: (GAME_WIDTH - w) / 2 + 'px',
+        top: (GAME_HEIGHT / 2 - h * (c.focusY ?? 0.5)) + 'px' });
+      pane.dataset.w = w; pane.dataset.h = h;
+    };
+    if (img.complete) place(); else img.onload = place;
+    pane.style.opacity = '0';
+    pane.style.transition = `opacity ${fade}ms ease`;
+    stage.append(pane);
+    void pane.offsetWidth;
+    pane.style.opacity = '1';
+    // 앞 그림은 새 그림이 다 나타난 뒤 지운다
+    const olds = [...stage.children].filter((x) => x !== pane);
+    setTimeout(() => olds.forEach((o) => o.remove()), fade + 50);
+    if (c.zoomTo != null) {
+      stage.style.transition = `transform ${(c.zoomSec ?? 2) * 1000}ms linear`;
+      void stage.offsetWidth;
+      stage.style.transform = `scale(${c.zoomTo})`;
+    }
+    root.classList.toggle('breathe', !!c.breathe);
+    fxl.innerHTML = '';
+    if (c.embers) {
+      for (let i = 0; i < 26; i++) {
+        const e = document.createElement('i');
+        e.className = 'cut-ember';
+        e.style.left = (Math.random() * 100) + '%';
+        e.style.animationDelay = (-Math.random() * 2.4) + 's';
+        e.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+        fxl.append(e);
+      }
+    }
+    if (c.flicker) {
+      const f = document.createElement('i');
+      f.className = 'cut-flicker';
+      pane.append(f);
+      f.style.left = c.flicker.x * 100 + '%';
+      f.style.top = c.flicker.y * 100 + '%';
+    }
+    if (c.petals) {
+      for (let i = 0; i < 9; i++) {
+        const p = document.createElement('i');
+        p.className = 'cut-petal';
+        p.style.backgroundImage = `url(${SPRITE_DIR}${(Sprites.sheet('fx_petals') || {}).file || 'fx_petals.png'})`;
+        p.style.backgroundPosition = `${-(i % 4) * 12}px 0`;
+        p.style.left = (45 + Math.random() * 20) + '%';
+        p.style.top = (62 + Math.random() * 10) + '%';
+        p.style.animationDelay = (i * 0.07) + 's';
+        fxl.append(p);
+      }
+    }
+  },
+
+  // CG 위에서 꽃이 필 때: 그림을 잠깐 밝게 (amount 0~1, sec 초에 올라갔다가 천천히 내려옴)
+  cgGlow(amount = 0.2, sec = 1.2) {
+    const img = this.el('.fx-cg img');
+    img.style.transition = `filter ${sec * 1000}ms ease-out`;
+    img.style.filter = `brightness(${1 + amount}) saturate(1.1)`;
+    setTimeout(() => { img.style.transition = 'filter 2s ease-in'; img.style.filter = `brightness(${1 + amount * 0.4})`; }, sec * 1000 + 400);
+  },
+
+  // 눈꺼풀처럼 위아래 검은 띠가 닫힌다 (sec 초)
+  cutLids(sec = 0.9) {
+    const root = this.el('.fx-cut');
+    root.querySelectorAll('.cut-lid').forEach((l) => {
+      l.style.transition = `height ${sec * 1000}ms cubic-bezier(0.5, 0, 0.7, 1)`;
+      void l.offsetWidth;
+      l.style.height = '51%';
+    });
+  },
+
+  cutEnd(sec = 0.4) {
+    const root = this.el('.fx-cut');
+    root.style.transition = `opacity ${sec * 1000}ms ease`;
+    root.classList.remove('show', 'breathe');
+    setTimeout(() => { if (!root.classList.contains('show')) { root.querySelector('.cut-stage').innerHTML = ''; root.querySelector('.cut-fx').innerHTML = ''; } }, sec * 1000 + 50);
   },
 
   // CG 걷기: sec 초 동안 페이드아웃. 걸리는 ms 를 돌려준다 (떠 있지 않으면 0)

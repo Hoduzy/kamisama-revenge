@@ -176,6 +176,18 @@ class DialogueBox {
     const ms = (T.autoAdvanceBase + c.text.length * T.autoAdvancePerChar) * 1000 + 600;
     const f = UI.bubble(() => [a.x, a.headY - 6], c.text, { name, ms: ms + 400 });
     if (c.cmd === 'think') f.el.classList.add('think');
+    // 말풍선 왼쪽에 작은 초상 (표정이 보이게, 초상 1칸을 0.6배로)
+    const fc = ch.sprite && Sprites.face(ch.sprite, c.face);
+    const sh = fc && Sprites.sheet(fc.key);
+    if (sh) {
+      const k = 0.6;
+      const face = document.createElement('b');
+      face.className = 'bubble-face';
+      Object.assign(face.style, { backgroundImage: `url(${SPRITE_DIR}${sh.file})`, width: sh.frameWidth * k + 'px', height: sh.frameHeight * k + 'px',
+        backgroundSize: `${sh.frameWidth * sh.frames * k}px ${sh.frameHeight * k}px`, backgroundPosition: `${-fc.frame * sh.frameWidth * k}px 0` });
+      f.el.querySelector('.bubble-box').prepend(face);
+      f.el.classList.add('has-face');
+    }
     this.bubble = f;
     this.chars = [];
     this.bubbleLeft = ms / 1000;

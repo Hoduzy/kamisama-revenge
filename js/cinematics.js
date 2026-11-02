@@ -53,6 +53,7 @@ const CINE_LIGHTS = {
   brazier: { radius: 210, color: 0xff8a34, intensity: 1.9, flicker: 0.16 },  // 화로
   torch: { radius: 170, color: 0xff9a40, intensity: 1.7, flicker: 0.22 },    // 횃불
   fire: { radius: 360, color: 0xff5a26, intensity: 2.8, flicker: 0.3 },      // 불길
+  bloom: { radius: 520, color: 0xffb7d0, intensity: 2.2, flicker: 0.04 },    // 벚꽃이 필 때 퍼지는 분홍빛
 };
 
 // 입자 프리셋. area: 화면 전체에 흩뿌림(화면 고정) / burst: 한 점에서 터짐 / point: 한 점에서 계속
@@ -184,6 +185,42 @@ class Cinematics {
       x.fillRect(0, 0, 64, 260);
       c.refresh();
     }
+  }
+
+  // ───────── 밝히기: 장면 전체를 amount(0~1) 만큼 밝게 (ADD 로 옅은 분홍빛을 더함). 0 이면 원래대로 ─────────
+  brighten(amount, sec = 1.5, color = '#ffd6e6') {
+    const s = this.scene;
+    if (!this.brightRect) {
+      this.brightRect = s.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH * 3, GAME_HEIGHT * 3, 0xffd6e6, 0)
+        .setScrollFactor(0).setDepth(19).setBlendMode(Phaser.BlendModes.ADD);
+      this.brightRect.noLight = true;
+    }
+    const r = this.brightRect;
+    r.fillColor = Phaser.Display.Color.HexStringToColor(color).color;
+    if (this.brightTween) this.brightTween.stop();
+    // ADD 로 더하는 양 ≈ 밝기 증가 (어두운 장면 기준). 너무 하얗게 뜨지 않게 0.55 배
+    const to = amount * 0.55;
+    if (!sec) { r.fillAlpha = to; return; }
+    this.brightTween = s.tweens.add({ targets: r, fillAlpha: to, duration: sec * 1000, ease: 'Sine.easeOut' });
+  }
+
+  // 꽃이 피는 순간: 그 자리에서 분홍 점광원이 퍼지고 장면이 amount 만큼 밝아진다. hold: 밝은 채로 둠 (아니면 다시 어두워짐)
+  bloomFlash(x, y, amount = 0.15, sec = 0.8, hold = false) {
+    const s = this.scene;
+    if (x != null) {
+      const id = 'bloomLight';
+      this.lightOff(id);
+      const L = this.light('bloom', x, y ?? (s.player.body.bottom - 120), id);
+      const l = L && this.lightList[L] && this.lightList[L].light;
+      if (l) {
+        const r0 = l.radius;
+        l.radius = 40;
+        s.tweens.add({ targets: l, radius: r0, duration: sec * 1000, ease: 'Sine.easeOut' });
+        if (!hold) s.time.delayedCall(sec * 1000 + 1200, () => this.lightOff(id));
+      }
+    }
+    this.brighten(amount, sec);
+    if (!hold) s.time.delayedCall(sec * 1000 + 600, () => this.brighten(0, 1.2));
   }
 
   // ───────── 매 프레임 (GameScene.update 끝에서) ─────────
@@ -739,6 +776,9 @@ class Cinematics {
       case 'desaturate': this.desaturate(c.amount ?? 0.8, skip ? 0 : c.seconds ?? 0.6); return null;
       case 'vignette': this.vignette(c.amount ?? this.cfg.vignette, skip ? 0 : c.seconds ?? 0.6); return null;
       case 'mood': return this.mood(c.to, skip ? 0 : c.seconds ?? this.cfg.moodSec);
+      case 'brighten': this.brighten(c.amount ?? 0, skip ? 0 : c.seconds ?? 1.5, c.color); return null;
+      case 'bloomFlash': this.bloomFlash(this.xOf(c.x ?? c.at), c.y, c.amount ?? 0.15, skip ? 0 : c.seconds ?? 0.8, c.hold); return null;
+      case 'cgGlow': UI.cgGlow(c.amount ?? 0.2, c.seconds ?? 1.2); return null;
       case 'cutIn': return skip ? null : this.cutIn(c.speaker, c);
       case 'lights': this.lights(c.on !== false, c.ambient != null ? Phaser.Display.Color.HexStringToColor(c.ambient).color : undefined); return null;
       case 'light': { const pt = c.at ? this.pointOf(c.at) : { x: this.xOf(c.x), y: c.y }; if (pt) this.light(c.preset, pt.x, pt.y, c.id); return null; }

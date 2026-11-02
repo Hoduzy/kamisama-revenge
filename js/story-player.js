@@ -187,6 +187,7 @@ class StoryPlayer {
       const ms = UI.cgHide(0.8);
       if (ms) await new Promise((r) => setTimeout(r, ms));
     }
+    UI.cutEnd(this.skipping ? 0 : 0.4); // 컷 연출이 남아 있으면 (건너뛰었을 때 등)
     this.cinema = false;
     for (const s of ['.fx-cg', '.fx-caption', '.fx-title', '.fx-bossname', '.fx-choice']) UI.hide(s);
     UI.letterbox(false);
@@ -336,6 +337,9 @@ class StoryPlayer {
       case 'voice':
         if (!skip) await dlg.line(c);
         break;
+      case 'cut': if (!skip) UI.cut(c); break;
+      case 'cutLids': if (!skip) UI.cutLids(c.seconds); break;
+      case 'cutEnd': UI.cutEnd(skip ? 0 : c.fade ?? 0.4); break;
       case 'caption': {
         if (skip) break;
         dlg.hide();

@@ -4036,6 +4036,24 @@
      "loop": true
     }
    }
+  },
+  "portrait_hana": {
+   "file": "portrait_hana.png",
+   "source": "CF2E7A47-4438-496A-8679-D9EF1E73A3DE.png",
+   "frameWidth": 104,
+   "frameHeight": 108,
+   "frames": 4,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 4.93,
+   "labels": [
+    "proud",
+    "cheer",
+    "cry",
+    "worried"
+   ]
   }
  },
  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.",

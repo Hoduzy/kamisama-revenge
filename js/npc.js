@@ -66,7 +66,12 @@ class Npc {
 
   // 자세 → 그림. 애니메이션 이름이면 재생, [시트, 칸] 이면 멈춘 그림
   applyPose(pose, randomStart = false) {
-    const p = this.poses[pose] || this.poses.idle;
+    let p = this.poses[pose] || this.poses.idle;
+    // 소이치로: 아카네에게 칼을 건넨 뒤(깃발 swordGiven)엔 빈손 — 칼 없이 선 그림이 없어 망치질 시트 첫 칸(망치를 내린 자세)
+    const flags = this.scene.registry.get('storyFlags') || {};
+    if (this.id === 'soichiro' && flags.swordGiven && (pose === 'idle' || pose === 'run' || !this.poses[pose]) && this.scene.textures.exists('soichiro_forge')) {
+      p = ['soichiro_forge', 0];
+    }
     const s = this.sprite;
     if (Array.isArray(p)) {
       s.anims.stop();
