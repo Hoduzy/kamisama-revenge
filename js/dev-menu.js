@@ -24,6 +24,10 @@ const DevMenu = {
           <label>기억 조각 <input type="number" class="dm-mem" min="0" max="30" value="0"></label>
           <button type="button" class="dm-reset">본 장면·플래그 지우기</button>
         </div>
+        <div class="dm-opts dm-actors"><span>배우 시험 (프롤로그 연습장)</span>
+          <button type="button" data-scene="ACTOR-1">나란히 걸어와 마주 보고 앉기</button>
+          <button type="button" data-scene="ACTOR-2">조작 · 조사 · 자막 · 느린 조작</button>
+        </div>
         <input type="search" class="dm-search" placeholder="장면 id · 장소 · 대사로 찾기 (↑↓ 고르기, Enter 재생)">
         <div class="dm-list"></div>
       </div>`;
@@ -44,12 +48,21 @@ const DevMenu = {
       game.registry.set('storyFlags', {});
       game.registry.set('storyPools', {});
       game.registry.set('items', []);
+      game.registry.set('inspected', {});
       this.render();
     };
     this.search.oninput = () => { this.sel = 0; this.render(); };
     el.addEventListener('pointerdown', (e) => { if (e.target === el) this.close(); });
     // 연출 도구 시험 창 (게임을 멈추지 않는 옆 창)
     el.querySelector('.dm-cine').onclick = () => { this.close(); CineLab.open(); };
+    // 배우 시스템 시험 장면 (data/story/test.json 의 ACTOR-*)
+    for (const b of el.querySelectorAll('.dm-actors button')) {
+      b.onclick = () => {
+        this.all = this.scenes();
+        this.game.registry.set('inspected', {});
+        this.playScene(b.dataset.scene);
+      };
+    }
 
     // 메뉴 안의 키 입력은 게임으로 보내지 않는다 (Phaser 가 Space·A·D 등을 가로채지 않게)
     el.addEventListener('keydown', (e) => {
@@ -98,10 +111,13 @@ const DevMenu = {
         out.push({
           id: s.id,
           chapter: file,
+          map: s.map,
           place: s.place || '',
           line: first ? first.text : '',
           tags: [
             s.controllable && '조작 가능',
+            s.mode && `모드 ${s.mode}`,
+            all.includes('"moveTo"') && '배우',
             all.includes('"letterbox"') && '레터박스',
             all.includes('"choice"') && '선택지',
             all.includes('"cg"') && 'CG',
@@ -180,7 +196,8 @@ const DevMenu = {
   playScene(id) {
     const r = this.all.find((x) => x.id === id);
     const reg = this.game.registry;
-    if (r && STORY_MAP[r.chapter] && r.chapter !== 'epilogue') reg.set('chapterOverride', r.chapter);
+    if (r && r.map) reg.set('chapterOverride', r.map); // 장면이 맵을 정해 두었으면 그 맵 (배우 시험 = 프롤로그)
+    else if (r && STORY_MAP[r.chapter] && r.chapter !== 'epilogue') reg.set('chapterOverride', r.chapter);
     reg.set('devPlay', id);
     reg.set('chapterStarted', true);
     this.close();

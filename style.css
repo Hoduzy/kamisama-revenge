@@ -607,3 +607,47 @@ body.game-paused #touch-controls { visibility: hidden; }
 .px-arrow.l { --px-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 5' shape-rendering='crispEdges'%3E%3Cpath d='M2 0h1v5H2zM1 1h1v3H1zM0 2h1v1H0z'/%3E%3C/svg%3E"); }
 .px-arrow.d { --px-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 3' shape-rendering='crispEdges'%3E%3Cpath d='M0 0h5v1H0zM1 1h3v1H1zM2 2h1v1H2z'/%3E%3C/svg%3E"); }
 .px-arrow.u { --px-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 5 3' shape-rendering='crispEdges'%3E%3Cpath d='M2 0h1v1H2zM1 1h3v1H1zM0 2h5v1H0z'/%3E%3C/svg%3E"); }
+
+/* ───────── 배우 시스템 대사 연출 ───────── */
+/* 흥얼거림: 화면 아래 작게 흐르는 분홍 글 (대화창 없이) */
+#ui .fx-hum { left: 0; right: 0; bottom: 72px; z-index: 34; display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; }
+.hum-line { font-size: 16px; line-height: 16px; color: var(--sakura); text-shadow: 0 0 3px #1a0a12, 2px 2px 0 #1a0a12; white-space: nowrap; opacity: 0;
+  animation: hum-flow linear forwards; }
+@keyframes hum-flow { 0% { opacity: 0; transform: translateX(-24px); } 15% { opacity: 0.95; } 80% { opacity: 0.95; } 100% { opacity: 0; transform: translateX(24px); } }
+body.in-dialogue #ui .fx-hum { bottom: 190px; }
+
+/* 덮어쓰기: 위쪽에 반투명 글 → 다른 색 글이 왼쪽부터 덮어 씀 */
+#ui .fx-overwrite { left: 0; right: 0; top: 96px; z-index: 33; height: 32px; text-align: center; pointer-events: none; display: none; }
+#ui .fx-overwrite.show { display: block; }
+.fx-overwrite span { position: absolute; left: 0; right: 0; top: 0; font-size: 32px; line-height: 32px; white-space: nowrap; }
+.fx-overwrite .ow-base { color: #e8e0d0; opacity: 0; text-shadow: 0 0 4px #000; }
+.fx-overwrite .ow-over { color: #ff5f6f; text-shadow: 0 0 4px #000, 2px 2px 0 #2a0a10; clip-path: inset(0 100% 0 0); }
+.fx-overwrite.show .ow-base { animation: ow-base-in var(--ow-in) ease-out forwards, ow-base-out var(--ow-write) linear var(--ow-delay) forwards; }
+.fx-overwrite.show .ow-over { animation: ow-write var(--ow-write) steps(24, end) var(--ow-delay) forwards; }
+@keyframes ow-base-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 0.5; transform: none; } }
+@keyframes ow-base-out { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+@keyframes ow-write { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.fx-overwrite.gone { opacity: 0; transition: opacity 0.7s; }
+
+/* 회상: 반투명하게 떠올랐다가 글자마다 빗물처럼 흘러내림 */
+.float.recall span { display: block; transform: translate(-50%, -100%); white-space: nowrap; font-size: 16px; line-height: 16px; color: #cfe0ff;
+  opacity: 0; animation: recall-in 1s ease-out forwards; text-shadow: 0 0 6px rgba(120, 160, 255, 0.6); }
+.float.recall i { font-style: normal; color: #9fb4d8; margin-right: 8px; }
+.float.recall b { display: inline-block; font-weight: normal; animation: recall-drip 1.5s cubic-bezier(0.55, 0, 1, 0.45) var(--d) forwards; }
+@keyframes recall-in { to { opacity: 0.6; } }
+@keyframes recall-drip { 0% { transform: none; opacity: 1; } 30% { transform: translateY(4px) scaleY(1.25); } 100% { transform: translateY(var(--fall)) scaleY(2); opacity: 0; } }
+
+/* 느린 조작(slow): 걷기 말고는 회색 */
+body.slow-mode #ui .hud-skills { filter: grayscale(1) brightness(0.7); }
+body.slow-mode #touch-controls .btn:not([data-action="left"]):not([data-action="right"]):not([data-action="interact"]) { filter: grayscale(1) brightness(0.6); opacity: 0.7; }
+
+/* 조사: 다가가면 머리 위 … 옆에 키 표시, 터치는 조사 버튼 */
+.float.inspect-key span { display: block; transform: translate(-50%, -100%); font-size: 16px; line-height: 16px; padding: 2px 5px;
+  color: #f5e6c8; background: rgba(14, 10, 16, 0.82); border: 2px solid #f3e6cf; }
+#touch-controls .btn[data-action="interact"] { display: none; }
+body.can-inspect #touch-controls .btn[data-action="interact"] { display: block; }
+.float.bubble.inspect .bubble-box { color: #6a6070; }
+
+.dm-actors { margin-top: -4px; }
+.dm-actors span { color: var(--gold); }
+.dm-actors button { margin-left: 0 !important; font: inherit; font-size: 16px; padding: 3px 10px; background: #3a2140; color: #ffd6e0; border: 1px solid var(--sakura); border-radius: 4px; cursor: pointer; }

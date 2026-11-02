@@ -57,6 +57,8 @@ class Player {
     this.hurtLock = 0;
     this.dead = false;
     this.alphaMul = 1; // 연출용 (꽃잎에 실려 사라질 때 0)
+    this.scripted = null; // 배우 시스템(js/actors.js)이 정한 그림. 있으면 조작·상태와 상관없이 이 그림
+    this.speedMul = 1;    // 느린 조작(slow) 모드: 0.6
 
     this.skills = new Skills(this);
   }
@@ -133,13 +135,14 @@ class Player {
       // 수평 이동: 목표 속도로 빠르게 수렴
       if (this.hurtLock <= 0) {
         const vx = body.velocity.x;
-        const target = dir * T.maxRunSpeed;
+        const maxRun = T.maxRunSpeed * this.speedMul;
+        const target = dir * maxRun;
         let accel;
         if (dir === 0) {
           accel = grounded ? T.groundDecel : T.airDecel;
         } else if (vx !== 0 && Math.sign(vx) !== dir) {
           accel = grounded ? T.groundTurnAccel : T.airTurnAccel;
-        } else if (Math.abs(vx) > T.maxRunSpeed) {
+        } else if (Math.abs(vx) > maxRun) {
           accel = grounded ? T.groundDecel : T.airDecel; // 대시 후 초과 속도는 부드럽게 줄임
         } else {
           accel = grounded ? T.groundAccel : T.airAccel;
@@ -209,6 +212,18 @@ class Player {
       v.setTexture(sheet, frame);
     };
 
+    // 배우 시스템이 정한 그림 (컷신에서 걷기·앉기 …)
+    const S = this.scripted;
+    if (S) {
+      if (S.sheet) return still(S.sheet, S.frame);
+      const cur = v.anims.currentAnim?.key;
+      if (cur !== S.anim || v.texture.key !== v.anims.currentAnim.frames[0].textureKey || (!v.anims.isPlaying && S.loop)) {
+        v.play({ key: S.anim, repeat: S.loop ? -1 : 0 });
+      }
+      v.anims.timeScale = S.timeScale || 1;
+      return;
+    }
+    if (v.anims.timeScale !== 1) v.anims.timeScale = 1;
     if (this.dead) return play('player_death'); // 1회 재생 후 마지막 프레임에서 정지
     if (this.actionTimer > 0) {
       this.actionTimer -= dt;

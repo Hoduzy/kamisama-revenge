@@ -6,52 +6,512 @@
     {
       "id": "TEST",
       "place": "테스트",
-      "trigger": { "type": "manual" },
+      "trigger": {
+        "type": "manual"
+      },
       "commands": [
-        { "cmd": "fadeOut", "duration": 0.6 },
-        { "cmd": "bgm", "name": "stop" },
-        { "cmd": "sfx", "name": "풍경 소리" },
-        { "cmd": "caption", "text": "연출 엔진 테스트 장면." },
-        { "cmd": "caption", "text": "검은 화면 위에 붓 자막이 한 획씩 써진다." },
-        { "cmd": "fadeIn", "duration": 0.8 },
-        { "cmd": "titleCard", "text": "제1장 · 에도의 밤" },
-        { "cmd": "letterbox", "on": true },
-        { "cmd": "bgm", "name": "잔잔한 피리" },
-        { "cmd": "say", "speaker": "haru", "face": "smile", "text": "늦었네. 또 대장간에서 아빠 망치질 구경했지?", "side": "right" },
-        { "cmd": "say", "speaker": "akane", "face": "neutral", "text": "…구경 아니고 감시. 아빠가 또 손 데일까 봐.", "side": "left" },
-        { "cmd": "think", "speaker": "akane", "text": "속마음은 초상화가 반투명하고 글자가 회색이다.", "side": "left" },
-        { "cmd": "voice", "speaker": "haru", "text": "하루의 목소리는 초상화 없이 분홍 글자.", "style": "pink" },
-        { "cmd": "voice", "speaker": "hakuya", "text": "하쿠야의 목소리는 금색, 글자가 떨린다.", "style": "goldTremble" },
-        { "cmd": "note", "text": "note 는 재생하지 않는다. H 키(판정 표시)를 켜면 화면 왼쪽 위에 연출 메모로 보인다." },
-        { "cmd": "shake", "strength": "weak" },
-        { "cmd": "wait", "seconds": 0.4 },
-        { "cmd": "shake", "strength": "strong" },
-        { "cmd": "flash", "color": "white" },
-        { "cmd": "wait", "seconds": 0.4 },
-        { "cmd": "flash", "color": "red" },
-        { "cmd": "slowmo" },
-        { "cmd": "cameraPan", "dir": "up" },
-        { "cmd": "cameraPan", "zoom": "in" },
-        { "cmd": "say", "speaker": "soichiro", "face": "smile", "text": "딱 맞춰 왔구나. 이거 들어 봐.", "side": "right" },
-        { "cmd": "giveItem", "name": "아카네의 칼 (이름 없음)" },
-        { "cmd": "cg", "no": 1, "desc": "축제 밤의 가족" },
-        { "cmd": "letterbox", "on": false },
-        { "cmd": "bossName", "text": "문지기 · 곤조" },
-        { "cmd": "setFlag", "flag": "testVisited", "value": true },
-        { "cmd": "condition", "when": { "flag": "testVisited", "is": true }, "then": [
-          { "cmd": "say", "speaker": "tanukichi", "face": "smile", "text": "condition 성공. 이제 선택지가 나와.", "side": "right" }
-        ] },
-        { "cmd": "choice", "options": [
-          { "id": "cut", "text": "벤다", "commands": [
-            { "cmd": "say", "speaker": "akane", "face": "angry", "text": "〈벤다〉를 골랐다.", "side": "left" }
-          ] },
-          { "id": "share", "text": "나눈다", "commands": [
-            { "cmd": "say", "speaker": "akane", "face": "sad", "text": "〈나눈다〉를 골랐다.", "side": "left" }
-          ] }
-        ] },
-        { "cmd": "fadeOut", "duration": 0.8 },
-        { "cmd": "titleCard", "text": "제1장 · 끝" },
-        { "cmd": "fadeIn", "duration": 0.8 }
+        {
+          "cmd": "fadeOut",
+          "duration": 0.6
+        },
+        {
+          "cmd": "bgm",
+          "name": "stop"
+        },
+        {
+          "cmd": "sfx",
+          "name": "풍경 소리"
+        },
+        {
+          "cmd": "caption",
+          "text": "연출 엔진 테스트 장면."
+        },
+        {
+          "cmd": "caption",
+          "text": "검은 화면 위에 붓 자막이 한 획씩 써진다."
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.8
+        },
+        {
+          "cmd": "titleCard",
+          "text": "제1장 · 에도의 밤"
+        },
+        {
+          "cmd": "letterbox",
+          "on": true
+        },
+        {
+          "cmd": "bgm",
+          "name": "잔잔한 피리"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "늦었네. 또 대장간에서 아빠 망치질 구경했지?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…구경 아니고 감시. 아빠가 또 손 데일까 봐.",
+          "side": "left"
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "속마음은 초상화가 반투명하고 글자가 회색이다.",
+          "side": "left"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "haru",
+          "text": "하루의 목소리는 초상화 없이 분홍 글자.",
+          "style": "pink"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "hakuya",
+          "text": "하쿠야의 목소리는 금색, 글자가 떨린다.",
+          "style": "goldTremble"
+        },
+        {
+          "cmd": "note",
+          "text": "note 는 재생하지 않는다. H 키(판정 표시)를 켜면 화면 왼쪽 위에 연출 메모로 보인다."
+        },
+        {
+          "cmd": "shake",
+          "strength": "weak"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.4
+        },
+        {
+          "cmd": "shake",
+          "strength": "strong"
+        },
+        {
+          "cmd": "flash",
+          "color": "white"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.4
+        },
+        {
+          "cmd": "flash",
+          "color": "red"
+        },
+        {
+          "cmd": "slowmo"
+        },
+        {
+          "cmd": "cameraPan",
+          "dir": "up"
+        },
+        {
+          "cmd": "cameraPan",
+          "zoom": "in"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "딱 맞춰 왔구나. 이거 들어 봐.",
+          "side": "right"
+        },
+        {
+          "cmd": "giveItem",
+          "name": "아카네의 칼 (이름 없음)"
+        },
+        {
+          "cmd": "cg",
+          "no": 1,
+          "desc": "축제 밤의 가족"
+        },
+        {
+          "cmd": "letterbox",
+          "on": false
+        },
+        {
+          "cmd": "bossName",
+          "text": "문지기 · 곤조"
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "testVisited",
+          "value": true
+        },
+        {
+          "cmd": "condition",
+          "when": {
+            "flag": "testVisited",
+            "is": true
+          },
+          "then": [
+            {
+              "cmd": "say",
+              "speaker": "tanukichi",
+              "face": "smile",
+              "text": "condition 성공. 이제 선택지가 나와.",
+              "side": "right"
+            }
+          ]
+        },
+        {
+          "cmd": "choice",
+          "options": [
+            {
+              "id": "cut",
+              "text": "벤다",
+              "commands": [
+                {
+                  "cmd": "say",
+                  "speaker": "akane",
+                  "face": "angry",
+                  "text": "〈벤다〉를 골랐다.",
+                  "side": "left"
+                }
+              ]
+            },
+            {
+              "id": "share",
+              "text": "나눈다",
+              "commands": [
+                {
+                  "cmd": "say",
+                  "speaker": "akane",
+                  "face": "sad",
+                  "text": "〈나눈다〉를 골랐다.",
+                  "side": "left"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.8
+        },
+        {
+          "cmd": "titleCard",
+          "text": "제1장 · 끝"
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.8
+        }
+      ]
+    },
+    {
+      "id": "ACTOR-1",
+      "place": "배우 시험 · 나란히 걸어와 마주 보고 앉기",
+      "map": "prologue",
+      "mode": "auto",
+      "commands": [
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 1470,
+          "face": "right"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": 1530,
+          "face": "right"
+        },
+        {
+          "cmd": "camFollow",
+          "actor": "akane"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "오늘은 바람이 좋네. 저기까지 걸을까?",
+          "side": "right"
+        },
+        {
+          "cmd": "parallel",
+          "commands": [
+            {
+              "cmd": "moveTo",
+              "actor": "akane",
+              "x": 1840,
+              "speed": "walk"
+            },
+            {
+              "cmd": "moveTo",
+              "actor": "haru",
+              "x": 1920,
+              "speed": "walk"
+            }
+          ]
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "haru"
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
+          "cmd": "emote",
+          "actor": "haru",
+          "kind": "note"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "여기 앉자. 다리 아파.",
+          "side": "right"
+        },
+        {
+          "cmd": "parallel",
+          "commands": [
+            {
+              "cmd": "sit",
+              "actor": "haru"
+            },
+            {
+              "cmd": "sequence",
+              "commands": [
+                {
+                  "cmd": "wait",
+                  "seconds": 0.4
+                },
+                {
+                  "cmd": "sit",
+                  "actor": "akane"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cmd": "camPan",
+          "x": 1880,
+          "seconds": 1.0
+        },
+        {
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "heart"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "…응.",
+          "side": "left"
+        },
+        {
+          "cmd": "emote",
+          "actor": "haru",
+          "kind": "…"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "언니, 또 아무 말도 안 하지.",
+          "side": "right"
+        },
+        {
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "sweat"
+        }
+      ]
+    },
+    {
+      "id": "ACTOR-2",
+      "place": "배우 시험 · 조작 · 조사 · 흥얼거림 · 덮어쓰기 · 회상 · 느린 조작",
+      "map": "prologue",
+      "mode": "play",
+      "commands": [
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 900,
+          "face": "right"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": 1980,
+          "face": "left"
+        },
+        {
+          "cmd": "inspect",
+          "id": "test:sword",
+          "group": "test",
+          "at": 1100,
+          "text": "아빠가 깎아 준 목검… 손잡이가 닳았다."
+        },
+        {
+          "cmd": "inspect",
+          "id": "test:wall",
+          "group": "test",
+          "at": 1320,
+          "text": "하루가 매일 넘던 담. 나는 늘 한 번에 못 넘었지."
+        },
+        {
+          "cmd": "inspect",
+          "id": "test:post",
+          "group": "test",
+          "at": 1560,
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "허수아비 기둥에 키를 잰 자국."
+            },
+            {
+              "speaker": "akane",
+              "text": "하루 쪽이 한 칸 더 높다."
+            }
+          ]
+        },
+        {
+          "cmd": "objective",
+          "text": "하루에게 (주변을 E 로 조사해 보기)"
+        },
+        {
+          "cmd": "hum",
+          "speaker": "haru",
+          "text": "자장 자장 우리 아가, 꽃잎 덮고 잠들어라"
+        },
+        {
+          "cmd": "hum",
+          "speaker": "haru",
+          "text": "벚꽃 지면 봄이 가고, 봄이 가면 또 오리니"
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": 1680
+        },
+        {
+          "cmd": "condition",
+          "cases": [
+            {
+              "when": {
+                "inspectedAtLeast": 2,
+                "group": "test"
+              },
+              "commands": [
+                {
+                  "cmd": "say",
+                  "speaker": "haru",
+                  "face": "smile",
+                  "text": "꼼꼼히도 봤네. 다 기억나?",
+                  "side": "right"
+                }
+              ]
+            },
+            {
+              "commands": [
+                {
+                  "cmd": "say",
+                  "speaker": "haru",
+                  "face": "neutral",
+                  "text": "벌써 왔어? 둘러보지도 않고.",
+                  "side": "right"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cmd": "overwrite",
+          "text": "지켜 줄게",
+          "over": "지키지 못했다"
+        },
+        {
+          "cmd": "recall",
+          "at": 1760,
+          "lines": [
+            {
+              "speaker": "haru",
+              "text": "언니, 또 넘어졌어?"
+            },
+            {
+              "speaker": "soichiro",
+              "text": "칼은 마음으로 쥐는 거다."
+            }
+          ]
+        },
+        {
+          "cmd": "mode",
+          "mode": "slow"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "…발이 무겁다.",
+          "side": "left"
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": 1900
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto"
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
+          "cmd": "emote",
+          "actor": "haru",
+          "kind": "!"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "왔다! 이제 앉아서 쉬자.",
+          "side": "right"
+        },
+        {
+          "cmd": "sit",
+          "actor": "haru"
+        },
+        {
+          "cmd": "condition",
+          "cases": [
+            {
+              "when": {
+                "inspected": "test:post"
+              },
+              "commands": [
+                {
+                  "cmd": "say",
+                  "speaker": "akane",
+                  "face": "smile",
+                  "text": "(키 재기는 다음에 다시 하자.)",
+                  "side": "left"
+                }
+              ]
+            }
+          ]
+        }
       ]
     }
   ],

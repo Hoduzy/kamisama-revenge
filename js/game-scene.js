@@ -94,6 +94,8 @@ class GameScene extends Phaser.Scene {
     this.npcs = {};
     for (const d of L.npcs || []) this.npcs[d.id] = new Npc(this, d);
     this.gameplay = new StoryGameplay(this);
+    this.actors = new ActorDirector(this); // 배우 시스템: 컷신에서 인물(아카네 포함)이 대본대로 움직임
+    this.inputLimit = null; // 'slow' = 느린 조작 (걷기만, 60%)
     this.nonLethal = null; // 튜토리얼·패배 이벤트: 맞아도 죽지 않을 때 (fromX) => {}
     this.gates = this.physics.add.staticGroup();
     for (const g of L.gates || []) {
@@ -378,11 +380,15 @@ class GameScene extends Phaser.Scene {
       advanceSoft: tapped || enter,
       hold: c.jump.down || c.attack.down || this.enterKey.isDown || pointerHeld,
       holdSoft: this.enterKey.isDown || pointerHeld,
-      skip: Phaser.Input.Keyboard.JustDown(this.escKey),
+      escHeld: this.escKey.isDown,
       left: c.left.pressed, right: c.right.pressed,
       confirm: c.jump.pressed || c.attack.pressed || enter,
     });
     if (this.story.blocking) return;
+    // 느린 조작: 걷기만 (점프·공격·대시·스킬 막음)
+    if (this.inputLimit === 'slow') {
+      for (const k of ['jump', 'attack', 'dash', 'skill1', 'skill2']) { c[k].down = false; c[k].pressed = false; }
+    }
 
     if (!this.cleared) this.playTime += dt;
     if (this.cleared) {
@@ -392,7 +398,8 @@ class GameScene extends Phaser.Scene {
     }
 
     const player = this.player;
-    if (!player.dead) player.update(dt, this.controls);
+    if (!player.dead && !player.scripted) player.update(dt, this.controls);
+    else if (player.scripted) player.body.setVelocityX(0);
     for (const e of this.enemies) e.update(dt, player);
     for (const t of this.trees) t.update(dt);
     for (const t of Object.values(this.decorTrees)) t.update(dt);

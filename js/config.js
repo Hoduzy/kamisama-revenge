@@ -132,10 +132,22 @@ window.TUNING = {
   },
 
   // 컷신 엔진 (js/story-player.js)
+  // 배우 시스템 (js/actors.js). 속도 px/초
+  actors: {
+    walk: 110,
+    run: 260,
+    slow: 60,
+    jumpHeight: 70,
+    jumpMs: 520,
+    fade: 0.5,      // appear / disappear 기본 페이드(초)
+    emoteSec: 1.4,  // 머리 위 아이콘 보이는 시간(초)
+    slowMode: 0.6,  // 느린 조작 이동 속도 배율
+  },
+
   story: {
     autoAdvanceBase: 1.6,     // 조작 가능 컷신: 대사가 다 나온 뒤 기본 대기(초)
     autoAdvancePerChar: 0.05, //   + 글자당
-    holdToSkip: 0.8,          // 이만큼 길게 누르면 장면 전체 건너뛰기(초)
+    holdToSkip: 1.0,          // 이만큼 길게 누르면(화면·Space·Esc) 장면 전체 건너뛰기(초)
     bgmVolume: 0.6,
     sfxVolume: 0.8,
   },

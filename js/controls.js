@@ -12,6 +12,7 @@ class Controls {
       dash: [K.K, K.SHIFT],
       skill1: [K.U],
       skill2: [K.I],
+      interact: [K.E], // 조사 (배우 시스템의 조사 지점)
     };
     this.keys = {};
     this.keyHandlers = [];

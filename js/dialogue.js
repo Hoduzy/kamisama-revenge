@@ -51,14 +51,20 @@ class DialogueBox {
     }
     this.textEl.innerHTML = '';
     this.nameEl.style.display = 'none';
-    const touch = TouchPad.mode === 'touch';
-    this.hintEl.textContent = controllable
-      ? (touch ? '자동으로 넘어감 · 화면 탭 넘기기 · 길게 누르면 건너뛰기' : '자동으로 넘어감 · Enter 넘기기 · 길게 누르면 건너뛰기')
-      : (touch ? '탭 넘기기 · 길게 누르면 건너뛰기' : 'Space 넘기기 · 길게 누르면 건너뛰기');
-    this.root.classList.toggle('controllable', controllable);
     this.active = true;
     this.root.classList.remove('show'); // 첫 대사가 나올 때 나타난다
-    if (!controllable) document.body.classList.add('in-dialogue');
+    this.setControllable(controllable);
+  }
+
+  // 장면 도중 조작 모드가 바뀔 때 (auto ↔ play/slow, js/story-player.js 의 setMode)
+  setControllable(controllable) {
+    this.controllable = controllable;
+    const touch = TouchPad.mode === 'touch';
+    this.hintEl.textContent = controllable
+      ? (touch ? '자동으로 넘어감 · 화면 탭 넘기기 · 길게 누르면 건너뛰기' : '자동으로 넘어감 · Enter 넘기기 · 길게 누르거나 Esc 1초 건너뛰기')
+      : (touch ? '탭 넘기기 · 길게 누르면 건너뛰기' : 'Space 넘기기 · 길게 누르거나 Esc 1초 건너뛰기');
+    this.root.classList.toggle('controllable', controllable);
+    document.body.classList.toggle('in-dialogue', this.active && !controllable);
   }
 
   // 대사가 없는 연출(자막, CG, 페이드 …) 동안은 대화창을 내린다

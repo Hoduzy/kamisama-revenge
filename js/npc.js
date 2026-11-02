@@ -5,9 +5,11 @@
 // 자세(pose) → 애니메이션(또는 [시트, 칸]). run 이 없으면 idle 을 재생한 채로 미끄러진다
 const NPC_POSES = {
   haru: { idle: 'haru_idle', run: 'haru_idle', guard: ['haru_attack', 0], slash: ['haru_attack', 3],
-    attack: 'haru_attack', down: 'haru_death', reach: 'haru_reach' },
+    attack: 'haru_attack', down: 'haru_death', reach: 'haru_reach',
+    sit: ['haru_reach', 0], kneel: ['haru_death', 3] }, // 앉기 = 꽃잎을 피우기 전 앉은 그림, 무릎 = 쓰러지는 도중 칸 (배우 시스템)
   soichiro: { idle: ['soichiro_give', 0], run: ['soichiro_give', 0], forge: 'soichiro_forge', give: 'soichiro_give',
-    guard: 'soichiro_guard', attack: 'soichiro_attack', kneel: 'soichiro_kneel', down: 'soichiro_kneel' },
+    guard: 'soichiro_guard', attack: 'soichiro_attack', kneel: 'soichiro_kneel', down: 'soichiro_kneel',
+    sit: ['soichiro_kneel', 3] },
 };
 
 class Npc {
@@ -99,14 +101,35 @@ class Npc {
     this.pose = pose;
     const s = this.sprite;
     s.setAngle(0).setScale(1);
-    if (this.poses) {
+    if (this.poses && (this.poses[pose] || !['sit', 'kneel'].includes(pose))) {
       this.applyPose(pose);
-    } else if (pose === 'kneel') {
+    } else if (this.poses) {
+      // 앉는 그림이 없으면 서 있는 그림을 낮춰서 (임시)
+      this.applyPose('idle');
+      s.anims.stop();
+      s.setScale(1, pose === 'sit' ? 0.75 : 0.85);
+    } else if (pose === 'kneel' || pose === 'sit') {
       s.setScale(1, 0.7);
     } else if (pose === 'down') {
       s.setAngle(this.facing > 0 ? -90 : 90);
     }
     this.sync();
+  }
+
+  // 애니메이션 한 번(또는 반복) 재생. key: 애니메이션 이름 | 이 인물 그림 이름 접두사 생략('forge' → soichiro_forge) | 자세 이름
+  playAnim(key, loop = false) {
+    const A = this.scene.anims;
+    const k = A.exists(key) ? key : A.exists(`${this.look}_${key}`) ? `${this.look}_${key}` : null;
+    if (!k || !this.poses) return this.setPose(key);
+    this.pose = 'anim';
+    this.sprite.setAngle(0).setScale(1);
+    this.sprite.play({ key: k, repeat: loop ? -1 : 0 });
+    this.sync();
+  }
+
+  // 머리 꼭대기 y (감정 아이콘 자리)
+  get headY() {
+    return this.y - this.sprite.displayHeight * (this.poses ? 0.92 : 1);
   }
 
   place(x, face) {

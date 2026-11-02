@@ -2,7 +2,12 @@
 // 대사(say/think/voice)는 대화창, 연출(fade/letterbox/caption/cg …)은 HTML 레이어(UI)와 카메라로.
 //   - 보통 장면(레터박스 장면 포함)은 조작 잠금: 게임이 멈추고 대사를 넘겨 가며 본다
 //   - 조작 가능 컷신(controllable)은 걸으면서 대사가 자동으로 흘러간다 (도중에 레터박스가 켜지면 그동안만 잠금)
-//   - 넘기기: Space·J·Enter·탭 / 길게 누르면(또는 Esc) 장면 전체 건너뛰기 (선택지는 꼭 고른다)
+//   - 조작 모드(장면의 mode, 또는 mode 명령으로 도중에 바꿈):
+//       auto = 입력 막음, 대사 넘기기만 (아카네도 배우 명령대로 움직임) · play = 보통 조작 (대사는 자동으로 흘러감)
+//       slow = 걷기만, 이동 60%, 점프·공격·대시 막음 (버튼 회색). mode 를 쓰는 장면은 auto 에 레터박스가 자동으로 들어온다
+//   - 배우 명령(moveTo, face, sit, emote, parallel …)은 js/actors.js. 명령 표는 docs/cinematics.md
+//   - 넘기기: Space·J·Enter·탭 / 길게 누르거나 Esc 를 1초 누르면 장면 전체 건너뛰기 (선택지는 꼭 고른다).
+//     건너뛰어도 그 장면의 결과(아이템, 자세·그림, 위치 이동, 등장·퇴장, 플래그)는 모두 반영된다
 // 어느 위치에서 어느 장면이 나오는지는 js/level.js 의 story 표, 체크포인트 한마디(풀)도 여기서 고른다.
 const STORY_FILES = ['prologue', 'ch1', 'ch2', 'ch3', 'ch4', 'ch5', 'ch6', 'epilogue', 'test'];
 
@@ -158,8 +163,10 @@ class StoryPlayer {
     const played = this.scene.registry.get('storyPlayed');
     if (!played.includes(sc.id)) played.push(sc.id);
     this.cinema = false; // 레터박스 중인지
-    if (!controllable) this.lock(true);
+    this.mode = null;
+    this.modeLetterbox = !!sc.mode; // mode 를 쓰는 장면: auto 일 때 레터박스 자동
     this.dialogue.open(this.characters, { controllable });
+    this.setMode(sc.mode || (controllable ? 'play' : 'auto'));
     if (TUNING.cine.duckDuringDialogue) CineSound.duck(true); // 장면 동안 음악 작게
     try {
       await this.runList(sc.commands, sc);
@@ -186,6 +193,7 @@ class StoryPlayer {
     UI.skipGauge(0);
     this.endSlowmo();
     this.resetCamera();
+    this.endMode();
     this.lock(false);
     this.running = null;
     this.skipping = false;
@@ -204,6 +212,53 @@ class StoryPlayer {
     scene.cutscene = on;
     if (on) scene.physics.world.pause();
     else if (!(scene.hitStopTimer > 0)) scene.physics.world.resume();
+  }
+
+  // ───────── 조작 모드 ─────────
+  get ctl() { return this.mode !== 'auto'; } // 플레이어가 움직일 수 있는 모드인지
+
+  setMode(mode, { letterbox } = {}) {
+    if (!['auto', 'play', 'slow'].includes(mode)) mode = 'auto';
+    this.mode = mode;
+    const ctl = mode !== 'auto';
+    if (letterbox ?? this.modeLetterbox) {
+      UI.letterbox(!ctl, this.skipping);
+      this.cinema = !ctl;
+    }
+    this.lock(!ctl || this.cinema || !!this.faded);
+    this.dialogue.setControllable(ctl);
+    const slow = mode === 'slow';
+    const scene = this.scene;
+    scene.inputLimit = slow ? 'slow' : null;
+    scene.player.speedMul = slow ? TUNING.actors.slowMode : 1;
+    document.body.classList.toggle('slow-mode', slow);
+  }
+
+  endMode() {
+    const scene = this.scene;
+    scene.inputLimit = null;
+    scene.player.speedMul = 1;
+    document.body.classList.remove('slow-mode');
+    if (scene.actors) scene.actors.endScene();
+    this.mode = null;
+  }
+
+  // 조건이 맞을 때까지 매 프레임 확인. 건너뛰기·장면 재시작이면 바로 끝
+  waitUntil(test) {
+    if (this.skipping) return Promise.resolve();
+    const scene = this.scene;
+    return new Promise((resolve) => {
+      const w = { skippable: false, done: false };
+      const check = () => { if (test()) w.resolve(); };
+      w.resolve = () => {
+        if (w.done) return;
+        w.done = true;
+        scene.events.off('update', check);
+        resolve();
+      };
+      scene.events.on('update', check);
+      this.waiters.push(w);
+    });
   }
 
   async runList(cmds, sc) {
@@ -239,7 +294,7 @@ class StoryPlayer {
       case 'fadeOut':
         this.faded = true;
         dlg.hide();
-        if (sc.controllable) this.lock(true); // 암전 동안은 걷지 않게
+        if (this.ctl) this.lock(true); // 암전 동안은 걷지 않게
         UI.cgHide(skip ? 0 : c.duration ?? 0.8); // 떠 있던 CG 도 함께 어두워진다 (CG 가 검은 막보다 위라서)
         UI.fade(1, skip ? 0 : c.duration ?? 0.8);
         if (!skip) await this.wait((c.duration ?? 0.8) * 1000);
@@ -251,14 +306,14 @@ class StoryPlayer {
         this.faded = false;
         UI.fade(0, skip ? 0 : c.duration ?? 0.8);
         if (!skip) await this.wait((c.duration ?? 0.8) * 1000);
-        if (sc.controllable && !this.cinema) this.lock(false);
+        if (this.ctl && !this.cinema) this.lock(false);
         break;
       }
       case 'letterbox':
         UI.letterbox(c.on, skip);
         this.cinema = !!c.on;
         // 조작 가능 컷신이라도 레터박스가 있는 동안은 조작 잠금
-        if (sc.controllable) this.lock(!!c.on);
+        if (this.ctl) this.lock(!!c.on);
         break;
       case 'shake':
         // level: weak | mid | strong (예전 대본의 strength: 'strong' 도 받음), dir: both | v | h
@@ -289,7 +344,7 @@ class StoryPlayer {
         // cgEnd · 암전 · 명전 · 카메라 이동 · 장면 끝에서 0.8초 페이드아웃으로 걷힌다
         if (skip) break;
         dlg.hide();
-        if (sc.controllable) this.lock(true); // CG 가 떠 있는 동안은 걷지 않게
+        if (this.ctl) this.lock(true); // CG 가 떠 있는 동안은 걷지 않게
         UI.cg(c);
         await this.wait(800);
         await this.wait(1000, true);
@@ -302,7 +357,7 @@ class StoryPlayer {
           const ms = UI.cgHide(0.8);
           if (ms) await this.wait(ms + 150);
         }
-        if (sc.controllable && !this.cinema && !this.faded) this.lock(false);
+        if (this.ctl && !this.cinema && !this.faded) this.lock(false);
         break;
       }
       case 'titleCard': {
@@ -385,7 +440,63 @@ class StoryPlayer {
         break;
       case 'section':
         break;
+      // ───── 배우 시스템 (js/actors.js) ─────
+      case 'mode':
+        if (c.letterbox !== false) this.modeLetterbox = true;
+        this.setMode(c.mode, { letterbox: c.letterbox });
+        break;
+      case 'parallel':
+        // 여러 배우를 동시에: 안의 명령(또는 sequence 블록)을 한꺼번에 시작하고 모두 끝나면 다음으로
+        await Promise.all((c.commands || []).map((x) => this.exec(x, sc)));
+        break;
+      case 'sequence':
+        await this.runList(c.commands, sc);
+        break;
+      case 'hum': {
+        // 흥얼거림 자막 (하루의 자장가): 화면 아래 작게 분홍 글. 다음 명령은 거의 다 흐른 뒤에 (wait: false 면 바로)
+        if (skip) break;
+        const ms = UI.hum(c.text, (c.seconds ?? Math.max(2.6, 1.4 + c.text.length * 0.12)) * 1000, c.color);
+        if (c.wait !== false) await this.wait(ms - 500, true);
+        break;
+      }
+      case 'overwrite': {
+        // 덮어쓰기 자막: 위쪽 반투명 글(text) 위를 다른 색 글(over)이 덮어 씀
+        if (skip) break;
+        const ms = UI.overwrite(c.text, c.over, c);
+        await this.wait(ms + (c.hold ?? 1.6) * 1000, true);
+        if (!c.keep) UI.overwriteHide();
+        break;
+      }
+      case 'recall': {
+        // 회상 자막: 그 자리(at, 없으면 아카네 옆)에 과거 대사가 반투명하게 떠올랐다가 빗물처럼 흘러내림
+        if (skip) break;
+        const A = scene.actors;
+        const x = A.xOf(c.at ?? c.x) ?? A.akane.x;
+        const lines = c.lines || [{ speaker: c.speaker, text: c.text }];
+        const names = Object.fromEntries(Object.entries(this.characters).map(([id, ch]) => [id, ch.name]));
+        const ms = UI.recall(lines, x, A.groundAt(x), names);
+        if (c.wait !== false) await this.wait(ms * 0.75, true);
+        break;
+      }
+      case 'waitForPlayerAt': {
+        // play·slow 모드: 플레이어가 그 위치(반경 radius)에 오거나 지나가면 다음으로. auto 모드면 아카네가 걸어간다
+        const A = scene.actors;
+        const x = A.xOf(c.x ?? c.to, c.offset || 0);
+        if (x == null) break;
+        const p = scene.player;
+        if (skip) { A.akane.place(x); break; }
+        if (!this.ctl) { await A.moveTo(A.akane, x, c.speed || 'walk', false); break; }
+        const r = c.radius ?? 40;
+        const side = Math.sign(x - p.body.center.x);
+        if (c.guide !== false) scene.cine.guideTo(x);
+        await this.waitUntil(() => Math.abs(p.body.center.x - x) <= r || Math.sign(x - p.body.center.x) !== side);
+        if (c.guide !== false) scene.cine.guideTo(null);
+        if (this.skipping) A.akane.place(x); // 기다리다 건너뛰면 그 자리로
+        break;
+      }
       default:
+        if (['moveTo', 'jump', 'spawn', 'appear', 'disappear'].includes(c.cmd) && c.wait !== false && !skip) dlg.hide();
+        if (await scene.actors.command(c, skip)) break;
         // 연출 도구 명령 (camZoom, cutIn, particles, light, objective … docs/cinematics.md)
         if (!(await scene.cine.command(c, skip))) console.warn('[story] 모르는 명령', c);
     }
@@ -400,6 +511,12 @@ class StoryPlayer {
     if (when.firstDown != null && this.context.firstDown !== when.firstDown) return false;
     if (when.flag != null && 'is' in when && this.flags[when.flag] !== when.is) return false;
     if (when.flag != null && 'not' in when && this.flags[when.flag] === when.not) return false;
+    // 조사 지점 (js/actors.js): inspected: id | [id…] (모두 조사했으면), inspectedAtLeast / inspectedLessThan: 개수 (group 이 있으면 그 묶음만)
+    const A = this.scene.actors;
+    if (when.inspected != null && ![].concat(when.inspected).every((id) => id in A.inspected)) return false;
+    if (when.notInspected != null && [].concat(when.notInspected).some((id) => id in A.inspected)) return false;
+    if (when.inspectedAtLeast != null && A.inspectCount(when.group) < when.inspectedAtLeast) return false;
+    if (when.inspectedLessThan != null && A.inspectCount(when.group) >= when.inspectedLessThan) return false;
     return true;
   }
 
@@ -427,6 +544,7 @@ class StoryPlayer {
   // 장면 전체 건너뛰기: 남은 명령은 상태(플래그·아이템·레터박스 등)만 반영하고 바로 끝낸다
   skip() {
     this.skipping = true;
+    if (this.scene.actors) this.scene.actors.finishAll(); // 걷던 배우는 도착한 자리로, 사라지던 배우는 사라진 채로
     this.flushWaiters(false);
     this.dialogue.resolvePending();
     UI.hide('.fx-cg');
@@ -471,9 +589,9 @@ class StoryPlayer {
   // in: { advance, advanceSoft, hold, holdSoft, skip, left, right, confirm }
   //   advance / hold         : Space·J·Enter·탭 (잠긴 컷신) — 누르면 넘기기, 계속 누르고 있으면 건너뛰기
   //   advanceSoft / holdSoft : Enter·탭 (조작 가능 컷신 — Space·J 는 게임 조작)
-  //   skip                   : Esc (바로 건너뛰기)
+  //   escHeld                : Esc 를 누르고 있는지 (1초면 건너뛰기)
   update(dt, input) {
-    const held = this.locked ? input.hold : input.holdSoft;
+    const held = (this.locked ? input.hold : input.holdSoft) || input.escHeld; // Esc 도 1초 누르면 건너뛰기
     if (!held) this.holdLatch = false;
     // 길게 누르기는 실제 시간으로 잰다 (프레임이 떨어져도 같은 길이)
     const now = performance.now();
@@ -492,7 +610,7 @@ class StoryPlayer {
       if (input.confirm) UI.choiceConfirm();
       return;
     }
-    if (input.skip || this.holdTime >= H) {
+    if (this.holdTime >= H) {
       this.holdStart = null;
       this.holdLatch = true; // 손을 뗄 때까지 다음 장면은 건너뛰지 않음
       UI.skipGauge(0);

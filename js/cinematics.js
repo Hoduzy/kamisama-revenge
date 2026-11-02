@@ -289,6 +289,9 @@ class Cinematics {
     if (typeof t === 'string') {
       const n = s.npcs && s.npcs[t];
       if (n) return { x: n.x, y: n.y - 60 };
+      const a = s.actors && s.actors.get(t); // 배우 이름 (아카네, 하루 …)
+      if (a && a !== s.actors.akane) return { x: a.x, y: a.y - 60 };
+      if (a) { const b = s.player.body; return { x: b.center.x, y: b.center.y - 40 }; }
       if (t === 'boss' && s.boss) return { x: s.boss.body.center.x, y: s.boss.body.center.y - 20 };
       const px = (LEVEL.points || {})[t];
       return px != null ? { x: px, y: s.player.body.center.y - 40 } : null;
@@ -699,8 +702,25 @@ class Cinematics {
     switch (c.cmd) {
       case 'camZoom':
         if (skip) { this.scene.cameras.main.setZoom(c.zoom ?? 1); return null; }
-        return this.zoom(c.zoom, c.ms, c.ease);
-      case 'camPan': return skip ? null : this.pan(c.to, c);
+        return this.zoom(c.zoom, c.seconds != null ? c.seconds * 1000 : c.ms, c.ease);
+      case 'camPan': {
+        // 배우 시스템 꼴: camPan(x, 초) = 그 x 로 옮겨 머문다 (back 기본 false). 예전 꼴: to, ms, hold, back(기본 true)
+        const lookAt = c.x != null || c.seconds != null;
+        const to = c.x ?? c.to;
+        if (lookAt && c.back !== true) this.lookAtPanned = true; // 장면이 끝나면 아카네에게 돌아온다 (ActorDirector.endScene)
+        const opts = lookAt ? { ms: (c.seconds ?? 1) * 1000, hold: c.hold ?? 0, back: c.back ?? false, ease: c.ease } : c;
+        if (skip) {
+          const pt = this.pointOf(to);
+          if (pt && opts.back === false) {
+            const cam = this.scene.cameras.main;
+            cam.stopFollow();
+            this.following = false;
+            cam.centerOn(pt.x, pt.y);
+          }
+          return null;
+        }
+        return this.pan(to, opts);
+      }
       case 'camTilt': return this.tilt(c.y ?? 0, skip ? 0 : c.ms ?? 700);
       case 'camReset': this.resetCamera(c.ms); return null;
       case 'lookAhead': this.lookAheadOn = c.on !== false; return null;

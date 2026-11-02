@@ -41,6 +41,8 @@ const UI = {
       <div class="fx-item"><small>획득</small><b></b></div>
       <div class="fx-choice"></div>
       <div class="fx-voice"></div>
+      <div class="fx-hum"></div>
+      <div class="fx-overwrite"><span class="ow-base"></span><span class="ow-over"></span></div>
       <div class="fx-audio"></div>
       <div class="fx-notes"></div>
       <div class="fx-prompt"></div>
@@ -384,6 +386,77 @@ const UI = {
     if (!p) return el.classList.remove('show');
     el.textContent = TouchPad.mode === 'touch' ? p.touch : p.kb;
     el.classList.add('show');
+  },
+
+  // ───────── 배우 시스템 대사 연출 (js/story-player.js 의 hum · overwrite · recall) ─────────
+  // 흥얼거림 자막: 화면 아래 작게 흐르는 분홍 글 (대화창 없이). 여러 줄이면 위로 쌓인다. ms 뒤 사라짐
+  hum(text, ms = 3200, color) {
+    const box = this.el('.fx-hum');
+    const d = document.createElement('div');
+    d.className = 'hum-line';
+    d.textContent = '♪ ' + text;
+    if (color) d.style.color = color;
+    d.style.animationDuration = ms + 'ms';
+    box.append(d);
+    while (box.children.length > 3) box.firstChild.remove();
+    setTimeout(() => d.remove(), ms + 100);
+    return ms;
+  },
+
+  // 덮어쓰기 자막: 화면 위쪽에 반투명 글(text)이 떠오르고, 다른 색 글(over)이 왼쪽부터 그 위를 덮어 쓴다.
+  // 돌려주는 값: 다 덮어쓰기까지 걸리는 ms. hide 는 overwriteHide()
+  overwrite(text, over, { color, overColor, perChar = 110 } = {}) {
+    const el = this.el('.fx-overwrite');
+    const base = el.querySelector('.ow-base');
+    const top = el.querySelector('.ow-over');
+    base.textContent = text;
+    top.textContent = over;
+    base.style.color = color || '';
+    top.style.color = overColor || '';
+    const fadeIn = 900;
+    const write = Math.max(800, [...over].length * perChar);
+    el.style.setProperty('--ow-in', fadeIn + 'ms');
+    el.style.setProperty('--ow-write', write + 'ms');
+    el.style.setProperty('--ow-delay', fadeIn + 500 + 'ms');
+    el.classList.remove('show', 'gone');
+    void el.offsetWidth;
+    el.classList.add('show');
+    return fadeIn + 500 + write;
+  },
+  overwriteHide() {
+    const el = this.el('.fx-overwrite');
+    if (el.classList.contains('show')) el.classList.add('gone');
+    setTimeout(() => el.classList.remove('show', 'gone'), 800);
+  },
+
+  // 회상 자막: 그 자리(월드 x)에 과거 대사가 반투명하게 떠올랐다가 글자마다 빗물처럼 흘러내린다.
+  // lines: [{ text, speaker }] (speaker 이름은 작게 앞에). 돌려주는 값: 다 흘러내릴 때까지 ms
+  recall(lines, worldX, worldY, names = {}) {
+    const hold = 1600;
+    let total = 0;
+    lines.forEach((ln, i) => {
+      const el = document.createElement('div');
+      el.className = 'float recall';
+      const chars = [...ln.text];
+      const name = ln.speaker && names[ln.speaker] ? `<i>${names[ln.speaker]}</i>` : '';
+      const start = i * 900;
+      const dripAt = start + 1000 + hold;
+      el.innerHTML = `<span style="animation-delay:${start}ms">${name}${chars.map((ch) => {
+        const delay = dripAt + Math.floor(Math.random() * 700);
+        const fall = 40 + Math.floor(Math.random() * 6) * 16;
+        return `<b style="--d:${delay}ms;--fall:${fall}px">${ch === ' ' ? '&nbsp;' : ch.replace(/[&<>]/g, '')}</b>`;
+      }).join('')}</span>`;
+      this.el('.floats').append(el);
+      // 줄마다 조금씩 다른 자리 (왼쪽·오른쪽 번갈아, 위로 쌓임)
+      const dx = (i % 2 ? 1 : -1) * (40 + Math.random() * 60);
+      const dy = -150 - i * 40 - Math.random() * 20;
+      const life = dripAt + 700 + 1500;
+      const f = { el, target: () => [worldX + dx, worldY + dy], until: performance.now() + life };
+      this.floats.push(f);
+      this.place(f);
+      total = Math.max(total, life);
+    });
+    return total;
   },
 
   // 인물 머리 위 이름표 (지울 때까지 남음). { el, remove }
