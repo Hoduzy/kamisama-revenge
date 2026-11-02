@@ -383,7 +383,7 @@ class ActorDirector {
     if (c.angle) img.setAngle(c.angle);
     if (c.scale) img.setScale(c.scale);
     if (c.tint) img.setTint(Phaser.Display.Color.HexStringToColor(c.tint).color); // 같은 그림을 탄 것처럼 (P-13 찜통)
-    const label = c.label ?? (ph.real ? '' : ph.label);
+    const label = ph.real ? '' : (c.label ?? ph.label); // 이름표는 그림이 없을 때(임시 네모)만
     const p = { id: c.id, img, real: ph.real, head: c.head || null, dy: c.dy || 0 };
     if (label && !c.screen) p.tag = UI.tag(() => [img.x, img.y - img.displayHeight - 4], label);
     if (p.tag) p.tag.el.classList.add('prop-tag');
