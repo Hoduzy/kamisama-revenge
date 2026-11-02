@@ -22,6 +22,8 @@
 | `fx_dash_trail.png` | 이펙트 | 잘림 (B359E473-6DF0-4005-A371-7AC5A1E9EFEB.png) · 5칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
 | `fx_dash_wake.png` | 이펙트 | 잘림 (5549C6EC-2DF1-406F-BE61-F9B615E3CE71.png) · 8칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
 | `fx_double_jump_puff.png` | 이펙트 | 잘림 (E0E474E1-9061-4030-9650-214BB01ECBA1.png) · 5칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
+| `fx_fire_small.png` | 이펙트 | 잘림 (609E4046-0206-4E55-AE3A-19CD4B402E57.png) · 4칸 | 로드됨 | **그려짐**: P-0, P-10, P-10b, P-11 | 없음 |
+| `fx_fire_wall.png` | 이펙트 | 잘림 (609E4046-0206-4E55-AE3A-19CD4B402E57.png) · 4칸 | 로드됨 | **그려짐**: P-0, P-11 | 없음 |
 | `fx_iaido_charge.png` | 이펙트 | 잘림 (CE06CE9D-0BC5-4E4A-ACA6-9D549BE9A34C.png) · 6칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
 | `fx_parry_flash.png` | 이펙트 | 잘림 (effects.png) · 4칸 | 로드됨 | 코드·대본에서 씀 (시험에서 안 봄): skills.js, sprites.js | 없음 |
 | `fx_petals.png` | 이펙트 | 잘림 (effects.png) · 4칸 | 로드됨 | **그려짐**: (맵), P-0, P-10, P-10b, P-11, P-12, P-13, P-5, P-6, P-7, P-8 | 없음 |
@@ -63,6 +65,8 @@
 | `props/stall_burning.png` | 소품 | 잘림 (prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png) | 로드됨 | **그려짐**: P-10 | placeholders.js 단색 네모 (그림 없을 때만) |
 | `props/steamer.png` | 소품 | 잘림 (prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png) | 로드됨 | **그려짐**: P-13, P-5 | placeholders.js 단색 네모 (그림 없을 때만) |
 | `tree.png` | 벚나무 | 원본 그대로 · 2칸 | 로드됨 | **그려짐**: (맵), P-0, P-11, P-12, P-13, P-14, P-2, P-4, P-5, P-7, P-8, P-9, S1-1 | tree.js 도형 나무 (그림 없을 때만) |
+| `tree_burning.png` | 벚나무 | 잘림 (78167C7A-651E-4261-B78B-13855233FE13.png) · 1칸 | 로드됨 | **그려짐**: P-0, P-11, P-9 | 없음 |
+| `tree_charred.png` | 벚나무 | 잘림 (78167C7A-651E-4261-B78B-13855233FE13.png) · 1칸 | 로드됨 | **그려짐**: P-14 | 없음 |
 
 ## 로드는 되지만 화면에 안 쓰이는 그림
 

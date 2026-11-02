@@ -62,12 +62,12 @@
 
 | 이름 | 무엇 | 지금 |
 |---|---|---|
-| `fg_burning_pillar` | 불타는 기둥 (0 서 있음, 1 쓰러짐) — `tools/process_prologue3.py --pillar` | P-0 · P-11 화면 앞 왼쪽 |
+| `fg_burning_pillar` | 불타는 기둥 (0 서 있음, 1 쓰러짐) — `tools/process_prologue3.py --pillar` | 서 있음: P-9 끝 · P-10 · P-0 · P-11 화면 앞 1개씩 / 쓰러짐: P-10 하나를 깔고 있는 기둥, P-10b 무너진 지붕 |
 | `lantern_rope` (props) | 등롱 줄 전경 | P-5 · P-8 |
-| `fx_fire_wall` | 화면 앞 불길 (1.3배 패럴랙스) | **그림 없음 → 안 그림** |
-| `fx_fire_small` | 바닥 곳곳 작은 불 | **그림 없음 → 안 그림** (`optional` 소품) |
+| `fx_fire_wall` | 화면 앞 불길 (1.3배 패럴랙스) | P-0 · P-11 화면 앞 오른쪽 |
+| `fx_fire_small` | 바닥 곳곳 작은 불 | P-0 · P-11 바닥, P-10 깔린 기둥 위, P-10b 무너진 기둥 위 |
 | `fg_sakura_branch` | 위쪽 벚꽃 가지 전경 | 그림 없음, 쓰는 장면도 없음 |
-| `tree_burning` / `tree_burnt` | 큰 벚나무 3단계 중 불타는 · 검게 탄 | **그림 없음** → 앙상한 가지를 그을린 색 + 도트 불꽃 / 검게 물들임 |
+| `tree_burning` / `tree_charred` | 큰 벚나무 불타는 · 검게 탄 (`process_prologue3.py --fire`, 기존 tree 칸과 키 · 줄기 밑동을 맞춤) | P-9 꼭대기부터 0.8초 닦아내듯 교체 → P-11 까지, P-14 검게 탄 |
 
 ### 아직 그림이 없는 것
 

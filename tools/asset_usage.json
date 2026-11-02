@@ -731,5 +731,30 @@
  ],
  "fx_double_jump_puff": [
   "스킬 시험"
+ ],
+ "tree_burning": [
+  "P-0",
+  "P-11",
+  "P-9"
+ ],
+ "tree_charred": [
+  "P-14"
+ ],
+ "fx_fire_wall": [
+  "P-0",
+  "P-11"
+ ],
+ "fx_fire_small": [
+  "P-0",
+  "P-10",
+  "P-10b",
+  "P-11"
+ ],
+ "fg_burning_pillar": [
+  "P-0",
+  "P-10",
+  "P-10b",
+  "P-11",
+  "P-9"
  ]
 }

@@ -200,12 +200,12 @@
         },
         {
           "cmd": "camZoom",
-          "zoom": 1.1,
+          "zoom": 1.0,
           "seconds": 0.01
         },
         {
           "cmd": "camTilt",
-          "y": 20,
+          "y": 0,
           "ms": 10
         },
         {
@@ -216,7 +216,7 @@
         {
           "cmd": "foreground",
           "preset": "fireWall",
-          "x": 12800
+          "x": 13170
         },
         {
           "cmd": "particles",
@@ -267,10 +267,13 @@
           "seconds": 0.6
         },
         {
+          "cmd": "foregroundClear",
+          "src": "꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다."
+        },
+        {
           "cmd": "camPan",
           "x": "fireAkaneDown",
-          "seconds": 0.9,
-          "src": "꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다."
+          "seconds": 0.9
         },
         {
           "cmd": "camZoom",
@@ -2999,6 +3002,11 @@
           "face": "right"
         },
         {
+          "cmd": "treeStage",
+          "tree": "festival",
+          "stage": "bloom"
+        },
+        {
           "cmd": "camZoom",
           "zoom": 1,
           "seconds": 0.6,
@@ -3155,7 +3163,8 @@
         {
           "cmd": "treeStage",
           "tree": "festival",
-          "stage": "burning"
+          "stage": "burning",
+          "wipe": 0.8
         },
         {
           "cmd": "particles",
@@ -3674,6 +3683,11 @@
           "id": "rope"
         },
         {
+          "cmd": "foreground",
+          "preset": "pillar",
+          "x": 7700
+        },
+        {
           "cmd": "disappear",
           "actor": "haru",
           "fade": false
@@ -3777,9 +3791,29 @@
         {
           "cmd": "prop",
           "id": "pillar",
-          "key": "stall_burning",
+          "key": "fg_burning_pillar",
           "at": "roadHana",
+          "frame": 1,
+          "offset": -6,
+          "scale": 0.36,
           "depth": 9
+        },
+        {
+          "cmd": "prop",
+          "id": "pillarFire",
+          "key": "fx_fire_small",
+          "at": "roadHana",
+          "anim": "fx_fire_small",
+          "loop": true,
+          "offset": -14,
+          "dy": -44,
+          "depth": 9.5,
+          "optional": true
+        },
+        {
+          "cmd": "foreground",
+          "preset": "pillar",
+          "x": 9700
         },
         {
           "cmd": "prop",
@@ -4206,12 +4240,8 @@
           "at": "smithySoichiro",
           "offset": -110,
           "id": "roofRuin",
+          "pillar": true,
           "src": "대장간 지붕이 무너지며 불타는 잔해가 둘 사이를 막는다. 흰 플래시. 다시 밝아지면 아카네 혼자. 탈색 30% 유지. 목표 자막 〈엄마에게〉."
-        },
-        {
-          "cmd": "flash",
-          "color": "white",
-          "ms": 500
         },
         {
           "cmd": "disappear",
@@ -4647,12 +4677,12 @@
         },
         {
           "cmd": "camZoom",
-          "zoom": 1.1,
+          "zoom": 1.0,
           "seconds": 0.01
         },
         {
           "cmd": "camTilt",
-          "y": 20,
+          "y": 0,
           "ms": 10
         },
         {
@@ -4663,7 +4693,7 @@
         {
           "cmd": "foreground",
           "preset": "fireWall",
-          "x": 12800
+          "x": 13170
         },
         {
           "cmd": "particles",
@@ -5555,7 +5585,7 @@
         {
           "cmd": "treeStage",
           "tree": "burning",
-          "stage": "burnt"
+          "stage": "charred"
         },
         {
           "cmd": "prop",

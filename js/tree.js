@@ -48,10 +48,24 @@ class CherryTree {
   // 큰 벚나무 단계 (프롤로그): bare(앙상함) · bloom(만개) · burning(불타는) · burnt(검게 탄).
   // 그림: tree 시트 0 = 앙상함, 1 = 만개. 불타는 · 검게 탄 그림(tree_burning · tree_burnt)이 manifest 에 있으면 그 그림,
   // 없으면 만개 그림을 불빛 색으로 + 불티 / 앙상한 그림을 검게 물들여 대신한다
-  setStage(stage, show = true) {
+  // wipe: 초. 새 그림을 위에서 아래로 닦아내듯 덮어 바꾼다 (P-9 불이 꼭대기부터 번짐)
+  setStage(stage, show = true, wipe = 0) {
     const s = this.sprite;
     this.stage = stage;
     if (!s) return;
+    if (wipe > 0 && s.visible) {
+      // 지금 그림을 복사해 두고 그 위를 새 그림이 위에서부터 덮는다: 새 그림을 바로 적용한 뒤 옛 그림 사본의 위쪽을 잘라 내려간다
+      const old = this.scene.add.image(s.x, s.y, s.texture.key, s.frame.name).setOrigin(s.originX, s.originY)
+        .setScale(s.scaleX, s.scaleY).setDepth(s.depth + 0.01).setFlipX(s.flipX);
+      if (s.isTinted) old.setTint(s.tintTopLeft);
+      const fh = old.frame.height;
+      this.setStage(stage, show, 0);
+      const o = { t: 0 };
+      this.scene.tweens.add({ targets: o, t: 1, duration: wipe * 1000, ease: 'Sine.easeIn',
+        onUpdate: () => old.setCrop(0, fh * o.t, old.frame.width, fh * (1 - o.t)),
+        onComplete: () => old.destroy() });
+      return;
+    }
     if (show) s.setVisible(true);
     const sc = this.scene;
     if (this.fire) { this.fire.destroy(); this.fire = null; }
@@ -67,9 +81,10 @@ class CherryTree {
       sc.events.once('shutdown', () => { if (this.fire) this.fire.destroy(); });
       return;
     }
-    const own = { burning: 'tree_burning', burnt: 'tree_burnt' }[stage];
+    const own = { burning: 'tree_burning', burnt: 'tree_charred', charred: 'tree_charred' }[stage];
     if (own && Sprites.has(sc, own)) {
       s.setTexture(own, 0).clearTint();
+      // 불타는 그림에 이미 불길 · 연기가 그려져 있다 → 입자는 불티만 조금
     } else {
       // 불타는 단계 그림(tree_burning)이 없으면: 꽃이 타 버린 앙상한 가지를 그을린 색으로 + 가지 곳곳 불길 입자 (만개 그림에 붉은 필터를 씌우지 않는다)
       s.setTexture('tree', stage === 'bloom' ? 1 : 0);
@@ -78,7 +93,7 @@ class CherryTree {
       else s.clearTint();
     }
     this.active = stage === 'bloom'; // 꽃잎은 만개일 때만
-    if (stage === 'burning') {
+    if (stage === 'burning' && !(own && Sprites.has(sc, own))) {
       // 도트 불꽃: 3px 네모가 커졌다 작아지며 올라감 (흐린 원은 도트 그림과 안 어울림)
       this.fire = sc.add.particles(this.x, this.canopyY, sc.textures.exists('cine-dot') ? 'cine-dot' : 'petal', {
         lifespan: 1000, frequency: 10, speedY: { min: -110, max: -40 }, speedX: { min: -20, max: 20 },

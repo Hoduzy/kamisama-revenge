@@ -74,7 +74,7 @@ LULLABY1 = '@lullaby1'  # 첫 줄만 (한 소절)
 # P-0 과 P-11(하쿠야의 발도 직후)의 같은 구도: 낮은 시점, 앞에 흐릿한 불길, 쓰러진 아카네 · 칼 든 하루의 뒷모습 · 불길 속 하쿠야
 # 불타는 광장의 빛: 화면 필터는 약하게(fireLow), 붉은빛은 불길 쪽 점광원으로 → 캐릭터 실루엣이 읽힌다
 PLAZA_LIGHT = [
-    C('treeStage', tree='burning', stage='burning'),  # 큰 벚나무 불타는 단계 (tree_burning 그림이 없으면 그을린 가지 + 불길)
+    C('treeStage', tree='burning', stage='burning'),  # 큰 벚나무 불타는 단계 (tree_burning)
     C('mood', to='fireLow', seconds=0),
     C('lights', on=True, ambient='#6a5a66'),
     C('light', preset='fire', x='fireHakuya', y=560, id='plazaFire1'),   # 하쿠야 뒤 불길
@@ -93,9 +93,9 @@ FRAME_P0 = [
     *PLAZA_LIGHT,
     *FLOOR_FIRES,
     # 낮은 시점: 아카네가 화면 앞쪽 왼쪽 아래에 오게 (조금 당겨서)
-    C('camPan', x='fireAkaneDown', offset=300, seconds=0.01), C('camZoom', zoom=1.1, seconds=0.01), C('camTilt', y=20, ms=10),
+    C('camPan', x='fireAkaneDown', offset=300, seconds=0.01), C('camZoom', zoom=1.0, seconds=0.01), C('camTilt', y=0, ms=10),
     C('foreground', preset='pillar', x=12565),             # 앞쪽 왼쪽 불타는 기둥 (fg_burning_pillar, 1.3배 패럴랙스)
-    C('foreground', preset='fireWall', x=12800),           # 화면 앞 불길 (fx_fire_wall 그림이 있을 때만)
+    C('foreground', preset='fireWall', x=13170),           # 화면 앞 오른쪽 끝 불길 (fx_fire_wall, 1.3배 패럴랙스) — 인물을 가리지 않게
     C('particles', preset='embers', at='fireAkaneDown', id='p0embers'),
     C('vignette', amount=0.55, seconds=0.01),
 ]
@@ -173,12 +173,16 @@ SETUP = {
     ],
     'P-9': [
         spawn('akane', 7910, 'right'),  # 개발 메뉴로 이 장면만 재생할 때도 축제 광장에서
+        C('treeStage', tree='festival', stage='bloom'),  # P-8 에서 만개한 채로 (이 장면만 재생할 때도)
     ],
     'P-10': [
         C('fadeOut', duration=0.5), C('foregroundClear'), C('lightOff'), C('camReset', ms=0),
         C('mood', to='fire', seconds=0), G('mood', mood='fire'),
         spawn('akane', 'roadStart', 'right'),
-        prop('pillar', 'stall_burning', 'roadHana', depth=9),
+        # 하나를 깔고 있는 쓰러진 불타는 기둥 (fg_burning_pillar 1칸) + 기둥 위 작은 불
+        prop('pillar', 'fg_burning_pillar', 'roadHana', frame=1, offset=-6, scale=0.36, depth=9),
+        prop('pillarFire', 'fx_fire_small', 'roadHana', anim='fx_fire_small', loop=True, offset=-14, dy=-44, depth=9.5, optional=True),
+        C('foreground', preset='pillar', x=9700),  # 화면 앞쪽 서 있는 불타는 기둥 하나 (골목)
         prop('dbR0', 'prop_debris_fire', 9260, scale=0.7, depth=3, label=''),
         prop('dbR1', 'prop_debris_fire', 9620, scale=0.5, depth=3, label=''),
         prop('dbR2', 'prop_debris_fire', 10180, scale=0.7, depth=3, label=''),
@@ -236,7 +240,7 @@ SETUP = {
         # 밤의 불타는 잔해(P-0 · P-11 의 dbA · dbP)는 새벽 잿더미에는 없다
         *[C('propOff', id=f'{g}{k}') for g in ('dbA', 'dbP') for k in range(4)],
         C('mood', to='ash', seconds=0), C('desaturate', amount=0.6, seconds=0),
-        C('treeStage', tree='burning', stage='burnt'),  # 큰 벚나무 3단계: 검게 탄
+        C('treeStage', tree='burning', stage='charred'),  # 큰 벚나무 3단계: 검게 탄 (tree_charred)
         prop('haruSword', 'haru_katana', 12840), prop('hairpin', 'kanzashi', 12800),
         spawn('akane', 12560, 'right'), C('standUp', actor='akane'),
         C('disappear', actor='haru', fade=False), C('disappear', actor='soichiro', fade=False),
@@ -273,6 +277,7 @@ LINES = {
             face('haru', 'akane'), wait(1.2), face('haru', 'right'), wait(0.6)],  # 고개를 반쯤 돌렸다가 다시 하쿠야 쪽으로
         '꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다.': [
             # 아카네에게 줌인
+            C('foregroundClear'),  # 줌인하면 1.3배 전경 기둥이 아카네 앞을 지나가므로 걷는다 (다음 줄이 암전)
             C('camPan', x='fireAkaneDown', seconds=0.9), C('camZoom', zoom=2.2, seconds=0.7), C('camTilt', y=110, ms=500),
             prop('p0petal', 'fx_petals', 'fireAkaneDown', frame=0, dy=-130, offset=16, depth=12),  # 뺨: 쓰러진 그림의 얼굴 자리
             C('propMove', id='p0petal', dy=122, angle=200, seconds=2.2),
@@ -483,7 +488,7 @@ LINES = {
             C('foregroundClear'), prop('rope', 'lantern_rope', 'festivalTree', offset=-280, y=400, depth=11), wait(0.9),
             C('propMove', id='rope', ground=True, angle=6, seconds=0.6, ease='Quad.easeIn'), C('propSwap', id='rope', key='lantern_rope_fallen'),
             C('propMove', id='rope', angle=0, seconds=0.01), sfx('thud'),
-            C('treeStage', tree='festival', stage='burning'),
+            C('treeStage', tree='festival', stage='burning', wipe=0.8),  # 꼭대기부터 0.8초 동안 닦아내듯 불타는 나무로
             C('particles', preset='embers', x='festivalTree', y=330, id='treeFire'), C('light', preset='fire', x='festivalTree', y=360, id='treeFire'),
             C('camPan', x='festivalTree', offset=-60, seconds=0.8), C('camZoom', zoom=2, seconds=0.6),
             C('particles', preset='embers', at='festivalTree', id='flowerEmbers'),
@@ -510,6 +515,7 @@ LINES = {
             # 불타는 잔해: 불화살 뒤 광장 곳곳
             *[prop(f'dbF{k}', 'prop_debris_fire', x, scale=0.7 if k % 2 == 0 else 0.5, depth=3, label='') for k, x in enumerate((7560, 7760, 8250, 8480))],
             C('fadeOut', duration=0.6), *[C('propOff', id=f'roof{i}') for i in range(6)], C('propOff', id='hat'), C('propOff', id='rope'),
+            C('foreground', preset='pillar', x=7700),  # 불타는 광장: 화면 앞쪽 서 있는 기둥 하나
             C('disappear', actor='haru', fade=False), C('disappear', actor='soichiro', fade=False),
             C('disappear', actor='hana', fade=False), C('disappear', actor='dumpling_grandma', fade=False),
             *[C('lightOff', id=f'torch{i}') for i in range(6)], C('fadeIn', duration=0.8),
@@ -546,7 +552,7 @@ LINES = {
             sfx('whistle'), G('arrowAt', target='soichiro', height=36, **{'from': 'left'}), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '또 한 대', 0.6, anim='soichiro_hit2'),
             C('desaturate', amount=0.3, seconds=0.3), C('kneel', actor='soichiro')],
         '대장간 지붕이 무너지며 불타는 잔해가 둘 사이를 막는다. 흰 플래시. 다시 밝아지면 아카네 혼자. 탈색 30% 유지. 목표 자막 〈엄마에게〉.': [
-            G('collapse', at='smithySoichiro', offset=-110, id='roofRuin'), C('flash', color='white', ms=500),
+            G('collapse', at='smithySoichiro', offset=-110, id='roofRuin', pillar=True),  # 쓰러진 기둥이 잔해 위로 C('flash', color='white', ms=500),
             C('disappear', actor='soichiro', fade=False), C('lightOff', id='smithyFire'), wait(0.6),
             C('objective', text='엄마에게')],
     },

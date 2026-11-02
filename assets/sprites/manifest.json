@@ -3962,6 +3962,80 @@
     560,
     323
    ]
+  },
+  "tree_burning": {
+   "file": "tree_burning.png",
+   "source": "78167C7A-651E-4261-B78B-13855233FE13.png",
+   "frameWidth": 192,
+   "frameHeight": 217,
+   "frames": 1,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 4.59,
+   "alignedTo": "tree 앙상한 칸 (키 · 줄기 밑동)"
+  },
+  "tree_charred": {
+   "file": "tree_charred.png",
+   "source": "78167C7A-651E-4261-B78B-13855233FE13.png",
+   "frameWidth": 150,
+   "frameHeight": 192,
+   "frames": 1,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 4.59,
+   "alignedTo": "tree 앙상한 칸 (키 · 줄기 밑동)"
+  },
+  "fx_fire_wall": {
+   "file": "fx_fire_wall.png",
+   "source": "609E4046-0206-4E55-AE3A-19CD4B402E57.png",
+   "frameWidth": 258,
+   "frameHeight": 148,
+   "frames": 4,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 1.97,
+   "anims": {
+    "fx_fire_wall": {
+     "frames": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "rate": 8,
+     "loop": true
+    }
+   }
+  },
+  "fx_fire_small": {
+   "file": "fx_fire_small.png",
+   "source": "609E4046-0206-4E55-AE3A-19CD4B402E57.png",
+   "frameWidth": 54,
+   "frameHeight": 35,
+   "frames": 4,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 5.35,
+   "anims": {
+    "fx_fire_small": {
+     "frames": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "rate": 9,
+     "loop": true
+    }
+   }
   }
  },
  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.",

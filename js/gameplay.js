@@ -257,6 +257,7 @@ class StoryGameplay {
     const pr = A.props[id];
     const finish = async () => {
       if (A.props[id]) {
+        if (A.props[id + 'Fire']) A.propOff({ id: id + 'Fire', fade: 0.3 }, skip); // 기둥 위 불도 같이
         await A.propMove({ id, angle: -35, dy: 6, seconds: skip ? 0 : 0.35, ease: 'Quad.easeIn' }, skip);
         if (!skip) s.cine.particles('dust', { x: A.props[id].img.x, y: A.props[id].img.y });
         await A.propOff({ id, fade: 0.5 }, skip);
@@ -332,6 +333,15 @@ class StoryGameplay {
       await this.wait(700, skip);
     }
     if (c.pile !== false) s.actors.prop({ id: c.id || 'debris', key: 'prop_debris_fire', at: x, w: 120, h: 40, color: '#4a2a1a', label: '불타는 잔해' }, true);
+    // pillar: 무너지며 쓰러진 불타는 기둥(fg_burning_pillar 1칸)이 잔해 위로 떨어진다 + 작은 불 (P-10b 대장간 지붕)
+    if (c.pillar && Sprites.sheet('fg_burning_pillar')) {
+      const id = (c.id || 'debris') + 'Pillar';
+      const gy = s.actors.groundAt(x);
+      await s.actors.prop({ id, key: 'fg_burning_pillar', frame: 1, at: x, y: gy - 260, scale: c.pillarScale || 0.42, depth: 8, angle: -20 }, true);
+      await s.actors.propMove({ id, y: gy, angle: 0, seconds: skip ? 0 : 0.35, ease: 'Quad.easeIn' }, skip);
+      s.actors.prop({ id: id + 'Fire', key: 'fx_fire_small', anim: 'fx_fire_small', loop: true, at: x, offset: -10, y: gy - 30, depth: 8.5, optional: true }, true);
+      if (!skip) { s.cine.shake('mid', 'v'); CineSound.sfx('thud'); }
+    }
   }
 
   // 하쿠야(보스)가 걸어서 to 까지 (P-11 불길 속에서 걸어 나온다)

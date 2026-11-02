@@ -82,7 +82,7 @@ const CINE_FOREGROUND = {
   branch: { tex: 'fg_sakura_branch', y: 0, origin: [0.5, 0] },                     // 위쪽 벚꽃 가지 (그림 없음 → 안 그림)
   pillar: { tex: 'fg_burning_pillar', frame: 0, y: GAME_HEIGHT + 40, origin: [0.5, 1] },   // 불타는 기둥 (서 있음)
   pillarFallen: { tex: 'fg_burning_pillar', frame: 1, y: GAME_HEIGHT + 40, origin: [0.5, 1] }, // 쓰러진 불타는 기둥
-  fireWall: { tex: 'fx_fire_wall', y: GAME_HEIGHT + 20, origin: [0.5, 1], anim: 'fx_fire_wall' }, // 화면 앞 불길 (그림 없음 → 안 그림)
+  fireWall: { tex: 'fx_fire_wall', y: GAME_HEIGHT - 26, origin: [0.5, 1], anim: 'fx_fire_wall', scale: 0.9 }, // 화면 앞 불길 (레터박스 위로 보이게)
 };
 
 // 컷인: 초상화 시트마다 두 눈 한가운데 위치 (칸 폭·높이에 대한 비율, 그림을 보고 잼)
@@ -549,6 +549,7 @@ class Cinematics {
     const img = (anim ? s.add.sprite(px, P.y, P.tex, 0) : s.add.image(px, P.y, P.tex, P.frame))
       .setOrigin(...P.origin).setScrollFactor(k, 0).setDepth(25);
     if (anim) img.play({ key: P.anim, repeat: -1 });
+    if (P.scale) img.setScale(P.scale);
     img.noLight = true;
     this.foregrounds.push(img);
     return img;

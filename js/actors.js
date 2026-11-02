@@ -728,7 +728,7 @@ class ActorDirector {
       case 'treeStage': {
         // 큰 벚나무 단계: tree(decorTrees id), stage: bare · bloom · burning · burnt, show
         const t = this.scene.decorTrees[c.tree];
-        if (t && t.setStage) t.setStage(c.stage, c.show !== false);
+        if (t && t.setStage) t.setStage(c.stage, c.show !== false, skip ? 0 : c.wipe || 0);
         break;
       }
       case 'stageBg': this.scene.setStageBg(c.id, c.key, c.tint != null ? Phaser.Display.Color.HexStringToColor(c.tint).color : undefined); break;

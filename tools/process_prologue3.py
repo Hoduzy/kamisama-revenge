@@ -206,7 +206,7 @@ def main():
     print('\n'.join(report))
 
 
-if __name__ == '__main__' and '--pillar' not in sys.argv:
+if __name__ == '__main__' and '--pillar' not in sys.argv and '--fire' not in sys.argv:
     main()
 
 
@@ -249,3 +249,109 @@ def pillar():
 
 if __name__ == '__main__' and '--pillar' in sys.argv:
     pillar()
+
+
+# ───────── 큰 벚나무 불타는 · 검게 탄 + 불길 시트 (python3 tools/process_prologue3.py --fire) ─────────
+TREE_SRC = '78167C7A-651E-4261-B78B-13855233FE13'   # 왼쪽 불타는 나무(연기 포함), 오른쪽 검게 탄 나무
+FIRE_SRC = '609E4046-0206-4E55-AE3A-19CD4B402E57'   # 윗줄 큰 불길 4칸, 아랫줄 작은 불 4칸
+
+
+def trunk_x(al, bottom):
+    """밑동 높이(바닥에서 25~40px 위)의 줄기 가운데 x"""
+    band = al[max(0, bottom - 40):bottom - 25]
+    xs = np.where(band.any(0))[0]
+    return (xs.min() + xs.max() + 1) / 2
+
+
+def fire():
+    from scipy import ndimage
+    man = OUT / 'manifest.json'
+    manifest = json.loads(man.read_text(encoding='utf-8'))
+    sheets = manifest['sheets']
+    # 기준: 기존 tree 시트의 앙상한(0) 칸 — 키와 줄기 밑동 자리
+    t = sheets['tree']
+    tw, th = t['frameWidth'], t['frameHeight']
+    ta = np.array(Image.open(OUT / t['file']).convert('RGBA'))[:, :tw]
+    tal = ta[..., 3] > 0
+    tys = np.where(tal.any(1))[0]
+    bare_h = tys.max() - tys.min() + 1
+    t_trunk = trunk_x(tal, tys.max())          # 칸 안 줄기 x
+    t_off = t_trunk - tw / 2                    # 칸 가운데에서 줄기까지
+
+    a = np.array(Image.open(RAW / f'{TREE_SRC}.png').convert('RGBA'))
+    pp.remove_outer_white(a)
+    occ = a[..., 3] >= 24
+    # 두 나무 사이: 가운데 40~60% 안에서 가장 비어 있는 열
+    col = occ.sum(0)
+    lo, hi = int(a.shape[1] * 0.4), int(a.shape[1] * 0.6)
+    mid = lo + int(np.argmin(col[lo:hi]))
+
+    def clean(part, keep_far):
+        # 큰 덩어리(나무) 상자 밖의 작은 조각(옆 나무에서 넘어온 연기 등)은 지운다. keep_far: 나무 밖 큰 덩어리(연기)는 남김
+        o = part[..., 3] >= 24
+        lab, n = ndimage.label(o, structure=np.ones((3, 3)))
+        if n == 0:
+            return part
+        sizes = ndimage.sum(o, lab, range(1, n + 1))
+        objs = ndimage.find_objects(lab)
+        main = int(np.argmax(sizes))
+        my0, my1 = objs[main][0].start - 12, objs[main][0].stop + 12
+        mx0, mx1 = objs[main][1].start - 12, objs[main][1].stop + 12
+        drop = []
+        for i in range(n):
+            if i == main:
+                continue
+            ys, xs = objs[i]
+            inside = ys.start >= my0 and ys.stop <= my1 and xs.start >= mx0 and xs.stop <= mx1
+            if not inside and not (keep_far and sizes[i] >= sizes[main] * 0.01):
+                drop.append(i + 1)
+        part = part.copy()
+        part[np.isin(lab, drop)] = 0
+        return part
+
+    halves = {'tree_burning': clean(a[:, :mid], True), 'tree_charred': clean(a[:, mid:], False)}
+    # 배율: 검게 탄 나무의 키 = 앙상한 나무의 키 (둘 다 꽃 · 연기 없는 같은 나무 모양)
+    ch = halves['tree_charred'][..., 3] >= 24
+    cys = np.where(ch.any(1))[0]
+    dot = (cys.max() - cys.min() + 1) / bare_h
+    out = []
+    for name, part in halves.items():
+        small = pp.shrink(part, dot, soft=True)
+        al = small[..., 3] > 0
+        ys = np.where(al.any(1))[0]
+        small = small[:ys.max() + 1]
+        al = small[..., 3] > 0
+        tx = trunk_x(al, small.shape[0] - 1)
+        # 칸: 바닥 = 칸 아래, 줄기 x = 칸 가운데 + t_off (기존 tree 칸과 같은 자리)
+        want = tx - t_off
+        half = int(np.ceil(max(want, small.shape[1] - want))) + 2
+        fw = half * 2
+        fh = small.shape[0] + 2
+        sheet = np.zeros((fh, fw, 4), np.uint8)
+        x0 = int(round(half - want))
+        sheet[fh - small.shape[0]:, x0:x0 + small.shape[1]] = small
+        Image.fromarray(sheet).save(OUT / f'{name}.png')
+        sheets[name] = dict(file=f'{name}.png', source=f'{TREE_SRC}.png', frameWidth=fw, frameHeight=fh, frames=1,
+                            origin=dict(x=0.5, y=1.0), dot=round(dot, 2), alignedTo='tree 앙상한 칸 (키 · 줄기 밑동)')
+        out.append(f'{name} {fw}×{fh}')
+    # 불길: 윗줄 4칸 → fx_fire_wall, 아랫줄 4칸 → fx_fire_small (발 기준)
+    b = np.array(Image.open(RAW / f'{FIRE_SRC}.png').convert('RGBA'))
+    pp.remove_outer_white(b)
+    rows = np.where((b[..., 3] >= 24).any(1))[0]
+    # 두 줄 사이 빈 행
+    gaps = [y for y in range(rows.min(), rows.max()) if not (b[y, :, 3] >= 24).any()]
+    split = gaps[len(gaps) // 2] if gaps else b.shape[0] // 2
+    for name, part, h, rate in (('fx_fire_wall', b[:split], 150, 8), ('fx_fire_small', b[split:], 34, 9)):
+        parts = frames(part, 4)
+        d = max(p.shape[0] for p in parts) / h
+        fr = [pp.shrink(p, d, soft=True) for p in parts]
+        e = ps.save_sheet(name, fr, dict(anchor='feet', pad=1), d, OUT, f'{FIRE_SRC}.png')
+        e['anims'] = {name: {'frames': [0, 1, 2, 3], 'rate': rate, 'loop': True}}
+        sheets[name] = e
+        out.append(f"{name} 4칸 {e['frameWidth']}×{e['frameHeight']}")
+    man.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding='utf-8')
+    print(', '.join(out), f'(나무 배율 1/{dot:.2f}, 기준 줄기 오프셋 {t_off:+.1f})')
+
+
+if __name__ == '__main__' and '--fire' in sys.argv:
+    fire()
