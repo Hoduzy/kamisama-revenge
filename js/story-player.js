@@ -456,6 +456,8 @@ class StoryPlayer {
         // 흥얼거림 자막 (하루의 자장가): 화면 아래 작게 분홍 글. 다음 명령은 거의 다 흐른 뒤에 (wait: false 면 바로)
         // lines: [가사…] 면 한 줄씩 이어서 (줄 사이 gap 초)
         if (skip) break;
+        // subtitle: false = 흥얼거리는 소리만 (가사 자막 없음)
+        if (c.subtitle === false) { CineSound.sfx('hum', { volume: 0.4 }); break; }
         const lines = c.lines || [c.text];
         const dur = (t) => (c.seconds ?? Math.max(2.6, 1.4 + t.length * 0.12)) * 1000;
         let at = 0;

@@ -291,7 +291,7 @@ LINES = {
     'P-1': {
         '장지문 사이로 아침 햇살. 아카네가 이불 속에서 자고 있다. 멀리서 망치 소리, 가까이 부엌에서 하루의 자장가.': [
             C('fadeIn', duration=1.4), act('akane', '이불 속에서 자고 있다', 1.6, anim='akane_sleep', loop=True),  # 햇살은 배경 그림(bg_pro2_house)에 있다
-            C('ambience', id='hammer', every=2.2, volume=0.2), C('hum', speaker='haru', lines=LULLABY, wait=False)],
+            C('ambience', id='hammer', every=2.2, volume=0.2), C('hum', speaker='haru', lines=LULLABY, wait=False, subtitle=False)],  # 가사 자막은 P-0 끝에서만
         '아카네가 뒤척이다 일어나 앉는다. 하품. 머리끈을 입에 물고 포니테일을 묶는다.': [
             act('akane', '뒤척인다', 1.0, anim='akane_sleep'), act('akane', '일어나 앉는다 · 하품', 1.4, anim='akane_stretch'),
             act('akane', '머리끈을 입에 물고 포니테일을 묶는다', 2.0, anim='akane_tie_hair')],

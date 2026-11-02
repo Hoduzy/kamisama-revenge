@@ -996,7 +996,8 @@ def main():
     # docs/ 의 대본 원고 (이름에 '대본'이 들어간 파일. cinematics.md 같은 다른 문서는 건너뜀)
     src = Path(args.src) if args.src else next(p for p in sorted((ROOT / 'docs').glob('*.md'))
                                                        if '대본' in unicodedata.normalize('NFC', p.name))  # 맥에서 올린 이름은 자모가 풀려 있음
-    lines = [fix_hanja(x) for x in src.read_text(encoding='utf-8').split('\n')]
+    # Markdown 이스케이프(기호 앞 \) 를 모두 지운다: \~ \* \_ \# \- \[ \] \( \) \! \. 등 → 기호만
+    lines = [re.sub(r'\\([\\`*_{}\[\]()#+\-.!~|<>"\'=:])', r'\1', fix_hanja(x)) for x in src.read_text(encoding='utf-8').split('\n')]
     conv = Converter(lines)
     chapters, memories = conv.run()
     apply_gameplay(chapters)
