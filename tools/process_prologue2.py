@@ -10,7 +10,7 @@
   가장 얇은 열에서 나눈다 — 설명의 프레임 수에 억지로 맞추지 않는다 (다르면 보고서에 표시)
   크기: 머리 높이를 기존 시트와 맞춘다 (아카네 = player_idle, 하루 = haru_idle, 소이치로 = soichiro_give 머리 본을 대어 배율을 찾음).
   나그네는 기존 하쿠야(hakuya_walk)와 같은 키, 마을 노인 · 할머니는 손으로 잰 머리 높이
-- 소품: 덩어리 단위로 잘라(process_props.blobs) assets/sprites/props_pro2/. 배율은 나그네 시트 속 삿갓 폭에 맞춘다(같은 도트 굵기)
+- 소품: 덩어리 단위로 잘라(process_props.blobs) assets/sprites/props/ (같은 이름이 있으면 덮어씀). 배율은 나그네 시트 속 삿갓 폭에 맞춘다(같은 도트 굵기)
 - 초상화: 기존 아카네 초상화와 같은 높이(107)
 """
 import argparse
@@ -32,7 +32,7 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW_NEW = ROOT / 'assets/raw/prologue2'
 RAW_OLD = ROOT / 'assets/raw/prologue'
 OUT = ROOT / 'assets/sprites'
-PROPS_OUT = OUT / 'props_pro2'
+PROPS_OUT = OUT / 'props'  # 소품은 모두 props/ 한 곳 (tools/process_props.py 와 같은 폴더)
 
 # 원래 파일 이름 → 새 이름, 종류, 판단 근거
 FILES = [
@@ -50,7 +50,7 @@ FILES = [
     ('116FDC58-3725-4640-8A65-243AE41AFA31', 'akane_emote2', 'sheet', '머리 · 옷이 젖어 늘어진 모습, 방울 · 흙 파기 · 돌 치기가 있음'),
     ('AC761801-25E7-43FD-97C9-CD4FDF60A835', 'family_sitting', 'sheet', '붉은 기모노 하루 6프레임 + 앞치마 소이치로 4프레임'),
     ('EB3BE145-212E-4CF5-95A7-13C6A896F052', 'villagers_elder', 'sheet', '만두 바구니 든 할머니 4 + 지팡이 노인 4'),
-    ('F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF', 'props_pro2', 'props', '소품 12개 (묘목 2, 방울 2, 비녀, 바구니, 찜통, 삿갓, 돌무덤 2, 노점 기둥, 가면)'),
+    ('F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF', 'props', 'props', '소품 12개 (묘목 2, 방울 2, 비녀, 바구니, 찜통, 삿갓, 돌무덤 2, 노점 기둥, 가면)'),
     ('0A0C1F40-D30F-4237-A229-4B3FBE2A43E7', 'portraits_pro2', 'portraits', '초상 6칸: 아카네 3(웃음 · 젖은 슬픔 · 젖은 분노), 삿갓 나그네 2, 할머니 1'),
 ]
 
@@ -74,6 +74,21 @@ SHEET_CFG = {
 }
 PROP_NAMES = ['sapling_dead', 'sapling_burnt', 'bell_red', 'bell_wrapped', 'kanzashi', 'manju_basket', 'steamer',
               'kasa_hat', 'grave_a', 'grave_b', 'stall_burning', 'mask_broken']
+# 애니메이션 (manifest 의 시트에 anims 로 적고, js/sprites.js createAnims 가 그대로 만든다): 이름 → (칸, 초당 칸, 반복)
+ANIMS = {
+    'hakuya_traveler': {'wanderer_sit': ([0, 1], 2, True), 'wanderer_look_manju': ([2, 3], 3, True),
+                        'wanderer_stand': ([4, 5], 4, False), 'wanderer_walk': ([6, 7, 8, 9, 10, 11], 8, True)},
+    'akane_morning': {'akane_sleep': ([0, 1], 1.5, True), 'akane_stretch': ([2, 3], 2.5, False),
+                      'akane_tie_hair': ([4, 5], 3, True), 'akane_stand_up': ([6, 7, 8, 9], 6, False)},
+    'akane_emote1': {'akane_crouch': ([0, 1], 2, True), 'akane_reach': ([2, 3], 3, False), 'akane_ember': ([4], 1, False),
+                     'akane_seiza': ([5, 6], 1.5, True), 'akane_eat': ([7, 8], 3, True), 'akane_smile': ([9], 1, False)},
+    'akane_emote2': {'akane_collapse': ([0, 1], 1.5, True), 'akane_sit_up': ([2, 3], 2, False), 'akane_shake_bell': ([4, 5], 5, True),
+                     'akane_slow_walk': ([6, 7, 8, 9], 5, True), 'akane_dig': ([10, 11], 3, True), 'akane_strike': ([12, 13], 4, False)},
+    'family_sitting': {'haru_seiza': ([0, 1], 1.5, True), 'haru_crouch_reach': ([2, 3], 2, False), 'haru_eat': ([4, 5], 3, True),
+                       'soichiro_hide': ([6, 7], 2, True), 'soichiro_laugh': ([8, 9], 4, True)},
+    'villagers_elder': {'grandma_idle': ([0, 1], 1.5, True), 'grandma_give': ([1, 2, 3], 3, False), 'grandma_wave': ([2, 3], 3, True),
+                        'old_man_idle': ([4, 6], 1, True), 'old_man_bow': ([5], 1, False), 'old_man_laugh': ([7], 1, False)},
+}
 PORTRAIT_LABELS = ['akane_happy', 'akane_rain_sad', 'akane_rain_hate', 'traveler_neutral', 'traveler_smile', 'manju_grandma']
 
 # 머리 본: (시트, 프레임, 정수리 y, 턱 y, 얼굴 x0, x1) 원본 px — 내용 맨 위 기준
@@ -173,6 +188,8 @@ def process_sheet(name, a, cfg, sheets):
     labels = labels_for(cfg['expect'], len(frames))
     entry = ps.save_sheet(name, frames, dict(anchor='feet', pad=2, facing=cfg['facing'], labels=labels), dot, OUT, f'prologue2/{name}.png')
     entry['heights'] = [int(f.shape[0]) for f in frames]
+    if name in ANIMS:
+        entry['anims'] = {k: {'frames': f, 'rate': r, 'loop': lp} for k, (f, r, lp) in ANIMS[name].items()}
     if name == 'family_sitting':
         entry['character'] = ['haru'] * 6 + ['soichiro'] * 4
     return entry, dict(found=len(frames), expect=expect_n, note=note)
@@ -203,7 +220,7 @@ def process_props(a, kasa_w):
         small = ps.downscale(crop, scale)
         small, _ = ps.crop_to_content(small)
         Image.fromarray(small).save(PROPS_OUT / f'{n}.png')
-        out[n] = {'file': f'props_pro2/{n}.png', 'source': 'prologue2/props_pro2.png', 'width': int(small.shape[1]),
+        out[n] = {'file': f'props/{n}.png', 'source': 'prologue2/props.png', 'width': int(small.shape[1]),
                   'height': int(small.shape[0]), 'kind': 'prop', 'dot': round(scale, 2)}
     return out, dict(found=len(found), expect=len(PROP_NAMES), note=f'삿갓 폭 {kasa_w}px (나그네 시트 속 삿갓)에 맞춤, 배율 1/{scale:.2f}')
 
@@ -349,8 +366,7 @@ def main():
         if r['new'] in COMPARE:
             r['compare'] = [(n, sheets[n]['file'], sheets[n]['frameWidth'], sheets[n]['frameHeight'], i) for n, i in COMPARE[r['new']]]
         if r['new'] == 'portraits_pro2':
-            r['ambiguous'] = True
-            r['note'] = (r.get('note', '') + ' · 나그네 초상 2칸(3, 4)은 얼굴이 삿갓에 가려 거의 같다 — 어느 쪽이 「기본」/「웃음」인지 확인 필요')
+            r['note'] = (r.get('note', '') + ' · 나그네 초상 3번 「기본」, 4번 「웃음」 (얼굴을 숨긴 인물이라 거의 같은 것이 의도 — 확인받음)')
     preview(rows, {**sheets, **new_sheets}, cgs)
     # 대응표 (문서)
     md = ['# 새 프롤로그 그림 대응표', '', '`python3 tools/process_prologue2.py` 가 만든다. 미리보기: `assets/sprites/prologue2_preview.html`', '',

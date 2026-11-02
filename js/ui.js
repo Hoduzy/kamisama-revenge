@@ -233,7 +233,8 @@ const UI = {
     const el = this.el('.cine-cutin');
     const eyes = el.querySelector('.cc-eyes');
     const sp = ch.sprite;
-    const sheet = sp && Sprites.sheet(sp.key);
+    const fc = sp && Sprites.face(sp, face);
+    const sheet = fc && Sprites.sheet(fc.key);
     eyes.textContent = '';
     eyes.classList.toggle('cc-ph', false);
     const img = extra.image && Sprites.sheet(extra.image);
@@ -244,7 +245,7 @@ const UI = {
       eyes.classList.add('cc-ph');
       eyes.textContent = `컷인 · ${extra.label || extra.image}`;
     } else if (sheet) {
-      const frame = (sp.faces && (sp.faces[face] ?? sp.faces.neutral)) || 0;
+      const frame = fc.frame;
       const W = 620; // 초상화 한 칸을 이 폭으로 (약 6배)
       const k = W / sheet.frameWidth;
       // 두 눈 한가운데가 띠의 가운데에 오게

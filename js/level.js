@@ -111,18 +111,20 @@ LEVELS.prologue = {
   mood: null,
 
   backgrounds: [
-    { id: 'room', key: 'bg_pro_room', x0: 0, x1: 960, anchorX: 480 },
-    { id: 'house', key: 'bg_pro_house', x0: 960, x1: 2000, anchorX: 1480 },
+    // 새 프롤로그 배경 (tools/process_prologue2.py): 집 실내 = 아카네의 방 · 이로리, 앞마당, 마을 길, 마을 입구, 동굴.
+    // 같은 장소의 밤(P-10)은 불타는 배경, 새벽(P-13 · P-14)은 장면 준비에서 stageBg 로 bg_pro2_ash 로 바꾼다
+    { id: 'room', key: 'bg_pro2_house', x0: 0, x1: 960, anchorX: 480 },
+    { id: 'house', key: 'bg_pro2_yard', x0: 960, x1: 2000, anchorX: 1480 },
     { id: 'forge', key: 'bg_pro_forge', x0: 2000, x1: 2900, anchorX: 2450 },
-    { id: 'village', key: 'bg_pro_village', x0: 2900, x1: 4700, anchorX: 3800 },
-    { id: 'gate', key: 'bg_pro_gate', x0: 4700, x1: 5700, anchorX: 5200 },
+    { id: 'village', key: 'bg_pro2_street', x0: 2900, x1: 4700, anchorX: 3800 },
+    { id: 'gate', key: 'bg_pro2_gate', x0: 4700, x1: 5700, anchorX: 5200 },
     { id: 'yard', key: 'bg_pro_yard', x0: 5700, x1: 7400, anchorX: 6515 },
     { id: 'festival', key: 'bg_pro_festival', x0: 7400, x1: 8700, anchorX: 8000 },
     { id: 'road', key: 'bg_pro_alley', x0: 8700, x1: 10800, anchorX: 9900 },
     { id: 'smithy', key: 'bg_pro_forge', x0: 10800, x1: 11800, anchorX: 11300, tint: 0xd07060 },
     { id: 'plaza', key: 'bg_pro_burning', x0: 11800, x1: 13700, anchorX: 12900 },
-    { id: 'irori', key: 'bg_pro_irori', x0: 13700, x1: 15100, anchorX: 14480 },
-    { id: 'cave', key: 'bg_pro_cave', x0: 15100, x1: 16200, anchorX: 15680 },
+    { id: 'irori', key: 'bg_pro2_house', x0: 13700, x1: 15100, anchorX: 14480 },
+    { id: 'cave', key: 'bg_pro2_cave', x0: 15100, x1: 16200, anchorX: 15680 },
   ],
 
   ground: [
@@ -169,8 +171,8 @@ LEVELS.prologue = {
     { id: 'haru', name: '하루', look: 'haru', x: 1700, y: 620, face: -1 },
     { id: 'soichiro', name: '소이치로', look: 'soichiro', x: 2450, y: 620, face: -1 },
     { id: 'hana', name: '하나', look: 'villager', sheet: 'villager_child', x: 3000, y: 620, face: -1 },
-    { id: 'dumpling_grandma', name: '만두 할머니', look: 'villager', sheet: 'villager_woman', x: 4260, y: 620, face: -1 },
-    { id: 'village_old_man', name: '마을 노인', look: 'villager', sheet: 'villager_man_v3', x: 3500, y: 620, face: -1 },
+    { id: 'dumpling_grandma', name: '만두 할머니', look: 'dumpling_grandma', sheet: 'villager_woman', x: 4260, y: 620, face: -1 },
+    { id: 'village_old_man', name: '마을 노인', look: 'village_old_man', sheet: 'villager_man_v3', x: 3500, y: 620, face: -1 },
     { id: 'wanderer', name: '나그네', look: 'wanderer', tall: true, hat: true, x: 5230, y: 620, face: 1 },
     // 축제 광장 마을 사람들 (P-8 춤 → P-9 멈춤)
     { id: 'vm1', name: '마을 사람', look: 'villager', sheet: 'villager_man', x: 7620, y: 620, face: 1, festival: true, flee: -1 },

@@ -12,10 +12,19 @@
 const ACTOR_POSES = {
   akane: {
     idle: 'player_idle', walk: 'player_run', run: 'player_run',
-    sit: ['player_iaido_ready', 0],   // 임시: 앉는 그림이 없어 발도 준비(웅크림) 첫 칸
-    kneel: ['player_iaido_ready', 5], // 임시: 같은 시트 마지막 칸
+    sit: 'akane_seiza',               // 정좌 (akane_emote1). 그림이 없으면 아래 대신 그림
+    kneel: 'akane_seiza',
     jumpUp: ['player_jump', 1], jumpDown: ['player_jump', 3], land: ['player_jump', 4],
     down: ['player_death', 5],
+  },
+  // 비에 젖은 아카네 (P-12 ~ P-14, 이야기 깃발 akaneRain): akane_emote2
+  akaneRain: {
+    sit: ['akane_emote2', 3], kneel: ['akane_emote2', 3], down: ['akane_emote2', 0],
+    walk: 'akane_slow_walk', run: 'akane_slow_walk',
+  },
+  // 새 그림이 없을 때 대신 그림
+  akaneFallback: {
+    sit: ['player_iaido_ready', 0], kneel: ['player_iaido_ready', 5],
   },
 };
 
@@ -68,7 +77,11 @@ class PlayerActor {
   script(s) { this.p.scripted = s; }
 
   pose(name) {
-    const p = this.poses[name];
+    const flags = this.scene.registry.get('storyFlags') || {};
+    const ok = (v) => v && (Array.isArray(v) ? this.scene.textures.exists(v[0]) : this.scene.anims.exists(v));
+    let p = this.poses[name];
+    if (flags.akaneRain && ok(ACTOR_POSES.akaneRain[name])) p = ACTOR_POSES.akaneRain[name];
+    else if (p && !ok(p) && ACTOR_POSES.akaneFallback[name]) p = ACTOR_POSES.akaneFallback[name];
     if (name === 'idle' || name === 'stand' || !p) return this.script(null);
     this.script(Array.isArray(p) ? { sheet: p[0], frame: p[1] } : { anim: p, loop: true });
   }
@@ -202,7 +215,7 @@ class ActorDirector {
     if (a === this.akane) {
       if (dist < 2) return Promise.resolve();
       const sheetSpeed = 300; // player_run 12fps 가 어울리는 속도
-      a.script({ anim: a.poses.walk, loop: true, timeScale: Phaser.Math.Clamp(v / sheetSpeed, 0.35, 1.3) });
+      a.script({ anim: ((this.scene.registry.get('storyFlags') || {}).akaneRain && this.scene.anims.exists('akane_slow_walk')) ? 'akane_slow_walk' : a.poses.walk, loop: true, timeScale: Phaser.Math.Clamp(v / sheetSpeed, 0.35, 1.3) });
       return this.op((dist / v) * 1000, (t) => a.place(from + (x - from) * t), () => {
         a.place(x, dir);
         a.script(null);

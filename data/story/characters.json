@@ -12,7 +12,10 @@
         "surprised": 0,
         "angry": 1,
         "sad": 2,
-        "scared": 2
+        "scared": 2,
+        "happy": "portraits_pro2:0",
+        "rain_sad": "portraits_pro2:1",
+        "rain_hate": "portraits_pro2:2"
       }
     }
   },
@@ -410,11 +413,30 @@
   },
   "wanderer": {
     "name": "나그네",
-    "side": "auto"
+    "side": "auto",
+    "sprite": {
+      "key": "portraits_pro2",
+      "faces": {
+        "neutral": 3,
+        "serious": 3,
+        "sad": 3,
+        "surprised": 3,
+        "angry": 3,
+        "scared": 3,
+        "smile": 4
+      }
+    }
   },
   "dumpling_grandma": {
     "name": "만두 할머니",
-    "side": "auto"
+    "side": "auto",
+    "color": "#e8e0d0",
+    "sprite": {
+      "key": "portraits_pro2",
+      "faces": {
+        "neutral": 5
+      }
+    }
   },
   "village_old_man": {
     "name": "마을 노인",

@@ -90,9 +90,10 @@ class DialogueBox {
 
   // 초상화 그림: 도트 시트(표정) → image → 실루엣 + 이름 첫 글자(임시)
   portraitStyle(id, ch, face) {
-    if (ch.sprite && this.scene.textures.exists(ch.sprite.key)) {
-      const s = Sprites.sheet(ch.sprite.key);
-      const frame = ch.sprite.faces[face] ?? ch.sprite.faces.neutral ?? 0;
+    const f = ch.sprite && Sprites.face(ch.sprite, face);
+    if (f && this.scene.textures.exists(f.key) && Sprites.sheet(f.key)) {
+      const s = Sprites.sheet(f.key);
+      const frame = f.frame;
       const k = 2.5; // 도트 1칸 = 2.5px
       return {
         backgroundImage: `url(${SPRITE_DIR}${s.file})`,

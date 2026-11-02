@@ -488,6 +488,8 @@ class Cinematics {
     if (!L) return;
     this.scene.lights.removeLight(L.light);
     delete this.lightList[id];
+    // 마지막 빛을 끄면 어두운 바탕(ambient)도 걷는다 — 켜 둔 채로 두면 다음 장면(밝은 아침)까지 어둡게 남는다
+    if (!Object.keys(this.lightList).length && this.lightsOn) this.lights(false);
   }
 
   // 깜빡임: 부드럽게 흔들리는 잡음 (불은 크게, 등롱은 살짝)

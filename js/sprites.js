@@ -90,6 +90,20 @@ const Sprites = {
     }
     add('villager_child_dance', 'villager_child', n('villager_child'), 8, -1);
     add('villager_child_flee', 'villager_child', [4, 5, 6, 7], 12, -1);
+    // 시트에 anims 가 적혀 있으면 그대로 (tools/process_prologue2.py: akane_sleep, wanderer_walk, haru_seiza …)
+    for (const [sheet, s] of Object.entries((this.manifest && this.manifest.sheets) || {})) {
+      for (const [key, a] of Object.entries(s.anims || {})) add(key, sheet, a.frames, a.rate, a.loop ? -1 : 0);
+    }
+  },
+
+  // 초상화 표정 → { key, frame }. faces 값: 칸 번호(같은 시트) | '다른시트:칸' (예 'portraits_pro2:1')
+  face(sprite, face) {
+    const v = sprite.faces ? (sprite.faces[face] ?? sprite.faces.neutral ?? 0) : 0;
+    if (typeof v === 'string' && v.includes(':')) {
+      const [key, f] = v.split(':');
+      return { key, frame: Number(f) };
+    }
+    return { key: sprite.key, frame: v || 0 };
   },
 
   // 캐릭터 위에 겹쳐 한 번 재생하고 사라지는 이펙트

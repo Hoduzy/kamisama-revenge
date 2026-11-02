@@ -60,7 +60,9 @@ VOICE_STYLE = {'haru': 'pink', 'hakuya': 'goldTremble'}  # 하루 = 분홍 글�
 P = lambda style, **kw: {'style': style, **kw}
 PORTRAITS = {
     'akane': {'color': '#ff6b7a', 'sprite': {'key': 'portraits', 'faces': {
-        'neutral': 0, 'smile': 0, 'serious': 0, 'surprised': 0, 'angry': 1, 'sad': 2, 'scared': 2}}},
+        'neutral': 0, 'smile': 0, 'serious': 0, 'surprised': 0, 'angry': 1, 'sad': 2, 'scared': 2,
+        # 새 프롤로그 초상 (portraits_pro2): 활짝 웃음 · 비에 젖은 슬픔 · 비에 젖은 분노 — 장면별로 FACE_OVERRIDES 가 고른다
+        'happy': 'portraits_pro2:0', 'rain_sad': 'portraits_pro2:1', 'rain_hate': 'portraits_pro2:2'}}},
     'haru': {'color': '#ffb7c5', 'portrait': P('bun', hair='#1c1416', eyes='#d62828', skin='#f2dccb', clothes='#7a2a3e', bg='#33262c')},
     'haru_young': {'color': '#ffb7c5', 'portrait': P('bun', hair='#1c1416', eyes='#d62828', skin='#f6e2d2', clothes='#b05a78', bg='#3a2a32')},
     'soichiro': {'color': '#c9a66b', 'portrait': P('topknot', hair='#2b2b2b', eyes='#1a1a1a', skin='#e2c2a2', clothes='#3d4a5c', bg='#2a2a30')},
@@ -90,6 +92,10 @@ PORTRAITS['soichiro']['sprite'] = {'key': 'portraits_soichiro', 'faces': {
     'neutral': 0, 'smile': 0, 'serious': 1, 'sad': 1, 'surprised': 1, 'scared': 1, 'angry': 2, 'wounded': 2}}
 PORTRAITS['hakuya']['sprite'] = {'key': 'portraits_hakuya', 'faces': {
     'neutral': 0, 'smile': 0, 'serious': 0, 'sad': 0, 'laugh': 1, 'surprised': 2, 'angry': 2}}
+# 나그네(삿갓) · 만두 할머니 (portraits_pro2: 3 나그네 기본, 4 나그네 웃음, 5 할머니)
+PORTRAITS['wanderer'] = {'sprite': {'key': 'portraits_pro2', 'faces': {
+    'neutral': 3, 'serious': 3, 'sad': 3, 'surprised': 3, 'angry': 3, 'scared': 3, 'smile': 4}}}
+PORTRAITS['dumpling_grandma'] = {'color': '#e8e0d0', 'sprite': {'key': 'portraits_pro2', 'faces': {'neutral': 5}}}
 PORTRAITS['villager']['sprite'] = {'key': 'portraits_village', 'faces': {'neutral': 2, 'smile': 2, 'surprised': 3, 'sad': 3, 'scared': 3, 'angry': 3, 'serious': 3}}
 
 CHAPTERS = [  # (파일 이름, 대본의 장 제목 머리말 시작)
@@ -174,13 +180,17 @@ GAMEPLAY = {
 
 
 # 장면마다 표정을 고정: (장면, 화자, 표정) → 표정. 대장간 앞(P-10b) 슬픈 소이치로는 다친 얼굴, 광장(P-11) 하쿠야의 미소는 비웃음
-FACE_OVERRIDES = {('P-10b', 'soichiro', 'sad'): 'wounded', ('P-11', 'hakuya', 'smile'): 'laugh'}
+FACE_OVERRIDES = {('P-10b', 'soichiro', 'sad'): 'wounded', ('P-11', 'hakuya', 'smile'): 'laugh',
+                  # 새 아카네 초상: P-3 · P-8 의 웃음은 활짝 웃는 얼굴, 비 오는 P-12 ~ P-14 의 슬픔 · 분노는 젖은 얼굴
+                  ('P-3', 'akane', 'smile'): 'happy', ('P-8', 'akane', 'smile'): 'happy',
+                  **{(p, 'akane', 'sad'): 'rain_sad' for p in ('P-12', 'P-13', 'P-14')},
+                  **{(p, 'akane', 'angry'): 'rain_hate' for p in ('P-12', 'P-13', 'P-14')}}
 
 
 def apply_face_overrides(chapters):
     def walk(cmds, sid):
         for c in cmds or []:
-            if c.get('cmd') in ('say', 'think'):
+            if c.get('cmd') in ('say', 'think', 'cutIn'):
                 k3 = (sid, c.get('speaker'), c.get('face'))
                 k2 = (sid, c.get('speaker'))
                 if k3 in FACE_OVERRIDES:

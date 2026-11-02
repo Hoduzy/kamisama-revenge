@@ -36,11 +36,7 @@ SHEETS = {
     'props_prologue.png': dict(ref=('prop_scarecrow', 'h', 80), names=[
         'prop_scarecrow', 'prop_scarecrow_broken', 'prop_katana', 'prop_fire_arrow',
         'prop_debris_fire', 'prop_fox_mask', 'prop_anvil', 'prop_sword_rack']),
-    # 새 프롤로그 소품 (assets/raw/prologue/F5323BD8-….png)
-    'prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png': dict(ref=('kasa_hat', 'w', 40), names=[
-        'sapling_dead', 'sapling_burnt', 'bell_red', 'bell_wrapped', 'kanzashi',
-        'manju_basket', 'steamer', 'kasa_hat', 'grave_a', 'grave_b',
-        'stall_burning', 'mask_broken']),
+    # 새 프롤로그 소품 시트(묘목 · 방울 · 삿갓 …)는 tools/process_prologue2.py 가 같은 방법으로 props/ 에 자른다
 }
 
 

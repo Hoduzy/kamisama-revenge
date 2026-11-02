@@ -3,14 +3,22 @@
 //       'villager' = 마을 사람 시트(data.sheet, 색 변형 _v1~_v3 포함). 춤(dance) · 도망(flee)
 //       'silhouette' = 그림이 없을 때 검은 실루엣 + 이름표
 // 자세(pose) → 애니메이션(또는 [시트, 칸]). run 이 없으면 idle 을 재생한 채로 미끄러진다
+// 앉은 그림은 새 프롤로그 시트(family_sitting · tools/process_prologue2.py)가 있으면 그것, 없으면 예전 대신 그림(fallback)
 const NPC_POSES = {
   haru: { idle: 'haru_idle', run: 'haru_idle', guard: ['haru_attack', 0], slash: ['haru_attack', 3],
     attack: 'haru_attack', down: 'haru_death', reach: 'haru_reach',
-    sit: ['haru_reach', 0], kneel: ['haru_death', 3] }, // 앉기 = 꽃잎을 피우기 전 앉은 그림, 무릎 = 쓰러지는 도중 칸 (배우 시스템)
+    sit: 'haru_seiza', kneel: ['haru_death', 3], crouch: 'haru_crouch_reach', eat: 'haru_eat' }, // 무릎 = 쓰러지는 도중 칸
   soichiro: { idle: ['soichiro_give', 0], run: ['soichiro_give', 0], forge: 'soichiro_forge', give: 'soichiro_give',
     guard: 'soichiro_guard', attack: 'soichiro_attack', kneel: 'soichiro_kneel', down: 'soichiro_kneel',
-    sit: ['soichiro_kneel', 3] },
+    sit: ['family_sitting', 6], hide: 'soichiro_hide', laugh: 'soichiro_laugh' },
+  // 새 프롤로그 인물 (hakuya_traveler · villagers_elder)
+  wanderer: { idle: ['hakuya_traveler', 6], walk: 'wanderer_walk', run: 'wanderer_walk', sit: 'wanderer_sit',
+    look_manju: 'wanderer_look_manju', stand: 'wanderer_stand' },
+  dumpling_grandma: { idle: 'grandma_idle', run: ['villagers_elder', 0], give: 'grandma_give', wave: 'grandma_wave' },
+  village_old_man: { idle: 'old_man_idle', run: ['villagers_elder', 4], bow: 'old_man_bow', laugh: 'old_man_laugh' },
 };
+// 새 시트가 없을 때 앉기 대신 그림
+const NPC_POSE_FALLBACK = { haru: { sit: ['haru_reach', 0] }, soichiro: { sit: ['soichiro_kneel', 3] } };
 
 class Npc {
   constructor(scene, data) {
@@ -26,8 +34,14 @@ class Npc {
     this.visible = true;
     if (data.look === 'villager' && Sprites.has(scene, data.sheet)) {
       this.poses = { idle: `${data.sheet}_dance`, dance: `${data.sheet}_dance`, run: `${data.sheet}_flee`, flee: `${data.sheet}_flee` };
-    } else if (NPC_POSES[data.look] && Sprites.has(scene, [].concat(NPC_POSES[data.look].idle)[0])) {
-      this.poses = NPC_POSES[data.look];
+    } else if (NPC_POSES[data.look] && Npc.hasPose(scene, NPC_POSES[data.look].idle)) {
+      const all = NPC_POSES[data.look];
+      this.poses = {};
+      for (const [k, v] of Object.entries(all)) {
+        const fb = (NPC_POSE_FALLBACK[data.look] || {})[k];
+        if (Npc.hasPose(scene, v)) this.poses[k] = v;
+        else if (fb) this.poses[k] = fb;
+      }
     } else if (Npc.autoPoses(scene, data.look)) {
       // 새 인물(나그네 등): manifest 에 <look>_idle 시트가 생기면 자동으로 그 그림 (없으면 실루엣)
       this.poses = Npc.autoPoses(scene, data.look);
@@ -60,6 +74,12 @@ class Npc {
       const anim = this.scene.anims.get(p);
       s.play({ key: p, startFrame: randomStart ? Math.floor(Math.random() * anim.frames.length) : 0 }, true);
     }
+  }
+
+  // 자세 값(애니메이션 이름 | [시트, 칸])의 그림이 있는지
+  static hasPose(scene, p) {
+    if (Array.isArray(p)) return scene.textures.exists(p[0]);
+    return scene.anims.exists(p) || scene.textures.exists(p);
   }
 
   // <look>_idle · _walk · _sit · _kneel 시트가 manifest 에 있으면 자세 표를 만든다 (애니메이션도 그 자리에서)

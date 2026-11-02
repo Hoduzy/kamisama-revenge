@@ -4,10 +4,12 @@ const CgCache = {
   state: {}, // 경로 → 'ok' | 'missing' | Promise(불러오는 중)
   imgs: {},  // 디코딩된 Image 를 붙잡아 두어 브라우저가 버리지 않게
 
-  // cg 명령 → 그림 경로. no: assets/cg/cg_0N.png, image: assets/sprites/<이름>.png (배경 전경 등)
+  // cg 명령 → 그림 경로. no: assets/cg/cg_0N.png (글자 번호는 cg_A.png), image: assets/sprites/<이름>.png (배경 전경 등)
   path(c) {
     if (c.image) return `${SPRITE_DIR}${c.image}.png`;
-    return `assets/cg/cg_${String(c.no).padStart(2, '0')}.png`;
+    // 번호는 두 자리(cg_01), 글자는 그대로(cg_A)
+    const no = typeof c.no === 'number' || /^\d+$/.test(c.no) ? String(c.no).padStart(2, '0') : c.no;
+    return `assets/cg/cg_${no}.png`;
   },
 
   status(p) {

@@ -203,14 +203,23 @@ class Player {
     const v = this.visual;
     const sk = this.skills;
     const HOLD_LAST = ['player_iaido_ready', 'player_death']; // 끝나면 마지막 프레임 유지
-    const play = (key) => {
+    const flags = this.scene.registry.get('storyFlags') || {};
+    const A = this.scene.anims;
+    // 프롤로그 옷차림: 비에 젖은 아카네(P-12 ~ P-14)는 느린 걸음 · 젖은 선 그림,
+    // 칼을 받기 전(P-1 ~ P-3)은 <시트>_nosword 그림이 manifest 에 있으면 그것 (아직 없음 → 칼 찬 그림 그대로)
+    const rain = flags.akaneRain && A.exists('akane_slow_walk');
+    const bare = (k) => (flags.akaneNoSword && (A.exists(`${k}_nosword`) || this.scene.textures.exists(`${k}_nosword`)) ? `${k}_nosword` : k);
+    const play = (key0) => {
+      if (rain && key0 === 'player_run') key0 = 'akane_slow_walk';
+      if (rain && key0 === 'player_idle') return still('akane_emote2', 6);
+      const key = bare(key0);
       const same = v.anims.currentAnim?.key === key && v.texture.key === v.anims.currentAnim.frames[0].textureKey;
       if (!same || (!v.anims.isPlaying && !HOLD_LAST.includes(key))) v.play(key);
     };
-    const still = (sheet, frame) => {
+    function still(sheet, frame) {
       v.anims.stop();
-      v.setTexture(sheet, frame);
-    };
+      v.setTexture(sheet === 'akane_emote2' ? sheet : bare(sheet), frame);
+    }
 
     // 배우 시스템이 정한 그림 (컷신에서 걷기·앉기 …)
     const S = this.scripted;
@@ -250,6 +259,26 @@ class Player {
     if (this.landTimer > 0) return still('player_jump', this.landTimer > 0.05 ? 4 : 5); // 착지 → 착지 마무리
     if (Math.abs(this.body.velocity.x) > 40) return play('player_run');
     play('player_idle');
+  }
+
+  // 머리끈의 붉은 방울: P-7 에서 받은 뒤부터 P-14 에서 천으로 감쌀 때까지, 아카네 그림 위에 빨간 점(2×2)을 따로 그려 흔든다.
+  // 머리끈 자리(발 가운데 기준, 오른쪽을 볼 때)는 그림마다 다르다. 표에 없는 그림(앉기 · 쓰러짐 등)에서는 숨긴다
+  updateBell() {
+    const reg = this.scene.registry;
+    const on = this.useSprite && (reg.get('items') || []).includes('붉은 방울') && !(reg.get('storyFlags') || {}).bellWrapped;
+    const tie = on && Player.BELL_TIE[this.visual.texture.key];
+    if (!tie) {
+      if (this.bell) this.bell.setVisible(false);
+      return;
+    }
+    if (!this.bell) this.bell = this.scene.add.rectangle(0, 0, 2, 2, 0xd62828).setOrigin(0, 0);
+    const t = this.scene.time.now / 1000;
+    // 흔들림: 천천히 좌우 1px + 움직일 때 뒤로 끌림
+    const lag = Phaser.Math.Clamp(-this.body.velocity.x / 200, -1.5, 1.5);
+    const sway = Math.round(Math.sin(t * 5) * 0.8 + lag);
+    const dx = tie[0] * this.facing + sway - 1;
+    this.bell.setPosition(Math.round(this.visual.x + dx), Math.round(this.visual.y + tie[1] + 3))
+      .setDepth(this.visual.depth + 0.1).setVisible(true).setAlpha(this.visual.alpha);
   }
 
   // 사망: 사망 애니메이션을 1회 재생하고 멈춘다 (부활은 scene 이 처리)
@@ -390,6 +419,7 @@ class Player {
     this.visual.setAlpha((this.invuln > 0 && !this.dashing && !this.dead ? (Math.floor(this.invuln * 20) % 2 ? 0.3 : 1) : 1) * this.alphaMul);
 
     this.skills.syncVisual();
+    this.updateBell();
 
     const rect = this.useSprite ? null : this.getAttackRect(); // 스프라이트일 땐 베기 궤적 이펙트가 대신한다
     this.slash.setVisible(!!rect);
@@ -399,3 +429,10 @@ class Player {
     }
   }
 }
+
+// 머리끈(방울 매듭) 자리: 그림 이름 → [발 가운데에서 x(오른쪽을 볼 때), 발에서 y]. tools 로 잰 값 (assets/sprites 의 player_idle · player_run)
+Player.BELL_TIE = {
+  player_idle: [-2, -77],
+  player_run: [5, -63],
+  player_jump: [-1, -70],
+};

@@ -324,67 +324,36 @@
           "fade": false
         },
         {
+          "cmd": "setFlag",
+          "flag": "akaneNoSword",
+          "value": true
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "akaneRain",
+          "value": false
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "bellWrapped",
+          "value": false
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": "bed",
           "face": "right"
         },
         {
-          "cmd": "pose",
+          "cmd": "anim",
           "actor": "akane",
-          "pose": "down"
-        },
-        {
-          "cmd": "prop",
-          "id": "bed",
-          "key": "prop_bed",
-          "at": "bed",
-          "depth": 6
-        },
-        {
-          "cmd": "prop",
-          "id": "wsword",
-          "key": "prop_wooden_sword",
-          "at": 120,
-          "dy": -80,
-          "w": 44,
-          "h": 6,
-          "color": "#a08060",
-          "label": "작은 목검"
-        },
-        {
-          "cmd": "prop",
-          "id": "comb",
-          "key": "prop_comb",
-          "at": 520,
-          "dy": -40,
-          "w": 16,
-          "h": 6,
-          "color": "#c09060",
-          "label": "거울 앞 빗"
-        },
-        {
-          "cmd": "prop",
-          "id": "window",
-          "key": "prop_window",
-          "at": 700,
-          "dy": -150,
-          "w": 90,
-          "h": 70,
-          "color": "#bfd8e8",
-          "label": "창 (큰 나무가 보임)"
+          "anim": "akane_sleep",
+          "loop": true
         },
         {
           "cmd": "fadeIn",
           "duration": 1.4,
           "src": "장지문 사이로 아침 햇살. 아카네가 이불 속에서 자고 있다. 멀리서 망치 소리, 가까이 부엌에서 하루의 자장가."
-        },
-        {
-          "cmd": "light",
-          "preset": "lantern",
-          "x": 480,
-          "y": 300,
-          "id": "sun"
         },
         {
           "cmd": "act",
@@ -419,24 +388,22 @@
           "actor": "akane",
           "name": "뒤척인다",
           "seconds": 1.0,
+          "anim": "akane_sleep",
           "src": "아카네가 뒤척이다 일어나 앉는다. 하품. 머리끈을 입에 물고 포니테일을 묶는다."
-        },
-        {
-          "cmd": "sit",
-          "actor": "akane"
         },
         {
           "cmd": "act",
           "actor": "akane",
-          "name": "하품",
-          "seconds": 1.0
+          "name": "일어나 앉는다 · 하품",
+          "seconds": 1.4,
+          "anim": "akane_stretch"
         },
         {
           "cmd": "act",
           "actor": "akane",
           "name": "머리끈을 입에 물고 포니테일을 묶는다",
           "seconds": 2.0,
-          "anim": "player_tie_hair"
+          "anim": "akane_tie_hair"
         },
         {
           "cmd": "voice",
@@ -458,13 +425,16 @@
           "src": "〔조작〕"
         },
         {
-          "cmd": "standUp",
+          "cmd": "act",
           "actor": "akane",
+          "name": "일어선다",
+          "seconds": 0.8,
+          "anim": "akane_stand_up",
           "src": "방 안을 걸을 수 있다. 오른쪽 문이 은은하게 빛난다."
         },
         {
-          "cmd": "lightOff",
-          "id": "sun"
+          "cmd": "standUp",
+          "actor": "akane"
         },
         {
           "cmd": "exitGlow",
@@ -585,14 +555,17 @@
           "dir": "right"
         },
         {
-          "cmd": "sit",
-          "actor": "akane"
+          "cmd": "anim",
+          "actor": "akane",
+          "anim": "akane_crouch",
+          "loop": true
         },
         {
           "cmd": "act",
           "actor": "akane",
           "name": "묘목에 손바닥을 댄다 · 숨을 고른다",
-          "seconds": 2.0
+          "seconds": 2.0,
+          "anim": "akane_reach"
         },
         {
           "cmd": "wait",
@@ -603,7 +576,15 @@
           "actor": "akane",
           "name": "다시 댄다",
           "seconds": 1.0,
+          "anim": "akane_reach",
           "src": "다시 댄다. 손끝에서 분홍 빛 한 점이 반짝이다가 꺼진다."
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "불씨",
+          "seconds": 0.6,
+          "anim": "akane_ember"
         },
         {
           "cmd": "prop",
@@ -699,14 +680,11 @@
           "src": "하루가 옆에 쪼그려 앉아 아카네의 손 위에 자기 손을 겹친다. 묘목은 여전히 그대로다."
         },
         {
-          "cmd": "sit",
-          "actor": "haru"
-        },
-        {
           "cmd": "act",
           "actor": "haru",
           "name": "아카네의 손 위에 자기 손을 겹친다",
-          "seconds": 1.8
+          "seconds": 1.8,
+          "anim": "haru_crouch_reach"
         },
         {
           "cmd": "say",
@@ -817,13 +795,6 @@
           "fade": false
         },
         {
-          "cmd": "prop",
-          "id": "irori",
-          "key": "prop_irori",
-          "at": "irori",
-          "depth": 6
-        },
-        {
           "cmd": "camPan",
           "x": "irori",
           "seconds": 0.01,
@@ -859,10 +830,15 @@
           "dir": "akane"
         },
         {
+          "cmd": "sit",
+          "actor": "soichiro"
+        },
+        {
           "cmd": "act",
           "actor": "soichiro",
           "name": "그을음 묻은 얼굴 · 등 뒤로 뭔가를 숨긴다",
-          "seconds": 1.6
+          "seconds": 1.6,
+          "anim": "soichiro_hide"
         },
         {
           "cmd": "say",
@@ -902,16 +878,27 @@
         {
           "cmd": "say",
           "speaker": "akane",
-          "face": "smile",
+          "face": "happy",
           "text": "…응. 아무것도 없는 거 보러 갈게.",
           "side": "left"
+        },
+        {
+          "cmd": "anim",
+          "actor": "soichiro",
+          "anim": "soichiro_laugh",
+          "loop": true,
+          "src": "셋이 동시에 웃는다. 아카네의 초상화가 처음으로 활짝 웃는 얼굴로 바뀐다 (1초)."
+        },
+        {
+          "cmd": "anim",
+          "actor": "akane",
+          "anim": "akane_smile"
         },
         {
           "cmd": "emote",
           "actor": "haru",
           "kind": "note",
-          "wait": false,
-          "src": "셋이 동시에 웃는다. 아카네의 초상화가 처음으로 활짝 웃는 얼굴로 바뀐다 (1초)."
+          "wait": false
         },
         {
           "cmd": "emote",
@@ -927,7 +914,7 @@
         {
           "cmd": "cutIn",
           "speaker": "akane",
-          "face": "smile",
+          "face": "happy",
           "hold": 1.0
         },
         {
@@ -935,8 +922,15 @@
           "actor": "akane",
           "name": "밥그릇을 든다",
           "seconds": 1.0,
+          "anim": "akane_eat",
           "wait": false,
           "src": "아카네가 밥그릇을 들 때, 카메라가 하루 쪽으로 천천히 이동한다. 하루가 소매 안의 접힌 편지를 손끝으로 만지작거리고 있다. 편지 위에 카메라가 0.8초 머문다. 아무도 그것에 대해 말하지 않는다."
+        },
+        {
+          "cmd": "anim",
+          "actor": "soichiro",
+          "anim": "soichiro_hide",
+          "loop": true
         },
         {
           "cmd": "prop",
@@ -1287,6 +1281,11 @@
           "src": "이후 아카네 스프라이트가 칼 찬 버전으로 바뀐다. 목표 자막 〈만두 가게로〉."
         },
         {
+          "cmd": "setFlag",
+          "flag": "akaneNoSword",
+          "value": false
+        },
+        {
           "cmd": "act",
           "actor": "akane",
           "name": "칼을 허리에 찬다",
@@ -1348,20 +1347,6 @@
           "key": "manju_basket",
           "at": 4180,
           "depth": 9
-        },
-        {
-          "cmd": "prop",
-          "id": "shrine",
-          "key": "prop_shrine",
-          "at": 3560,
-          "depth": 4
-        },
-        {
-          "cmd": "prop",
-          "id": "well",
-          "key": "prop_well",
-          "at": "well",
-          "depth": 4
         },
         {
           "cmd": "emoteHold",
@@ -1483,7 +1468,8 @@
           "cmd": "act",
           "actor": "dumpling_grandma",
           "name": "바구니에 만두를 담는다",
-          "seconds": 1.4
+          "seconds": 1.4,
+          "anim": "grandma_give"
         },
         {
           "cmd": "say",
@@ -1561,47 +1547,19 @@
           "to": null
         },
         {
+          "cmd": "mood",
+          "to": "none",
+          "seconds": 2.5
+        },
+        {
           "cmd": "spawn",
           "actor": "wanderer",
           "at": "gateStone",
-          "face": "right",
-          "tall": true,
-          "hat": true
+          "face": "left"
         },
         {
           "cmd": "sit",
           "actor": "wanderer"
-        },
-        {
-          "cmd": "prop",
-          "id": "wandererHat",
-          "key": "kasa_hat",
-          "at": "wanderer",
-          "head": "wanderer",
-          "dy": 12,
-          "depth": 9,
-          "label": ""
-        },
-        {
-          "cmd": "prop",
-          "id": "torii",
-          "key": "prop_torii",
-          "at": 4960,
-          "depth": 3
-        },
-        {
-          "cmd": "prop",
-          "id": "stoneLantern",
-          "key": "prop_lantern_stone",
-          "at": 5060,
-          "depth": 3
-        },
-        {
-          "cmd": "prop",
-          "id": "stone",
-          "key": "prop_stone",
-          "at": "gateStone",
-          "depth": 6
         },
         {
           "cmd": "camPan",
@@ -1697,6 +1655,12 @@
           "src": "나그네가 만두를 받아 한참 내려다본다."
         },
         {
+          "cmd": "anim",
+          "actor": "wanderer",
+          "anim": "wanderer_look_manju",
+          "loop": true
+        },
+        {
           "cmd": "act",
           "actor": "wanderer",
           "name": "만두를 받아 한참 내려다본다",
@@ -1749,8 +1713,11 @@
           "side": "right"
         },
         {
-          "cmd": "standUp",
+          "cmd": "act",
           "actor": "wanderer",
+          "name": "일어선다",
+          "seconds": 0.6,
+          "anim": "wanderer_stand",
           "src": "나그네가 일어선다. 바람이 불어 삿갓 끝이 들린다. 컷인 0.3초: 삿갓 아래로 흘러내린 흰 머리카락 한 가닥."
         },
         {
@@ -1906,7 +1873,7 @@
         {
           "cmd": "mood",
           "to": "dusk",
-          "seconds": 0
+          "seconds": 14
         },
         {
           "cmd": "prop",
@@ -2525,6 +2492,7 @@
           "actor": "dumpling_grandma",
           "name": "손을 흔든다",
           "seconds": 1.4,
+          "anim": "grandma_wave",
           "wait": false
         },
         {
@@ -2797,19 +2765,7 @@
           "cmd": "spawn",
           "actor": "wanderer",
           "at": "festivalEdge",
-          "face": "left",
-          "tall": true,
-          "hat": true
-        },
-        {
-          "cmd": "prop",
-          "id": "wandererHat",
-          "key": "kasa_hat",
-          "at": "wanderer",
-          "head": "wanderer",
-          "dy": 12,
-          "depth": 9,
-          "label": ""
+          "face": "left"
         },
         {
           "cmd": "parallel",
@@ -4615,6 +4571,11 @@
           "ms": 10
         },
         {
+          "cmd": "setFlag",
+          "flag": "akaneRain",
+          "value": true
+        },
+        {
           "cmd": "gameplay",
           "do": "revive",
           "at": "caveAkane"
@@ -4626,9 +4587,10 @@
           "face": "left"
         },
         {
-          "cmd": "pose",
+          "cmd": "anim",
           "actor": "akane",
-          "pose": "down"
+          "anim": "akane_collapse",
+          "loop": true
         },
         {
           "cmd": "gameplay",
@@ -4708,8 +4670,11 @@
           "src": "아카네가 눈을 뜬다. 천천히 일어나 앉는다. 손이 머리끈의 방울에 닿는다."
         },
         {
-          "cmd": "sit",
-          "actor": "akane"
+          "cmd": "act",
+          "actor": "akane",
+          "name": "천천히 일어나 앉는다",
+          "seconds": 1.0,
+          "anim": "akane_sit_up"
         },
         {
           "cmd": "act",
@@ -4722,12 +4687,19 @@
           "actor": "akane",
           "name": "방울을 흔든다",
           "seconds": 0.8,
+          "anim": "akane_shake_bell",
+          "loop": true,
           "src": "아카네가 방울을 흔든다. 딸랑."
         },
         {
           "cmd": "sfx",
           "id": "chime",
           "volume": 0.7
+        },
+        {
+          "cmd": "pose",
+          "actor": "akane",
+          "pose": "sit"
         },
         {
           "cmd": "wait",
@@ -4739,6 +4711,8 @@
           "actor": "akane",
           "name": "다시 흔든다",
           "seconds": 0.6,
+          "anim": "akane_shake_bell",
+          "loop": true,
           "src": "다시 흔든다. 딸랑, 딸랑."
         },
         {
@@ -4756,9 +4730,14 @@
           "volume": 0.7
         },
         {
+          "cmd": "pose",
+          "actor": "akane",
+          "pose": "sit"
+        },
+        {
           "cmd": "say",
           "speaker": "akane",
-          "face": "sad",
+          "face": "rain_sad",
           "text": "…엄마.",
           "side": "left"
         },
@@ -4862,6 +4841,36 @@
           "show": false
         },
         {
+          "cmd": "setFlag",
+          "flag": "akaneRain",
+          "value": true
+        },
+        {
+          "cmd": "stageBg",
+          "id": "room",
+          "key": "bg_pro2_ash"
+        },
+        {
+          "cmd": "stageBg",
+          "id": "house",
+          "key": "bg_pro2_ash"
+        },
+        {
+          "cmd": "stageBg",
+          "id": "forge",
+          "key": "bg_pro2_ash"
+        },
+        {
+          "cmd": "stageBg",
+          "id": "village",
+          "key": "bg_pro2_ash"
+        },
+        {
+          "cmd": "stageBg",
+          "id": "gate",
+          "key": "bg_pro2_ash"
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": 5330,
@@ -4906,16 +4915,6 @@
           "at": 4240,
           "tint": "#3a3230",
           "label": "타 버린 찜통"
-        },
-        {
-          "cmd": "prop",
-          "id": "ashLantern",
-          "key": "prop_lantern_fallen",
-          "at": 3560,
-          "w": 60,
-          "h": 20,
-          "color": "#4a4a48",
-          "label": "쓰러진 석등"
         },
         {
           "cmd": "prop",
@@ -5092,7 +5091,7 @@
         {
           "cmd": "stageBg",
           "id": "plaza",
-          "key": "bg_pro_grave"
+          "key": "bg_pro2_ash"
         },
         {
           "cmd": "camReset",
@@ -5102,6 +5101,11 @@
           "cmd": "gameplay",
           "do": "bossLook",
           "show": false
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "akaneRain",
+          "value": true
         },
         {
           "cmd": "mood",
@@ -5202,13 +5206,17 @@
           "cmd": "act",
           "actor": "akane",
           "name": "맨손으로 흙을 판다",
-          "seconds": 2.0
+          "seconds": 2.0,
+          "anim": "akane_dig",
+          "loop": true
         },
         {
           "cmd": "act",
           "actor": "akane",
           "name": "망치와 비녀를 묻는다",
-          "seconds": 1.4
+          "seconds": 1.4,
+          "anim": "akane_dig",
+          "loop": true
         },
         {
           "cmd": "prop",
@@ -5269,7 +5277,8 @@
           "cmd": "act",
           "actor": "akane",
           "name": "손바닥으로 그루터기를 친다",
-          "seconds": 0.5
+          "seconds": 0.5,
+          "anim": "akane_strike"
         },
         {
           "cmd": "sfx",
@@ -5294,7 +5303,7 @@
         {
           "cmd": "say",
           "speaker": "akane",
-          "face": "sad",
+          "face": "rain_sad",
           "text": "피어. 피라고. 엄마가 기다려 준다고 했잖아…",
           "side": "left"
         },
@@ -5319,14 +5328,14 @@
         {
           "cmd": "say",
           "speaker": "akane",
-          "face": "angry",
+          "face": "rain_hate",
           "text": "…피우지 못해도 돼.",
           "side": "left"
         },
         {
           "cmd": "say",
           "speaker": "akane",
-          "face": "angry",
+          "face": "rain_hate",
           "text": "벨 수만 있으면.",
           "side": "left"
         },
@@ -5535,6 +5544,11 @@
           "cmd": "bgm",
           "id": "main_theme",
           "fade": 1
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "akaneRain",
+          "value": false
         }
       ]
     }

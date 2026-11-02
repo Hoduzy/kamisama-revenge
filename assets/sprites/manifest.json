@@ -2617,87 +2617,740 @@
   },
   "sapling_dead": {
    "file": "props/sapling_dead.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 25,
-   "height": 36,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 27,
+   "height": 40,
+   "kind": "prop",
+   "dot": 7.86
   },
   "sapling_burnt": {
    "file": "props/sapling_burnt.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 24,
-   "height": 37,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 27,
+   "height": 40,
+   "kind": "prop",
+   "dot": 7.86
   },
   "bell_red": {
    "file": "props/bell_red.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 21,
-   "height": 27,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 22,
+   "height": 31,
+   "kind": "prop",
+   "dot": 7.86
   },
   "bell_wrapped": {
    "file": "props/bell_wrapped.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 17,
-   "height": 34,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 18,
+   "height": 37,
+   "kind": "prop",
+   "dot": 7.86
   },
   "kanzashi": {
    "file": "props/kanzashi.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 29,
-   "height": 30,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 33,
+   "height": 34,
+   "kind": "prop",
+   "dot": 7.86
   },
   "manju_basket": {
    "file": "props/manju_basket.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 29,
-   "height": 23,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 32,
+   "height": 25,
+   "kind": "prop",
+   "dot": 7.86
   },
   "steamer": {
    "file": "props/steamer.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 32,
-   "height": 29,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 34,
+   "height": 32,
+   "kind": "prop",
+   "dot": 7.86
   },
   "kasa_hat": {
    "file": "props/kasa_hat.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 40,
-   "height": 21,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 44,
+   "height": 22,
+   "kind": "prop",
+   "dot": 7.86
   },
   "grave_a": {
    "file": "props/grave_a.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 30,
-   "height": 26,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 33,
+   "height": 29,
+   "kind": "prop",
+   "dot": 7.86
   },
   "grave_b": {
    "file": "props/grave_b.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 31,
-   "height": 26,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 32,
+   "height": 28,
+   "kind": "prop",
+   "dot": 7.86
   },
   "stall_burning": {
    "file": "props/stall_burning.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 65,
-   "height": 26,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 71,
+   "height": 28,
+   "kind": "prop",
+   "dot": 7.86
   },
   "mask_broken": {
    "file": "props/mask_broken.png",
-   "source": "prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png",
-   "width": 45,
-   "height": 23,
-   "kind": "prop"
+   "source": "prologue2/props.png",
+   "width": 51,
+   "height": 25,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "bg_pro2_house": {
+   "file": "bg_pro2_house.png",
+   "source": "prologue2/bg_pro2_house.png",
+   "width": 557,
+   "height": 314,
+   "dot": 3.0,
+   "displayScale": 2,
+   "parallax": 0.15,
+   "floorBand": 0.15,
+   "screenBottom": 534,
+   "anchor": 0.5,
+   "stage": true,
+   "strip": {
+    "file": "bg_pro2_house_strip.png",
+    "width": 1671,
+    "height": 314,
+    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+   }
+  },
+  "bg_pro2_yard": {
+   "file": "bg_pro2_yard.png",
+   "source": "prologue2/bg_pro2_yard.png",
+   "width": 557,
+   "height": 313,
+   "dot": 3.0,
+   "displayScale": 2,
+   "parallax": 0.15,
+   "floorBand": 0.15,
+   "screenBottom": 534,
+   "anchor": 0.5,
+   "stage": true,
+   "strip": {
+    "file": "bg_pro2_yard_strip.png",
+    "width": 1671,
+    "height": 313,
+    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+   }
+  },
+  "bg_pro2_street": {
+   "file": "bg_pro2_street.png",
+   "source": "prologue2/bg_pro2_street.png",
+   "width": 558,
+   "height": 314,
+   "dot": 3.0,
+   "displayScale": 2,
+   "parallax": 0.15,
+   "floorBand": 0.15,
+   "screenBottom": 534,
+   "anchor": 0.5,
+   "stage": true,
+   "strip": {
+    "file": "bg_pro2_street_strip.png",
+    "width": 1674,
+    "height": 314,
+    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+   }
+  },
+  "bg_pro2_gate": {
+   "file": "bg_pro2_gate.png",
+   "source": "prologue2/bg_pro2_gate.png",
+   "width": 557,
+   "height": 314,
+   "dot": 3.0,
+   "displayScale": 2,
+   "parallax": 0.15,
+   "floorBand": 0.15,
+   "screenBottom": 534,
+   "anchor": 0.5,
+   "stage": true,
+   "strip": {
+    "file": "bg_pro2_gate_strip.png",
+    "width": 1671,
+    "height": 314,
+    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+   }
+  },
+  "bg_pro2_cave": {
+   "file": "bg_pro2_cave.png",
+   "source": "prologue2/bg_pro2_cave.png",
+   "width": 558,
+   "height": 314,
+   "dot": 3.0,
+   "displayScale": 2,
+   "parallax": 0.15,
+   "floorBand": 0.15,
+   "screenBottom": 534,
+   "anchor": 0.5,
+   "stage": true,
+   "strip": {
+    "file": "bg_pro2_cave_strip.png",
+    "width": 1674,
+    "height": 314,
+    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+   }
+  },
+  "bg_pro2_ash": {
+   "file": "bg_pro2_ash.png",
+   "source": "prologue2/bg_pro2_ash.png",
+   "width": 557,
+   "height": 314,
+   "dot": 3.0,
+   "displayScale": 2,
+   "parallax": 0.15,
+   "floorBand": 0.15,
+   "screenBottom": 534,
+   "anchor": 0.5,
+   "stage": true,
+   "strip": {
+    "file": "bg_pro2_ash_strip.png",
+    "width": 1671,
+    "height": 314,
+    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
+   }
+  },
+  "hakuya_traveler": {
+   "file": "hakuya_traveler.png",
+   "source": "prologue2/hakuya_traveler.png",
+   "frameWidth": 80,
+   "frameHeight": 103,
+   "frames": 12,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 2.86,
+   "facing": "left",
+   "labels": [
+    "sit_0",
+    "sit_1",
+    "look_manju_0",
+    "look_manju_1",
+    "stand_0",
+    "stand_1",
+    "walk_0",
+    "walk_1",
+    "walk_2",
+    "walk_3",
+    "walk_4",
+    "walk_5"
+   ],
+   "heights": [
+    83,
+    83,
+    80,
+    80,
+    93,
+    101,
+    101,
+    101,
+    101,
+    100,
+    100,
+    100
+   ],
+   "anims": {
+    "wanderer_sit": {
+     "frames": [
+      0,
+      1
+     ],
+     "rate": 2,
+     "loop": true
+    },
+    "wanderer_look_manju": {
+     "frames": [
+      2,
+      3
+     ],
+     "rate": 3,
+     "loop": true
+    },
+    "wanderer_stand": {
+     "frames": [
+      4,
+      5
+     ],
+     "rate": 4,
+     "loop": false
+    },
+    "wanderer_walk": {
+     "frames": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "rate": 8,
+     "loop": true
+    }
+   }
+  },
+  "akane_morning": {
+   "file": "akane_morning.png",
+   "source": "prologue2/akane_morning.png",
+   "frameWidth": 50,
+   "frameHeight": 70,
+   "frames": 10,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 5.19,
+   "facing": "right",
+   "labels": [
+    "sleep_0",
+    "sleep_1",
+    "stretch_0",
+    "stretch_1",
+    "tie_hair_0",
+    "tie_hair_1",
+    "stand_up_0",
+    "stand_up_1",
+    "stand_up_2",
+    "stand_up_3"
+   ],
+   "heights": [
+    30,
+    32,
+    47,
+    49,
+    50,
+    53,
+    57,
+    61,
+    66,
+    68
+   ],
+   "anims": {
+    "akane_sleep": {
+     "frames": [
+      0,
+      1
+     ],
+     "rate": 1.5,
+     "loop": true
+    },
+    "akane_stretch": {
+     "frames": [
+      2,
+      3
+     ],
+     "rate": 2.5,
+     "loop": false
+    },
+    "akane_tie_hair": {
+     "frames": [
+      4,
+      5
+     ],
+     "rate": 3,
+     "loop": true
+    },
+    "akane_stand_up": {
+     "frames": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "rate": 6,
+     "loop": false
+    }
+   }
+  },
+  "akane_emote1": {
+   "file": "akane_emote1.png",
+   "source": "prologue2/akane_emote1.png",
+   "frameWidth": 40,
+   "frameHeight": 57,
+   "frames": 10,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 6.79,
+   "facing": "right",
+   "labels": [
+    "crouch_0",
+    "crouch_1",
+    "reach_0",
+    "reach_1",
+    "ember",
+    "seiza_0",
+    "seiza_1",
+    "eat_0",
+    "eat_1",
+    "smile"
+   ],
+   "heights": [
+    55,
+    48,
+    46,
+    44,
+    43,
+    49,
+    49,
+    49,
+    49,
+    49
+   ],
+   "anims": {
+    "akane_crouch": {
+     "frames": [
+      0,
+      1
+     ],
+     "rate": 2,
+     "loop": true
+    },
+    "akane_reach": {
+     "frames": [
+      2,
+      3
+     ],
+     "rate": 3,
+     "loop": false
+    },
+    "akane_ember": {
+     "frames": [
+      4
+     ],
+     "rate": 1,
+     "loop": false
+    },
+    "akane_seiza": {
+     "frames": [
+      5,
+      6
+     ],
+     "rate": 1.5,
+     "loop": true
+    },
+    "akane_eat": {
+     "frames": [
+      7,
+      8
+     ],
+     "rate": 3,
+     "loop": true
+    },
+    "akane_smile": {
+     "frames": [
+      9
+     ],
+     "rate": 1,
+     "loop": false
+    }
+   }
+  },
+  "akane_emote2": {
+   "file": "akane_emote2.png",
+   "source": "prologue2/akane_emote2.png",
+   "frameWidth": 54,
+   "frameHeight": 70,
+   "frames": 14,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 3.66,
+   "facing": "right",
+   "labels": [
+    "collapse_0",
+    "collapse_1",
+    "sit_up_0",
+    "sit_up_1",
+    "shake_bell_0",
+    "shake_bell_1",
+    "slow_walk_0",
+    "slow_walk_1",
+    "slow_walk_2",
+    "slow_walk_3",
+    "dig_0",
+    "dig_1",
+    "strike_0",
+    "strike_1"
+   ],
+   "heights": [
+    24,
+    25,
+    42,
+    49,
+    53,
+    55,
+    64,
+    68,
+    68,
+    68,
+    49,
+    49,
+    52,
+    53
+   ],
+   "anims": {
+    "akane_collapse": {
+     "frames": [
+      0,
+      1
+     ],
+     "rate": 1.5,
+     "loop": true
+    },
+    "akane_sit_up": {
+     "frames": [
+      2,
+      3
+     ],
+     "rate": 2,
+     "loop": false
+    },
+    "akane_shake_bell": {
+     "frames": [
+      4,
+      5
+     ],
+     "rate": 5,
+     "loop": true
+    },
+    "akane_slow_walk": {
+     "frames": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "rate": 5,
+     "loop": true
+    },
+    "akane_dig": {
+     "frames": [
+      10,
+      11
+     ],
+     "rate": 3,
+     "loop": true
+    },
+    "akane_strike": {
+     "frames": [
+      12,
+      13
+     ],
+     "rate": 4,
+     "loop": false
+    }
+   }
+  },
+  "family_sitting": {
+   "file": "family_sitting.png",
+   "source": "prologue2/family_sitting.png",
+   "frameWidth": 44,
+   "frameHeight": 61,
+   "frames": 10,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 5.96,
+   "facing": "left",
+   "labels": [
+    "haru_seiza_0",
+    "haru_seiza_1",
+    "haru_reach_0",
+    "haru_reach_1",
+    "haru_eat_0",
+    "haru_eat_1",
+    "soichiro_hide_0",
+    "soichiro_hide_1",
+    "soichiro_laugh_0",
+    "soichiro_laugh_1"
+   ],
+   "heights": [
+    59,
+    59,
+    50,
+    51,
+    58,
+    58,
+    57,
+    57,
+    58,
+    58
+   ],
+   "anims": {
+    "haru_seiza": {
+     "frames": [
+      0,
+      1
+     ],
+     "rate": 1.5,
+     "loop": true
+    },
+    "haru_crouch_reach": {
+     "frames": [
+      2,
+      3
+     ],
+     "rate": 2,
+     "loop": false
+    },
+    "haru_eat": {
+     "frames": [
+      4,
+      5
+     ],
+     "rate": 3,
+     "loop": true
+    },
+    "soichiro_hide": {
+     "frames": [
+      6,
+      7
+     ],
+     "rate": 2,
+     "loop": true
+    },
+    "soichiro_laugh": {
+     "frames": [
+      8,
+      9
+     ],
+     "rate": 4,
+     "loop": true
+    }
+   },
+   "character": [
+    "haru",
+    "haru",
+    "haru",
+    "haru",
+    "haru",
+    "haru",
+    "soichiro",
+    "soichiro",
+    "soichiro",
+    "soichiro"
+   ]
+  },
+  "villagers_elder": {
+   "file": "villagers_elder.png",
+   "source": "prologue2/villagers_elder.png",
+   "frameWidth": 50,
+   "frameHeight": 73,
+   "frames": 8,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 6.2,
+   "facing": "left",
+   "labels": [
+    "grandma_0",
+    "grandma_1",
+    "grandma_2",
+    "grandma_3",
+    "elder_0",
+    "elder_1",
+    "elder_2",
+    "elder_3"
+   ],
+   "heights": [
+    65,
+    65,
+    65,
+    65,
+    71,
+    64,
+    69,
+    70
+   ],
+   "anims": {
+    "grandma_idle": {
+     "frames": [
+      0,
+      1
+     ],
+     "rate": 1.5,
+     "loop": true
+    },
+    "grandma_give": {
+     "frames": [
+      1,
+      2,
+      3
+     ],
+     "rate": 3,
+     "loop": false
+    },
+    "grandma_wave": {
+     "frames": [
+      2,
+      3
+     ],
+     "rate": 3,
+     "loop": true
+    },
+    "old_man_idle": {
+     "frames": [
+      4,
+      6
+     ],
+     "rate": 1,
+     "loop": true
+    },
+    "old_man_bow": {
+     "frames": [
+      5
+     ],
+     "rate": 1,
+     "loop": false
+    },
+    "old_man_laugh": {
+     "frames": [
+      7
+     ],
+     "rate": 1,
+     "loop": false
+    }
+   }
+  },
+  "portraits_pro2": {
+   "file": "portraits_pro2.png",
+   "source": "prologue2/portraits_pro2.png",
+   "frameWidth": 88,
+   "frameHeight": 106,
+   "frames": 6,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 4.21,
+   "labels": [
+    "akane_happy",
+    "akane_rain_sad",
+    "akane_rain_hate",
+    "traveler_neutral",
+    "traveler_smile",
+    "manju_grandma"
+   ]
   }
  },
  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.",
@@ -2729,6 +3382,30 @@
    "crop": {
     "top": 40,
     "bottom": 120
+   },
+   "cg": true
+  },
+  "cg_A": {
+   "file": "../cg/cg_A.png",
+   "source": "prologue2/cg_A.png",
+   "width": 558,
+   "height": 313,
+   "dot": 3.0,
+   "crop": {
+    "top": 0,
+    "bottom": 1
+   },
+   "cg": true
+  },
+  "cg_B": {
+   "file": "../cg/cg_B.png",
+   "source": "prologue2/cg_B.png",
+   "width": 557,
+   "height": 313,
+   "dot": 3.0,
+   "crop": {
+    "top": 0,
+    "bottom": 1
    },
    "cg": true
   }

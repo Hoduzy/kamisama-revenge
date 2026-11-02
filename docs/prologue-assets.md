@@ -3,58 +3,57 @@
 새 프롤로그(P-0 ~ P-14)에서 아직 그림이 없어 **단색 + 이름표**로 임시 표시하는 것들입니다.
 그림을 `assets/raw/` 에 올려 `tools/process_*.py` 로 manifest(`assets/sprites/manifest.json`)에 **아래 이름 그대로** 넣으면, 게임이 자동으로 그 그림을 씁니다 (코드는 바꿀 필요 없음).
 
-## 배경 (화면 960×540 크기, 구역마다)
+## 새 프롤로그 그림 (tools/process_prologue2.py)
 
-| 이름 | 장소 | 쓰는 장면 |
+원본 16장의 이름 대응표: `docs/prologue2-mapping.md`, 원본 ↔ 전처리 결과 미리보기: `assets/sprites/prologue2_preview.html`.
+
+### 배경 (구역마다, `js/level.js` LEVELS.prologue.backgrounds)
+
+| 그림 | 장소 | 쓰는 장면 |
 |---|---|---|
-| `bg_pro_room` | 아카네의 방 | P-1 |
-| `bg_pro_house` | 집 마당 (죽은 묘목) | P-2, P-4 시작, P-13 |
-| `bg_pro_irori` | 이로리 · 아침 밥상 | P-3 |
-| `bg_pro_village` | 마을 길 (만두 가게 · 신사 · 우물) | P-5, P-13 |
-| `bg_pro_gate` | 마을 입구 (돌 도리이 · 석등) | P-6, P-13 |
-| `bg_pro_cave` | 뒷산 동굴 · 새벽 비 | P-12 |
-| `bg_pro_grave` | 큰 벚나무 아래 · 검게 탄 그루터기 | P-14 (불타는 광장 배경을 바꿔 씀) |
+| `bg_pro2_house` | 집 실내 (이로리 · 이불) | P-1 아카네의 방, P-3 이로리 |
+| `bg_pro2_yard` | 초가집 앞마당 | P-2, P-4 시작 |
+| `bg_pro2_street` | 축제 준비 중인 마을 길 | P-5 |
+| `bg_pro2_gate` | 돌 도리이 · 석등 · 삼나무 숲 입구 | P-6 (오후 — 색감 오버레이 없이 그림 그대로) |
+| `bg_pro2_cave` | 비 오는 새벽 동굴 입구 | P-12 |
+| `bg_pro2_ash` | 비 오는 새벽 잿더미 마을 | P-13 (방 · 마당 · 대장간 · 마을 길 · 입구를 장면 준비에서 바꿈), P-14 광장 (+ 큰 벚나무 검게 탄 단계) |
 
-이미 있는 배경을 다시 쓰는 구역: 대장간(`bg_pro_forge`, 밤에는 붉게), 연습장(`bg_pro_yard`), 축제 광장(`bg_pro_festival`), 불타는 마을 길(`bg_pro_alley`), 불타는 광장(`bg_pro_burning`, P-0 · P-11).
+밤(P-10)의 같은 장소는 기존 불타는 배경(`bg_pro_alley` · `bg_pro_forge` 붉게 · `bg_pro_burning`). 색감: P-1 ~ P-5 아침(mood morning), P-6 없음, P-7 점점 주황(dusk → duskDeep).
 
-## CG
+### CG
 
-| 파일 | 내용 |
+`assets/cg/cg_A.png` (P-8), `assets/cg/cg_B.png` (P-14). 대본의 `cg no='A'` 는 `cg_A.png` 를 찾는다 (숫자만 두 자리로 채움).
+
+### 인물 시트 · 애니메이션 (manifest 의 `anims` 로 자동 생성)
+
+| 시트 | 애니메이션 |
 |---|---|
-| `assets/cg/cg_0A.png` | CG A — 가지 위에 겹친 두 손, 아카네 손바닥 아래에서 막 벌어지는 꽃 한 송이 (P-8) |
-| `assets/cg/cg_0B.png` | CG B — 비 내리는 잿더미, 검은 그루터기 앞 작은 돌무덤 두 개, 무릎 꿇은 아카네의 뒷모습 (P-14) |
-| `assets/cg/cg_01.png`, `cg_02.png` | 있음 (축제 밤의 가족 · 꽃잎에 감싸인 아카네) |
+| `akane_morning` (잠옷) | akane_sleep · akane_stretch · akane_tie_hair · akane_stand_up — P-1 |
+| `akane_emote1` (마른 기모노, 칼 없음) | akane_crouch · akane_reach · akane_ember · akane_seiza(앉기 기본) · akane_eat · akane_smile — P-2 · P-3 · P-8 |
+| `akane_emote2` (비에 젖음) | akane_collapse · akane_sit_up · akane_shake_bell · akane_slow_walk · akane_dig · akane_strike — P-12 ~ P-14 (깃발 `akaneRain`: 앉기 · 쓰러짐 · 걷기도 젖은 그림) |
+| `family_sitting` | haru_seiza(하루 앉기) · haru_crouch_reach · haru_eat · soichiro_hide · soichiro_laugh (소이치로 앉기 = 6번 칸) |
+| `hakuya_traveler` (나그네) | wanderer_sit(돌 포함) · wanderer_look_manju · wanderer_stand · wanderer_walk |
+| `villagers_elder` | grandma_idle · grandma_give · grandma_wave · old_man_idle · old_man_bow · old_man_laugh |
 
-파일이 없으면 검은 화면에 CG 번호와 설명이 나옵니다.
+초상화 `portraits_pro2`: 0 아카네 활짝 웃음(P-3 · P-8 의 웃음), 1 젖은 슬픔 · 2 젖은 분노(P-12 ~ P-14), 3 나그네 기본, 4 나그네 웃음, 5 만두 할머니 (`tools/convert_story.py` 의 PORTRAITS · FACE_OVERRIDES).
 
-## 인물
+머리끈 방울: P-7 에서 받은 뒤부터 P-14 에서 천으로 감쌀 때까지 아카네 그림 위에 빨간 2×2 점 (`js/player.js` updateBell, 자리 표 `Player.BELL_TIE`).
 
-| 이름(시트) | 인물 | 지금 |
+### 아직 그림이 없는 것
+
+| 이름 | 무엇 | 지금 |
 |---|---|---|
-| `wanderer_idle`, `wanderer_walk`, `wanderer_sit` | 나그네 (삿갓 쓴 하쿠야, P-6 · P-8) | 삿갓 쓴 검은 실루엣 + 이름표 |
-| `cutin_wanderer_hair` | 컷인: 삿갓 아래 흘러내린 흰 머리카락 한 가닥 (P-6) | 컷인 띠에 이름표 |
-| 하나 · 만두 할머니 · 마을 노인 | 마을 사람 시트(`villager_child` 등) | 있음 (색 변형) |
-
-`<이름>_idle` 시트가 manifest 에 생기면 `_walk` `_sit` `_kneel` `_down` 도 있는 만큼 자동으로 씁니다.
-
-## 아카네 · 하루의 새 동작
-
-그림이 없으면 머리 위에 노란 글씨로 동작 이름이 잠깐 나옵니다 (예: `(머리끈을 입에 물고 포니테일을 묶는다)`). 애니메이션 이름으로 manifest 에 넣으면 자동으로 재생됩니다.
-
-| 애니메이션 | 동작 |
-|---|---|
-| `haru_reach` | 아카네 쪽으로 손을 뻗는다 |
-| `player_ear_twitch` | 귀 까딱 |
-| `player_iaido_ready` | 칼을 처음 반쯤 뽑는다 |
-| `player_tie_hair` | 머리끈을 입에 물고 포니테일을 묶는다 |
-| `soichiro_forge` | 마지막 담금질 |
-
-앉기 · 무릎 꿇기: 아카네는 임시로 발도 준비 자세, 하루는 `haru_reach` · `haru_death` 칸. 칼 차지 않은 아카네 그림(P-1~P-4)은 아직 없어 지금 그림을 그대로 씁니다 (`storyFlags.akaneSword` 로 나중에 바꿀 수 있게 표시만 해 둠).
+| `player_idle_nosword`, `player_run_nosword`, `player_jump_nosword` | 칼 받기 전 아카네(P-1 ~ P-3)의 서기 · 걷기 · 점프 | 칼 찬 그림 그대로 (깃발 `akaneNoSword`. 이 이름으로 넣으면 자동으로 바뀜) |
+| `player_ear_twitch` | 귀 까딱 (P-2) | 머리 위 동작 이름 |
+| `cutin_wanderer_hair` | 컷인: 삿갓 아래 흰 머리카락 (P-6) | 컷인 띠에 이름표 |
+| 그 밖의 동작 | 하루 · 소이치로 · 하나 · 마을 노인 등의 그림 없는 동작 | 머리 위에 노란 글씨로 동작 이름 |
 
 ## 소품
 
 소품 시트는 `python3 tools/process_props.py` 로 덩어리마다 잘라 `assets/sprites/props/` 에 넣는다 (조각 미리보기: `assets/sprites/props/props_preview.html`).
 어떤 그림이 어느 장면에 실제로 그려지는지는 `docs/asset-audit.md` (점검표, `python3 tools/audit_assets.py`).
+
+소품은 모두 `assets/sprites/props/` 한 폴더 (새 프롤로그 소품 시트는 `tools/process_prologue2.py` 가 같은 폴더에 자른다).
 
 **그림이 있어 게임에 쓰이는 소품**: prop_scarecrow · prop_scarecrow_broken · prop_katana · prop_fire_arrow · prop_debris_fire · prop_fox_mask · prop_anvil · prop_sword_rack ·
 sapling_dead · sapling_burnt · bell_red · bell_wrapped · kanzashi · manju_basket · steamer · kasa_hat · grave_a · grave_b · stall_burning · mask_broken
