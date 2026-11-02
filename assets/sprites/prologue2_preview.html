@@ -1,0 +1,216 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prologue2 Preview</title><style>:root{--bg:#f4f1ea;--fg:#1d1b18;--muted:#6b665d;--card:#fff;--line:#ddd6c8;--warn:#b5462b}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#16151a;--fg:#ece8e1;--muted:#9a948a;--card:#1f1e24;--line:#34323a;--warn:#ff8a65}}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,sans-serif}
+main{max-width:1200px;margin:auto;padding:16px}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px 0}
+h2{font-size:16px;margin:0}.meta{color:var(--muted);font-size:12px;margin:2px 0 10px}.warn{color:var(--warn);font-weight:600}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+@media(max-width:760px){.row{grid-template-columns:minmax(0,1fr)}}
+.box{overflow:auto;border:1px solid var(--line);border-radius:6px;padding:6px;background:repeating-conic-gradient(#cfcfcf 0 25%,#f2f2f2 0 50%) 0 0/16px 16px}
+.box img{display:block;image-rendering:pixelated}.orig img{max-width:100%;height:auto;image-rendering:auto}
+.lab{font-size:12px;color:var(--muted);margin-bottom:4px}
+.frames{display:flex;flex-wrap:wrap;gap:6px;align-items:flex-end}.frames figure{margin:0;text-align:center;font-size:10px;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--line);padding:4px 6px;text-align:left;vertical-align:top}</style></head><body><main>
+<h1>새 프롤로그 그림: 원본 → 전처리 결과</h1>
+<p class="meta">tools/process_prologue2.py. 결과 칸은 게임 화면과 같은 배율(인물 · 소품 · 초상 1도트 = 2px 로 확대해 보임, 배경은 게임 배율). 비교 줄은 기존 인물과 같은 배율로 나란히 세운 것.</p>
+<section><h2>대응표</h2><table><tr><th>원래 파일 이름</th><th>새 이름</th><th>판단 근거</th><th>프레임</th></tr>
+<tr><td><code>A91EBB5E-312D-4880-9A91-15B28659BA4D.png</code></td><td><b>bg_pro2_house</b></td><td>햇살 드는 실내, 가운데 이로리 화로와 주전자, 왼쪽에 개어 둔 이불</td><td></td></tr>
+<tr><td><code>1FA47849-DA42-47A5-8707-78EFDC561945.png</code></td><td><b>bg_pro2_yard</b></td><td>초가집 툇마루 앞마당, 빨랫줄의 천, 대나무 울타리</td><td></td></tr>
+<tr><td><code>D5A561F7-CF07-42C3-AA63-5C0F5814F357.png</code></td><td><b>bg_pro2_street</b></td><td>등롱 줄을 건 밝은 마을 길, 만두 찜통 가게, 가운데 붉은 도리이 신사 계단</td><td></td></tr>
+<tr><td><code>A2756280-692C-4EE8-90F1-84EFDD2009F8.png</code></td><td><b>bg_pro2_gate</b></td><td>삼나무 숲 앞 돌 도리이와 석등</td><td></td></tr>
+<tr><td><code>3FF77765-1907-4BC3-ABB8-192E36D38F8C.png</code></td><td><b>bg_pro2_cave</b></td><td>비 오는 새벽 동굴 입구, 멀리 마을 쪽 연기 기둥</td><td></td></tr>
+<tr><td><code>191F365C-54D4-4E28-8B82-54731322DEBB.png</code></td><td><b>bg_pro2_ash</b></td><td>비 오는 새벽, 무너진 집 · 우물 · 쓰러진 도리이, 잿더미</td><td></td></tr>
+<tr><td><code>9CC851B0-62AF-4567-9E4F-48DF662320EA.png</code></td><td><b>cg_A</b></td><td>벚나무 가지 위에 겹친 두 손, 손 아래 빛나며 피는 꽃 한 송이</td><td></td></tr>
+<tr><td><code>95ECCCEE-F563-4C90-8212-60CE72412776.png</code></td><td><b>cg_B</b></td><td>빗속 검게 탄 큰 나무 앞 돌무덤 두 개, 방울을 든 채 무릎 꿇은 아카네</td><td></td></tr>
+<tr><td><code>E3117D04-1D27-4C71-862E-E27A92840F4A.png</code></td><td><b>hakuya_traveler</b></td><td>삿갓 · 회색 망토 · 지팡이: 돌에 앉기 2, 만두(김) 들기 2, 일어서기 2, 걷기 6</td><td>12 / 설명 12</td></tr>
+<tr><td><code>470DF9DE-3C44-4FFB-A6AE-92811FEDB436.png</code></td><td><b>akane_morning</b></td><td>흰 잠옷 · 붉은 이불: 자기 2, 하품 · 기지개 2, 머리 묶기 2, 일어서기 4</td><td>10 / 설명 10</td></tr>
+<tr><td><code>4D5CFFC3-D567-4422-B5C1-16B2217A2C64.png</code></td><td><b>akane_emote1</b></td><td>검은 기모노(마른 모습): 쪼그려 앉기 2, 손 뻗기 2, 불씨 1, 정좌 2, 밥 먹기 2, 웃기 1</td><td>10 / 설명 10</td></tr>
+<tr><td><code>116FDC58-3725-4640-8A65-243AE41AFA31.png</code></td><td><b>akane_emote2</b></td><td>머리 · 옷이 젖어 늘어진 모습, 방울 · 흙 파기 · 돌 치기가 있음</td><td>14 / 설명 14</td></tr>
+<tr><td><code>AC761801-25E7-43FD-97C9-CD4FDF60A835.png</code></td><td><b>family_sitting</b></td><td>붉은 기모노 하루 6프레임 + 앞치마 소이치로 4프레임</td><td>10 / 설명 10</td></tr>
+<tr><td><code>EB3BE145-212E-4CF5-95A7-13C6A896F052.png</code></td><td><b>villagers_elder</b></td><td>만두 바구니 든 할머니 4 + 지팡이 노인 4</td><td>8 / 설명 8</td></tr>
+<tr><td><code>F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png</code></td><td><b>props_pro2</b></td><td>소품 12개 (묘목 2, 방울 2, 비녀, 바구니, 찜통, 삿갓, 돌무덤 2, 노점 기둥, 가면)</td><td>12 / 설명 12</td></tr>
+<tr><td><code>0A0C1F40-D30F-4237-A229-4B3FBE2A43E7.png</code></td><td><b>portraits_pro2</b> <span class="warn">애매</span></td><td>초상 6칸: 아카네 3(웃음 · 젖은 슬픔 · 젖은 분노), 삿갓 나그네 2, 할머니 1</td><td>6 / 설명 6</td></tr>
+</table></section>
+<section id="bg_pro2_house"><h2>bg_pro2_house</h2><div class="meta">햇살 드는 실내, 가운데 이로리 화로와 주전자, 왼쪽에 개어 둔 이불 · </div><div class="row">
+<div><div class="lab">원본 A91EBB5E-312D-4880-9A91-15B28659BA4D.png (1672×941)</div><div class="box orig"><img src="../raw/prologue/A91EBB5E-312D-4880-9A91-15B28659BA4D.png"></div></div><div><div class="lab">결과</div>
+<div class="box"><img src="bg_pro2_house.png" width="1114" style="max-width:100%;height:auto"></div><div class="meta">557×314 · 도트 3.0 · 게임 배율 2 · 아래 15% 바닥 띠</div>
+</div></div></section>
+<section id="bg_pro2_yard"><h2>bg_pro2_yard</h2><div class="meta">초가집 툇마루 앞마당, 빨랫줄의 천, 대나무 울타리 · </div><div class="row">
+<div><div class="lab">원본 1FA47849-DA42-47A5-8707-78EFDC561945.png (1672×941)</div><div class="box orig"><img src="../raw/prologue/1FA47849-DA42-47A5-8707-78EFDC561945.png"></div></div><div><div class="lab">결과</div>
+<div class="box"><img src="bg_pro2_yard.png" width="1114" style="max-width:100%;height:auto"></div><div class="meta">557×313 · 도트 3.0 · 게임 배율 2 · 아래 15% 바닥 띠</div>
+</div></div></section>
+<section id="bg_pro2_street"><h2>bg_pro2_street</h2><div class="meta">등롱 줄을 건 밝은 마을 길, 만두 찜통 가게, 가운데 붉은 도리이 신사 계단 · </div><div class="row">
+<div><div class="lab">원본 D5A561F7-CF07-42C3-AA63-5C0F5814F357.png (1672×941)</div><div class="box orig"><img src="../raw/prologue/D5A561F7-CF07-42C3-AA63-5C0F5814F357.png"></div></div><div><div class="lab">결과</div>
+<div class="box"><img src="bg_pro2_street.png" width="1116" style="max-width:100%;height:auto"></div><div class="meta">558×314 · 도트 3.0 · 게임 배율 2 · 아래 15% 바닥 띠</div>
+</div></div></section>
+<section id="bg_pro2_gate"><h2>bg_pro2_gate</h2><div class="meta">삼나무 숲 앞 돌 도리이와 석등 · </div><div class="row">
+<div><div class="lab">원본 A2756280-692C-4EE8-90F1-84EFDD2009F8.png (1671×941)</div><div class="box orig"><img src="../raw/prologue/A2756280-692C-4EE8-90F1-84EFDD2009F8.png"></div></div><div><div class="lab">결과</div>
+<div class="box"><img src="bg_pro2_gate.png" width="1114" style="max-width:100%;height:auto"></div><div class="meta">557×314 · 도트 3.0 · 게임 배율 2 · 아래 15% 바닥 띠</div>
+</div></div></section>
+<section id="bg_pro2_cave"><h2>bg_pro2_cave</h2><div class="meta">비 오는 새벽 동굴 입구, 멀리 마을 쪽 연기 기둥 · </div><div class="row">
+<div><div class="lab">원본 3FF77765-1907-4BC3-ABB8-192E36D38F8C.png (1672×941)</div><div class="box orig"><img src="../raw/prologue/3FF77765-1907-4BC3-ABB8-192E36D38F8C.png"></div></div><div><div class="lab">결과</div>
+<div class="box"><img src="bg_pro2_cave.png" width="1116" style="max-width:100%;height:auto"></div><div class="meta">558×314 · 도트 3.0 · 게임 배율 2 · 아래 15% 바닥 띠</div>
+</div></div></section>
+<section id="bg_pro2_ash"><h2>bg_pro2_ash</h2><div class="meta">비 오는 새벽, 무너진 집 · 우물 · 쓰러진 도리이, 잿더미 · </div><div class="row">
+<div><div class="lab">원본 191F365C-54D4-4E28-8B82-54731322DEBB.png (1671×941)</div><div class="box orig"><img src="../raw/prologue/191F365C-54D4-4E28-8B82-54731322DEBB.png"></div></div><div><div class="lab">결과</div>
+<div class="box"><img src="bg_pro2_ash.png" width="1114" style="max-width:100%;height:auto"></div><div class="meta">557×314 · 도트 3.0 · 게임 배율 2 · 아래 15% 바닥 띠</div>
+</div></div></section>
+<section id="cg_A"><h2>cg_A</h2><div class="meta">벚나무 가지 위에 겹친 두 손, 손 아래 빛나며 피는 꽃 한 송이 · </div><div class="row">
+<div><div class="lab">원본 9CC851B0-62AF-4567-9E4F-48DF662320EA.png (1672×941)</div><div class="box orig"><img src="../raw/prologue/9CC851B0-62AF-4567-9E4F-48DF662320EA.png"></div></div><div><div class="lab">결과</div>
+<div class="box"><img src="../cg/cg_A.png" style="width:100%;height:auto"></div><div class="meta">558×313 (16:9, 원본 위 0px · 아래 1px 잘라냄)</div>
+</div></div></section>
+<section id="cg_B"><h2>cg_B</h2><div class="meta">빗속 검게 탄 큰 나무 앞 돌무덤 두 개, 방울을 든 채 무릎 꿇은 아카네 · </div><div class="row">
+<div><div class="lab">원본 95ECCCEE-F563-4C90-8212-60CE72412776.png (1672×941)</div><div class="box orig"><img src="../raw/prologue/95ECCCEE-F563-4C90-8212-60CE72412776.png"></div></div><div><div class="lab">결과</div>
+<div class="box"><img src="../cg/cg_B.png" style="width:100%;height:auto"></div><div class="meta">557×313 (16:9, 원본 위 0px · 아래 1px 잘라냄)</div>
+</div></div></section>
+<section id="hakuya_traveler"><h2>hakuya_traveler</h2><div class="meta">삿갓 · 회색 망토 · 지팡이: 돌에 앉기 2, 만두(김) 들기 2, 일어서기 2, 걷기 6 · hakuya_walk 키 100px 에 맞춤</div><div class="row">
+<div><div class="lab">원본 E3117D04-1D27-4C71-862E-E27A92840F4A.png (2172×724)</div><div class="box orig"><img src="../raw/prologue/E3117D04-1D27-4C71-862E-E27A92840F4A.png"></div></div><div><div class="lab">결과</div>
+<div class="box frames">
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -0px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>0 sit_0</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -160px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>1 sit_1</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -320px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>2 look_manju_0</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -480px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>3 look_manju_1</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -640px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>4 stand_0</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -800px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>5 stand_1</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -960px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>6 walk_0</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -1120px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>7 walk_1</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -1280px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>8 walk_2</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -1440px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>9 walk_3</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -1600px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>10 walk_4</figcaption></figure>
+<figure><div style="width:160px;height:206px;background:url(hakuya_traveler.png) -1760px 0/1920px 206px;image-rendering:pixelated"></div><figcaption>11 walk_5</figcaption></figure>
+</div><div class="meta">칸 80×103 · 도트 2.86 · 키 80~101</div>
+<div class="lab">비교 (같은 배율): hakuya_walk · boss</div><div class="box frames">
+<figure><div style="width:156px;height:206px;background:url(hakuya_walk.png) -0px 0/auto 206px;image-rendering:pixelated"></div><figcaption>hakuya_walk</figcaption></figure>
+<figure><div style="width:172px;height:194px;background:url(boss.png) -0px 0/auto 194px;image-rendering:pixelated"></div><figcaption>boss</figcaption></figure>
+</div>
+</div></div></section>
+<section id="akane_morning"><h2>akane_morning</h2><div class="meta">흰 잠옷 · 붉은 이불: 자기 2, 하품 · 기지개 2, 머리 묶기 2, 일어서기 4 · 손으로 잰 머리 88px</div><div class="row">
+<div><div class="lab">원본 470DF9DE-3C44-4FFB-A6AE-92811FEDB436.png (2171×724)</div><div class="box orig"><img src="../raw/prologue/470DF9DE-3C44-4FFB-A6AE-92811FEDB436.png"></div></div><div><div class="lab">결과</div>
+<div class="box frames">
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -0px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>0 sleep_0</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -100px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>1 sleep_1</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -200px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>2 stretch_0</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -300px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>3 stretch_1</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -400px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>4 tie_hair_0</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -500px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>5 tie_hair_1</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -600px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>6 stand_up_0</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -700px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>7 stand_up_1</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -800px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>8 stand_up_2</figcaption></figure>
+<figure><div style="width:100px;height:140px;background:url(akane_morning.png) -900px 0/1000px 140px;image-rendering:pixelated"></div><figcaption>9 stand_up_3</figcaption></figure>
+</div><div class="meta">칸 50×70 · 도트 5.19 · 키 30~68</div>
+<div class="lab">비교 (같은 배율): player_idle</div><div class="box frames">
+<figure><div style="width:92px;height:168px;background:url(player_idle.png) -0px 0/auto 168px;image-rendering:pixelated"></div><figcaption>player_idle</figcaption></figure>
+</div>
+</div></div></section>
+<section id="akane_emote1"><h2>akane_emote1</h2><div class="meta">검은 기모노(마른 모습): 쪼그려 앉기 2, 손 뻗기 2, 불씨 1, 정좌 2, 밥 먹기 2, 웃기 1 · 손으로 잰 머리 115px</div><div class="row">
+<div><div class="lab">원본 4D5CFFC3-D567-4422-B5C1-16B2217A2C64.png (2172×724)</div><div class="box orig"><img src="../raw/prologue/4D5CFFC3-D567-4422-B5C1-16B2217A2C64.png"></div></div><div><div class="lab">결과</div>
+<div class="box frames">
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -0px 0/800px 114px;image-rendering:pixelated"></div><figcaption>0 crouch_0</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -80px 0/800px 114px;image-rendering:pixelated"></div><figcaption>1 crouch_1</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -160px 0/800px 114px;image-rendering:pixelated"></div><figcaption>2 reach_0</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -240px 0/800px 114px;image-rendering:pixelated"></div><figcaption>3 reach_1</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -320px 0/800px 114px;image-rendering:pixelated"></div><figcaption>4 ember</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -400px 0/800px 114px;image-rendering:pixelated"></div><figcaption>5 seiza_0</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -480px 0/800px 114px;image-rendering:pixelated"></div><figcaption>6 seiza_1</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -560px 0/800px 114px;image-rendering:pixelated"></div><figcaption>7 eat_0</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -640px 0/800px 114px;image-rendering:pixelated"></div><figcaption>8 eat_1</figcaption></figure>
+<figure><div style="width:80px;height:114px;background:url(akane_emote1.png) -720px 0/800px 114px;image-rendering:pixelated"></div><figcaption>9 smile</figcaption></figure>
+</div><div class="meta">칸 40×57 · 도트 6.79 · 키 43~55</div>
+<div class="lab">비교 (같은 배율): player_idle</div><div class="box frames">
+<figure><div style="width:92px;height:168px;background:url(player_idle.png) -0px 0/auto 168px;image-rendering:pixelated"></div><figcaption>player_idle</figcaption></figure>
+</div>
+</div></div></section>
+<section id="akane_emote2"><h2>akane_emote2</h2><div class="meta">머리 · 옷이 젖어 늘어진 모습, 방울 · 흙 파기 · 돌 치기가 있음 · 손으로 잰 머리 62px</div><div class="row">
+<div><div class="lab">원본 116FDC58-3725-4640-8A65-243AE41AFA31.png (2172×724)</div><div class="box orig"><img src="../raw/prologue/116FDC58-3725-4640-8A65-243AE41AFA31.png"></div></div><div><div class="lab">결과</div>
+<div class="box frames">
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -0px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>0 collapse_0</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -108px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>1 collapse_1</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -216px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>2 sit_up_0</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -324px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>3 sit_up_1</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -432px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>4 shake_bell_0</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -540px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>5 shake_bell_1</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -648px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>6 slow_walk_0</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -756px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>7 slow_walk_1</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -864px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>8 slow_walk_2</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -972px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>9 slow_walk_3</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -1080px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>10 dig_0</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -1188px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>11 dig_1</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -1296px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>12 strike_0</figcaption></figure>
+<figure><div style="width:108px;height:140px;background:url(akane_emote2.png) -1404px 0/1512px 140px;image-rendering:pixelated"></div><figcaption>13 strike_1</figcaption></figure>
+</div><div class="meta">칸 54×70 · 도트 3.66 · 키 24~68</div>
+<div class="lab">비교 (같은 배율): player_idle</div><div class="box frames">
+<figure><div style="width:92px;height:168px;background:url(player_idle.png) -0px 0/auto 168px;image-rendering:pixelated"></div><figcaption>player_idle</figcaption></figure>
+</div>
+</div></div></section>
+<section id="family_sitting"><h2>family_sitting</h2><div class="meta">붉은 기모노 하루 6프레임 + 앞치마 소이치로 4프레임 · 손으로 잰 머리 106px</div><div class="row">
+<div><div class="lab">원본 AC761801-25E7-43FD-97C9-CD4FDF60A835.png (2172×724)</div><div class="box orig"><img src="../raw/prologue/AC761801-25E7-43FD-97C9-CD4FDF60A835.png"></div></div><div><div class="lab">결과</div>
+<div class="box frames">
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -0px 0/880px 122px;image-rendering:pixelated"></div><figcaption>0 haru_seiza_0</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -88px 0/880px 122px;image-rendering:pixelated"></div><figcaption>1 haru_seiza_1</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -176px 0/880px 122px;image-rendering:pixelated"></div><figcaption>2 haru_reach_0</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -264px 0/880px 122px;image-rendering:pixelated"></div><figcaption>3 haru_reach_1</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -352px 0/880px 122px;image-rendering:pixelated"></div><figcaption>4 haru_eat_0</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -440px 0/880px 122px;image-rendering:pixelated"></div><figcaption>5 haru_eat_1</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -528px 0/880px 122px;image-rendering:pixelated"></div><figcaption>6 soichiro_hide_0</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -616px 0/880px 122px;image-rendering:pixelated"></div><figcaption>7 soichiro_hide_1</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -704px 0/880px 122px;image-rendering:pixelated"></div><figcaption>8 soichiro_laugh_0</figcaption></figure>
+<figure><div style="width:88px;height:122px;background:url(family_sitting.png) -792px 0/880px 122px;image-rendering:pixelated"></div><figcaption>9 soichiro_laugh_1</figcaption></figure>
+</div><div class="meta">칸 44×61 · 도트 5.96 · 키 50~59</div>
+<div class="lab">비교 (같은 배율): haru_idle · soichiro_give · player_idle</div><div class="box frames">
+<figure><div style="width:96px;height:198px;background:url(haru_idle.png) -0px 0/auto 198px;image-rendering:pixelated"></div><figcaption>haru_idle</figcaption></figure>
+<figure><div style="width:184px;height:192px;background:url(soichiro_give.png) -0px 0/auto 192px;image-rendering:pixelated"></div><figcaption>soichiro_give</figcaption></figure>
+<figure><div style="width:92px;height:168px;background:url(player_idle.png) -0px 0/auto 168px;image-rendering:pixelated"></div><figcaption>player_idle</figcaption></figure>
+</div>
+</div></div></section>
+<section id="villagers_elder"><h2>villagers_elder</h2><div class="meta">만두 바구니 든 할머니 4 + 지팡이 노인 4 · 손으로 잰 머리 105px</div><div class="row">
+<div><div class="lab">원본 EB3BE145-212E-4CF5-95A7-13C6A896F052.png (2172×724)</div><div class="box orig"><img src="../raw/prologue/EB3BE145-212E-4CF5-95A7-13C6A896F052.png"></div></div><div><div class="lab">결과</div>
+<div class="box frames">
+<figure><div style="width:100px;height:146px;background:url(villagers_elder.png) -0px 0/800px 146px;image-rendering:pixelated"></div><figcaption>0 grandma_0</figcaption></figure>
+<figure><div style="width:100px;height:146px;background:url(villagers_elder.png) -100px 0/800px 146px;image-rendering:pixelated"></div><figcaption>1 grandma_1</figcaption></figure>
+<figure><div style="width:100px;height:146px;background:url(villagers_elder.png) -200px 0/800px 146px;image-rendering:pixelated"></div><figcaption>2 grandma_2</figcaption></figure>
+<figure><div style="width:100px;height:146px;background:url(villagers_elder.png) -300px 0/800px 146px;image-rendering:pixelated"></div><figcaption>3 grandma_3</figcaption></figure>
+<figure><div style="width:100px;height:146px;background:url(villagers_elder.png) -400px 0/800px 146px;image-rendering:pixelated"></div><figcaption>4 elder_0</figcaption></figure>
+<figure><div style="width:100px;height:146px;background:url(villagers_elder.png) -500px 0/800px 146px;image-rendering:pixelated"></div><figcaption>5 elder_1</figcaption></figure>
+<figure><div style="width:100px;height:146px;background:url(villagers_elder.png) -600px 0/800px 146px;image-rendering:pixelated"></div><figcaption>6 elder_2</figcaption></figure>
+<figure><div style="width:100px;height:146px;background:url(villagers_elder.png) -700px 0/800px 146px;image-rendering:pixelated"></div><figcaption>7 elder_3</figcaption></figure>
+</div><div class="meta">칸 50×73 · 도트 6.2 · 키 64~71</div>
+<div class="lab">비교 (같은 배율): villager_woman · villager_man · player_idle</div><div class="box frames">
+<figure><div style="width:104px;height:114px;background:url(villager_woman.png) -104px 0/auto 114px;image-rendering:pixelated"></div><figcaption>villager_woman</figcaption></figure>
+<figure><div style="width:112px;height:126px;background:url(villager_man.png) -112px 0/auto 126px;image-rendering:pixelated"></div><figcaption>villager_man</figcaption></figure>
+<figure><div style="width:92px;height:168px;background:url(player_idle.png) -0px 0/auto 168px;image-rendering:pixelated"></div><figcaption>player_idle</figcaption></figure>
+</div>
+</div></div></section>
+<section id="props_pro2"><h2>props_pro2</h2><div class="meta">소품 12개 (묘목 2, 방울 2, 비녀, 바구니, 찜통, 삿갓, 돌무덤 2, 노점 기둥, 가면) · 삿갓 폭 44px (나그네 시트 속 삿갓)에 맞춤, 배율 1/7.86</div><div class="row">
+<div><div class="lab">원본 F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png (1672×941)</div><div class="box orig"><img src="../raw/prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png"></div></div><div><div class="lab">결과</div>
+<div class="box frames">
+<figure><img src="props_pro2/sapling_dead.png" width="54"><figcaption>sapling_dead<br>27×40</figcaption></figure>
+<figure><img src="props_pro2/sapling_burnt.png" width="54"><figcaption>sapling_burnt<br>27×40</figcaption></figure>
+<figure><img src="props_pro2/bell_red.png" width="44"><figcaption>bell_red<br>22×31</figcaption></figure>
+<figure><img src="props_pro2/bell_wrapped.png" width="36"><figcaption>bell_wrapped<br>18×37</figcaption></figure>
+<figure><img src="props_pro2/kanzashi.png" width="66"><figcaption>kanzashi<br>33×34</figcaption></figure>
+<figure><img src="props_pro2/manju_basket.png" width="64"><figcaption>manju_basket<br>32×25</figcaption></figure>
+<figure><img src="props_pro2/steamer.png" width="68"><figcaption>steamer<br>34×32</figcaption></figure>
+<figure><img src="props_pro2/kasa_hat.png" width="88"><figcaption>kasa_hat<br>44×22</figcaption></figure>
+<figure><img src="props_pro2/grave_a.png" width="66"><figcaption>grave_a<br>33×29</figcaption></figure>
+<figure><img src="props_pro2/grave_b.png" width="64"><figcaption>grave_b<br>32×28</figcaption></figure>
+<figure><img src="props_pro2/stall_burning.png" width="142"><figcaption>stall_burning<br>71×28</figcaption></figure>
+<figure><img src="props_pro2/mask_broken.png" width="102"><figcaption>mask_broken<br>51×25</figcaption></figure>
+</div>
+</div></div></section>
+<section id="portraits_pro2"><h2>portraits_pro2</h2><div class="meta">초상 6칸: 아카네 3(웃음 · 젖은 슬픔 · 젖은 분노), 삿갓 나그네 2, 할머니 1 · 높이 107 · 나그네 초상 2칸(3, 4)은 얼굴이 삿갓에 가려 거의 같다 — 어느 쪽이 「기본」/「웃음」인지 확인 필요</div><div class="row">
+<div><div class="lab">원본 0A0C1F40-D30F-4237-A229-4B3FBE2A43E7.png (2172×724)</div><div class="box orig"><img src="../raw/prologue/0A0C1F40-D30F-4237-A229-4B3FBE2A43E7.png"></div></div><div><div class="lab">결과</div>
+<div class="box frames">
+<figure><div style="width:176px;height:212px;background:url(portraits_pro2.png) -0px 0/1056px 212px;image-rendering:pixelated"></div><figcaption>0 akane_happy</figcaption></figure>
+<figure><div style="width:176px;height:212px;background:url(portraits_pro2.png) -176px 0/1056px 212px;image-rendering:pixelated"></div><figcaption>1 akane_rain_sad</figcaption></figure>
+<figure><div style="width:176px;height:212px;background:url(portraits_pro2.png) -352px 0/1056px 212px;image-rendering:pixelated"></div><figcaption>2 akane_rain_hate</figcaption></figure>
+<figure><div style="width:176px;height:212px;background:url(portraits_pro2.png) -528px 0/1056px 212px;image-rendering:pixelated"></div><figcaption>3 traveler_neutral</figcaption></figure>
+<figure><div style="width:176px;height:212px;background:url(portraits_pro2.png) -704px 0/1056px 212px;image-rendering:pixelated"></div><figcaption>4 traveler_smile</figcaption></figure>
+<figure><div style="width:176px;height:212px;background:url(portraits_pro2.png) -880px 0/1056px 212px;image-rendering:pixelated"></div><figcaption>5 manju_grandma</figcaption></figure>
+</div><div class="meta">칸 88×106 · 도트 4.21 · 키 ~</div>
+<div class="lab">비교 (같은 배율): portraits · portraits_hakuya</div><div class="box frames">
+<figure><div style="width:192px;height:216px;background:url(portraits.png) -0px 0/auto 216px;image-rendering:pixelated"></div><figcaption>portraits</figcaption></figure>
+<figure><div style="width:200px;height:214px;background:url(portraits_hakuya.png) -0px 0/auto 214px;image-rendering:pixelated"></div><figcaption>portraits_hakuya</figcaption></figure>
+</div>
+</div></div></section>
+</main></body></html>
