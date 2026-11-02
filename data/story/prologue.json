@@ -17,11 +17,6 @@
           "duration": 0
         },
         {
-          "cmd": "mood",
-          "to": "fire",
-          "seconds": 0
-        },
-        {
           "cmd": "gameplay",
           "do": "mood",
           "mood": "fire"
@@ -33,11 +28,6 @@
           "x": "fireHakuya",
           "face": -1,
           "show": true
-        },
-        {
-          "cmd": "treeStage",
-          "tree": "burning",
-          "stage": "burning"
         },
         {
           "cmd": "prop",
@@ -110,19 +100,123 @@
           "pose": "guard"
         },
         {
+          "cmd": "treeStage",
+          "tree": "burning",
+          "stage": "burning"
+        },
+        {
+          "cmd": "mood",
+          "to": "fireLow",
+          "seconds": 0
+        },
+        {
+          "cmd": "lights",
+          "on": true,
+          "ambient": "#6a5a66"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": "fireHakuya",
+          "y": 560,
+          "id": "plazaFire1"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": 12150,
+          "y": 600,
+          "id": "plazaFire2"
+        },
+        {
+          "cmd": "light",
+          "preset": "brazier",
+          "x": "plazaStump",
+          "y": 520,
+          "id": "plazaFire3"
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": "fireAkaneDown",
+          "y": 590,
+          "id": "plazaFire4"
+        },
+        {
+          "cmd": "prop",
+          "id": "ff0",
+          "key": "fx_fire_small",
+          "at": 12180,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff1",
+          "key": "fx_fire_small",
+          "at": 12470,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff2",
+          "key": "fx_fire_small",
+          "at": 12690,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff3",
+          "key": "fx_fire_small",
+          "at": 12980,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff4",
+          "key": "fx_fire_small",
+          "at": 13280,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
           "cmd": "camPan",
-          "x": "fireHaru",
+          "x": "fireAkaneDown",
+          "offset": 300,
+          "seconds": 0.01
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1.1,
           "seconds": 0.01
         },
         {
           "cmd": "camTilt",
-          "y": 46,
+          "y": 20,
           "ms": 10
         },
         {
           "cmd": "foreground",
           "preset": "pillar",
-          "x": "fireAkaneDown"
+          "x": 12565
+        },
+        {
+          "cmd": "foreground",
+          "preset": "fireWall",
+          "x": 12800
         },
         {
           "cmd": "particles",
@@ -161,7 +255,16 @@
         },
         {
           "cmd": "wait",
-          "seconds": 2.0
+          "seconds": 1.2
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "right"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.6
         },
         {
           "cmd": "camPan",
@@ -170,19 +273,29 @@
           "src": "꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다."
         },
         {
+          "cmd": "camZoom",
+          "zoom": 2.2,
+          "seconds": 0.7
+        },
+        {
+          "cmd": "camTilt",
+          "y": 110,
+          "ms": 500
+        },
+        {
           "cmd": "prop",
           "id": "p0petal",
           "key": "fx_petals",
           "at": "fireAkaneDown",
           "frame": 0,
-          "dy": -180,
-          "offset": 12,
+          "dy": -130,
+          "offset": 16,
           "depth": 12
         },
         {
           "cmd": "propMove",
           "id": "p0petal",
-          "dy": 160,
+          "dy": 122,
           "angle": 200,
           "seconds": 2.2
         },
@@ -246,6 +359,34 @@
           "do": "bossLook",
           "color": null,
           "show": false
+        },
+        {
+          "cmd": "lightOff"
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1,
+          "seconds": 0
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff0"
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff1"
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff2"
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff3"
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff4"
         }
       ]
     },
@@ -4139,6 +4280,94 @@
           "stage": "burning"
         },
         {
+          "cmd": "mood",
+          "to": "fireLow",
+          "seconds": 0
+        },
+        {
+          "cmd": "lights",
+          "on": true,
+          "ambient": "#6a5a66"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": "fireHakuya",
+          "y": 560,
+          "id": "plazaFire1"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": 12150,
+          "y": 600,
+          "id": "plazaFire2"
+        },
+        {
+          "cmd": "light",
+          "preset": "brazier",
+          "x": "plazaStump",
+          "y": 520,
+          "id": "plazaFire3"
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": "fireAkaneDown",
+          "y": 590,
+          "id": "plazaFire4"
+        },
+        {
+          "cmd": "prop",
+          "id": "ff0",
+          "key": "fx_fire_small",
+          "at": 12180,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff1",
+          "key": "fx_fire_small",
+          "at": 12470,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff2",
+          "key": "fx_fire_small",
+          "at": 12690,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff3",
+          "key": "fx_fire_small",
+          "at": 12980,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff4",
+          "key": "fx_fire_small",
+          "at": 13280,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
           "cmd": "prop",
           "id": "dbP0",
           "key": "prop_debris_fire",
@@ -4318,19 +4547,123 @@
           "pose": "guard"
         },
         {
+          "cmd": "treeStage",
+          "tree": "burning",
+          "stage": "burning"
+        },
+        {
+          "cmd": "mood",
+          "to": "fireLow",
+          "seconds": 0
+        },
+        {
+          "cmd": "lights",
+          "on": true,
+          "ambient": "#6a5a66"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": "fireHakuya",
+          "y": 560,
+          "id": "plazaFire1"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": 12150,
+          "y": 600,
+          "id": "plazaFire2"
+        },
+        {
+          "cmd": "light",
+          "preset": "brazier",
+          "x": "plazaStump",
+          "y": 520,
+          "id": "plazaFire3"
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": "fireAkaneDown",
+          "y": 590,
+          "id": "plazaFire4"
+        },
+        {
+          "cmd": "prop",
+          "id": "ff0",
+          "key": "fx_fire_small",
+          "at": 12180,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff1",
+          "key": "fx_fire_small",
+          "at": 12470,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff2",
+          "key": "fx_fire_small",
+          "at": 12690,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff3",
+          "key": "fx_fire_small",
+          "at": 12980,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff4",
+          "key": "fx_fire_small",
+          "at": 13280,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
           "cmd": "camPan",
-          "x": "fireHaru",
+          "x": "fireAkaneDown",
+          "offset": 300,
+          "seconds": 0.01
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1.1,
           "seconds": 0.01
         },
         {
           "cmd": "camTilt",
-          "y": 46,
+          "y": 20,
           "ms": 10
         },
         {
           "cmd": "foreground",
           "preset": "pillar",
-          "x": "fireAkaneDown"
+          "x": 12565
+        },
+        {
+          "cmd": "foreground",
+          "preset": "fireWall",
+          "x": 12800
         },
         {
           "cmd": "particles",
@@ -4577,6 +4910,34 @@
       },
       "mode": "auto",
       "commands": [
+        {
+          "cmd": "lightOff"
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1,
+          "seconds": 0
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff0"
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff1"
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff2"
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff3"
+        },
+        {
+          "cmd": "propOff",
+          "id": "ff4"
+        },
         {
           "cmd": "desaturate",
           "amount": 0,

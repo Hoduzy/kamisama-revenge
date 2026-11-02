@@ -374,6 +374,8 @@ class ActorDirector {
     const s = this.scene;
     this.propOff({ id: c.id }, true);
     // glow: 분홍빛 작은 원(코드 입자) — 깜빡이며 떠오르는 빛 점 (P-2 손끝, P-8 나무를 타고 오르는 빛)
+    // optional: 그림이 없으면 아무것도 그리지 않는다 (단색 네모 대신 생략. 예: 바닥의 작은 불 fx_fire_small)
+    if (c.optional && !(s.textures.exists(c.key) && Sprites.sheet(c.key))) return Promise.resolve();
     const ph = c.key === 'glow' ? { key: ActorDirector.glowTexture(s), real: true } : Placeholders.prop(s, c.key || c.id, c.w, c.h, c.color);
     let x;
     let y;
@@ -388,7 +390,8 @@ class ActorDirector {
     const animKey = c.anim && ph.real && s.anims.exists(c.anim) ? c.anim : null;
     const img = (animKey ? s.add.sprite(Math.round(x), Math.round(y), c.anim, 0) : s.add.image(Math.round(x), Math.round(y), ph.key, c.frame))
       .setOrigin(0.5, c.originY ?? 1).setDepth(c.depth ?? 7);
-    if (animKey) {
+    if (animKey && c.loop) img.play({ key: animKey, repeat: -1 }); // 계속 (바닥 불)
+    else if (animKey) {
       img.play(animKey);
       img.once('animationcomplete', () => { if (img.active) img.setTexture(ph.key); });
     }

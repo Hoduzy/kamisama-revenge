@@ -72,23 +72,38 @@ LULLABY = '@lullaby'    # 변환기가 '### 하루의 자장가' 가사로 바�
 LULLABY1 = '@lullaby1'  # 첫 줄만 (한 소절)
 
 # P-0 과 P-11(하쿠야의 발도 직후)의 같은 구도: 낮은 시점, 앞에 흐릿한 불길, 쓰러진 아카네 · 칼 든 하루의 뒷모습 · 불길 속 하쿠야
+# 불타는 광장의 빛: 화면 필터는 약하게(fireLow), 붉은빛은 불길 쪽 점광원으로 → 캐릭터 실루엣이 읽힌다
+PLAZA_LIGHT = [
+    C('treeStage', tree='burning', stage='burning'),  # 큰 벚나무 불타는 단계 (tree_burning 그림이 없으면 그을린 가지 + 불길)
+    C('mood', to='fireLow', seconds=0),
+    C('lights', on=True, ambient='#6a5a66'),
+    C('light', preset='fire', x='fireHakuya', y=560, id='plazaFire1'),   # 하쿠야 뒤 불길
+    C('light', preset='fire', x=12150, y=600, id='plazaFire2'),          # 왼쪽 무너진 집
+    C('light', preset='brazier', x='plazaStump', y=520, id='plazaFire3'),  # 불타는 나무 밑동
+    C('light', preset='torch', x='fireAkaneDown', y=590, id='plazaFire4'),   # 쓰러진 아카네 곁 잔불 (실루엣이 읽히게)
+]
+# 바닥 곳곳 작은 불 (fx_fire_small 그림이 있을 때만, optional: 없으면 안 그림)
+FLOOR_FIRES = [prop(f'ff{k}', 'fx_fire_small', x, anim='fx_fire_small', loop=True, depth=4, optional=True)
+               for k, x in enumerate((12180, 12470, 12690, 12980, 13280))]
 FRAME_P0 = [
     spawn('akane', 'fireAkaneDown', 'right'),
-    C('pose', actor='akane', pose='down'),
-    spawn('haru', 'fireHaru', 'right'),
-    C('pose', actor='haru', pose='guard'),
-    C('camPan', x='fireHaru', seconds=0.01),
-    C('camTilt', y=46, ms=10),
-    C('foreground', preset='pillar', x='fireAkaneDown'),
+    C('pose', actor='akane', pose='down'),                 # player_death 마지막 칸
+    spawn('haru', 'fireHaru', 'right'),                    # 하쿠야 쪽을 보고 (뒷모습이 아카네 쪽)
+    C('pose', actor='haru', pose='guard'),                 # 진검 전투 자세 (haru_attack ready)
+    *PLAZA_LIGHT,
+    *FLOOR_FIRES,
+    # 낮은 시점: 아카네가 화면 앞쪽 왼쪽 아래에 오게 (조금 당겨서)
+    C('camPan', x='fireAkaneDown', offset=300, seconds=0.01), C('camZoom', zoom=1.1, seconds=0.01), C('camTilt', y=20, ms=10),
+    C('foreground', preset='pillar', x=12565),             # 앞쪽 왼쪽 불타는 기둥 (fg_burning_pillar, 1.3배 패럴랙스)
+    C('foreground', preset='fireWall', x=12800),           # 화면 앞 불길 (fx_fire_wall 그림이 있을 때만)
     C('particles', preset='embers', at='fireAkaneDown', id='p0embers'),
     C('vignette', amount=0.55, seconds=0.01),
 ]
 
 SETUP = {
     'P-0': [
-        C('fadeOut', duration=0), C('mood', to='fire', seconds=0), G('mood', mood='fire'),
+        C('fadeOut', duration=0), G('mood', mood='fire'),
         G('bossLook', color='black', x='fireHakuya', face=-1, show=True),
-        C('treeStage', tree='burning', stage='burning'),
         prop('dbA0', 'prop_debris_fire', 12080, scale=0.7, depth=3, label=''),
         prop('dbA1', 'prop_debris_fire', 12420, scale=0.5, depth=3, label=''),
         prop('dbA2', 'prop_debris_fire', 13250, scale=0.7, depth=3, label=''),
@@ -179,13 +194,14 @@ SETUP = {
     'P-11': [
         spawn('akane', 12240, 'right'), C('particlesStop', id='smithyEmbers'), spawn('haru', 'fireHaru', 'right'), C('pose', actor='haru', pose='guard'),
         G('bossLook', color=None, show=True, x=13450, face=-1),
-        C('treeStage', tree='burning', stage='burning'),
+        *PLAZA_LIGHT, *FLOOR_FIRES,
         prop('dbP0', 'prop_debris_fire', 12080, scale=0.7, depth=3, label=''),
         prop('dbP1', 'prop_debris_fire', 12420, scale=0.5, depth=3, label=''),
         prop('dbP2', 'prop_debris_fire', 13250, scale=0.7, depth=3, label=''),
         prop('dbP3', 'prop_debris_fire', 13520, scale=0.5, depth=3, label=''),
     ],
     'P-12': [
+        C('lightOff'), C('camZoom', zoom=1, seconds=0), *[C('propOff', id=f'ff{k}') for k in range(5)],
         C('desaturate', amount=0, seconds=0), C('vignette', amount=0, seconds=0), C('foregroundClear'), C('particlesStop'),
         C('mood', to='cave', seconds=0), G('mood', mood=None), C('camReset', ms=0), C('camTilt', y=0, ms=10),
         C('setFlag', flag='akaneRain', value=True),  # 비에 젖은 아카네 (akane_emote2)
@@ -229,7 +245,8 @@ SETUP = {
 }
 
 AFTER = {
-    'P-0': [C('foregroundClear'), C('particlesStop'), C('vignette', amount=0, seconds=0), G('bossLook', color=None, show=False)],
+    'P-0': [C('foregroundClear'), C('particlesStop'), C('vignette', amount=0, seconds=0), G('bossLook', color=None, show=False),
+            C('lightOff'), C('camZoom', zoom=1, seconds=0), *[C('propOff', id=f'ff{k}') for k in range(5)]],
     'P-2': [C('fadeOut', duration=0.8)],
     'P-3': [C('fadeOut', duration=0.8)],
     'P-6': [C('emoteHold', actor='akane', kind='img:manju_basket', on=False)],
@@ -253,11 +270,12 @@ LINES = {
         '아카네의 시선 끝: 칼을 든 하루의 뒷모습. 그 너머 불길 속 흰 머리 사내의 실루엣. 얼굴은 보이지 않는다.': [
             C('camPan', x=12900, seconds=1.8), wait(2.0)],
         '하루가 고개를 반쯤 돌려 아카네를 본다. 입술이 움직이지만 소리는 없다.': [
-            face('haru', 'akane'), wait(2.0)],
+            face('haru', 'akane'), wait(1.2), face('haru', 'right'), wait(0.6)],  # 고개를 반쯤 돌렸다가 다시 하쿠야 쪽으로
         '꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다.': [
-            C('camPan', x='fireAkaneDown', seconds=0.9),
-            prop('p0petal', 'fx_petals', 'fireAkaneDown', frame=0, dy=-180, offset=12, depth=12),
-            C('propMove', id='p0petal', dy=160, angle=200, seconds=2.2),
+            # 아카네에게 줌인
+            C('camPan', x='fireAkaneDown', seconds=0.9), C('camZoom', zoom=2.2, seconds=0.7), C('camTilt', y=110, ms=500),
+            prop('p0petal', 'fx_petals', 'fireAkaneDown', frame=0, dy=-130, offset=16, depth=12),  # 뺨: 쓰러진 그림의 얼굴 자리
+            C('propMove', id='p0petal', dy=122, angle=200, seconds=2.2),
             C('propTint', id='p0petal', color='#ff5a20', seconds=0.4), C('propTint', id='p0petal', color='#444444', alpha=0, seconds=0.7),
             C('propOff', id='p0petal')],
         '컷. 검은 화면. 완전한 침묵 2초.': [

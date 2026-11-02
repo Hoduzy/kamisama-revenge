@@ -3942,6 +3942,26 @@
      "loop": false
     }
    }
+  },
+  "fg_burning_pillar": {
+   "file": "fg_burning_pillar.png",
+   "source": "875ADA70-EDF6-4C14-9001-A6AF2DB881F3.png",
+   "frameWidth": 160,
+   "frameHeight": 562,
+   "frames": 2,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 3.41,
+   "labels": [
+    "standing",
+    "fallen"
+   ],
+   "heights": [
+    560,
+    323
+   ]
   }
  },
  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.",

@@ -206,5 +206,46 @@ def main():
     print('\n'.join(report))
 
 
-if __name__ == '__main__':
+if __name__ == '__main__' and '--pillar' not in sys.argv:
     main()
+
+
+# ───────── 불타는 기둥 전경 (따로 실행: python3 tools/process_prologue3.py --pillar) ─────────
+# 원본 875ADA70: 서 있는 기둥(등롱 매달림) + 기울어 쓰러진 기둥 2개 → fg_burning_pillar 2칸 (0 서 있음, 1 쓰러짐), 발 기준 정렬
+PILLAR_SRC = '875ADA70-EDF6-4C14-9001-A6AF2DB881F3'
+PILLAR_H = 560  # 서 있는 기둥 키(px). 전경은 1.3배 패럴랙스로 화면 앞을 지나가므로 화면 높이만큼
+
+
+def pillar():
+    from scipy import ndimage
+    man = OUT / 'manifest.json'
+    manifest = json.loads(man.read_text(encoding='utf-8'))
+    a = np.array(Image.open(RAW / f'{PILLAR_SRC}.png').convert('RGBA'))
+    pp.remove_outer_white(a)
+    occ = a[..., 3] >= 24
+    lab, n = ndimage.label(occ, structure=np.ones((3, 3)))
+    sizes = ndimage.sum(occ, lab, range(1, n + 1))
+    objs = ndimage.find_objects(lab)
+    big = sorted([i for i in range(n) if sizes[i] >= sizes.max() * 0.2], key=lambda i: objs[i][1].start)
+    # 작은 불티는 가로로 가까운 기둥에 붙인다
+    owner = {}
+    for i in range(n):
+        cx = (objs[i][1].start + objs[i][1].stop) / 2
+        owner[i] = min(big, key=lambda b: abs(cx - (objs[b][1].start + objs[b][1].stop) / 2))
+    parts = []
+    for b in big:
+        m = np.isin(lab, [i + 1 for i in range(n) if owner[i] == b])
+        ys, xs = np.where(m)
+        part = np.where(m[..., None], a, 0).astype(np.uint8)[ys.min():ys.max() + 1, xs.min():xs.max() + 1]
+        parts.append(part)
+    dot = parts[0].shape[0] / PILLAR_H
+    frames = [pp.shrink(p, dot, soft=True) for p in parts]
+    e = ps.save_sheet('fg_burning_pillar', frames, dict(anchor='feet', pad=2, labels=['standing', 'fallen']), dot, OUT, f'{PILLAR_SRC}.png')
+    e['heights'] = [int(f.shape[0]) for f in frames]
+    manifest['sheets']['fg_burning_pillar'] = e
+    man.write_text(json.dumps(manifest, ensure_ascii=False, indent=1), encoding='utf-8')
+    print('fg_burning_pillar', len(frames), '칸', e['frameWidth'], '×', e['frameHeight'], '도트', round(dot, 2))
+
+
+if __name__ == '__main__' and '--pillar' in sys.argv:
+    pillar()

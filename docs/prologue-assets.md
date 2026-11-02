@@ -56,6 +56,19 @@
 소이치로 칼 내밀기 = soichiro_give · 화살 맞기 = soichiro_kneel, 칼자루 쥐기 = player_iaido_ready 첫 칸, 비녀 줍기 = akane_emote2 흙 파기 첫 칸,
 귀 까딱 = 코드(`earTwitch`), 마을 노인 등롱 걸기 = 생략(대기), 나그네 삿갓 끝 = 컷인.
 
+### 전경 · 불 (P-0 · P-11 불타는 광장)
+
+전경(`cine.foreground`)은 그림이 있을 때만 그린다 — 코드로 그린 검은 실루엣은 지웠다.
+
+| 이름 | 무엇 | 지금 |
+|---|---|---|
+| `fg_burning_pillar` | 불타는 기둥 (0 서 있음, 1 쓰러짐) — `tools/process_prologue3.py --pillar` | P-0 · P-11 화면 앞 왼쪽 |
+| `lantern_rope` (props) | 등롱 줄 전경 | P-5 · P-8 |
+| `fx_fire_wall` | 화면 앞 불길 (1.3배 패럴랙스) | **그림 없음 → 안 그림** |
+| `fx_fire_small` | 바닥 곳곳 작은 불 | **그림 없음 → 안 그림** (`optional` 소품) |
+| `fg_sakura_branch` | 위쪽 벚꽃 가지 전경 | 그림 없음, 쓰는 장면도 없음 |
+| `tree_burning` / `tree_burnt` | 큰 벚나무 3단계 중 불타는 · 검게 탄 | **그림 없음** → 앙상한 가지를 그을린 색 + 도트 불꽃 / 검게 물들임 |
+
 ### 아직 그림이 없는 것
 
 프롤로그 전체를 재생하며 단색 네모 · 이름표 · 머리 위 노란 글씨 · 실루엣이 만들어지는지 기록했을 때 0개.

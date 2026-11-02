@@ -55,22 +55,37 @@ class CherryTree {
     if (show) s.setVisible(true);
     const sc = this.scene;
     if (this.fire) { this.fire.destroy(); this.fire = null; }
+    // painted: 배경 그림(bg_pro_burning)에 이미 불타는 큰 나무가 그려져 있는 곳 → 나무 그림은 숨기고 불티만 (P-0 · P-11 광장)
+    if (stage === 'painted') {
+      s.setVisible(false);
+      this.active = false;
+      this.fire = sc.add.particles(this.x, this.canopyY, sc.textures.exists('cine-dot') ? 'cine-dot' : 'petal', {
+        lifespan: 1600, frequency: 45, speedY: { min: -110, max: -40 }, speedX: { min: -30, max: 30 },
+        tint: [0xffb040, 0xff6020, 0xffe090], alpha: { start: 1, end: 0 }, blendMode: 'ADD',
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-this.canopyW, -40, this.canopyW * 2, 120) },
+      }).setDepth(2);
+      sc.events.once('shutdown', () => { if (this.fire) this.fire.destroy(); });
+      return;
+    }
     const own = { burning: 'tree_burning', burnt: 'tree_burnt' }[stage];
     if (own && Sprites.has(sc, own)) {
       s.setTexture(own, 0).clearTint();
     } else {
-      s.setTexture('tree', stage === 'bloom' || stage === 'burning' ? 1 : 0);
-      if (stage === 'burning') s.setTint(0xff7a4a);
+      // 불타는 단계 그림(tree_burning)이 없으면: 꽃이 타 버린 앙상한 가지를 그을린 색으로 + 가지 곳곳 불길 입자 (만개 그림에 붉은 필터를 씌우지 않는다)
+      s.setTexture('tree', stage === 'bloom' ? 1 : 0);
+      if (stage === 'burning') s.setTint(0x7a3424);
       else if (stage === 'burnt') s.setTint(0x2a2222);
       else s.clearTint();
     }
     this.active = stage === 'bloom'; // 꽃잎은 만개일 때만
     if (stage === 'burning') {
+      // 도트 불꽃: 3px 네모가 커졌다 작아지며 올라감 (흐린 원은 도트 그림과 안 어울림)
       this.fire = sc.add.particles(this.x, this.canopyY, sc.textures.exists('cine-dot') ? 'cine-dot' : 'petal', {
-        lifespan: 1600, frequency: 35, speedY: { min: -110, max: -40 }, speedX: { min: -30, max: 30 },
-        tint: [0xffb040, 0xff6020, 0xffe090], alpha: { start: 1, end: 0 }, blendMode: 'ADD',
-        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-this.canopyW, -40, this.canopyW * 2, 120) },
+        lifespan: 1000, frequency: 10, speedY: { min: -110, max: -40 }, speedX: { min: -20, max: 20 },
+        scale: { start: 2, end: 0.7 }, tint: [0xffb040, 0xff6020, 0xffe090, 0xff4010], alpha: { start: 1, end: 0 }, blendMode: 'ADD',
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-this.canopyW, -70, this.canopyW * 2, 170) },
       }).setDepth(2);
+      this.fire.noLight = true;
       sc.events.once('shutdown', () => { if (this.fire) this.fire.destroy(); });
     }
   }

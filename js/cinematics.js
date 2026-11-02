@@ -35,6 +35,7 @@ const CINE_MOODS = {
   dusk: [0xff8a3d, 0.17],   // 따뜻한 주황 (해 질 녘)
   night: [0x1a2258, 0.3],   // 밤 남색
   fire: [0xff3410, 0.24],   // 불타는 붉은색
+  fireLow: [0xff3410, 0.04], // 불타는 광장(P-0 · P-11): 화면 필터는 약하게, 붉은빛은 불길 점광원으로
   morning: [0xfff2c8, 0.1], // 아침 햇살 (밝고 따뜻하게)
   duskDeep: [0xff6a1a, 0.27], // 짙어진 해 질 녘 주황
   ash: [0x3c4048, 0.34],    // 잿더미 · 비 오는 새벽 (회색)
@@ -76,9 +77,12 @@ const CINE_PARTICLES = {
 
 // 전경 실루엣: 캐릭터 앞을 1.3배 속도로 지나간다 (화면 높이는 고정, y = 화면 좌표)
 const CINE_FOREGROUND = {
-  lanterns: { tex: 'cine-fg-lanterns', y: 0, origin: [0.5, 0] },   // 위쪽 등롱 줄
-  branch: { tex: 'cine-fg-branch', y: 0, origin: [0.5, 0] },       // 위쪽 벚꽃 가지
-  pillar: { tex: 'cine-fg-pillar', y: GAME_HEIGHT, origin: [0.5, 1] }, // 아래에서 솟은 불타는 기둥
+  // 그림(manifest)이 있을 때만 그린다. 그림이 없으면 아무것도 그리지 않는다 (예전엔 코드로 그린 검은 실루엣이었음)
+  lanterns: { tex: 'lantern_rope', y: 0, origin: [0.5, 0] },                        // 위쪽 등롱 줄 (줄 조각 + 등롱 조립 그림)
+  branch: { tex: 'fg_sakura_branch', y: 0, origin: [0.5, 0] },                     // 위쪽 벚꽃 가지 (그림 없음 → 안 그림)
+  pillar: { tex: 'fg_burning_pillar', frame: 0, y: GAME_HEIGHT + 40, origin: [0.5, 1] },   // 불타는 기둥 (서 있음)
+  pillarFallen: { tex: 'fg_burning_pillar', frame: 1, y: GAME_HEIGHT + 40, origin: [0.5, 1] }, // 쓰러진 불타는 기둥
+  fireWall: { tex: 'fx_fire_wall', y: GAME_HEIGHT + 20, origin: [0.5, 1], anim: 'fx_fire_wall' }, // 화면 앞 불길 (그림 없음 → 안 그림)
 };
 
 // 컷인: 초상화 시트마다 두 눈 한가운데 위치 (칸 폭·높이에 대한 비율, 그림을 보고 잼)
@@ -177,51 +181,6 @@ class Cinematics {
       x.fillStyle = h;
       x.fillRect(0, 0, 64, 260);
       c.refresh();
-    }
-    const dark = 0x07060c;
-    if (!T.exists('cine-fg-lanterns')) {
-      // 늘어진 줄에 매달린 등롱 실루엣 (불빛 점만 살짝)
-      const q = g();
-      q.lineStyle(3, dark).beginPath();
-      for (let i = 0; i <= 40; i++) {
-        const t = i / 40;
-        const px = t * 600;
-        const py = 30 + Math.sin(t * Math.PI) * 50;
-        if (i === 0) q.moveTo(px, py); else q.lineTo(px, py);
-      }
-      q.strokePath();
-      for (let k = 1; k < 6; k++) {
-        const px = k * 100;
-        const py = 30 + Math.sin((px / 600) * Math.PI) * 50;
-        // 등롱: 검은 뚜껑·받침 + 안에서 빛나는 붉은 종이
-        q.fillStyle(dark).fillRect(px - 1, py, 2, 10).fillRect(px - 9, py + 9, 18, 4).fillRect(px - 9, py + 42, 18, 4);
-        q.fillStyle(0x9a2418).fillRoundedRect(px - 13, py + 12, 26, 31, 9);
-        q.fillStyle(0xff8a3a, 0.85).fillRoundedRect(px - 8, py + 16, 16, 23, 6);
-        q.fillStyle(0x5a120c).fillRect(px - 13, py + 22, 26, 2).fillRect(px - 13, py + 31, 26, 2);
-      }
-      q.generateTexture('cine-fg-lanterns', 600, 140);
-      q.destroy();
-    }
-    if (!T.exists('cine-fg-branch')) {
-      // 위에서 늘어진 벚꽃 가지 실루엣
-      const q = g();
-      q.lineStyle(9, dark).lineBetween(300, 0, 210, 70).lineStyle(6, dark).lineBetween(210, 70, 120, 110)
-        .lineStyle(4, dark).lineBetween(210, 70, 230, 150).lineBetween(120, 110, 40, 120).lineBetween(150, 95, 160, 170);
-      q.fillStyle(0x1a0c14);
-      for (const [cx, cy, r] of [[120, 110, 26], [40, 120, 20], [230, 150, 24], [160, 172, 18], [190, 60, 22], [80, 95, 16], [260, 120, 16]]) {
-        q.fillCircle(cx, cy, r);
-      }
-      q.generateTexture('cine-fg-branch', 300, 200);
-      q.destroy();
-    }
-    if (!T.exists('cine-fg-pillar')) {
-      // 불타는 기둥: 검은 기둥 + 가장자리 불빛 + 부러진 끝
-      const q = g();
-      q.fillStyle(dark).fillRect(16, 40, 40, 500).fillTriangle(16, 40, 56, 40, 40, 0);
-      q.fillStyle(0xff5a1e, 0.85).fillRect(14, 120, 4, 90).fillRect(54, 220, 4, 120).fillRect(14, 300, 4, 60);
-      q.fillStyle(0xffb040, 0.8).fillRect(30, 30, 6, 12).fillRect(42, 60, 4, 10);
-      q.generateTexture('cine-fg-pillar', 72, 540);
-      q.destroy();
     }
   }
 
@@ -582,10 +541,14 @@ class Cinematics {
   // x: 카메라 가운데가 x 일 때 화면 가운데 보이는 월드 위치
   foreground(preset, x) {
     const P = CINE_FOREGROUND[preset];
-    if (!P) return null;
+    if (!P || !this.scene.textures.exists(P.tex) || !Sprites.sheet(P.tex)) return null; // 그림이 없으면 그리지 않는다
     const k = this.cfg.foregroundParallax;
-    const img = this.scene.add.image(GAME_WIDTH / 2 + (x - GAME_WIDTH / 2) * k, P.y, P.tex)
+    const s = this.scene;
+    const px = GAME_WIDTH / 2 + (x - GAME_WIDTH / 2) * k;
+    const anim = P.anim && s.anims.exists(P.anim);
+    const img = (anim ? s.add.sprite(px, P.y, P.tex, 0) : s.add.image(px, P.y, P.tex, P.frame))
       .setOrigin(...P.origin).setScrollFactor(k, 0).setDepth(25);
+    if (anim) img.play({ key: P.anim, repeat: -1 });
     img.noLight = true;
     this.foregrounds.push(img);
     return img;
