@@ -1,0 +1,68 @@
+{
+ "id": "ashVillage",
+ "name": "잿더미 마을",
+ "background": "bg_pro2_ash",
+ "flip": false,
+ "tint": null,
+ "scale": 1.353,
+ "floor": 262,
+ "door": {
+  "height": 85,
+  "note": "불탄 문 기둥 사이 (y 165~250)"
+ },
+ "entry": {
+  "left": 20,
+  "right": 540
+ },
+ "exits": [],
+ "scenes": [],
+ "then": null,
+ "light": {
+  "mood": "ash"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {
+  "gateStone": 520,
+  "dumplingShop": 450,
+  "forge": 245,
+  "sapling": 90
+ },
+ "legacy": [
+  [
+   [
+    1400,
+    20
+   ],
+   [
+    1500,
+    90
+   ],
+   [
+    2450,
+    245
+   ],
+   [
+    3560,
+    365
+   ],
+   [
+    4240,
+    450
+   ],
+   [
+    5230,
+    520
+   ],
+   [
+    5330,
+    540
+   ],
+   [
+    5750,
+    552
+   ]
+  ]
+ ],
+ "inspectOrder": "오른쪽(마을 입구 돌) → 만두 가게 → 신사 → 대장간 터 → 왼쪽(집 마당)"
+}

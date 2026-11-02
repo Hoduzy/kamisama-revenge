@@ -1,0 +1,71 @@
+{
+ "id": "festival",
+ "name": "축제 광장",
+ "background": "bg_pro_festival",
+ "flip": false,
+ "tint": null,
+ "scale": 1.917,
+ "floor": 257,
+ "door": {
+  "height": 60,
+  "note": "노점 처마 아래 (y 200~255)"
+ },
+ "entry": {
+  "left": 20,
+  "right": 495
+ },
+ "exits": [],
+ "scenes": [],
+ "then": null,
+ "light": {
+  "mood": "night"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {},
+ "legacy": [
+  [
+   [
+    7400,
+    20
+   ],
+   [
+    7520,
+    110
+   ],
+   [
+    7580,
+    150
+   ],
+   [
+    7820,
+    240
+   ],
+   [
+    7880,
+    260
+   ],
+   [
+    8000,
+    310
+   ],
+   [
+    8420,
+    430
+   ],
+   [
+    8560,
+    480
+   ],
+   [
+    8700,
+    500
+   ]
+  ]
+ ],
+ "tree": {
+  "id": "festival",
+  "x": 310,
+  "scale": 2.9
+ }
+}

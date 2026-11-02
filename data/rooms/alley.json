@@ -1,0 +1,62 @@
+{
+ "id": "alley",
+ "name": "불타는 골목",
+ "background": "bg_pro_alley",
+ "flip": false,
+ "tint": null,
+ "scale": 1.769,
+ "floor": 268,
+ "door": {
+  "height": 65,
+  "note": "왼쪽 불타는 집 문 (y 190~255)"
+ },
+ "entry": {
+  "left": 15,
+  "right": 495
+ },
+ "exits": [
+  {
+   "side": "right",
+   "x": 498,
+   "to": "smithy",
+   "after": "P-10",
+   "until": "P-10b"
+  }
+ ],
+ "scenes": [],
+ "then": null,
+ "light": {
+  "mood": "fire"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {},
+ "legacy": [
+  [
+   [
+    8700,
+    10
+   ],
+   [
+    9000,
+    30
+   ],
+   [
+    9100,
+    40
+   ],
+   [
+    9500,
+    150
+   ],
+   [
+    9950,
+    290
+   ],
+   [
+    10800,
+    500
+   ]
+  ]
+ ]
+}

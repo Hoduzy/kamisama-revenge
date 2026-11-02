@@ -1489,12 +1489,7 @@
    "screenBottom": 542,
    "anchor": 0.5,
    "stage": true,
-   "strip": {
-    "file": "bg_pro_yard_strip.png",
-    "width": 1536,
-    "height": 341,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "bg_pro_forge": {
    "file": "bg_pro_forge.png",
@@ -1508,12 +1503,7 @@
    "screenBottom": 543,
    "anchor": 0.5,
    "stage": true,
-   "strip": {
-    "file": "bg_pro_forge_strip.png",
-    "width": 1536,
-    "height": 342,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "bg_pro_festival": {
    "file": "bg_pro_festival.png",
@@ -1527,12 +1517,7 @@
    "screenBottom": 542,
    "anchor": 0.62,
    "stage": true,
-   "strip": {
-    "file": "bg_pro_festival_strip.png",
-    "width": 1536,
-    "height": 341,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "bg_pro_alley": {
    "file": "bg_pro_alley.png",
@@ -1546,12 +1531,7 @@
    "screenBottom": 542,
    "anchor": 0.5,
    "stage": true,
-   "strip": {
-    "file": "bg_pro_alley_strip.png",
-    "width": 1536,
-    "height": 341,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "bg_pro_burning": {
    "file": "bg_pro_burning.png",
@@ -1565,12 +1545,7 @@
    "screenBottom": 542,
    "anchor": 0.62,
    "stage": true,
-   "strip": {
-    "file": "bg_pro_burning_strip.png",
-    "width": 1536,
-    "height": 341,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "haru_ref": {
    "file": "haru_ref.png",
@@ -2713,117 +2688,81 @@
   },
   "bg_pro2_house": {
    "file": "bg_pro2_house.png",
-   "source": "prologue/A91EBB5E-312D-4880-9A91-15B28659BA4D.png",
+   "source": "17138E00-6F95-44CC-97CA-469743FE1208.png",
    "width": 557,
    "height": 314,
    "dot": 3.0,
    "displayScale": 2,
-   "parallax": 0.15,
+   "parallax": 1,
    "floorBand": 0.15,
-   "screenBottom": 534,
    "anchor": 0.5,
    "stage": true,
-   "strip": {
-    "file": "bg_pro2_house_strip.png",
-    "width": 1671,
-    "height": 314,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "bg_pro2_yard": {
    "file": "bg_pro2_yard.png",
-   "source": "prologue/1FA47849-DA42-47A5-8707-78EFDC561945.png",
+   "source": "A646A61F-44B6-4D83-828A-691CCDFE1A76.png",
    "width": 557,
-   "height": 313,
+   "height": 314,
    "dot": 3.0,
    "displayScale": 2,
-   "parallax": 0.15,
+   "parallax": 1,
    "floorBand": 0.15,
-   "screenBottom": 534,
    "anchor": 0.5,
    "stage": true,
-   "strip": {
-    "file": "bg_pro2_yard_strip.png",
-    "width": 1671,
-    "height": 313,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "bg_pro2_street": {
    "file": "bg_pro2_street.png",
-   "source": "prologue/D5A561F7-CF07-42C3-AA63-5C0F5814F357.png",
+   "source": "4B8CCD7F-7CBB-47DD-AB2A-2999DC0DAF1A.png",
    "width": 558,
    "height": 314,
    "dot": 3.0,
    "displayScale": 2,
-   "parallax": 0.15,
+   "parallax": 1,
    "floorBand": 0.15,
-   "screenBottom": 534,
    "anchor": 0.5,
    "stage": true,
-   "strip": {
-    "file": "bg_pro2_street_strip.png",
-    "width": 1674,
-    "height": 314,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "bg_pro2_gate": {
    "file": "bg_pro2_gate.png",
-   "source": "prologue/A2756280-692C-4EE8-90F1-84EFDD2009F8.png",
-   "width": 557,
-   "height": 314,
+   "source": "6DF32CCF-5E2B-448A-A47B-04B9236B9022.png",
+   "width": 558,
+   "height": 313,
    "dot": 3.0,
    "displayScale": 2,
-   "parallax": 0.15,
+   "parallax": 1,
    "floorBand": 0.15,
-   "screenBottom": 534,
    "anchor": 0.5,
    "stage": true,
-   "strip": {
-    "file": "bg_pro2_gate_strip.png",
-    "width": 1671,
-    "height": 314,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
   },
   "bg_pro2_cave": {
    "file": "bg_pro2_cave.png",
-   "source": "prologue/3FF77765-1907-4BC3-ABB8-192E36D38F8C.png",
-   "width": 558,
-   "height": 314,
-   "dot": 3.0,
-   "displayScale": 2,
-   "parallax": 0.15,
-   "floorBand": 0.15,
-   "screenBottom": 534,
-   "anchor": 0.5,
-   "stage": true,
-   "strip": {
-    "file": "bg_pro2_cave_strip.png",
-    "width": 1674,
-    "height": 314,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
-  },
-  "bg_pro2_ash": {
-   "file": "bg_pro2_ash.png",
-   "source": "prologue/191F365C-54D4-4E28-8B82-54731322DEBB.png",
+   "source": "9BA57213-F482-4D74-8B15-1AC6839784AF.png",
    "width": 557,
    "height": 314,
    "dot": 3.0,
    "displayScale": 2,
-   "parallax": 0.15,
+   "parallax": 1,
    "floorBand": 0.15,
-   "screenBottom": 534,
    "anchor": 0.5,
    "stage": true,
-   "strip": {
-    "file": "bg_pro2_ash_strip.png",
-    "width": 1671,
-    "height": 314,
-    "pattern": "반전A, A, 반전A (가운데 A 가 원본)"
-   }
+   "room": true
+  },
+  "bg_pro2_ash": {
+   "file": "bg_pro2_ash.png",
+   "source": "C35F55EB-6BD6-46EE-913F-ECEDF3EEF6E7.png",
+   "width": 557,
+   "height": 314,
+   "dot": 3.0,
+   "displayScale": 2,
+   "parallax": 1,
+   "floorBand": 0.15,
+   "anchor": 0.5,
+   "stage": true,
+   "room": true
   },
   "hakuya_traveler": {
    "file": "hakuya_traveler.png",

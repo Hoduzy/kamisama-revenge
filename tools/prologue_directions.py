@@ -103,14 +103,17 @@ FRAME_P0 = [
 SETUP = {
     # P-0: 게임 화면(불타는 광장, 약 3초) → 1인칭 컷1 · 컷2 (cut_p0_1~2, tools/process_cuts.py) → 의식이 흐려지며 쓰러짐
     'P-0': [
+        C('room', id='plaza'),  # 방 (data/rooms/plaza.json)
         C('fadeOut', duration=0), G('mood', mood='fire'),
         G('bossLook', color='black', x='fireHakuya', face=-1, show=True),
         prop('dbA0', 'prop_debris_fire', 12080, scale=0.7, depth=3, label=''),
         prop('dbA1', 'prop_debris_fire', 12420, scale=0.5, depth=3, label=''),
         prop('dbA2', 'prop_debris_fire', 13250, scale=0.7, depth=3, label=''),
         prop('dbA3', 'prop_debris_fire', 13520, scale=0.5, depth=3, label=''),
+        C('roomIn'),
     ],
     'P-1': [
+        C('room', id='house'),  # 방 (data/rooms/house.json)
         G('bossLook', color=None, show=False),
         C('camReset', ms=0), C('vignette', amount=0, seconds=0), C('foregroundClear'), C('particlesStop'),
         C('mood', to='morning', seconds=0), G('mood', mood=None),
@@ -121,43 +124,57 @@ SETUP = {
         C('setFlag', flag='bellWrapped', value=False), C('setFlag', flag='swordGiven', value=False),
         # 이불 속 잠옷 아카네 (akane_morning). 방의 목검 · 거울 · 창은 배경 그림(bg_pro2_house)에 있다
         spawn('akane', 'bed', 'right'), C('anim', actor='akane', anim='akane_sleep', loop=True),
+        C('roomIn'),
     ],
     'P-2': [
+        C('room', id='yard'),  # 방 (data/rooms/yard.json)
         C('setFlag', flag='akaneNoSword', value=True),  # 칼 받기 전 (개발 메뉴로 이 장면만 재생할 때도)
-        spawn('akane', 1060, 'right'), C('exitGlow', on=False), prop('sapling', 'sapling_dead', 'sapling'),
+        spawn('akane', 1060, 'right'), prop('sapling', 'sapling_dead', 'sapling'),
         spawn('haru', 1080, 'right'), C('disappear', actor='haru', fade=False),
+        C('roomIn'),
     ],
     'P-3': [
+        C('room', id='house'),  # 방 (data/rooms/house.json)
         C('setFlag', flag='akaneNoSword', value=True),
         C('ambience', id=None), spawn('akane', 'iroriAkane', 'right'), C('sit', actor='akane'),
         spawn('haru', 'iroriHaru', 'left'), C('sit', actor='haru'),
         spawn('soichiro', 'iroriDoor', 'left'), C('disappear', actor='soichiro', fade=False),
+        C('roomIn'),
     ],
     'P-4': [
+        C('room', id='forge'),  # 방 (data/rooms/forge.json)
         C('setFlag', flag='akaneNoSword', value=True), C('setFlag', flag='swordGiven', value=False),  # 칼은 이 장면 가운데에서 받는다
         spawn('akane', 'houseExit', 'right'), C('standUp', actor='akane'), spawn('soichiro', 'forge', 'left'),
         prop('anvil', 'prop_anvil', 'forge', offset=-80, depth=6),
         C('camReset', ms=0), C('fadeIn', duration=0.6),
+        C('roomIn'),
     ],
     'P-5': [
+        C('room', id='street'),  # 방 (data/rooms/street.json)
         spawn('akane', 2990, 'right'), C('mood', to='morning', seconds=0),
         spawn('hana', 3480, 'left'), spawn('dumpling_grandma', 'dumplingShop', 'left'), spawn('village_old_man', 'shrine', 'left'),
         prop('steamer', 'steamer', 4240), prop('shopBasket', 'manju_basket', 4180, depth=9),
         C('emoteHold', actor='akane', kind='img:manju_basket'),
+        C('roomIn'),
     ],
     'P-6': [
+        C('room', id='gate'),  # 방 (data/rooms/gate.json)
         # 오후: 마을 입구 배경(bg_pro2_gate)의 해 질 녘 같은 하늘을 그대로 (아침 색감을 걷어 냄)
         spawn('akane', 4880, 'right'), C('guideWind', to=None), C('mood', to='none', seconds=2.5),
         # 나그네(hakuya_traveler): 돌에 앉은 그림 — 삿갓 · 돌은 그림에 들어 있다. 도리이 · 석등은 배경 그림
         spawn('wanderer', 'gateStone', 'left'), C('sit', actor='wanderer'),
+        C('roomIn'),
     ],
     'P-7': [
+        C('room', id='training'),  # 방 (data/rooms/training.json)
         C('emoteHold', actor='akane', kind='img:manju_basket', on=False), C('objective', text=None),
         # 해 질 녘으로: 오후(P-6) 색 그대로 시작해 점점 주황 (아래 '해가 지기 시작한다' 에서 더 짙게)
         spawn('akane', 5790, 'right'), spawn('haru', 'yardHaru', 'left'), C('mood', to='dusk', seconds=14),
         prop('swordRack', 'prop_sword_rack', 5900, depth=3),
+        C('roomIn'),
     ],
     'P-8': [
+        C('room', id='festival'),  # 방 (data/rooms/festival.json)
         C('mood', to='night', seconds=0), C('vignette', amount=0, seconds=0), C('camReset', ms=0),
         spawn('akane', 'festivalAkane', 'right'), spawn('haru', 'festivalHaru', 'left'), spawn('soichiro', 'festivalSoichiro', 'right'),
         spawn('dumpling_grandma', 7580, 'right'), spawn('hana', 7940, 'left'), C('disappear', actor='wanderer', fade=False),
@@ -171,12 +188,16 @@ SETUP = {
         prop('mask_vw3', 'prop_fox_mask', 'vw3', head='vw3', dy=6, scale=0.5, depth=9, label=''),
         prop('mask_hana', 'prop_fox_mask', 'hana', head='hana', dy=6, scale=0.5, depth=9, label=''),
         C('light', preset='lantern', at='festivalAkane', id='l1'), C('light', preset='lantern', at='festivalTree', id='l2'),
+        C('roomIn'),
     ],
     'P-9': [
+        C('room', id='festival'),  # 방 (data/rooms/festival.json)
         spawn('akane', 7910, 'right'),  # 개발 메뉴로 이 장면만 재생할 때도 축제 광장에서
-        C('treeStage', tree='festival', stage='bloom'),  # P-8 에서 만개한 채로 (이 장면만 재생할 때도)
+        C('treeStage', tree='festival', stage='bloom'),  # P-8 에서 만개한 채로 (이 장면만 재생할 때도),
+        C('roomIn'),
     ],
     'P-10': [
+        C('room', id='alley'),  # 방 (data/rooms/alley.json)
         C('fadeOut', duration=0.5), C('foregroundClear'), C('lightOff'), C('camReset', ms=0),
         C('mood', to='fire', seconds=0), G('mood', mood='fire'),
         spawn('akane', 'roadStart', 'right'),
@@ -191,12 +212,16 @@ SETUP = {
         spawn('hana', 'roadHana', 'left'), C('anim', actor='hana', anim='hana_trapped', loop=True),  # 기둥 밑에 깔려 운다
         C('ambience', id='fire', every=1.1, volume=0.5),
         C('fadeIn', duration=0.6), C('objective', text='아빠에게'),
+        C('roomIn'),
     ],
     'P-10b': [
+        C('room', id='smithy'),  # 방 (data/rooms/smithy.json)
         spawn('akane', 10880, 'right'), spawn('soichiro', 'smithySoichiro', 'left'), C('anim', actor='soichiro', anim='guard', loop=True),
         C('particles', preset='embers', at='smithySoichiro', id='smithyEmbers'),
+        C('roomIn'),
     ],
     'P-11': [
+        C('room', id='plaza'),  # 방 (data/rooms/plaza.json)
         spawn('akane', 12240, 'right'), C('particlesStop', id='smithyEmbers'), spawn('haru', 'fireHaru', 'right'), C('pose', actor='haru', pose='guard'),
         G('bossLook', color=None, show=True, x=13450, face=-1),
         *PLAZA_LIGHT, *FLOOR_FIRES,
@@ -204,8 +229,10 @@ SETUP = {
         prop('dbP1', 'prop_debris_fire', 12420, scale=0.5, depth=3, label=''),
         prop('dbP2', 'prop_debris_fire', 13250, scale=0.7, depth=3, label=''),
         prop('dbP3', 'prop_debris_fire', 13520, scale=0.5, depth=3, label=''),
+        C('roomIn'),
     ],
     'P-12': [
+        C('room', id='cave'),  # 방 (data/rooms/cave.json)
         C('lightOff'), C('camZoom', zoom=1, seconds=0), *[C('propOff', id=f'ff{k}') for k in range(5)],
         C('desaturate', amount=0, seconds=0), C('vignette', amount=0, seconds=0), C('foregroundClear'), C('particlesStop'),
         C('mood', to='cave', seconds=0), G('mood', mood=None), C('camReset', ms=0), C('camTilt', y=0, ms=10),
@@ -218,12 +245,13 @@ SETUP = {
         prop('wp1', 'fx_petals', 15780, frame=0, tint='#7a5530'), prop('wp2', 'fx_petals', 15860, frame=2, tint='#7a5530'),
         prop('wp3', 'fx_petals', 15900, frame=3, tint='#6a4a2a'),
         C('camPan', x=15760, seconds=0.01),
+        C('roomIn'),
     ],
     'P-13': [
+        C('room', id='ashVillage'),  # 방 (data/rooms/ashVillage.json)
         C('mood', to='ash', seconds=0), C('camReset', ms=0), G('bossLook', show=False),
         C('setFlag', flag='akaneRain', value=True),
         # 새벽의 잿더미 마을: 아침에 지나온 구역(방 · 마당 · 대장간 · 마을 길 · 마을 입구)을 모두 잿더미 배경으로
-        *[C('stageBg', id=z, key='bg_pro2_ash') for z in ('room', 'house', 'forge', 'village', 'gate')],
         spawn('akane', 5330, 'left'), C('standUp', actor='akane'),
         C('disappear', actor='hana', fade=False), C('disappear', actor='dumpling_grandma', fade=False),
         C('disappear', actor='village_old_man', fade=False), C('disappear', actor='wanderer', fade=False),
@@ -233,19 +261,22 @@ SETUP = {
         prop('ashSapling', 'sapling_burnt', 'sapling'),
         C('particles', preset='rain', id='rain'), C('ambience', id='rain', every=1.4, volume=0.5),
         C('fadeIn', duration=1),
+        C('roomIn'),
     ],
     'P-14': [
+        C('room', id='ashPlaza'),  # 방 (data/rooms/ashPlaza.json)
         # 잿더미 광장: 비 오는 새벽 잿더미 배경 위에 큰 벚나무 3단계 중 검게 탄 그림
-        C('stageBg', id='plaza', key='bg_pro2_ash'), C('camReset', ms=0), G('bossLook', show=False),
+        C('camReset', ms=0), G('bossLook', show=False),  # 잿더미 광장 방 (bg_pro2_ash + tree_charred)
         C('setFlag', flag='akaneRain', value=True),
         # 밤의 불타는 잔해(P-0 · P-11 의 dbA · dbP)는 새벽 잿더미에는 없다
         *[C('propOff', id=f'{g}{k}') for g in ('dbA', 'dbP') for k in range(4)],
         C('mood', to='ash', seconds=0), C('desaturate', amount=0.6, seconds=0),
-        C('treeStage', tree='burning', stage='charred'),  # 큰 벚나무 3단계: 검게 탄 (tree_charred)
+        C('treeStage', tree='ashTree', stage='charred'),  # 큰 벚나무 3단계: 검게 탄 (tree_charred)
         prop('haruSword', 'haru_katana', 12840), prop('hairpin', 'kanzashi', 12800),
         spawn('akane', 12560, 'right'), C('standUp', actor='akane'),
         C('disappear', actor='haru', fade=False), C('disappear', actor='soichiro', fade=False),
         C('particles', preset='rain', id='rain'),
+        C('roomIn'),
     ],
 }
 
@@ -299,7 +330,7 @@ LINES = {
             act('akane', '뒤척인다', 1.0, anim='akane_sleep'), act('akane', '일어나 앉는다 · 하품', 1.4, anim='akane_stretch'),
             act('akane', '머리끈을 입에 물고 포니테일을 묶는다', 2.0, anim='akane_tie_hair')],
         '방 안을 걸을 수 있다. 오른쪽 문이 은은하게 빛난다.': [
-            act('akane', '일어선다', 0.8, anim='akane_stand_up'), C('standUp', actor='akane'), C('exitGlow', x='roomDoor')],
+            act('akane', '일어선다', 0.8, anim='akane_stand_up'), C('standUp', actor='akane')],  # 방 출구 빛은 방 시스템이
     },
     'P-2': {
         '마당 한구석, 무릎 높이의 죽은 벚나무 묘목. 아카네가 다가가면 머리 위에 손바닥 아이콘.': [

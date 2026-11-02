@@ -19,6 +19,7 @@ class GameScene extends Phaser.Scene {
     this.chapter = this.registry.get('chapterOverride') || params.get('chapter') || sceneChapter || 'ch1';
     this.chapterNo = STORY_FILES.indexOf(this.chapter);
     this.storyMap = STORY_MAP[this.chapter] || {};
+    if (this.chapter === 'prologue' || (this.registry.get('chapterOverride') || '') === 'prologue') Rooms.build();
     window.LEVEL = levelFor(this.chapter);
     const L = LEVEL;
     UI.reset(this); // 글자 레이어 비우기 (이름표 등을 만들기 전에)
@@ -285,6 +286,7 @@ class GameScene extends Phaser.Scene {
     g.fillGradientStyle(0x0b0d22, 0x0b0d22, 0x262a52, 0x262a52, 1).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
     const groundScrollY = LEVEL.height - GAME_HEIGHT; // 땅에 서 있을 때 카메라 위치
     this.stageBgs = [];
+    if (LEVEL.rooms) return RoomRuntime.create(this); // 방 시스템 (js/rooms.js)
     if (LEVEL.backgrounds) return this.createStageBackgrounds(groundScrollY);
     ['bg_far', 'bg_mid', 'bg_near'].forEach((name, i) => {
       const s = Sprites.sheet(name);
@@ -466,6 +468,7 @@ class GameScene extends Phaser.Scene {
     player.skills.checkSlashHits(this.enemies);
     this.updateShurikens(dt);
 
+    if (LEVEL.rooms) RoomRuntime.update(this); // 방: 카메라 경계 · 출구 · 방 사이 이동
     // 맵 위치 트리거 (STORY_MAP[장].triggers). 같은 프레임의 체크포인트보다 먼저
     (this.storyMap.triggers || []).forEach((t, i) => {
       if (this.firedTriggers.has(i) || player.body.center.x < t.x || player.dead) return;

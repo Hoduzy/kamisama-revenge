@@ -154,9 +154,10 @@ class ActorDirector {
   // 위치 → x. v: 숫자 | 맵 points 이름 | 배우 | { x }. offset: 더할 px (배우 기준이면 그 배우가 보는 쪽이 +)
   xOf(v, offset = 0) {
     if (v == null) return null;
-    if (typeof v === 'number') return v + offset;
+    // 방 시스템: 대본의 숫자 · 지점 이름은 예전 한 줄 맵 기준 → 지금 방 자리로 (js/rooms.js)
+    if (typeof v === 'number') return (LEVEL.rooms ? Rooms.mapX(v) : v) + offset;
     if (typeof v === 'object') return v.x + offset;
-    const pt = (LEVEL.points || {})[v];
+    const pt = LEVEL.rooms ? Rooms.pointX(v) : (LEVEL.points || {})[v];
     if (pt != null) return pt + offset;
     const a = this.get(v);
     if (a) return a.x + offset;

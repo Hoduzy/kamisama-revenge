@@ -1,0 +1,65 @@
+{
+ "id": "forge",
+ "name": "대장간",
+ "background": "bg_pro_forge",
+ "flip": false,
+ "tint": null,
+ "scale": 0.752,
+ "floor": 247,
+ "door": {
+  "height": 153,
+  "note": "왼쪽 문틀 (y 92~245)"
+ },
+ "entry": {
+  "left": 25,
+  "right": 490
+ },
+ "exits": [
+  {
+   "side": "right",
+   "x": 495,
+   "to": "street",
+   "after": "P-4",
+   "until": "P-5"
+  }
+ ],
+ "scenes": [],
+ "then": null,
+ "light": {
+  "mood": null
+ },
+ "ambience": null,
+ "props": [],
+ "points": {
+  "forge": 255,
+  "forgeFront": 190
+ },
+ "legacy": [
+  [
+   [
+    1900,
+    15
+   ],
+   [
+    2000,
+    20
+   ],
+   [
+    2150,
+    90
+   ],
+   [
+    2330,
+    190
+   ],
+   [
+    2450,
+    255
+   ],
+   [
+    2900,
+    495
+   ]
+  ]
+ ]
+}

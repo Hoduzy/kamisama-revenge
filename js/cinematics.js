@@ -240,7 +240,7 @@ class Cinematics {
     const want = this.lookAheadOn ? this.lookDir * GAME_WIDTH * this.cfg.lookAhead : 0;
     this.lookX += (want - this.lookX) * Math.min(1, dt * this.cfg.lookAheadLerp);
     // followOffset 은 카메라를 반대로 민다 (음수 = 오른쪽을 더 보여줌)
-    this.scene.cameras.main.setFollowOffset(-this.lookX, 40 + this.tiltY);
+    this.scene.cameras.main.setFollowOffset(-this.lookX, (this.followY ?? 40) + this.tiltY); // followY: 방마다 (바닥선이 화면 아래쪽 85% 에 오게)
   }
 
   // 부활처럼 순간 이동했을 때: 앞을 보는 쪽으로 바로 맞춘다
@@ -258,7 +258,8 @@ class Cinematics {
   // 줌: 배율 · 시간(ms) · 이징. 끝나면 풀리는 Promise
   zoom(z = this.cfg.zoomIn, ms = this.cfg.zoomMs, ease = 'Sine.easeInOut') {
     const cam = this.scene.cameras.main;
-    cam.zoomTo(z, ms, ease, true);
+    cam.zoomTo(z * (this.baseZoom || 1), ms, ease, true); // 방의 기본 줌 위에서 (방 시스템)
+    this.zoomTouched = true;
     return this.sleep(ms);
   }
 
@@ -274,7 +275,7 @@ class Cinematics {
     await this.sleep(ms + hold * 1000);
     if (!back) return;
     const p = s.player.body;
-    cam.pan(p.center.x - this.lookX * -1, p.center.y - 40 - this.tiltY, ms, ease, true);
+    cam.pan(p.center.x - this.lookX * -1, p.center.y - (this.followY ?? 40) - this.tiltY, ms, ease, true);
     await this.sleep(ms);
     this.follow();
   }
@@ -294,14 +295,16 @@ class Cinematics {
 
   resetCamera(ms = 500) {
     const cam = this.scene.cameras.main;
-    if (cam.zoom !== 1) cam.zoomTo(1, ms, 'Sine.easeInOut', true);
+    const z0 = this.baseZoom || 1;
+    if (cam.zoom !== z0) cam.zoomTo(z0, ms, 'Sine.easeInOut', true);
     if (this.tiltY) this.tilt(0, ms);
     if (!this.following) this.follow();
   }
 
   // x 자리에 맵 points 이름 · 배우 이름도 쓸 수 있게
   xOf(v) {
-    if (v == null || typeof v === 'number') return v;
+    if (v == null) return v;
+    if (typeof v === 'number') return LEVEL.rooms ? Rooms.mapX(v) : v;
     const p = this.pointOf(v);
     return p ? p.x : undefined;
   }
@@ -309,7 +312,7 @@ class Cinematics {
   pointOf(t) {
     const s = this.scene;
     if (t == null || t === 'player') { const b = s.player.body; return { x: b.center.x, y: b.center.y - 40 }; }
-    if (typeof t === 'number') return { x: t, y: s.player.body.center.y - 40 };
+    if (typeof t === 'number') return { x: LEVEL.rooms ? Rooms.mapX(t) : t, y: s.player.body.center.y - 40 };
     if (typeof t === 'string') {
       const n = s.npcs && s.npcs[t];
       if (n) return { x: n.x, y: n.y - 60 };
@@ -317,7 +320,7 @@ class Cinematics {
       if (a && a !== s.actors.akane) return { x: a.x, y: a.y - 60 };
       if (a) { const b = s.player.body; return { x: b.center.x, y: b.center.y - 40 }; }
       if (t === 'boss' && s.boss) return { x: s.boss.body.center.x, y: s.boss.body.center.y - 20 };
-      const px = (LEVEL.points || {})[t];
+      const px = LEVEL.rooms ? Rooms.pointX(t) : (LEVEL.points || {})[t];
       return px != null ? { x: px, y: s.player.body.center.y - 40 } : null;
     }
     return { x: t.x, y: t.y ?? s.player.body.center.y - 40 };
@@ -747,7 +750,7 @@ class Cinematics {
     switch (c.cmd) {
       case 'ambience': this.ambience(c.id, c.every, c.volume, c.stop); return null;
       case 'camZoom':
-        if (skip) { this.scene.cameras.main.setZoom(c.zoom ?? 1); return null; }
+        if (skip) { this.scene.cameras.main.setZoom((c.zoom ?? 1) * (this.baseZoom || 1)); return null; }
         return this.zoom(c.zoom, c.seconds != null ? c.seconds * 1000 : c.ms, c.ease);
       case 'camPan': {
         // 배우 시스템 꼴: camPan(x, 초) = 그 x 로 옮겨 머문다 (back 기본 false). 예전 꼴: to, ms, hold, back(기본 true)

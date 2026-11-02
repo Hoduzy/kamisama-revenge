@@ -1,0 +1,80 @@
+{
+ "id": "plaza",
+ "name": "불타는 광장",
+ "background": "bg_pro_burning",
+ "flip": false,
+ "tint": null,
+ "scale": 1.533,
+ "floor": 238,
+ "door": {
+  "height": 75,
+  "note": "왼쪽 대장간 건물 입구 (y 160~235)"
+ },
+ "entry": {
+  "left": 20,
+  "right": 495
+ },
+ "exits": [],
+ "scenes": [
+  "P-11",
+  "P-12",
+  "P-13",
+  "P-14"
+ ],
+ "then": "nextChapter",
+ "light": {
+  "mood": "fire"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {},
+ "legacy": [
+  [
+   [
+    11800,
+    15
+   ],
+   [
+    12080,
+    40
+   ],
+   [
+    12240,
+    70
+   ],
+   [
+    12420,
+    110
+   ],
+   [
+    12560,
+    150
+   ],
+   [
+    12760,
+    220
+   ],
+   [
+    12900,
+    330
+   ],
+   [
+    13060,
+    385
+   ],
+   [
+    13450,
+    465
+   ],
+   [
+    13700,
+    505
+   ]
+  ]
+ ],
+ "tree": {
+  "id": "burning",
+  "x": 330,
+  "scale": 2.3
+ }
+}

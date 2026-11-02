@@ -13,6 +13,10 @@
       "mode": "auto",
       "commands": [
         {
+          "cmd": "room",
+          "id": "plaza"
+        },
+        {
           "cmd": "fadeOut",
           "duration": 0
         },
@@ -64,6 +68,9 @@
           "scale": 0.5,
           "depth": 3,
           "label": ""
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "ambience",
@@ -406,6 +413,10 @@
       ],
       "commands": [
         {
+          "cmd": "room",
+          "id": "house"
+        },
+        {
           "cmd": "gameplay",
           "do": "bossLook",
           "color": null,
@@ -487,6 +498,9 @@
           "actor": "akane",
           "anim": "akane_sleep",
           "loop": true
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "fadeIn",
@@ -578,10 +592,6 @@
           "actor": "akane"
         },
         {
-          "cmd": "exitGlow",
-          "x": "roomDoor"
-        },
-        {
           "cmd": "inspect",
           "id": "P-1:1",
           "group": "P-1",
@@ -639,6 +649,10 @@
       ],
       "commands": [
         {
+          "cmd": "room",
+          "id": "yard"
+        },
+        {
           "cmd": "setFlag",
           "flag": "akaneNoSword",
           "value": true
@@ -648,10 +662,6 @@
           "actor": "akane",
           "at": 1060,
           "face": "right"
-        },
-        {
-          "cmd": "exitGlow",
-          "on": false
         },
         {
           "cmd": "prop",
@@ -669,6 +679,9 @@
           "cmd": "disappear",
           "actor": "haru",
           "fade": false
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "waitForPlayerAt",
@@ -903,6 +916,10 @@
       "mode": "auto",
       "commands": [
         {
+          "cmd": "room",
+          "id": "house"
+        },
+        {
           "cmd": "setFlag",
           "flag": "akaneNoSword",
           "value": true
@@ -941,6 +958,9 @@
           "cmd": "disappear",
           "actor": "soichiro",
           "fade": false
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "camPan",
@@ -1176,6 +1196,10 @@
       ],
       "commands": [
         {
+          "cmd": "room",
+          "id": "forge"
+        },
+        {
           "cmd": "setFlag",
           "flag": "akaneNoSword",
           "value": true
@@ -1216,6 +1240,9 @@
         {
           "cmd": "fadeIn",
           "duration": 0.6
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "mode",
@@ -1480,6 +1507,10 @@
       "mode": "play",
       "commands": [
         {
+          "cmd": "room",
+          "id": "street"
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": 2990,
@@ -1525,6 +1556,9 @@
           "cmd": "emoteHold",
           "actor": "akane",
           "kind": "img:manju_basket"
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "foreground",
@@ -1705,6 +1739,10 @@
       "mode": "auto",
       "commands": [
         {
+          "cmd": "room",
+          "id": "gate"
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": 4880,
@@ -1728,6 +1766,9 @@
         {
           "cmd": "sit",
           "actor": "wanderer"
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "camPan",
@@ -2039,6 +2080,10 @@
       "mode": "play",
       "commands": [
         {
+          "cmd": "room",
+          "id": "training"
+        },
+        {
           "cmd": "emoteHold",
           "actor": "akane",
           "kind": "img:manju_basket",
@@ -2071,6 +2116,9 @@
           "key": "prop_sword_rack",
           "at": 5900,
           "depth": 3
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "section",
@@ -2509,6 +2557,10 @@
       "controllable": true,
       "commands": [
         {
+          "cmd": "room",
+          "id": "festival"
+        },
+        {
           "cmd": "mood",
           "to": "night",
           "seconds": 0
@@ -2655,6 +2707,9 @@
           "preset": "lantern",
           "at": "festivalTree",
           "id": "l2"
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "fadeIn",
@@ -3055,6 +3110,10 @@
       "mode": "auto",
       "commands": [
         {
+          "cmd": "room",
+          "id": "festival"
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": 7910,
@@ -3064,6 +3123,9 @@
           "cmd": "treeStage",
           "tree": "festival",
           "stage": "bloom"
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "camZoom",
@@ -3827,6 +3889,10 @@
       "mode": "play",
       "commands": [
         {
+          "cmd": "room",
+          "id": "alley"
+        },
+        {
           "cmd": "fadeOut",
           "duration": 0.5
         },
@@ -3944,6 +4010,9 @@
         {
           "cmd": "objective",
           "text": "아빠에게"
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "gameplay",
@@ -4119,6 +4188,10 @@
       ],
       "commands": [
         {
+          "cmd": "room",
+          "id": "smithy"
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": 10880,
@@ -4141,6 +4214,9 @@
           "preset": "embers",
           "at": "smithySoichiro",
           "id": "smithyEmbers"
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "gameplay",
@@ -4344,6 +4420,10 @@
       "modeNote": "패배 전투",
       "commands": [
         {
+          "cmd": "room",
+          "id": "plaza"
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": 12240,
@@ -4500,6 +4580,9 @@
           "scale": 0.5,
           "depth": 3,
           "label": ""
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "objective",
@@ -5009,6 +5092,10 @@
       "mode": "auto",
       "commands": [
         {
+          "cmd": "room",
+          "id": "cave"
+        },
+        {
           "cmd": "lightOff"
         },
         {
@@ -5142,6 +5229,9 @@
           "cmd": "camPan",
           "x": 15760,
           "seconds": 0.01
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "particles",
@@ -5328,6 +5418,10 @@
       "mode": "slow",
       "commands": [
         {
+          "cmd": "room",
+          "id": "ashVillage"
+        },
+        {
           "cmd": "mood",
           "to": "ash",
           "seconds": 0
@@ -5345,31 +5439,6 @@
           "cmd": "setFlag",
           "flag": "akaneRain",
           "value": true
-        },
-        {
-          "cmd": "stageBg",
-          "id": "room",
-          "key": "bg_pro2_ash"
-        },
-        {
-          "cmd": "stageBg",
-          "id": "house",
-          "key": "bg_pro2_ash"
-        },
-        {
-          "cmd": "stageBg",
-          "id": "forge",
-          "key": "bg_pro2_ash"
-        },
-        {
-          "cmd": "stageBg",
-          "id": "village",
-          "key": "bg_pro2_ash"
-        },
-        {
-          "cmd": "stageBg",
-          "id": "gate",
-          "key": "bg_pro2_ash"
         },
         {
           "cmd": "spawn",
@@ -5443,6 +5512,9 @@
         {
           "cmd": "fadeIn",
           "duration": 1
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "silence",
@@ -5590,9 +5662,8 @@
       ],
       "commands": [
         {
-          "cmd": "stageBg",
-          "id": "plaza",
-          "key": "bg_pro2_ash"
+          "cmd": "room",
+          "id": "ashPlaza"
         },
         {
           "cmd": "camReset",
@@ -5652,7 +5723,7 @@
         },
         {
           "cmd": "treeStage",
-          "tree": "burning",
+          "tree": "ashTree",
           "stage": "charred"
         },
         {
@@ -5691,6 +5762,9 @@
           "cmd": "particles",
           "preset": "rain",
           "id": "rain"
+        },
+        {
+          "cmd": "roomIn"
         },
         {
           "cmd": "fadeIn",

@@ -1,0 +1,68 @@
+{
+ "id": "gate",
+ "name": "마을 입구",
+ "background": "bg_pro2_gate",
+ "flip": true,
+ "tint": null,
+ "scale": 1.186,
+ "floor": 258,
+ "door": {
+  "height": 97,
+  "note": "돌 도리이 기둥 사이 (y 158~255)"
+ },
+ "entry": {
+  "left": 20,
+  "right": 540
+ },
+ "exits": [
+  {
+   "side": "right",
+   "x": 545,
+   "to": "training",
+   "after": "P-6",
+   "until": "P-7"
+  }
+ ],
+ "scenes": [
+  "P-6"
+ ],
+ "then": null,
+ "light": {
+  "mood": null
+ },
+ "ambience": null,
+ "props": [],
+ "points": {
+  "gateStone": 163,
+  "gateAkane": 110,
+  "forestPath": 470
+ },
+ "legacy": [
+  [
+   [
+    4700,
+    15
+   ],
+   [
+    4880,
+    40
+   ],
+   [
+    5130,
+    110
+   ],
+   [
+    5230,
+    163
+   ],
+   [
+    5650,
+    470
+   ],
+   [
+    5700,
+    545
+   ]
+  ]
+ ]
+}

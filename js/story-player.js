@@ -289,7 +289,8 @@ class StoryPlayer {
     if (!D || this.skipping || this.dialogue.controllable || !A) return;
     // 장면이 카메라를 직접 움직였으면(패닝 · 줌 · 다른 인물 따라가기) 건드리지 않는다
     // 장면이 확대 · 다른 인물 따라가기 중이거나 CG 가 떠 있으면 건드리지 않는다 (한 곳을 비추는 패닝은 괜찮다: 끝나면 그 자리로 돌아감)
-    if (!this.dlgCam && (A.follow || Math.abs(cam.zoom - 1) > 0.01 || UI.cgShown)) return;
+    const z0 = cine.baseZoom || 1;
+    if (!this.dlgCam && (A.follow || Math.abs(cam.zoom - z0) > 0.01 || UI.cgShown)) return;
     const a = A.get(c.speaker);
     if (!a || a.visible === false) return;
     this.dlgPeople = (this.dlgPeople || []).filter((p) => p !== a && p.visible !== false).slice(-1).concat(a);
@@ -298,12 +299,12 @@ class StoryPlayer {
     const x = ppl.reduce((s, p) => s + p.x, 0) / ppl.length;
     const y = ppl.reduce((s, p) => s + (p.y + p.headY) / 2, 0) / ppl.length;
     // 대화창 위 공간의 가운데(화면 y = D.screenY)에 오도록: 화면 가운데에서 위로 (GAME_HEIGHT/2 - screenY)/zoom
-    const cy = y + (GAME_HEIGHT / 2 - D.screenY) / D.zoom;
+    const cy = y + (GAME_HEIGHT / 2 - D.screenY) / (D.zoom * z0);
     if (!this.dlgCam) {
       this.dlgCam = { following: cine.following, x: cam.midPoint.x, y: cam.midPoint.y };
       cam.stopFollow();
       cine.following = false;
-      cam.zoomTo(D.zoom, D.ms, 'Sine.easeInOut', true);
+      cam.zoomTo(D.zoom * z0, D.ms, 'Sine.easeInOut', true);
     }
     cam.pan(x, cy, D.ms, 'Sine.easeInOut', true);
   }
@@ -316,7 +317,7 @@ class StoryPlayer {
     const cam = this.scene.cameras.main;
     const cine = this.scene.cine;
     const ms = TUNING.dialogueCam.ms;
-    cam.zoomTo(1, ms, 'Sine.easeInOut', true);
+    cam.zoomTo(cine.baseZoom || 1, ms, 'Sine.easeInOut', true);
     // 원래대로: 아카네를 따라가던 중이었으면 다시 따라가고, 한 곳을 비추던 중이었으면 그 자리로
     if (prev.following) cine.follow();
     else cam.pan(prev.x, prev.y, ms, 'Sine.easeInOut', true);
@@ -347,6 +348,25 @@ class StoryPlayer {
         await this.wait(350);
         break;
       }
+      case 'room': {
+        // 방 시스템: 장면이 다른 방에서 시작하면 검은 화면(0.6초)으로 옮긴다. 이미 검으면 그대로 옮김
+        if (!LEVEL.rooms) break;
+        const r = Rooms.byId(c.id);
+        if (!r || r === Rooms.current) break;
+        const black = this.faded || +getComputedStyle(UI.root.querySelector('.fx-fade')).opacity > 0.9;
+        if (!black && !skip) { UI.fade(1, 0.25); await this.wait(250); }
+        if (!skip && !black) await this.wait(600);
+        scene.actors.akane.place(Rooms.entryX(r, c.side || 'left'), 1);
+        scene.actors.akane.setY(ROOM_FLOOR_Y);
+        RoomRuntime.enter(scene, r);
+        scene.cameras.main.centerOn(scene.player.body.center.x, ROOM_FLOOR_Y - 120);
+        this.roomReveal = !black;
+        break;
+      }
+      case 'roomIn':
+        // 'room' 으로 검게 했으면 준비가 끝난 뒤 0.25초에 밝게
+        if (this.roomReveal) { this.roomReveal = false; UI.fade(0, skip ? 0 : 0.25); if (!skip) await this.wait(250); }
+        break;
       case 'fadeOut':
         this.faded = true;
         dlg.hide();
@@ -644,7 +664,7 @@ class StoryPlayer {
   resetCamera() {
     const scene = this.scene;
     const cam = scene.cameras.main;
-    if (cam.zoom !== 1) cam.zoomTo(1, 400);
+    if (cam.zoom !== (scene.cine.baseZoom || 1)) cam.zoomTo(scene.cine.baseZoom || 1, 400);
     if (this.panned) {
       this.panned = false;
       cam.startFollow(scene.player.obj, true, 0.14, 0.12);

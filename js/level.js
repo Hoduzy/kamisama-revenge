@@ -111,28 +111,14 @@ LEVELS.prologue = {
   mood: null,
   paintedFloor: true, // 구역 배경에 바닥이 그려져 있다 → 돌 타일을 그리지 않고 판정만 (game-scene.js)
 
-  backgrounds: [
-    // 새 프롤로그 배경 (tools/process_prologue2.py): 집 실내 = 아카네의 방 · 이로리, 앞마당, 마을 길, 마을 입구, 동굴.
-    // 같은 장소의 밤(P-10)은 불타는 배경, 새벽(P-13 · P-14)은 장면 준비에서 stageBg 로 bg_pro2_ash 로 바꾼다
-    { id: 'room', key: 'bg_pro2_house', x0: 0, x1: 960, anchorX: 480 },
-    { id: 'house', key: 'bg_pro2_yard', x0: 960, x1: 2000, anchorX: 1480 },
-    { id: 'forge', key: 'bg_pro_forge', x0: 2000, x1: 2900, anchorX: 2450 },
-    // 마을 길: 그림 속 만두 가게(왼쪽 찜통)가 만두 할머니 자리(dumplingShop 4200) 뒤에 오도록 기준점을 옮김 (배경은 0.15배로 움직여 한 곳만 맞출 수 있다)
-    { id: 'village', key: 'bg_pro2_street', x0: 2900, x1: 4700, anchorX: 6547 },
-    { id: 'gate', key: 'bg_pro2_gate', x0: 4700, x1: 5700, anchorX: 5200 },
-    { id: 'yard', key: 'bg_pro_yard', x0: 5700, x1: 7400, anchorX: 6515 },
-    { id: 'festival', key: 'bg_pro_festival', x0: 7400, x1: 8700, anchorX: 8000 },
-    { id: 'road', key: 'bg_pro_alley', x0: 8700, x1: 10800, anchorX: 9900 },
-    { id: 'smithy', key: 'bg_pro_forge', x0: 10800, x1: 11800, anchorX: 11300, tint: 0xd07060 },
-    { id: 'plaza', key: 'bg_pro_burning', x0: 11800, x1: 13700, anchorX: 12900 },
-    { id: 'irori', key: 'bg_pro2_house', x0: 13700, x1: 15100, anchorX: 14480 },
-    { id: 'cave', key: 'bg_pro2_cave', x0: 15100, x1: 16200, anchorX: 15680 },
-  ],
 
-  ground: [
-    { x: 0, y: 620, w: 16200, h: 100 },
+  // 방 시스템(js/rooms.js · data/rooms)이 바닥 · 벽을 방마다 다시 만든다. 아래 x 는 예전 한 줄 맵 기준 (방 legacy 표로 옮김)
+  extraGround: [
     { x: 6400, y: 572, w: 44, h: 48 },     // 연습장 낮은 돌담 (점프)
     { x: 6560, y: 450, w: 44, h: 170 },    // 조금 높은 담 (2단 점프로만 넘음. 1단 최고 높이 ≈ 140)
+  ],
+  ground: [
+    { x: 0, y: 620, w: 16200, h: 100 },
     { x: -40, y: 0, w: 40, h: 720 },
     { x: 8660, y: 0, w: 40, h: 720 },      // 아침 / 밤 사이 벽
     { x: 13700, y: 0, w: 40, h: 720 },     // 밤 / 이로리
@@ -207,14 +193,6 @@ LEVELS.prologue = {
     caveMouth: 15900, caveAkane: 15820, caveHana: 15420, caveExit: 16120,
   },
   // 보이지 않는 벽: 그 장면이 끝나기 전엔 앞으로 못 감 (조작 장면이 끝나기 전에 다음 장소로 앞질러 가지 않게)
-  gates: [
-    { x: 960, until: 'P-1' },
-    { x: 2900, until: 'P-4' },
-    { x: 4760, until: 'P-5' },
-    { x: 5720, until: 'P-6' },
-    { x: 10780, until: 'P-10' },
-    { x: 11780, until: 'P-10b' },
-  ],
   memories: [],
 };
 
@@ -263,14 +241,8 @@ window.STORY_MAP = {
   prologue: {
     // 새 프롤로그: 불타는 광장 미리보기 → 열두 시간 전 아침부터. 장면 안에서 모드·자리·카메라를 정한다 (배우 시스템)
     start: ['P-0', 'P-1'],
-    triggers: [
-      { x: 1000, scene: ['P-2', 'P-3', 'P-4'] },        // 방을 나서 마당 → 밥상 → 대장간
-      { x: 2950, scene: 'P-5' },                        // 마을 길 (심부름)
-      { x: 4850, scene: 'P-6' },                        // 마을 입구 (나그네)
-      { x: 5750, scene: ['P-7', 'P-8', 'P-9', 'P-10'] }, // 연습장 → 축제 → 종소리 → 불타는 마을
-      { x: 10850, scene: 'P-10b' },                     // 대장간 앞
-      { x: 12200, scene: ['P-11', 'P-12', 'P-13', 'P-14'], then: 'nextChapter' }, // 광장 결전 → 동굴 → 잿더미 → 무덤
-    ],
+    // 장면은 방(data/rooms/*.json 의 scenes)으로: 방에 걸어 들어가면 그 방의 장면. 마지막 방(plaza)의 then: nextChapter
+    triggers: [],
     next: 'ch1',
     restartFromBeginning: true, // R: 프롤로그는 처음부터 (연출이 이어져 있어서)
   },

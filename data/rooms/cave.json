@@ -1,0 +1,54 @@
+{
+ "id": "cave",
+ "name": "동굴",
+ "background": "bg_pro2_cave",
+ "flip": false,
+ "tint": null,
+ "scale": 0.767,
+ "floor": 262,
+ "door": {
+  "height": 150,
+  "note": "동굴 입구 안쪽 어둠 (사람 드나드는 높이로 잡음)"
+ },
+ "entry": {
+  "left": 20,
+  "right": 535
+ },
+ "exits": [],
+ "scenes": [],
+ "then": null,
+ "light": {
+  "mood": "cave"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {},
+ "legacy": [
+  [
+   [
+    15100,
+    20
+   ],
+   [
+    15420,
+    110
+   ],
+   [
+    15820,
+    260
+   ],
+   [
+    15900,
+    300
+   ],
+   [
+    16120,
+    520
+   ],
+   [
+    16200,
+    545
+   ]
+  ]
+ ]
+}

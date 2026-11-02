@@ -10,7 +10,7 @@ class StoryGameplay {
   get story() { return this.scene.story; }
   get player() { return this.scene.player; }
   npc(id) { return this.scene.npcs[id]; }
-  point(name) { return (LEVEL.points || {})[name]; }
+  point(name) { return LEVEL.rooms ? Rooms.pointX(name) : (LEVEL.points || {})[name]; }
 
   async run(c, skip) {
     const fn = this['do_' + c.do];

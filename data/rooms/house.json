@@ -1,0 +1,98 @@
+{
+ "id": "house",
+ "name": "집 실내",
+ "background": "bg_pro2_house",
+ "flip": false,
+ "tint": null,
+ "scale": 0.728,
+ "floor": 252,
+ "door": {
+  "height": 158,
+  "note": "장지문 (x 145~190, y 97~255)"
+ },
+ "entry": {
+  "left": 30,
+  "right": 520
+ },
+ "exits": [
+  {
+   "side": "right",
+   "x": 540,
+   "to": "yard",
+   "after": "P-1",
+   "until": "P-2"
+  }
+ ],
+ "scenes": [],
+ "then": null,
+ "light": {
+  "mood": "morning"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {
+  "bed": 45,
+  "irori": 335,
+  "iroriAkane": 245,
+  "iroriHaru": 420,
+  "roomDoor": 530
+ },
+ "legacy": [
+  [
+   [
+    0,
+    15
+   ],
+   [
+    260,
+    50
+   ],
+   [
+    520,
+    200
+   ],
+   [
+    700,
+    300
+   ],
+   [
+    900,
+    525
+   ],
+   [
+    960,
+    545
+   ]
+  ],
+  [
+   [
+    13700,
+    10
+   ],
+   [
+    14400,
+    245
+   ],
+   [
+    14480,
+    335
+   ],
+   [
+    14560,
+    420
+   ],
+   [
+    14660,
+    470
+   ],
+   [
+    14900,
+    530
+   ],
+   [
+    15100,
+    550
+   ]
+  ]
+ ]
+}

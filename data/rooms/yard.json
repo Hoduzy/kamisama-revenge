@@ -1,0 +1,56 @@
+{
+ "id": "yard",
+ "name": "마당",
+ "background": "bg_pro2_yard",
+ "flip": false,
+ "tint": null,
+ "scale": 0.983,
+ "floor": 268,
+ "door": {
+  "height": 117,
+  "note": "툇마루 위 출입문 (y 118~235)"
+ },
+ "entry": {
+  "left": 30,
+  "right": 530
+ },
+ "exits": [],
+ "scenes": [
+  "P-2",
+  "P-3",
+  "P-4"
+ ],
+ "then": null,
+ "light": {
+  "mood": "morning"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {
+  "sapling": 350
+ },
+ "legacy": [
+  [
+   [
+    960,
+    20
+   ],
+   [
+    1060,
+    150
+   ],
+   [
+    1500,
+    345
+   ],
+   [
+    1900,
+    520
+   ],
+   [
+    2000,
+    545
+   ]
+  ]
+ ]
+}

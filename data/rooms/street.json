@@ -1,0 +1,73 @@
+{
+ "id": "street",
+ "name": "마을 길",
+ "background": "bg_pro2_street",
+ "flip": true,
+ "tint": null,
+ "scale": 1.018,
+ "floor": 257,
+ "door": {
+  "height": 113,
+  "note": "붉은 도리이 기둥 사이 (y 137~250)"
+ },
+ "entry": {
+  "left": 20,
+  "right": 540
+ },
+ "exits": [
+  {
+   "side": "right",
+   "x": 545,
+   "to": "gate",
+   "after": "P-5",
+   "until": "P-6"
+  }
+ ],
+ "scenes": [
+  "P-5"
+ ],
+ "then": null,
+ "light": {
+  "mood": "morning"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {
+  "well": 273,
+  "shrine": 96,
+  "dumplingShop": 445,
+  "villageEnd": 540
+ },
+ "legacy": [
+  [
+   [
+    2900,
+    15
+   ],
+   [
+    3150,
+    130
+   ],
+   [
+    4180,
+    430
+   ],
+   [
+    4200,
+    445
+   ],
+   [
+    4240,
+    475
+   ],
+   [
+    4600,
+    540
+   ],
+   [
+    4700,
+    550
+   ]
+  ]
+ ]
+}

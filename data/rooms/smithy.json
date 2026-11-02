@@ -1,0 +1,68 @@
+{
+ "id": "smithy",
+ "name": "불타는 대장간 앞",
+ "background": "bg_pro_forge",
+ "flip": false,
+ "tint": "#d07060",
+ "scale": 0.752,
+ "floor": 247,
+ "door": {
+  "height": 153,
+  "note": "대장간과 같음"
+ },
+ "entry": {
+  "left": 25,
+  "right": 490
+ },
+ "exits": [
+  {
+   "side": "right",
+   "x": 495,
+   "to": "plaza",
+   "after": "P-10b",
+   "until": "P-11"
+  }
+ ],
+ "scenes": [
+  "P-10b"
+ ],
+ "then": null,
+ "light": {
+  "mood": "fire"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {},
+ "legacy": [
+  [
+   [
+    10800,
+    15
+   ],
+   [
+    10880,
+    30
+   ],
+   [
+    11000,
+    100
+   ],
+   [
+    11180,
+    180
+   ],
+   [
+    11360,
+    255
+   ],
+   [
+    11450,
+    300
+   ],
+   [
+    11800,
+    495
+   ]
+  ]
+ ]
+}

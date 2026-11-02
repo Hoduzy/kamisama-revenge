@@ -1,0 +1,72 @@
+{
+ "id": "ashPlaza",
+ "name": "잿더미 광장",
+ "background": "bg_pro2_ash",
+ "flip": false,
+ "tint": null,
+ "scale": 1.353,
+ "floor": 262,
+ "door": {
+  "height": 85,
+  "note": "잿더미 마을과 같음"
+ },
+ "entry": {
+  "left": 20,
+  "right": 540
+ },
+ "exits": [],
+ "scenes": [],
+ "then": null,
+ "light": {
+  "mood": "ash"
+ },
+ "ambience": null,
+ "props": [],
+ "points": {},
+ "legacy": [
+  [
+   [
+    11800,
+    20
+   ],
+   [
+    12560,
+    150
+   ],
+   [
+    12700,
+    220
+   ],
+   [
+    12760,
+    245
+   ],
+   [
+    12800,
+    262
+   ],
+   [
+    12840,
+    275
+   ],
+   [
+    12872,
+    290
+   ],
+   [
+    12900,
+    300
+   ],
+   [
+    13700,
+    540
+   ]
+  ]
+ ],
+ "tree": {
+  "id": "ashTree",
+  "x": 300,
+  "scale": 2.0,
+  "stage": "charred"
+ }
+}

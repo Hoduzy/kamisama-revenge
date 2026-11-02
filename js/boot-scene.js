@@ -10,6 +10,7 @@ class BootScene extends Phaser.Scene {
     this.load.json('story-memories', 'data/story/memories.json');
     for (const id of STORY_FILES) this.load.json('story-' + id, `data/story/${id}.json`);
     this.load.json('sprites', SPRITE_DIR + 'manifest.json');
+    this.load.json('rooms-index', 'data/rooms/index.json'); // 방 목록 (js/rooms.js)
     this.load.json('ui', UI_DIR + 'ui.json'); // UI 그림 크기·9-slice (tools/process_ui.py)
     this.load.json('result', RESULT_DIR + 'result.json'); // 결과 화면 그림 (tools/process_result.py)
   }
@@ -27,8 +28,11 @@ class BootScene extends Phaser.Scene {
     if (manifest) Sprites.queue(this, manifest);
     ResultScreen.preload(this, this.cache.json.get('result'));
 
+    const idx = this.cache.json.get('rooms-index');
+    if (idx) Rooms.queue(this, idx);
     const start = () => {
       Sprites.createAnims(this);
+      Rooms.init(this.cache.json); // 방 설정 → LEVELS.prologue (그림 크기가 필요해서 manifest 뒤)
       this.scene.start('game');
     };
     if (this.load.list.size === 0) {

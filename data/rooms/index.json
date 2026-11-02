@@ -1,0 +1,17 @@
+{
+ "prologue": [
+  "house",
+  "yard",
+  "forge",
+  "street",
+  "gate",
+  "training",
+  "festival",
+  "alley",
+  "smithy",
+  "plaza",
+  "cave",
+  "ashVillage",
+  "ashPlaza"
+ ]
+}

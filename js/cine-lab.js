@@ -127,8 +127,8 @@ const CineLab = {
       ['발도 2차 흔들림', 'T.iaido.shake2', 0, 0.05, 0.0005],
       ['2단 점프 힘(1단 대비)', 'T.doubleJump.power', 0.3, 1.5, 0.05],
       ['공중제비 시간(초)', 'T.doubleJump.flipTime', 0.15, 0.8, 0.01],
-      ['— 배경 바닥선 (TUNING.bgFloor: 그림 위에서부터 비율) —'],
-      ...Object.keys(TUNING.bgFloor || {}).map((k) => [k.replace('bg_', ''), `T.bgFloor.${k}`, 0.5, 1, 0.005, () => this.scene && this.scene.rebuildStageBackgrounds && this.scene.rebuildStageBackgrounds()]),
+      ['— 방 (data/rooms): 배율 · 바닥선(그림 px). 바꾼 뒤 아래 「방 설정 적용」 —'],
+      ...Rooms.order.flatMap((id) => [[`${id} 배율`, `R.${id}.scale`, 0.3, 3, 0.01], [`${id} 바닥선`, `R.${id}.floor`, 100, 345, 1]]),
       ['— 결과 화면 —'],
       ['전체 빠르기', 'result.speed', 0.1, 2, 0.05, res(false)],
       ['두루마리 폭', 'result.scrollWidth', 0.3, 0.9, 0.01, res(false)],
@@ -160,6 +160,7 @@ const CineLab = {
   // 'result.…' 는 TUNING.result, 나머지는 TUNING.cine
   root(path) {
     if (path.startsWith('T.')) return [TUNING, path.slice(2)]; // 스킬 수치
+    if (path.startsWith('R.')) return [Rooms.cfg, path.slice(2)]; // 방 설정
     return path.startsWith('result.') ? [TUNING.result, path.slice(7)] : [TUNING.cine, path];
   },
   get(path) { const [r, p] = this.root(path); return p.split('.').reduce((o, k) => o[k], r); },
@@ -185,6 +186,7 @@ const CineLab = {
     });
     html += `<div class="cl-save"><button type="button" class="cl-local">브라우저에 저장</button>
       <button type="button" class="cl-file">config.js 로 저장</button><button type="button" class="cl-reset">되돌리기</button></div>
+      <div class="cl-save"><button type="button" class="cl-room-apply">방 설정 적용 (다시 시작)</button><button type="button" class="cl-room-file">지금 방 파일 내려받기</button></div>
       <p class="cl-msg"></p></section>
       <section><h3>결과 화면</h3><div class="cl-btns"><button type="button" class="cl-res">결과 화면 (일반)</button><button type="button" class="cl-res-boss">결과 화면 (보스: X 자)</button></div></section>`;
     for (const [title, list] of this.sections()) {
@@ -211,7 +213,7 @@ const CineLab = {
       out.textContent = (+inp.value).toString();
       inp.oninput = () => {
         this.set(path, +inp.value); out.textContent = inp.value;
-        if (path.startsWith('T.bgFloor.') && this.scene && this.scene.rebuildStageBackgrounds) this.scene.rebuildStageBackgrounds(); // 바로 보이게
+        
       };
       inp.onchange = () => inp.blur();
     });
@@ -219,6 +221,8 @@ const CineLab = {
     el.querySelector('.cl-local').onclick = () => this.saveLocal();
     el.querySelector('.cl-file').onclick = () => this.saveFile();
     el.querySelector('.cl-reset').onclick = () => this.reset();
+    el.querySelector('.cl-room-apply').onclick = () => { Rooms.saveLocal(); this.msg('방 설정을 이 브라우저에 저장했다. 장을 다시 시작한다.'); this.scene.scene.restart(); };
+    el.querySelector('.cl-room-file').onclick = () => { const r = Rooms.current; if (r) Rooms.download(r.id); else this.msg('지금 방이 없다 (프롤로그에서).'); };
     el.querySelector('.cl-res').onclick = (e) => { this.playResult(false); e.target.blur(); };
     el.querySelector('.cl-res-boss').onclick = (e) => { this.playResult(true); e.target.blur(); };
   },
