@@ -242,7 +242,8 @@ class Player {
     if (v.anims.currentAnim?.key === 'player_attack' && v.anims.isPlaying) return;
 
     const vy = this.body.velocity.y;
-    if (!this.grounded) {
+    // 잠긴 컷신(물리 멈춤)에서 배우 명령으로 옮겨진 뒤에는 땅에 서 있는 것으로 (점프 그림에 멈춰 있지 않게)
+    if (!this.grounded && !this.scene.cutscene) {
       // 점프: 속도에 따라 상승 / 최고점 / 낙하 프레임
       return still('player_jump', vy < -150 ? 1 : vy > 150 ? 3 : 2);
     }
@@ -277,6 +278,11 @@ class Player {
     this.scaleX = 0.72;
     this.scaleY = 1.32;
     this.scene.spawnDust(this.body.center.x, this.body.bottom, 5);
+    // 프롤로그 P-7 에서 받은 붉은 방울: 점프할 때마다 아주 작게 딸랑 (P-14 에서 천으로 감싼 뒤엔 소리 없음)
+    const reg = this.scene.registry;
+    if ((reg.get('items') || []).includes('붉은 방울') && !(reg.get('storyFlags') || {}).bellWrapped) {
+      CineSound.sfx('chime', { volume: 0.16, pitch: 0.08 });
+    }
   }
 
   bounce(velocity) {

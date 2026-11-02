@@ -108,6 +108,227 @@ class StoryGameplay {
     });
   }
 
+  // ───────── 새 프롤로그 튜토리얼 (P-7): 글자 설명 없이 머리 위 행동 아이콘만 ─────────
+  // step: move | jump | dashSlash | iaido | parry. failLine: 패링 실패 때 하루 말풍선. zoomOnThird: 세 번째 허수아비에서 살짝 줌인
+  async do_tutorialIcon(c) {
+    const scene = this.scene;
+    const p = this.player;
+    const cine = scene.cine;
+    const x0 = p.body.center.x;
+    const steps = {
+      move: { action: 'move', done: () => Math.abs(p.body.center.x - x0) > 140 },
+      jump: { action: 'jump', done: () => p.body.left > this.point('wall') + 60 && p.grounded },
+      dashSlash: {
+        action: 'skill1',
+        start: () => {
+          scene.unlockSkill('dashSlash');
+          scene.spawnGroup('dummies');
+          this.onDummy = (e) => {
+            if (e.group !== 'dummies' || scene.groupAlive('dummies') !== 0 || !c.zoomOnThird) return;
+            cine.zoom(1.25, 250).then(() => cine.zoom(1, 500));
+          };
+          scene.events.on('enemyKilled', this.onDummy);
+        },
+        done: () => scene.groupAlive('dummies') === 0,
+        end: () => scene.events.off('enemyKilled', this.onDummy),
+      },
+      iaido: {
+        action: 'skill2',
+        start: () => {
+          scene.unlockSkill('iaido');
+          this.iaidoDone = false;
+          scene.events.once('iaido', () => { this.iaidoDone = true; });
+        },
+        done: () => this.iaidoDone,
+      },
+      parry: {
+        action: 'skill2',
+        start: () => {
+          this.startParryDrill();
+          // 실패할 때마다 하루 한마디 (말풍선, 게임은 멈추지 않음)
+          const nl = scene.nonLethal;
+          scene.nonLethal = (fromX) => {
+            nl(fromX);
+            const haru = this.npc('haru');
+            if (c.failLine && haru) UI.bubble(() => [haru.x, haru.headY - 10], c.failLine, { name: '하루', ms: 1800 });
+          };
+        },
+        done: () => this.parried,
+        end: () => this.endParryDrill(),
+      },
+    };
+    const st = steps[c.step];
+    if (!st) return;
+    await this.unlocked(async () => {
+      if (st.start) st.start();
+      // 행동 아이콘은 그 행동을 하면 번지며 사라진다. 아직 못 했으면 다시 띄운다
+      const show = () => { if (!cine.guide.hint) cine.actionHint(st.action); };
+      show();
+      const tick = () => { if (!st.done()) show(); };
+      const ev = scene.time.addEvent({ delay: 1500, loop: true, callback: tick });
+      await this.until(st.done);
+      ev.remove(false);
+      cine.clearActionHint();
+      if (st.end) await st.end();
+    });
+  }
+
+  // ───────── 새 프롤로그 P-9 · P-10 ─────────
+  // 보름달 앞을 지나가는 불화살 수십 개의 검은 실루엣 (화면 고정, 위쪽)
+  async do_arrowVolley(c, skip) {
+    if (skip) return;
+    const s = this.scene;
+    const n = c.count || 36;
+    for (let i = 0; i < n; i++) {
+      s.time.delayedCall(i * 40, () => {
+        const y = 40 + Math.random() * 160;
+        const a = s.add.rectangle(-40 - Math.random() * 200, y, 44, 4, 0x050304).setScrollFactor(0).setDepth(25).setAngle(18);
+        const tip = s.add.rectangle(a.x + 22, y + 7, 8, 6, 0xffa040).setScrollFactor(0).setDepth(25).setBlendMode('ADD');
+        s.tweens.add({ targets: [a, tip], x: `+=${GAME_WIDTH + 400}`, y: `+=${130}`, duration: 1600 + Math.random() * 500,
+          onComplete: () => { a.destroy(); tip.destroy(); } });
+      });
+    }
+    await this.wait(c.seconds ? c.seconds * 1000 : 1500, skip);
+  }
+
+  // 화살이 땅 · 지붕 · 나무에 꽂힌다 (보이는 화면 곳곳에)
+  async do_arrowRain(c, skip) {
+    if (skip) return;
+    const s = this.scene;
+    const view = s.cameras.main.worldView;
+    for (let i = 0; i < (c.count || 30); i++) {
+      s.time.delayedCall(i * 50, () => s.fireArrow(view.x + Math.random() * (view.width + 200) - 100));
+    }
+    await this.wait(c.seconds ? c.seconds * 1000 : 1600, skip);
+  }
+
+  // 바닥에 붉은 원이 깜빡인 뒤 불화살이 꽂힌다 (P-10). on: false 면 멈춤. 맞으면 피해
+  do_arrowTraps(c) {
+    const s = this.scene;
+    if (this.trapEv) { this.trapEv.remove(false); this.trapEv = null; }
+    if (c.on === false) return;
+    this.trapEv = s.time.addEvent({
+      delay: (c.every || 1.8) * 1000, loop: true, callback: () => {
+        if (s.story.blocking || this.player.dead) return;
+        const px = this.player.body.center.x;
+        const x = px + Phaser.Math.Between(-60, 220) * (this.player.facing || 1);
+        const y = s.actors.groundAt(x);
+        const ring = s.add.ellipse(x, y - 2, 64, 14).setStrokeStyle(3, 0xff3030).setFillStyle(0xff2020, 0.18).setDepth(5);
+        s.tweens.add({ targets: ring, alpha: 0.3, duration: 150, yoyo: true, repeat: 3, onComplete: () => {
+          ring.destroy();
+          s.fireArrow(x);
+          s.time.delayedCall(520, () => {
+            const b = this.player.body;
+            if (!this.player.dead && Math.abs(b.center.x - x) < 34 && b.bottom > y - 10) s.hitPlayer(x);
+          });
+        } });
+      },
+    });
+    s.events.once('shutdown', () => { if (this.trapEv) this.trapEv.remove(false); });
+  }
+
+  // 무너진 노점 기둥 베기 (P-10): 기둥 위에 베기 아이콘, 공격(또는 대쉬베기)이 닿으면 기둥이 부서진다
+  async do_cutPillar(c, skip) {
+    const s = this.scene;
+    const A = s.actors;
+    const id = c.prop || 'pillar';
+    const pr = A.props[id];
+    const finish = async () => {
+      if (A.props[id]) {
+        await A.propMove({ id, angle: -35, dy: 6, seconds: skip ? 0 : 0.35, ease: 'Quad.easeIn' }, skip);
+        if (!skip) s.cine.particles('dust', { x: A.props[id].img.x, y: A.props[id].img.y });
+        await A.propOff({ id, fade: 0.5 }, skip);
+      }
+    };
+    if (skip || !pr) return finish();
+    const img = pr.img;
+    const rect = () => new Phaser.Geom.Rectangle(img.x - img.displayWidth / 2, img.y - img.displayHeight - 40, img.displayWidth, img.displayHeight + 60);
+    const hint = UI.cineActionHint(() => [img.x, img.y - img.displayHeight - 30], CINE_ACTIONS.attack);
+    await this.unlocked(async () => {
+      await this.until(() => {
+        const p = this.player;
+        const atk = p.getAttackRect();
+        if (atk && Phaser.Geom.Rectangle.Overlaps(atk, rect())) return true;
+        return p.skills.slashing && Phaser.Geom.Rectangle.Overlaps(s.bodyRect(p.body), rect());
+      });
+    });
+    UI.cineActionHintDone(hint);
+    CineSound.sfx('slash');
+    s.cameras.main.shake(160, 0.006);
+    await finish();
+  }
+
+  // 쓰러진 아카네를 다시 일으킬 수 있게 (P-11 하쿠야의 발도 뒤 → P-12 동굴). at: x
+  do_revive(c) {
+    const p = this.player;
+    const x = this.scene.actors.xOf(c.at) ?? p.body.center.x;
+    p.respawn(x, this.scene.actors.groundAt(x) - p.height / 2);
+    p.invuln = 0;
+    p.alphaMul = 1;
+    if (p.useSprite) p.visual.play('player_idle');
+  }
+
+  // 하쿠야(보스) 그림 색: 'black' = 불길 속 실루엣 (P-0), null = 원래대로. show: false 면 숨김
+  do_bossLook(c) {
+    const b = this.scene.boss;
+    if (!b || !b.sprite) return;
+    if (c.color !== undefined) {
+      b.forceTint = c.color === 'black' ? 0x000000 : null;
+      if (b.forceTint == null) b.sprite.clearTint(); else b.sprite.setTint(b.forceTint);
+    }
+    if (c.show != null) b.sprite.setVisible(c.show);
+    if (c.x != null) {
+      const x = this.scene.actors.xOf(c.x);
+      b.body.reset(x, b.body.center.y);
+    }
+    if (c.face) b.facing = c.face;
+    if (c.anim) b.playAnim(c.anim, !!c.hold);
+  }
+
+  // P-9: 춤추던 사람들이 그 자세 그대로 멈춘다 (on: false 면 다시)
+  do_freezeDancers(c) {
+    for (const n of Object.values(this.scene.npcs)) {
+      if (!n.data.festival || !n.sprite.anims) continue;
+      if (c.on === false) n.sprite.anims.resume();
+      else n.sprite.anims.pause();
+    }
+  }
+
+  // 표시(tag: festival / road …)가 붙은 마을 사람들이 도망친다
+  do_fleeTag(c, skip) {
+    for (const n of Object.values(this.scene.npcs)) if (n.data[c.tag] && n.visible) n.flee(c.dir ?? n.data.flee, skip);
+  }
+
+  // 무너짐: x 에 잔해가 쏟아지고 흔들림 강 (만두 가게 · 대장간 지붕)
+  async do_collapse(c, skip) {
+    const s = this.scene;
+    const x = s.actors.xOf(c.at ?? c.x) ?? this.player.body.center.x;
+    if (!skip) {
+      for (let i = 0; i < (c.count || 24); i++) s.time.delayedCall(i * 30, () => s.debris(x + Phaser.Math.Between(-110, 110), s.actors.groundAt(x)));
+      s.cine.shake('strong', 'v');
+      CineSound.sfx('boom');
+      await this.wait(700, skip);
+    }
+    if (c.pile !== false) s.actors.prop({ id: c.id || 'debris', key: 'prop_debris_fire', at: x, w: 120, h: 40, color: '#4a2a1a', label: '불타는 잔해' }, true);
+  }
+
+  // 하쿠야(보스)가 걸어서 to 까지 (P-11 불길 속에서 걸어 나온다)
+  async do_bossWalk(c, skip) {
+    const s = this.scene;
+    const b = s.boss;
+    if (!b) return;
+    const x = s.actors.xOf(c.to);
+    const b0 = b.body.center.x;
+    b.facing = Math.sign(x - b0) || b.facing;
+    if (b.sprite) b.sprite.setVisible(true).clearTint();
+    if (skip) { b.body.reset(x, b.body.center.y); return; }
+    b.playAnim('hakuya_walk');
+    await s.actors.op(Math.abs(x - b0) / (c.speed || 80) * 1000, (t) => b.body.reset(b0 + (x - b0) * t, b.body.center.y), () => {
+      b.body.reset(x, b.body.center.y);
+      if (b.sprite) { b.sprite.anims.stop(); b.animLock = false; b.sprite.setTexture(b.sheet, 0); }
+    }, skip);
+  }
+
   // 패링 연습: 하루가 목검으로 천천히 벤다. 맞아도 죽지 않고, 패링에 성공할 때까지 반복
   startParryDrill() {
     const scene = this.scene;
@@ -240,8 +461,16 @@ class StoryGameplay {
     scene.spawnGroup(c.group);
     await this.unlocked(async () => {
       // 마지막 한 명을 베는 순간 슬로모션
+      let first = true;
       const onKill = (enemy) => {
-        if (!c.slowmoLast || enemy.group !== c.group || scene.groupAlive(c.group) > 0) return;
+        if (enemy.group !== c.group) return;
+        // 처음 벨 때만: 짧은 슬로모션 + 줌인 (P-10 첫 신도)
+        if (c.firstKillSlowmo && first) {
+          this.story.startSlowmo(c.firstKillSlowmo, 0.3);
+          scene.cine.zoom(1.25, 200).then(() => scene.cine.zoom(1, 400));
+        }
+        first = false;
+        if (!c.slowmoLast || scene.groupAlive(c.group) > 0) return;
         this.story.startSlowmo(1.2, 0.3);
         scene.cameras.main.flash(200, 255, 255, 255);
       };

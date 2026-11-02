@@ -28,6 +28,9 @@ class Npc {
       this.poses = { idle: `${data.sheet}_dance`, dance: `${data.sheet}_dance`, run: `${data.sheet}_flee`, flee: `${data.sheet}_flee` };
     } else if (NPC_POSES[data.look] && Sprites.has(scene, [].concat(NPC_POSES[data.look].idle)[0])) {
       this.poses = NPC_POSES[data.look];
+    } else if (Npc.autoPoses(scene, data.look)) {
+      // 새 인물(나그네 등): manifest 에 <look>_idle 시트가 생기면 자동으로 그 그림 (없으면 실루엣)
+      this.poses = Npc.autoPoses(scene, data.look);
     }
     if (this.poses) {
       const first = this.poses.idle;
@@ -59,9 +62,27 @@ class Npc {
     }
   }
 
-  // 실루엣 그림: 머리·몸통·소매. 키(tall)·아이(small)에 따라 크기만 다르다
+  // <look>_idle · _walk · _sit · _kneel 시트가 manifest 에 있으면 자세 표를 만든다 (애니메이션도 그 자리에서)
+  static autoPoses(scene, look) {
+    if (!look || !Sprites.sheet(`${look}_idle`) || !scene.textures.exists(`${look}_idle`)) return null;
+    const poses = {};
+    for (const p of ['idle', 'walk', 'run', 'sit', 'kneel', 'down']) {
+      const key = `${look}_${p}`;
+      const s = Sprites.sheet(key);
+      if (!s || !scene.textures.exists(key)) continue;
+      if (s.frames > 1 && !scene.anims.exists(key)) {
+        scene.anims.create({ key, frames: scene.anims.generateFrameNumbers(key, { start: 0, end: s.frames - 1 }),
+          frameRate: 8, repeat: ['idle', 'walk', 'run'].includes(p) ? -1 : 0 });
+      }
+      poses[p] = s.frames > 1 ? key : [key, 0];
+    }
+    poses.run = poses.run || poses.walk || poses.idle;
+    return poses;
+  }
+
+  // 실루엣 그림: 머리·몸통·소매. 키(tall)·아이(small)에 따라 크기만 다르다. hat = 삿갓 (나그네)
   static silhouetteTexture(scene, d) {
-    const key = `npc-sil-${d.small ? 's' : d.tall ? 't' : 'm'}`;
+    const key = `npc-sil-${d.small ? 's' : d.tall ? 't' : 'm'}${d.hat ? 'h' : ''}`;
     if (scene.textures.exists(key)) return key;
     const h = d.small ? 54 : d.tall ? 92 : 80;
     const w = 44;
@@ -72,6 +93,7 @@ class Npc {
     g.fillRoundedRect(w / 2 - 13, head * 2, 26, h - head * 2 - 10, 6);
     g.fillRect(w / 2 - 11, h - 12, 8, 12).fillRect(w / 2 + 3, h - 12, 8, 12);
     g.lineStyle(2, 0xd9b25a, 0.55).strokeCircle(w / 2, head + 2, head);
+    if (d.hat) g.fillStyle(0x3a3020).fillTriangle(0, head + 4, w, head + 4, w / 2, -2).fillStyle(0x0a0b16);
     g.generateTexture(key, w, h);
     g.destroy();
     return key;

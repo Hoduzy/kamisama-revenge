@@ -299,18 +299,37 @@ class GameScene extends Phaser.Scene {
   // 구역 배경: 한 장짜리 그림을 구역마다. 그림 아래 바닥 띠(floorBand) 윗선이 땅 윗면에 온다 (screenBottom).
   // 텍스처는 '반전A, A, 반전A' 띠라 구역 안에서 어디로 가도 빈 곳이 없다
   createStageBackgrounds(groundScrollY) {
-    LEVEL.backgrounds.forEach((d, i) => {
-      const s = Sprites.sheet(d.key);
-      if (!s || !this.textures.exists(d.key)) return;
-      const S = s.displayScale;
-      const p = s.parallax;
-      const W = s.width;
-      // 카메라 중심이 anchorX 일 때 그림의 anchor 위치(가운데 A 기준)가 화면 가운데
-      const x = GAME_WIDTH / 2 + (d.anchorX - GAME_WIDTH / 2) * p - (W + s.anchor * W) * S;
-      const y = s.screenBottom - s.height * S + groundScrollY * p;
-      const img = this.add.image(x, y, d.key).setOrigin(0, 0).setScale(S).setScrollFactor(p, p).setDepth(-90 + i);
-      this.stageBgs.push({ ...d, img });
-    });
+    this.groundScrollY = groundScrollY;
+    LEVEL.backgrounds.forEach((d, i) => this.stageBgs.push({ ...d, i, img: this.makeStageBg(d, i) }));
+    this.updateStageBackgrounds();
+  }
+
+  // 구역 배경 그림 하나. manifest 에 그림이 없으면 화면 크기 임시 그림(단색 + 장소 실루엣 + 이름표, js/placeholders.js)
+  makeStageBg(d, i) {
+    const s = Sprites.sheet(d.key);
+    if (!s || !this.textures.exists(d.key) || !s.displayScale) {
+      Placeholders.background(this, d.key);
+      return this.add.image(0, 0, d.key).setOrigin(0, 0).setScrollFactor(0).setDepth(-90 + i);
+    }
+    const S = s.displayScale;
+    const p = s.parallax;
+    const W = s.width;
+    // 카메라 중심이 anchorX 일 때 그림의 anchor 위치(가운데 A 기준)가 화면 가운데
+    const x = GAME_WIDTH / 2 + (d.anchorX - GAME_WIDTH / 2) * p - (W + s.anchor * W) * S;
+    const y = s.screenBottom - s.height * S + this.groundScrollY * p;
+    const img = this.add.image(x, y, d.key).setOrigin(0, 0).setScale(S).setScrollFactor(p, p).setDepth(-90 + i);
+    if (d.tint) img.setTint(d.tint);
+    return img;
+  }
+
+  // 대본 명령 stageBg: 구역(id)의 배경을 다른 그림으로 (P-14 잿더미 광장 등)
+  setStageBg(id, key, tint) {
+    const b = this.stageBgs.find((x) => x.id === id);
+    if (!b) return;
+    b.img.destroy();
+    b.key = key;
+    b.tint = tint;
+    b.img = this.makeStageBg(b, b.i);
     this.updateStageBackgrounds();
   }
 

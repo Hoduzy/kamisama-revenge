@@ -20,8 +20,9 @@
           "text": "산 아래 우물 입구."
         },
         {
-          "cmd": "note",
-          "text": "타누키치가 방울을 두 손으로 꽉 쥐고 쭈그려 앉아 있다."
+          "cmd": "sit",
+          "actor": "tanukichi",
+          "src": "타누키치가 방울을 두 손으로 꽉 쥐고 쭈그려 앉아 있다."
         },
         {
           "cmd": "note",
@@ -62,8 +63,12 @@
           "text": "타누키치가 울음을 터뜨린다."
         },
         {
-          "cmd": "note",
-          "text": "아카네가 아무 말 없이 다가가 타누키치의 머리를 감싸 안는다."
+          "cmd": "moveTo",
+          "actor": "akane",
+          "speed": "walk",
+          "to": "tanukichi",
+          "near": true,
+          "src": "아카네가 아무 말 없이 다가가 타누키치의 머리를 감싸 안는다."
         },
         {
           "cmd": "say",
@@ -126,8 +131,11 @@
           "text": "카에데가 활을 떨어뜨린다."
         },
         {
-          "cmd": "note",
-          "text": "아오이가 먼저 달려간다."
+          "cmd": "moveTo",
+          "actor": "aoi",
+          "speed": "run",
+          "needs": "x",
+          "src": "아오이가 먼저 달려간다."
         },
         {
           "cmd": "note",
@@ -212,8 +220,9 @@
           "text": "그 옆에 두 개의 작은 돌무덤."
         },
         {
-          "cmd": "note",
-          "text": "아카네가 무덤 앞에 무릎을 꿇는다."
+          "cmd": "kneel",
+          "actor": "akane",
+          "src": "아카네가 무덤 앞에 무릎을 꿇는다."
         },
         {
           "cmd": "bgm",
@@ -404,8 +413,10 @@
           "side": "left"
         },
         {
-          "cmd": "note",
-          "text": "하쿠야가 일어서서 아카네를 본다."
+          "cmd": "face",
+          "actor": "hakuya",
+          "dir": "akane",
+          "src": "하쿠야가 일어서서 아카네를 본다."
         },
         {
           "cmd": "note",
@@ -476,8 +487,9 @@
           "text": "어깨가 떨린다."
         },
         {
-          "cmd": "note",
-          "text": "아카네가 하쿠야를 지나쳐 무덤 앞에 무릎을 꿇는다."
+          "cmd": "kneel",
+          "actor": "akane",
+          "src": "아카네가 하쿠야를 지나쳐 무덤 앞에 무릎을 꿇는다."
         },
         {
           "cmd": "note",
@@ -624,9 +636,10 @@
         },
         {
           "cmd": "say",
-          "speaker": "village_child",
+          "speaker": "hana",
           "face": "smile",
           "text": "선생님, 그 말 백 번째예요!",
+          "manner": "열 살",
           "side": "right"
         },
         {

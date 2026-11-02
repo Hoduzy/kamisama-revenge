@@ -1,123 +1,1186 @@
 {
   "id": "prologue",
   "title": "꽃이 지던 밤",
-  "summary": "평화로운 축제 밤이 한순간에 불타는 밤으로 바뀌는 장. 플레이어는 조작을 배우는 동시에 가족을 사랑하게 되어야, 마지막에 잃는 순간이 아프다.",
+  "summary": "플레이어가 먼저 \"이 가족이 죽는다\"는 걸 보고, 그걸 아는 채로 행복한 하루를 보내게 만드는 구조다. 아침에 지나간 장소를 밤에는 불타는 채로, 새벽에는 잿더미로 다시 걷는다. 이 장에서 심은 대사·물건(자장가, 방울, 만두, \"평생 기다려 줄게\", 나그네)은 6장과 진엔딩에서 모두 돌아온다. **조작 표기** — 〔자동〕 캐릭터가 대본대로 스스로 움직이고 플레이어 입력은 막힘(대사 넘기기만 가능) · 〔조작〕 플레이어가 움직임 · 〔느린 조작〕 걷기만 가능, 속도 60%, 점프·공격·대쉬 막힘 · 〔조사〕 다가가면 머리 위에 \"…\" 아이콘, 버튼을 누르면 짧은 속마음. | 장면 | 장소 | 조작 | 시간 | | --- | --- | --- | --- | | P-0 | 불타는 광장 (미리보기) | 자동 | 0.5분 | | P-1\\~P-3 | 아카네의 집, 마당, 밥상 | 조작·자동 | 4분 | | P-4 | 대장간 | 조작·자동 | 2분 | | P-5\\~P-6 | 마을 길, 마을 입구 | 조작·자동 | 4분 | | P-7 | 연습장 (튜토리얼) | 조작 | 6분 | | P-8\\~P-9 | 축제 광장, 종소리 | 조작 가능 컷신·자동 | 4분 | | P-10 | 불타는 마을 | 조작 | 5분 | | P-11 | 광장 결전 | 자동·패배 전투 | 3분 | | P-12\\~P-14 | 동굴, 잿더미 마을, 무덤 | 자동·느린 조작 | 4분 |",
   "scenes": [
     {
-      "id": "S0-1",
-      "place": "검은 화면",
+      "id": "P-0",
+      "place": "불타는 광장",
       "trigger": {
         "raw": "게임 시작",
         "type": "chapterStart"
       },
+      "mode": "auto",
       "commands": [
         {
           "cmd": "fadeOut",
-          "duration": 0,
-          "src": "완전한 검은 화면."
+          "duration": 0
         },
         {
-          "cmd": "sfx",
-          "name": "풍경",
-          "src": "풍경 소리 한 번."
+          "cmd": "mood",
+          "to": "fire",
+          "seconds": 0
         },
         {
-          "cmd": "sfx",
-          "name": "바람",
-          "src": "바람 소리."
+          "cmd": "gameplay",
+          "do": "mood",
+          "mood": "fire"
         },
         {
-          "cmd": "caption",
-          "text": "덴포 연간. 흉년이 삼 년째 이어지던 해."
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "color": "black",
+          "x": "fireHakuya",
+          "face": -1,
+          "show": true
         },
         {
-          "cmd": "caption",
-          "text": "사람들은 기도할 곳을 찾았고, 누군가는 그 기도를 팔았다."
+          "cmd": "ambience",
+          "id": "fire",
+          "every": 0.9,
+          "volume": 0.7,
+          "src": "완전한 검은 화면. 불 타는 소리만 들린다. 3초."
         },
         {
-          "cmd": "note",
-          "text": "붉은 태양 문양이 먹물처럼 번지며 화면을 채웠다가 사라진다."
+          "cmd": "wait",
+          "seconds": 3
         },
         {
-          "cmd": "cg",
-          "image": "bg_pro_yard",
-          "desc": "해 질 녘 연습장 전경",
-          "motion": "pan",
-          "src": "해 질 녘 연습장 전경이 검은 화면에서 떠오르며 천천히 옆으로 패닝."
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "fireAkaneDown",
+          "face": "right",
+          "src": "페이드인. 아주 낮은 시점. 불타는 광장 바닥에 아카네가 쓰러져 있다. 눈이 반쯤 떠져 있다. 화면 앞쪽은 흐릿한 불길."
         },
         {
-          "cmd": "caption",
-          "text": "에도에서 서쪽으로 사흘. 지도에 없는 마을, 사쿠라자와."
+          "cmd": "pose",
+          "actor": "akane",
+          "pose": "down"
         },
         {
-          "cmd": "cgEnd",
-          "src": "전경이 천천히 사라진다."
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": "fireHaru",
+          "face": "right"
+        },
+        {
+          "cmd": "pose",
+          "actor": "haru",
+          "pose": "guard"
+        },
+        {
+          "cmd": "camPan",
+          "x": "fireHaru",
+          "seconds": 0.01
+        },
+        {
+          "cmd": "camTilt",
+          "y": 46,
+          "ms": 10
+        },
+        {
+          "cmd": "foreground",
+          "preset": "pillar",
+          "x": "fireAkaneDown"
+        },
+        {
+          "cmd": "particles",
+          "preset": "embers",
+          "at": "fireAkaneDown",
+          "id": "p0embers"
+        },
+        {
+          "cmd": "vignette",
+          "amount": 0.55,
+          "seconds": 0.01
         },
         {
           "cmd": "fadeIn",
-          "duration": 0.8,
-          "src": "명전."
+          "duration": 1.4
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "눈이 반쯤 떠져 있다",
+          "seconds": 1.6
+        },
+        {
+          "cmd": "camPan",
+          "x": 12900,
+          "seconds": 1.8,
+          "src": "아카네의 시선 끝: 칼을 든 하루의 뒷모습. 그 너머 불길 속 흰 머리 사내의 실루엣. 얼굴은 보이지 않는다."
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "칼을 든 뒷모습",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane",
+          "src": "하루가 고개를 반쯤 돌려 아카네를 본다. 입술이 움직이지만 소리는 없다."
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "입술이 움직인다 — 소리 없음",
+          "seconds": 2.0
+        },
+        {
+          "cmd": "camPan",
+          "x": "fireAkaneDown",
+          "seconds": 0.9,
+          "src": "꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다."
+        },
+        {
+          "cmd": "prop",
+          "id": "p0petal",
+          "key": "prop_petal",
+          "at": "fireAkaneDown",
+          "dy": -180,
+          "offset": 12,
+          "depth": 12,
+          "label": ""
+        },
+        {
+          "cmd": "propMove",
+          "id": "p0petal",
+          "dy": 160,
+          "angle": 200,
+          "seconds": 2.2
+        },
+        {
+          "cmd": "propTint",
+          "id": "p0petal",
+          "color": "#ff5a20",
+          "seconds": 0.4
+        },
+        {
+          "cmd": "propTint",
+          "id": "p0petal",
+          "color": "#444444",
+          "alpha": 0,
+          "seconds": 0.7
+        },
+        {
+          "cmd": "propOff",
+          "id": "p0petal"
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0,
+          "src": "컷. 검은 화면. 완전한 침묵 2초."
+        },
+        {
+          "cmd": "silence"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 2
+        },
+        {
+          "cmd": "hum",
+          "speaker": "haru",
+          "lines": [
+            "잘 자라, 벚꽃아",
+            "바람이 불어도",
+            "엄마가 여기서",
+            "기다려 줄게"
+          ],
+          "src": "검은 화면 속에서 하루의 자장가 흥얼거림이 따뜻하게 들려온다. 가사 자막."
+        },
+        {
+          "cmd": "caption",
+          "text": "열두 시간 전."
+        },
+        {
+          "cmd": "foregroundClear"
+        },
+        {
+          "cmd": "particlesStop"
+        },
+        {
+          "cmd": "vignette",
+          "amount": 0,
+          "seconds": 0
+        },
+        {
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "color": null,
+          "show": false
         }
       ]
     },
     {
-      "id": "S0-3",
-      "place": "대장간",
+      "id": "P-1",
+      "place": "아카네의 방",
       "trigger": {
-        "raw": "장 시작 (S0-1 바로 다음, 연습장 S0-2 앞)",
-        "type": "chapterStart",
-        "note": "S0-1 바로 다음, 연습장 S0-2 앞"
+        "raw": "아침",
+        "type": "reach"
       },
+      "mode": "auto",
+      "modeFlow": [
+        "auto",
+        "play"
+      ],
       "commands": [
         {
-          "cmd": "sfx",
-          "name": "쇠 두드리는 소리",
-          "src": "쇠 두드리는 소리."
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "color": null,
+          "show": false
+        },
+        {
+          "cmd": "camReset",
+          "ms": 0
+        },
+        {
+          "cmd": "vignette",
+          "amount": 0,
+          "seconds": 0
+        },
+        {
+          "cmd": "foregroundClear"
+        },
+        {
+          "cmd": "particlesStop"
+        },
+        {
+          "cmd": "mood",
+          "to": "morning",
+          "seconds": 0
         },
         {
           "cmd": "gameplay",
-          "do": "npcPose",
-          "who": "soichiro",
-          "pose": "forge",
-          "text": "불꽃이 튄다."
+          "do": "mood",
+          "mood": null
+        },
+        {
+          "cmd": "disappear",
+          "actor": "haru",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "soichiro",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "hana",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "wanderer",
+          "fade": false
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "bed",
+          "face": "right"
+        },
+        {
+          "cmd": "pose",
+          "actor": "akane",
+          "pose": "down"
+        },
+        {
+          "cmd": "prop",
+          "id": "bed",
+          "key": "prop_bed",
+          "at": "bed",
+          "depth": 6
+        },
+        {
+          "cmd": "prop",
+          "id": "wsword",
+          "key": "prop_wooden_sword",
+          "at": 120,
+          "dy": -80,
+          "w": 44,
+          "h": 6,
+          "color": "#a08060",
+          "label": "작은 목검"
+        },
+        {
+          "cmd": "prop",
+          "id": "comb",
+          "key": "prop_comb",
+          "at": 520,
+          "dy": -40,
+          "w": 16,
+          "h": 6,
+          "color": "#c09060",
+          "label": "거울 앞 빗"
+        },
+        {
+          "cmd": "prop",
+          "id": "window",
+          "key": "prop_window",
+          "at": 700,
+          "dy": -150,
+          "w": 90,
+          "h": 70,
+          "color": "#bfd8e8",
+          "label": "창 (큰 나무가 보임)"
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 1.4,
+          "src": "장지문 사이로 아침 햇살. 아카네가 이불 속에서 자고 있다. 멀리서 망치 소리, 가까이 부엌에서 하루의 자장가."
+        },
+        {
+          "cmd": "light",
+          "preset": "lantern",
+          "x": 480,
+          "y": 300,
+          "id": "sun"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "이불 속에서 자고 있다",
+          "seconds": 1.6
+        },
+        {
+          "cmd": "ambience",
+          "id": "hammer",
+          "every": 2.2,
+          "volume": 0.2
+        },
+        {
+          "cmd": "hum",
+          "speaker": "haru",
+          "lines": [
+            "잘 자라, 벚꽃아",
+            "바람이 불어도",
+            "엄마가 여기서",
+            "기다려 줄게"
+          ],
+          "wait": false
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "뒤척인다",
+          "seconds": 1.0,
+          "src": "아카네가 뒤척이다 일어나 앉는다. 하품. 머리끈을 입에 물고 포니테일을 묶는다."
+        },
+        {
+          "cmd": "sit",
+          "actor": "akane"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "하품",
+          "seconds": 1.0
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "머리끈을 입에 물고 포니테일을 묶는다",
+          "seconds": 2.0,
+          "anim": "player_tie_hair"
+        },
+        {
+          "cmd": "voice",
+          "speaker": "haru",
+          "text": "아카네\\~ 해 떴다. 생일인 사람이 제일 늦게 일어나네.",
+          "style": "pink",
+          "manner": "부엌에서"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…안 늦었어.",
+          "side": "left"
+        },
+        {
+          "cmd": "mode",
+          "mode": "play",
+          "src": "〔조작〕"
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane",
+          "src": "방 안을 걸을 수 있다. 오른쪽 문이 은은하게 빛난다."
+        },
+        {
+          "cmd": "lightOff",
+          "id": "sun"
+        },
+        {
+          "cmd": "exitGlow",
+          "x": "roomDoor"
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-1:1",
+          "group": "P-1",
+          "label": "벽에 걸린 작은 목검",
+          "at": 120,
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "아빠가 다섯 살 때 깎아 준 거. 손잡이에 내 이빨 자국.",
+              "think": true
+            }
+          ]
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-1:2",
+          "group": "P-1",
+          "label": "거울 앞 빗",
+          "at": 520,
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "엄마 빗. 매일 아침 엄마가 이걸로 내 머리를 빗겨 줬다. 열 살까지는.",
+              "think": true
+            }
+          ]
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-1:3",
+          "group": "P-1",
+          "label": "창밖",
+          "at": 700,
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "큰 나무. 오늘 밤 엄마가 저걸 피운다.",
+              "think": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P-2",
+      "place": "마당",
+      "trigger": {
+        "raw": "죽은 묘목",
+        "type": "reach"
+      },
+      "mode": "play",
+      "modeFlow": [
+        "play",
+        "auto"
+      ],
+      "commands": [
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 1060,
+          "face": "right"
+        },
+        {
+          "cmd": "exitGlow",
+          "on": false
+        },
+        {
+          "cmd": "prop",
+          "id": "sapling",
+          "key": "prop_sapling",
+          "at": "sapling"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": 1080,
+          "face": "right"
+        },
+        {
+          "cmd": "disappear",
+          "actor": "haru",
+          "fade": false
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": "sapling",
+          "offset": -70,
+          "src": "마당 한구석, 무릎 높이의 죽은 벚나무 묘목. 아카네가 다가가면 머리 위에 손바닥 아이콘."
+        },
+        {
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "palm",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "akane",
+          "to": "sapling",
+          "speed": "walk",
+          "offset": -34,
+          "src": "아카네가 쪼그려 앉아 묘목에 손바닥을 댄다. 숨을 고른다. 아무 일도 없다."
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "right"
+        },
+        {
+          "cmd": "sit",
+          "actor": "akane"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "묘목에 손바닥을 댄다 · 숨을 고른다",
+          "seconds": 2.0
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.0
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "다시 댄다",
+          "seconds": 1.0,
+          "src": "다시 댄다. 손끝에서 분홍 빛 한 점이 반짝이다가 꺼진다."
+        },
+        {
+          "cmd": "prop",
+          "id": "spark",
+          "key": "prop_glow",
+          "at": "sapling",
+          "dy": -24,
+          "w": 4,
+          "h": 4,
+          "color": "#ff9eb8",
+          "label": "",
+          "depth": 12,
+          "fade": 0.3
         },
         {
           "cmd": "sfx",
-          "name": "담금질 (치익)",
-          "src": "소이치로가 칼날을 물에 담그자 치익 소리와 하얀 김."
+          "id": "chime",
+          "volume": 0.25
+        },
+        {
+          "cmd": "propOff",
+          "id": "spark",
+          "fade": 0.6
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…또.",
+          "side": "left"
+        },
+        {
+          "cmd": "appear",
+          "actor": "haru",
+          "fade": 0.4,
+          "src": "뒤에서 하루가 다가온다. 앞치마 차림. 아카네가 놀라 손을 뗀다."
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "haru",
+          "to": "akane",
+          "speed": "walk",
+          "near": true
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "앞치마 차림",
+          "seconds": 1.0,
+          "wait": false
+        },
+        {
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "!"
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "haru"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "또 하는구나. 매일 아침.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…오늘은 될 줄 알았어. 열일곱 살이니까.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "엄마는 일곱 살에 피웠다고, 아직도 샘나?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…조금.",
+          "side": "left"
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "right",
+          "src": "하루가 옆에 쪼그려 앉아 아카네의 손 위에 자기 손을 겹친다. 묘목은 여전히 그대로다."
+        },
+        {
+          "cmd": "sit",
+          "actor": "haru"
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "아카네의 손 위에 자기 손을 겹친다",
+          "seconds": 1.8
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "꽃은 혼자 피지 않아. 땅이랑, 비랑, 기다려 주는 사람이 있어야 해.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "그럼 누가 기다려 주는데.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "엄마가. 평생.",
+          "side": "right"
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "아카네의 머리를 헝클어뜨린다",
+          "seconds": 1.2,
+          "src": "하루가 아카네의 머리를 헝클어뜨리고 일어난다."
+        },
+        {
+          "cmd": "standUp",
+          "actor": "haru"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "밥 먹자. 아빠가 새벽부터 망치질이야. 왜인지는 알지?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…몰라.",
+          "side": "left"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "귀 까딱",
+          "seconds": 0.7,
+          "anim": "player_ear_twitch",
+          "src": "아카네의 귀가 살짝 움직인다 (스프라이트 귀 까딱 1프레임)."
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane"
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.8
+        }
+      ]
+    },
+    {
+      "id": "P-3",
+      "place": "아침 밥상",
+      "trigger": {
+        "type": "chapterStart",
+        "raw": "아침 밥상"
+      },
+      "mode": "auto",
+      "commands": [
+        {
+          "cmd": "ambience",
+          "id": null
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "iroriAkane",
+          "face": "right"
+        },
+        {
+          "cmd": "sit",
+          "actor": "akane"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": "iroriHaru",
+          "face": "left"
+        },
+        {
+          "cmd": "sit",
+          "actor": "haru"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "soichiro",
+          "at": "iroriDoor",
+          "face": "left"
+        },
+        {
+          "cmd": "disappear",
+          "actor": "soichiro",
+          "fade": false
+        },
+        {
+          "cmd": "prop",
+          "id": "irori",
+          "key": "prop_irori",
+          "at": "irori",
+          "depth": 6
+        },
+        {
+          "cmd": "camPan",
+          "x": "irori",
+          "seconds": 0.01,
+          "src": "레터박스. 이로리(화로) 앞 밥상. 하루와 아카네가 마주 앉아 있다. 문이 열리고 얼굴에 그을음이 묻은 소이치로가 들어온다. 등 뒤로 뭔가를 숨기고 있다."
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.8
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.6
+        },
+        {
+          "cmd": "sfx",
+          "id": "clack",
+          "volume": 0.6
+        },
+        {
+          "cmd": "appear",
+          "actor": "soichiro",
+          "fade": 0.4
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "soichiro",
+          "to": 14660,
+          "speed": "walk"
+        },
+        {
+          "cmd": "face",
+          "actor": "soichiro",
+          "dir": "akane"
+        },
+        {
+          "cmd": "act",
+          "actor": "soichiro",
+          "name": "그을음 묻은 얼굴 · 등 뒤로 뭔가를 숨긴다",
+          "seconds": 1.6
         },
         {
           "cmd": "say",
           "speaker": "soichiro",
           "face": "smile",
-          "text": "딱 맞춰 왔구나. 이거 들어 봐.",
+          "text": "생일 축하한다, 우리—",
           "side": "right"
         },
         {
-          "cmd": "gameplay",
-          "do": "npcPose",
-          "who": "soichiro",
-          "pose": "give",
-          "text": "검은 칼집의 칼을 건넨다."
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "선물은 저녁에 준다고 약속했지.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "neutral",
+          "text": "…못 참겠어.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "angry",
+          "text": "소이치로.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "…알았어, 알았어. 아카네, 밥 먹고 대장간으로 와. 아무것도 없지만.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "…응. 아무것도 없는 거 보러 갈게.",
+          "side": "left"
+        },
+        {
+          "cmd": "emote",
+          "actor": "haru",
+          "kind": "note",
+          "wait": false,
+          "src": "셋이 동시에 웃는다. 아카네의 초상화가 처음으로 활짝 웃는 얼굴로 바뀐다 (1초)."
+        },
+        {
+          "cmd": "emote",
+          "actor": "soichiro",
+          "kind": "note",
+          "wait": false
+        },
+        {
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "heart"
+        },
+        {
+          "cmd": "cutIn",
+          "speaker": "akane",
+          "face": "smile",
+          "hold": 1.0
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "밥그릇을 든다",
+          "seconds": 1.0,
+          "wait": false,
+          "src": "아카네가 밥그릇을 들 때, 카메라가 하루 쪽으로 천천히 이동한다. 하루가 소매 안의 접힌 편지를 손끝으로 만지작거리고 있다. 편지 위에 카메라가 0.8초 머문다. 아무도 그것에 대해 말하지 않는다."
+        },
+        {
+          "cmd": "prop",
+          "id": "letter",
+          "key": "prop_letter",
+          "at": "iroriHaru",
+          "dy": -34,
+          "offset": -12,
+          "depth": 12
+        },
+        {
+          "cmd": "camPan",
+          "x": "iroriHaru",
+          "seconds": 2.0
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 2,
+          "seconds": 0.8
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "소매 속 접힌 편지를 만지작거린다",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1,
+          "seconds": 0.6
+        },
+        {
+          "cmd": "propOff",
+          "id": "letter"
+        },
+        {
+          "cmd": "camPan",
+          "x": "irori",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "neutral",
+          "text": "오늘 밤엔 축제니까, 낮에 심부름 좀 해 줘. 만두 가게 할머니한테 축제 만두 받아 오고. 그다음엔 연습장.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "생일인데 연습도 해?",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "생일이니까 하는 거야.",
+          "side": "right"
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.8
+        }
+      ]
+    },
+    {
+      "id": "P-4",
+      "place": "대장간",
+      "trigger": {
+        "raw": "칼",
+        "type": "reach"
+      },
+      "mode": "play",
+      "modeFlow": [
+        "play",
+        "auto"
+      ],
+      "commands": [
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "houseExit",
+          "face": "right"
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "soichiro",
+          "at": "forge",
+          "face": "left"
+        },
+        {
+          "cmd": "camReset",
+          "ms": 0
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.6
+        },
+        {
+          "cmd": "mode",
+          "mode": "play",
+          "src": "〔조작〕"
+        },
+        {
+          "cmd": "ambience",
+          "id": "hammer",
+          "every": 1.4,
+          "volume": 0.3,
+          "src": "집을 나서면 오른쪽에서 망치 소리. 가까이 갈수록 커진다."
+        },
+        {
+          "cmd": "objective",
+          "text": "대장간으로"
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": 2150
+        },
+        {
+          "cmd": "ambience",
+          "id": "hammer",
+          "every": 1.2,
+          "volume": 0.6
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": "forgeFront"
+        },
+        {
+          "cmd": "ambience",
+          "id": "hammer",
+          "every": 1.0,
+          "volume": 0.95
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
+        },
+        {
+          "cmd": "ambience",
+          "id": null,
+          "src": "대장간 안. 소이치로가 마지막 담금질을 한다. 칼날이 물에 들어가는 순간 치익 소리, 하얀 김이 화면을 채운다."
+        },
+        {
+          "cmd": "objective",
+          "text": null
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "soichiro"
+        },
+        {
+          "cmd": "act",
+          "actor": "soichiro",
+          "name": "마지막 담금질",
+          "seconds": 1.6,
+          "anim": "soichiro_forge"
+        },
+        {
+          "cmd": "sfx",
+          "id": "steam"
+        },
+        {
+          "cmd": "particles",
+          "preset": "steam",
+          "at": "forge",
+          "seconds": 2.5
+        },
+        {
+          "cmd": "flash",
+          "color": "white",
+          "ms": 900
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "딱 맞춰 왔네. 아무것도 아닌 거.",
+          "side": "right"
+        },
+        {
+          "cmd": "anim",
+          "actor": "soichiro",
+          "anim": "give",
+          "src": "소이치로가 검은 칼집의 칼을 두 손으로 내민다. 칼 획득 연출 (화면 정지, 칼이 떠오르며 회전, 빛이 칼날을 훑음). 붓 자막 〈칼을 얻었다〉."
+        },
+        {
+          "cmd": "act",
+          "actor": "soichiro",
+          "name": "검은 칼집의 칼을 두 손으로 내민다",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "flash",
+          "color": "gold",
+          "ms": 400
+        },
+        {
+          "cmd": "prop",
+          "id": "giftSword",
+          "key": "prop_katana",
+          "at": 0,
+          "screen": {
+            "x": 480,
+            "y": 300
+          },
+          "depth": 40,
+          "scale": 2
+        },
+        {
+          "cmd": "propMove",
+          "id": "giftSword",
+          "y": 250,
+          "angle": 360,
+          "seconds": 1.2
+        },
+        {
+          "cmd": "sfx",
+          "id": "ui_confirm"
+        },
+        {
+          "cmd": "caption",
+          "text": "칼을 얻었다"
+        },
+        {
+          "cmd": "propOff",
+          "id": "giftSword",
+          "fade": 0.4
         },
         {
           "cmd": "giveItem",
-          "name": "아카네의 칼 (이름 없음)",
-          "src": "아이템 획득 연출 (칼이 화면 가운데서 빛남)."
+          "name": "아카네의 칼 (이름 없음)"
         },
         {
           "cmd": "say",
           "speaker": "akane",
           "face": "surprised",
-          "text": "…이거, 내 거야?",
+          "text": "…이거, 진짜 칼이잖아.",
           "side": "left"
         },
         {
           "cmd": "say",
           "speaker": "soichiro",
           "face": "neutral",
-          "text": "열일곱 살 생일 선물. 엄마가 쓰던 것보다 조금 가볍게 했다. 네 손은 엄마보다 작으니까.",
+          "text": "엄마 것보다 조금 가볍게 벼렸다. 칼집 끝에 벚꽃 하나 새긴 건 엄마 주문이고.",
           "side": "right"
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "칼을 처음 반쯤 뽑는다",
+          "seconds": 0.9,
+          "anim": "player_iaido_ready",
+          "src": "아카네가 칼을 처음 반쯤 뽑는다. 컷인: 칼날에 비친 아카네의 붉은 눈."
+        },
+        {
+          "cmd": "sfx",
+          "id": "draw"
+        },
+        {
+          "cmd": "cutIn",
+          "speaker": "akane",
+          "face": "angry",
+          "hold": 0.9
         },
         {
           "cmd": "say",
@@ -144,107 +1207,722 @@
           "cmd": "say",
           "speaker": "soichiro",
           "face": "smile",
-          "text": "이름 짓는 걸 미루는 동안은 아직 아니라는 거다. 엄마한테 가 봐. 연습장에서 기다린다.",
+          "text": "이름 짓는 걸 미루는 동안은 아직 아니라는 거다.",
           "side": "right"
-        }
-      ]
-    },
-    {
-      "id": "S0-2",
-      "place": "마을 연습장",
-      "trigger": {
-        "raw": "스테이지 P-1 시작",
-        "stage": "P-1",
-        "type": "stageStart"
-      },
-      "controllable": true,
-      "commands": [
-        {
-          "cmd": "gameplay",
-          "do": "mood",
-          "mood": "dusk",
-          "text": "해 질 녘."
-        },
-        {
-          "cmd": "note",
-          "text": "연습장 마당."
-        },
-        {
-          "cmd": "note",
-          "text": "하루가 목검을 들고 서 있다."
         },
         {
           "cmd": "say",
-          "speaker": "haru",
-          "face": "smile",
-          "text": "늦었네. 또 대장간에서 아빠 망치질 구경했지?",
+          "speaker": "soichiro",
+          "face": "serious",
+          "text": "아카네. 그건 베려고 만든 칼이 아니다. 지키려고 만든 칼이야. 엄마 말 알지?",
           "side": "right"
         },
         {
           "cmd": "say",
           "speaker": "akane",
           "face": "neutral",
-          "text": "…구경 아니고 감시. 아빠가 또 손 데일까 봐.",
+          "text": "백 번 들었어.",
           "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "그럼 이게 백한 번째.",
+          "side": "right"
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "akaneSword",
+          "value": true,
+          "src": "이후 아카네 스프라이트가 칼 찬 버전으로 바뀐다. 목표 자막 〈만두 가게로〉."
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "칼을 허리에 찬다",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "objective",
+          "text": "만두 가게로"
+        }
+      ]
+    },
+    {
+      "id": "P-5",
+      "place": "마을 길",
+      "trigger": {
+        "raw": "심부름",
+        "type": "reach"
+      },
+      "mode": "play",
+      "commands": [
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 2990,
+          "face": "right"
+        },
+        {
+          "cmd": "mood",
+          "to": "morning",
+          "seconds": 0
+        },
+        {
+          "cmd": "spawn",
+          "actor": "hana",
+          "at": 3480,
+          "face": "left"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "dumpling_grandma",
+          "at": "dumplingShop",
+          "face": "left"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "village_old_man",
+          "at": "shrine",
+          "face": "left"
+        },
+        {
+          "cmd": "prop",
+          "id": "steamer",
+          "key": "prop_steamer",
+          "at": 4240
+        },
+        {
+          "cmd": "prop",
+          "id": "shrine",
+          "key": "prop_shrine",
+          "at": 3560,
+          "depth": 4
+        },
+        {
+          "cmd": "prop",
+          "id": "well",
+          "key": "prop_well",
+          "at": "well",
+          "depth": 4
+        },
+        {
+          "cmd": "emoteHold",
+          "actor": "akane",
+          "kind": "basket"
+        },
+        {
+          "cmd": "foreground",
+          "preset": "lanterns",
+          "x": 3400,
+          "src": "밝은 아침 마을. 축제 준비로 사람들이 등롱을 걸고 있다. 아카네 머리 위에 작은 바구니 아이콘 (심부름 중 표시). 오른쪽으로 꽃잎이 흐른다."
+        },
+        {
+          "cmd": "act",
+          "actor": "village_old_man",
+          "name": "등롱을 건다",
+          "seconds": 1.6,
+          "wait": false
+        },
+        {
+          "cmd": "guideWind",
+          "to": "dumplingShop",
+          "kind": "petals"
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": 3150,
+          "src": "마을 아이 하나가 고양이귀 가면을 흔들며 달려온다."
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "hana",
+          "to": "akane",
+          "speed": "run",
+          "near": true
+        },
+        {
+          "cmd": "act",
+          "actor": "hana",
+          "name": "고양이귀 가면을 흔든다",
+          "seconds": 1.0
+        },
+        {
+          "cmd": "say",
+          "speaker": "hana",
+          "face": "smile",
+          "text": "아카네 언니! 이거 봐, 아빠가 만들어 줬어! 오늘 밤에 쓸 거야!",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…귀가 두 쌍이 되네.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hana",
+          "face": "smile",
+          "text": "언니도 오늘 꽃 피워?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…아니. 엄마가 피워.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hana",
+          "face": "smile",
+          "text": "그럼 언니가 피울 땐 내가 제일 크게 박수 쳐 줄게!",
+          "side": "right"
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "hana",
+          "to": 2960,
+          "speed": "run",
+          "wait": false,
+          "src": "하나가 달려간다. 아카네가 그 뒷모습을 잠깐 본다."
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "hana"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "disappear",
+          "actor": "hana",
+          "fade": 0.6,
+          "wait": false
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": "dumplingShop",
+          "offset": -90,
+          "src": "만두 가게. 김이 오르는 찜통. 할머니가 바구니에 만두를 담는다."
+        },
+        {
+          "cmd": "particles",
+          "preset": "steam",
+          "at": 4240,
+          "seconds": 6
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "dumpling_grandma"
+        },
+        {
+          "cmd": "act",
+          "actor": "dumpling_grandma",
+          "name": "바구니에 만두를 담는다",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "say",
+          "speaker": "dumpling_grandma",
+          "face": "smile",
+          "text": "생일이라며? 하나 더 넣었다. 너 먹어.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "smile",
+          "text": "…고마워요.",
+          "side": "left"
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-5:1",
+          "group": "P-5",
+          "label": "신사 앞 노인",
+          "at": "shrine",
+          "lines": [
+            {
+              "speaker": "village_old_man",
+              "text": "하루 님 딸이구나. 올해도 큰 나무 잘 부탁한다고 전해 주렴."
+            }
+          ]
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-5:2",
+          "group": "P-5",
+          "label": "우물",
+          "at": "well",
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "여름이면 아빠가 여기서 수박을 식혔다.",
+              "think": true
+            }
+          ]
+        },
+        {
+          "cmd": "objective",
+          "text": "연습장으로 — 마을 입구 쪽 길",
+          "src": "목표 자막 〈연습장으로 — 마을 입구 쪽 길〉."
+        },
+        {
+          "cmd": "guideWind",
+          "to": "gateAkane",
+          "kind": "petals"
+        },
+        {
+          "cmd": "foregroundClear"
+        }
+      ]
+    },
+    {
+      "id": "P-6",
+      "place": "마을 입구",
+      "trigger": {
+        "raw": "나그네",
+        "type": "reach"
+      },
+      "mode": "auto",
+      "commands": [
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 4880,
+          "face": "right"
+        },
+        {
+          "cmd": "guideWind",
+          "to": null
+        },
+        {
+          "cmd": "spawn",
+          "actor": "wanderer",
+          "at": "gateStone",
+          "face": "right",
+          "tall": true,
+          "hat": true
+        },
+        {
+          "cmd": "sit",
+          "actor": "wanderer"
+        },
+        {
+          "cmd": "prop",
+          "id": "torii",
+          "key": "prop_torii",
+          "at": 4960,
+          "depth": 3
+        },
+        {
+          "cmd": "prop",
+          "id": "stoneLantern",
+          "key": "prop_lantern_stone",
+          "at": 5060,
+          "depth": 3
+        },
+        {
+          "cmd": "prop",
+          "id": "stone",
+          "key": "prop_stone",
+          "at": "gateStone",
+          "depth": 6
+        },
+        {
+          "cmd": "camPan",
+          "x": "gateStone",
+          "seconds": 1.6,
+          "src": "작은 돌 도리이와 석등이 서 있는 마을 입구. 그 옆 돌 위에 삿갓을 깊게 눌러쓴 나그네가 앉아 있다. 회색 여행 망토. 얼굴은 삿갓 그림자에 가려 입가만 보인다. 그는 멀리 광장의 큰 나무를 보고 있다."
+        },
+        {
+          "cmd": "act",
+          "actor": "wanderer",
+          "name": "회색 여행 망토 · 삿갓 그림자에 입가만 보인다 · 멀리 광장의 큰 나무를 본다",
+          "seconds": 2.2
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "akane",
+          "to": "gateAkane",
+          "speed": "walk",
+          "src": "아카네가 다가가면 레터박스. BGM이 조용히 빠진다."
+        },
+        {
+          "cmd": "bgm",
+          "id": null,
+          "fade": 2
+        },
+        {
+          "cmd": "bgmDuck",
+          "on": true
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "wanderer"
+        },
+        {
+          "cmd": "camFollow",
+          "actor": "akane"
+        },
+        {
+          "cmd": "say",
+          "speaker": "wanderer",
+          "face": "neutral",
+          "text": "…이 마을 벚나무는 아직 살아 있구나.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "누구세요. 이쪽은 길이 없는데.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "wanderer",
+          "face": "smile",
+          "text": "길을 잃었어. 아주 오래전에.",
+          "side": "right"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 3,
+          "src": "3초 침묵. 아카네가 바구니를 내려다본다. 머뭇거리다가 만두 하나를 꺼내 내민다."
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "바구니를 내려다본다",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "…"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "만두 하나를 꺼내 내민다",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…생일 만두. 하나 남아서.",
+          "side": "left"
+        },
+        {
+          "cmd": "face",
+          "actor": "wanderer",
+          "dir": "akane",
+          "src": "나그네가 만두를 받아 한참 내려다본다."
+        },
+        {
+          "cmd": "act",
+          "actor": "wanderer",
+          "name": "만두를 받아 한참 내려다본다",
+          "seconds": 2.2
+        },
+        {
+          "cmd": "say",
+          "speaker": "wanderer",
+          "face": "neutral",
+          "text": "생일이니?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "열일곱.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "wanderer",
+          "face": "serious",
+          "text": "그럼 너도 꽃을 피우니? 이 마을 아이들은 다 그런다던데.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "…못 해요. 아직.",
+          "side": "left"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 2.5,
+          "src": "긴 침묵. 나그네의 입가가 아주 조금 올라간다."
+        },
+        {
+          "cmd": "act",
+          "actor": "wanderer",
+          "name": "입가가 아주 조금 올라간다",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "say",
+          "speaker": "wanderer",
+          "face": "smile",
+          "text": "그래. 나도 못 했어.",
+          "side": "right"
+        },
+        {
+          "cmd": "standUp",
+          "actor": "wanderer",
+          "src": "나그네가 일어선다. 바람이 불어 삿갓 끝이 들린다. 컷인 0.3초: 삿갓 아래로 흘러내린 흰 머리카락 한 가닥."
+        },
+        {
+          "cmd": "sfx",
+          "id": "wind"
+        },
+        {
+          "cmd": "particles",
+          "preset": "petals",
+          "dir": 1,
+          "seconds": 2
+        },
+        {
+          "cmd": "act",
+          "actor": "wanderer",
+          "name": "삿갓 끝이 들린다",
+          "seconds": 0.6
+        },
+        {
+          "cmd": "cutIn",
+          "speaker": "wanderer",
+          "hold": 0.3,
+          "image": "cutin_wanderer_hair",
+          "label": "삿갓 아래 흘러내린 흰 머리카락 한 가닥"
+        },
+        {
+          "cmd": "say",
+          "speaker": "wanderer",
+          "face": "neutral",
+          "text": "축제, 오늘 밤이지? …나도 보러 갈게.",
+          "side": "right"
+        },
+        {
+          "cmd": "parallel",
+          "commands": [
+            {
+              "cmd": "sequence",
+              "commands": [
+                {
+                  "cmd": "moveTo",
+                  "actor": "wanderer",
+                  "to": "forestPath",
+                  "speed": "walk"
+                },
+                {
+                  "cmd": "disappear",
+                  "actor": "wanderer",
+                  "fade": 1.0
+                }
+              ]
+            },
+            {
+              "cmd": "sequence",
+              "commands": [
+                {
+                  "cmd": "wait",
+                  "seconds": 1.2
+                },
+                {
+                  "cmd": "face",
+                  "actor": "akane",
+                  "dir": "left"
+                }
+              ]
+            }
+          ],
+          "src": "나그네가 숲길로 걸어 사라진다. 그가 앉았던 돌 위에 꽃잎 한 장이 떨어지는데, 닿는 순간 갈색으로 시든다. 아카네는 보지 못한다. 플레이어만 본다."
+        },
+        {
+          "cmd": "camPan",
+          "x": "gateStone",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "prop",
+          "id": "witheredPetal",
+          "key": "prop_petal",
+          "at": "gateStone",
+          "dy": -170,
+          "depth": 12,
+          "label": ""
+        },
+        {
+          "cmd": "propMove",
+          "id": "witheredPetal",
+          "dy": 150,
+          "angle": 160,
+          "seconds": 2.2
+        },
+        {
+          "cmd": "propTint",
+          "id": "witheredPetal",
+          "color": "#7a5530",
+          "seconds": 0.35
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.0
+        },
+        {
+          "cmd": "camFollow",
+          "actor": "akane"
+        },
+        {
+          "cmd": "bgmDuck",
+          "on": false
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…이상한 사람.",
+          "side": "left"
+        },
+        {
+          "cmd": "emoteHold",
+          "actor": "akane",
+          "kind": "basket",
+          "on": false
+        }
+      ]
+    },
+    {
+      "id": "P-7",
+      "place": "연습장",
+      "trigger": {
+        "raw": "해 질 녘",
+        "type": "reach"
+      },
+      "mode": "play",
+      "commands": [
+        {
+          "cmd": "emoteHold",
+          "actor": "akane",
+          "kind": "basket",
+          "on": false
+        },
+        {
+          "cmd": "objective",
+          "text": null
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 5790,
+          "face": "right"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": "yardHaru",
+          "face": "left"
+        },
+        {
+          "cmd": "mood",
+          "to": "dusk",
+          "seconds": 0
+        },
+        {
+          "cmd": "section",
+          "title": "튜토리얼: 글자 없이 하루의 대사 + 머리 위 행동 아이콘 (gameplay tutorialIcon)",
+          "src": "튜토리얼. 글자 설명 없이 하루의 대사와 머리 위 행동 아이콘으로만 가르친다."
         },
         {
           "cmd": "say",
           "speaker": "haru",
           "face": "smile",
-          "text": "그래, 그래. 자, 축제 전에 한 번만 더 하자. 따라와 봐.",
+          "text": "늦었네. 또 어디서 헤맸어?",
           "side": "right"
         },
         {
-          "cmd": "gameplay",
-          "do": "tutorial",
-          "step": "move",
-          "text": "이동 튜토리얼 표시."
-        },
-        {
-          "cmd": "gameplay",
-          "do": "npcMove",
-          "who": "haru",
-          "to": "haruWall",
-          "text": "하루가 마당 끝으로 걸어간다."
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "마을 입구에서 사람 만나서.",
+          "side": "left"
         },
         {
           "cmd": "say",
           "speaker": "haru",
           "face": "neutral",
-          "text": "검은 발에서 시작해. 발이 늦으면 칼도 늦어.",
+          "text": "그 얘긴 이따가. 칼부터 보자. …아빠가 잘 만들었네. 자, 따라와.",
           "side": "right"
         },
         {
-          "cmd": "gameplay",
-          "do": "tutorial",
-          "step": "jump",
-          "text": "점프 튜토리얼."
+          "cmd": "moveTo",
+          "actor": "haru",
+          "to": "haruWall",
+          "speed": "walk",
+          "wait": false,
+          "src": "낮은 돌담 — 점프 아이콘. 하루: \"검은 발에서 시작해. 발이 늦으면 칼도 늦어.\""
         },
         {
           "cmd": "gameplay",
-          "do": "npcMove",
-          "who": "haru",
-          "to": "haruDrill",
-          "text": "낮은 담을 넘는다."
+          "do": "tutorialIcon",
+          "step": "move"
         },
         {
           "cmd": "say",
           "speaker": "haru",
           "face": "serious",
-          "text": "이번엔 대쉬. 상대 품으로 단숨에 파고들어서, 지나가며 베는 거야. 그 짧은 순간엔 아무것도 너를 못 건드려.",
+          "text": "검은 발에서 시작해. 발이 늦으면 칼도 늦어.",
           "side": "right"
         },
         {
           "cmd": "gameplay",
-          "do": "spawn",
-          "group": "dummies",
-          "text": "허수아비 3개."
+          "do": "tutorialIcon",
+          "step": "jump"
+        },
+        {
+          "cmd": "jump",
+          "actor": "haru",
+          "x": 6480
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "haru",
+          "to": "haruDrill",
+          "speed": "walk",
+          "wait": false
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "상대 품으로 단숨에 파고들어서, 지나가며 베는 거야. 그 짧은 순간엔 아무것도 너를 못 건드려.",
+          "src": "허수아비 셋 — 대쉬 베기 아이콘. 하루: \"상대 품으로 단숨에 파고들어서, 지나가며 베는 거야. 그 짧은 순간엔 아무것도 너를 못 건드려.\"",
+          "side": "right"
         },
         {
           "cmd": "gameplay",
-          "do": "tutorial",
+          "do": "tutorialIcon",
           "step": "dashSlash",
-          "text": "대쉬 베기 튜토리얼."
+          "zoomOnThird": true
+        },
+        {
+          "cmd": "section",
+          "title": "대쉬베기 단계에 포함: 벨 때마다 꽃잎 스택, 세 번째 허수아비에서 줌인",
+          "src": "벨 때마다 칼에 꽃잎이 하나씩 붙는다. 세 번째에 카메라가 살짝 줌인."
         },
         {
           "cmd": "say",
@@ -257,153 +1935,761 @@
           "cmd": "say",
           "speaker": "haru",
           "face": "smile",
-          "text": "우리 집안 칼이 원래 그래. 베면 벨수록 꽃이 쌓이지. 그 꽃은 한 번에 터뜨리는 거야. 발도로.",
+          "text": "우리 집 칼은 원래 그래. 베면 벨수록 꽃이 쌓여. 그 꽃은 한 번에 터뜨리는 거야. 발도로.",
           "side": "right"
         },
         {
           "cmd": "gameplay",
-          "do": "npcPose",
-          "who": "haru",
-          "pose": "guard",
-          "text": "하루가 목검을 허리에 대고 자세를 낮춘다."
-        },
-        {
-          "cmd": "gameplay",
-          "do": "tutorial",
+          "do": "tutorialIcon",
           "step": "iaido",
-          "text": "발도 튜토리얼."
+          "src": "발도 아이콘. 하루가 목검을 치켜든다 (끝에 별빛 예고). 패링 성공할 때까지 반복."
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
+          "cmd": "pose",
+          "actor": "haru",
+          "pose": "guard"
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "목검을 치켜든다 (끝에 별빛)",
+          "seconds": 1.0
+        },
+        {
+          "cmd": "particles",
+          "preset": "sparks",
+          "at": "haru"
         },
         {
           "cmd": "say",
           "speaker": "haru",
           "face": "serious",
-          "text": "숨을 한 번 들이쉬는 동안은 무엇이든 받아낼 수 있어. 하지만 숨을 다 들이쉰 뒤에 맞으면 흐트러지지. 그 반 호흡을 기억해.",
+          "text": "숨을 한 번 들이쉬는 동안은 무엇이든 받아낼 수 있어. 하지만 다 들이쉰 뒤에 맞으면 흐트러지지. 그 반 호흡을 기억해.",
           "side": "right"
         },
         {
           "cmd": "gameplay",
-          "do": "tutorial",
+          "do": "tutorialIcon",
           "step": "parry",
-          "text": "패링에 성공할 때까지 반복."
+          "failLine": "다시. 반 호흡.",
+          "src": "실패 시 / 성공 시 하루"
         },
         {
           "cmd": "say",
           "speaker": "haru",
           "face": "smile",
-          "text": "잘했어. 이제 엄마보다 빠르겠는걸.",
+          "text": "잘했어. 이제 엄마보다 빠르겠다.",
           "side": "right"
         },
         {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
+        },
+        {
+          "cmd": "pose",
+          "actor": "haru",
+          "pose": "idle",
+          "src": "하루가 목검을 내려놓고 품에서 작은 붉은 방울을 꺼낸다. 아이템 획득 연출. 붓 자막 〈붉은 방울〉."
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "haru",
+          "to": "akane",
+          "speed": "walk",
+          "near": true
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "목검을 내려놓고 품에서 작은 붉은 방울을 꺼낸다",
+          "seconds": 1.6
+        },
+        {
+          "cmd": "flash",
+          "color": "gold",
+          "ms": 400
+        },
+        {
+          "cmd": "prop",
+          "id": "giftBell",
+          "key": "prop_bell",
+          "at": 0,
+          "screen": {
+            "x": 480,
+            "y": 300
+          },
+          "depth": 40,
+          "scale": 3
+        },
+        {
+          "cmd": "propMove",
+          "id": "giftBell",
+          "y": 270,
+          "seconds": 0.8
+        },
+        {
+          "cmd": "sfx",
+          "id": "chime",
+          "volume": 0.6
+        },
+        {
+          "cmd": "caption",
+          "text": "붉은 방울"
+        },
+        {
+          "cmd": "propOff",
+          "id": "giftBell",
+          "fade": 0.4
+        },
+        {
+          "cmd": "giveItem",
+          "name": "붉은 방울"
+        },
+        {
           "cmd": "say",
-          "speaker": "akane",
-          "face": "neutral",
-          "text": "…엄마가 일부러 느리게 한 거잖아.",
-          "side": "left"
+          "speaker": "haru",
+          "face": "smile",
+          "text": "이건 엄마 선물. 아빠보다 늦게 주는 대신, 아빠 것보다 좋은 거.",
+          "side": "right"
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "아카네의 머리끈에 방울을 묶어 준다",
+          "seconds": 1.6,
+          "src": "하루가 아카네의 머리끈에 방울을 묶어 준다. 딸랑. 이후 아카네가 점프할 때마다 아주 작게 방울 소리가 난다."
+        },
+        {
+          "cmd": "sfx",
+          "id": "chime",
+          "volume": 0.5
         },
         {
           "cmd": "say",
           "speaker": "haru",
           "face": "serious",
-          "text": "하나만 더. 칼은 화가 났을 때 뽑는 게 아니야. 지켜야 할 게 생겼을 때 뽑는 거란다.",
+          "text": "이게 울리면, 엄마가 어디 있든 찾으러 갈게.",
           "side": "right"
         },
         {
           "cmd": "say",
           "speaker": "akane",
           "face": "neutral",
-          "text": "그 말 백 번째야.",
+          "text": "…애도 아니고.",
           "side": "left"
         },
         {
           "cmd": "say",
           "speaker": "haru",
           "face": "smile",
-          "text": "백한 번째에는 알아듣겠지.",
+          "text": "엄마한텐 평생 애야.",
           "side": "right"
-        }
-      ]
-    },
-    {
-      "id": "S0-4",
-      "place": "축제 광장",
-      "trigger": {
-        "raw": "위치 도달",
-        "type": "reach"
-      },
-      "controllable": true,
-      "commands": [
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "그리고 이것도. 칼은 화가 났을 때 뽑는 게 아니야. 지켜야 할 게 생겼을 때 뽑는 거란다.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "아빠도 똑같은 말 했어. 그게 백한 번째래.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "그럼 이건 백두 번째.",
+          "side": "right"
+        },
+        {
+          "cmd": "mood",
+          "to": "duskDeep",
+          "seconds": 2.5,
+          "src": "해가 지기 시작한다. 색감이 주황으로 짙어진다."
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "아, 엄마. 아까 마을 입구에 이상한 사람 있었어. 삿갓 쓴. 머리가 하얬어.",
+          "side": "left"
+        },
+        {
+          "cmd": "prop",
+          "id": "woodSword",
+          "key": "prop_wooden_sword",
+          "at": "haru",
+          "dy": -46,
+          "offset": 10,
+          "w": 44,
+          "h": 6,
+          "color": "#a08060",
+          "label": "",
+          "src": "하루가 들고 있던 목검이 땅에 떨어진다. 딱. BGM이 끊긴다. 바람 소리."
+        },
+        {
+          "cmd": "propMove",
+          "id": "woodSword",
+          "dy": 46,
+          "angle": 80,
+          "seconds": 0.3,
+          "ease": "Quad.easeIn"
+        },
+        {
+          "cmd": "sfx",
+          "id": "clack"
+        },
+        {
+          "cmd": "silence"
+        },
+        {
+          "cmd": "sfx",
+          "id": "wind"
+        },
+        {
+          "cmd": "emote",
+          "actor": "haru",
+          "kind": "!"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "surprised",
+          "text": "…무슨 말 했어?",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "neutral",
+          "text": "꽃 피울 줄 아냐고. 못 한다니까… 자기도 못 했대. 만두 하나 줬어.",
+          "side": "left"
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "left",
+          "src": "하루가 아무 말 없이 마을 입구 쪽을 본다. 3초. 하루의 초상화가 아주 잠깐 겁먹음으로 바뀌었다가 웃음으로 돌아온다."
+        },
+        {
+          "cmd": "wait",
+          "seconds": 3
+        },
+        {
+          "cmd": "cutIn",
+          "speaker": "haru",
+          "face": "scared",
+          "hold": 0.35
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "…그래. 잘했네. 배고팠을 거야.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "축제 가자. 오늘 밤엔 엄마 옆에 꼭 붙어 있어.",
+          "side": "right"
+        },
+        {
+          "cmd": "mood",
+          "to": "night",
+          "seconds": 2,
+          "src": "색감이 주황 → 남색으로 2초 동안 바뀌고 암전. 붓 자막 〈그날 밤, 벚꽃 축제.〉 피리와 북 소리 페이드인."
+        },
+        {
+          "cmd": "wait",
+          "seconds": 2
+        },
         {
           "cmd": "fadeOut",
-          "duration": 0.8,
-          "src": "0.8초 암전."
+          "duration": 0.8
+        },
+        {
+          "cmd": "propOff",
+          "id": "woodSword"
         },
         {
           "cmd": "caption",
           "text": "그날 밤, 벚꽃 축제."
         },
         {
-          "cmd": "gameplay",
-          "do": "festival",
-          "text": "등롱이 줄지어 걸리고 마을 사람들이 고양이귀 가면을 쓰고 춤춘다."
+          "cmd": "ambience",
+          "id": "pipe",
+          "every": 2.4,
+          "volume": 0.35
         },
         {
-          "cmd": "bgm",
-          "name": "밝은 축제 피리·북",
-          "src": "밝은 축제 BGM (피리·북)."
+          "cmd": "ambience",
+          "id": "drum",
+          "every": 1.2,
+          "volume": 0.3
+        }
+      ]
+    },
+    {
+      "id": "P-8",
+      "place": "축제 광장",
+      "trigger": {
+        "type": "chapterStart",
+        "raw": "축제 광장"
+      },
+      "mode": "play",
+      "modeFlow": [
+        "play",
+        "auto"
+      ],
+      "controllable": true,
+      "commands": [
+        {
+          "cmd": "mood",
+          "to": "night",
+          "seconds": 0
+        },
+        {
+          "cmd": "vignette",
+          "amount": 0,
+          "seconds": 0
+        },
+        {
+          "cmd": "camReset",
+          "ms": 0
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "festivalAkane",
+          "face": "right"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": "festivalHaru",
+          "face": "left"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "soichiro",
+          "at": "festivalSoichiro",
+          "face": "right"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "dumpling_grandma",
+          "at": 7580,
+          "face": "right"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "hana",
+          "at": 7940,
+          "face": "left"
+        },
+        {
+          "cmd": "disappear",
+          "actor": "wanderer",
+          "fade": false
+        },
+        {
+          "cmd": "foreground",
+          "preset": "lanterns",
+          "x": "festivalTree"
+        },
+        {
+          "cmd": "light",
+          "preset": "lantern",
+          "at": "festivalAkane",
+          "id": "l1"
+        },
+        {
+          "cmd": "light",
+          "preset": "lantern",
+          "at": "festivalTree",
+          "id": "l2"
         },
         {
           "cmd": "fadeIn",
-          "duration": 0.8,
-          "src": "명전."
+          "duration": 1.0,
+          "src": "등롱이 줄지어 흔들리고 고양이귀 가면을 쓴 마을 사람들이 춤춘다. 하나가 가면을 쓰고 아카네 주위를 맴돈다. 만두 할머니가 손을 흔든다. 소이치로가 그을음을 씻은 얼굴로 서 있다."
         },
         {
-          "cmd": "say",
-          "speaker": "village_child",
-          "face": "smile",
-          "text": "아카네 언니! 오늘은 하루 님이 마을 큰 벚나무에 꽃을 피워 주신대!",
-          "side": "right"
+          "cmd": "parallel",
+          "commands": [
+            {
+              "cmd": "sequence",
+              "commands": [
+                {
+                  "cmd": "moveTo",
+                  "actor": "hana",
+                  "to": "akane",
+                  "speed": "run",
+                  "offset": 70
+                },
+                {
+                  "cmd": "moveTo",
+                  "actor": "hana",
+                  "to": "akane",
+                  "speed": "run",
+                  "offset": -70
+                },
+                {
+                  "cmd": "moveTo",
+                  "actor": "hana",
+                  "to": "akane",
+                  "speed": "run",
+                  "offset": 60
+                }
+              ]
+            },
+            {
+              "cmd": "act",
+              "actor": "hana",
+              "name": "가면을 쓰고 아카네 주위를 맴돈다",
+              "seconds": 1.6,
+              "wait": false
+            }
+          ]
         },
         {
-          "cmd": "note",
-          "text": "광장 가운데의 오래된 벚나무."
+          "cmd": "act",
+          "actor": "dumpling_grandma",
+          "name": "손을 흔든다",
+          "seconds": 1.4,
+          "wait": false
+        },
+        {
+          "cmd": "act",
+          "actor": "soichiro",
+          "name": "그을음을 씻은 얼굴",
+          "seconds": 1.4,
+          "wait": false
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.6
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "haru",
+          "to": "festivalTree",
+          "speed": "walk",
+          "offset": -30,
+          "src": "하루가 큰 벚나무 앞에 선다. 카메라가 나무로 패닝하며 줌인. 하루의 손에서 분홍 빛이 줄기를 타고 오르고, 꼭대기에 닿는 순간 나무가 만개한다. 꽃잎 폭발, 환호성."
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "right"
+        },
+        {
+          "cmd": "camPan",
+          "x": "festivalTree",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 2,
+          "seconds": 1.0
+        },
+        {
+          "cmd": "prop",
+          "id": "rise",
+          "key": "prop_glow",
+          "at": "festivalTree",
+          "dy": -20,
+          "w": 6,
+          "h": 6,
+          "color": "#ff9eb8",
+          "label": "",
+          "depth": 12
+        },
+        {
+          "cmd": "propMove",
+          "id": "rise",
+          "dy": -260,
+          "seconds": 1.4,
+          "ease": "Sine.easeIn"
+        },
+        {
+          "cmd": "propOff",
+          "id": "rise"
         },
         {
           "cmd": "gameplay",
           "do": "bloomTree",
-          "tree": "festival",
-          "text": "하루가 손을 대자 분홍 빛이 퍼지며 꽃이 한꺼번에 핀다."
+          "tree": "festival"
+        },
+        {
+          "cmd": "particles",
+          "preset": "petals",
+          "seconds": 3
+        },
+        {
+          "cmd": "sfx",
+          "id": "cheer"
         },
         {
           "cmd": "gameplay",
-          "do": "cheer",
-          "text": "마을 사람들 환호."
+          "do": "cheer"
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1,
+          "seconds": 0.8
+        },
+        {
+          "cmd": "camFollow",
+          "actor": "akane"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "아카네. 이리 와. 손 줘.",
+          "side": "right"
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "akane",
+          "to": "festivalTree",
+          "speed": "walk",
+          "offset": -90,
+          "src": "하루가 아카네의 손을 낮게 늘어진 가지에 올리고, 그 위에 자기 손을 겹친다."
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "right"
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "아카네의 손을 낮은 가지에 올리고 자기 손을 겹친다",
+          "seconds": 1.8
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "serious",
+          "text": "같이 해 보자.",
+          "side": "right"
+        },
+        {
+          "cmd": "ambience",
+          "id": null,
+          "src": "모든 소리가 작아진다. 두 손 사이로 빛이 스민다. CG A 페이드인: 가지 위에 겹친 두 손, 아카네 손바닥 아래에서 막 벌어지는 꽃 한 송이."
+        },
+        {
+          "cmd": "bgmDuck",
+          "on": true
+        },
+        {
+          "cmd": "prop",
+          "id": "handGlow",
+          "key": "prop_glow",
+          "at": "festivalTree",
+          "offset": -60,
+          "dy": -70,
+          "w": 10,
+          "h": 10,
+          "color": "#ffd0e0",
+          "label": "",
+          "depth": 12,
+          "fade": 0.6
         },
         {
           "cmd": "cg",
-          "no": 1,
-          "desc": "축제 밤의 가족",
-          "motion": "zoom",
-          "src": "CG 1: 축제 밤의 가족이 천천히 떠오른다."
+          "no": "A",
+          "desc": "가지 위에 겹친 두 손, 아카네 손바닥 아래에서 막 벌어지는 꽃 한 송이"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…폈다.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "봐. 혼자가 아니면 피어.",
+          "side": "right"
+        },
+        {
+          "cmd": "cgEnd",
+          "src": "CG A 페이드아웃. 하나가 누구보다 크게 손뼉 친다."
+        },
+        {
+          "cmd": "propOff",
+          "id": "handGlow"
+        },
+        {
+          "cmd": "prop",
+          "id": "flower",
+          "key": "prop_flower",
+          "at": "festivalTree",
+          "offset": -60,
+          "dy": -74,
+          "depth": 12
+        },
+        {
+          "cmd": "act",
+          "actor": "hana",
+          "name": "누구보다 크게 손뼉 친다",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "sfx",
+          "id": "cheer",
+          "volume": 0.6
+        },
+        {
+          "cmd": "emote",
+          "actor": "hana",
+          "kind": "!"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hana",
+          "face": "smile",
+          "text": "언니가 피웠다! 내가 제일 크게 박수 쳤어!",
+          "side": "right"
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "soichiro",
+          "to": "akane",
+          "speed": "walk",
+          "near": true,
+          "src": "소이치로가 다가와 셋이 나무 아래 앉는다. CG 1 페이드인 (축제 밤의 가족)."
+        },
+        {
+          "cmd": "parallel",
+          "commands": [
+            {
+              "cmd": "sit",
+              "actor": "akane"
+            },
+            {
+              "cmd": "sit",
+              "actor": "haru"
+            },
+            {
+              "cmd": "sit",
+              "actor": "soichiro"
+            }
+          ]
+        },
+        {
+          "cmd": "cg",
+          "no": 1
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "smile",
+          "text": "생일 축하한다, 아카네.",
+          "side": "right"
         },
         {
           "cmd": "think",
           "speaker": "akane",
-          "text": "…엄마는 매년 이걸 한다. 나도 언젠간 할 수 있을까.",
+          "text": "…내년에도. 그다음 해에도. 이렇게.",
           "side": "left"
         },
         {
           "cmd": "cgEnd",
-          "src": "CG가 천천히 사라진다."
+          "src": "CG 1 페이드아웃. 하루가 문득 고개를 든다. 광장 끝 등롱 빛이 닿지 않는 어둠 속에 삿갓 하나가 서 있다. 깜빡하면 사라진다."
         },
         {
-          "cmd": "note",
-          "text": "하루가 아카네를 보고 손짓한다."
+          "cmd": "act",
+          "actor": "haru",
+          "name": "문득 고개를 든다",
+          "seconds": 1.0
         },
         {
-          "cmd": "gameplay",
-          "do": "approach",
-          "who": "haru",
-          "text": "아카네가 다가가면 하루가 귓속말."
+          "cmd": "spawn",
+          "actor": "wanderer",
+          "at": "festivalEdge",
+          "face": "left",
+          "tall": true,
+          "hat": true
+        },
+        {
+          "cmd": "parallel",
+          "commands": [
+            {
+              "cmd": "camPan",
+              "to": "festivalEdge",
+              "ms": 800,
+              "hold": 0.7
+            },
+            {
+              "cmd": "sequence",
+              "commands": [
+                {
+                  "cmd": "wait",
+                  "seconds": 1.3
+                },
+                {
+                  "cmd": "disappear",
+                  "actor": "wanderer",
+                  "fade": 0.12
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cmd": "ambience",
+          "id": null,
+          "src": "음악이 작아지고 두 사람에게 줌인, 비네트."
+        },
+        {
+          "cmd": "bgmDuck",
+          "on": true
+        },
+        {
+          "cmd": "camPan",
+          "x": "festivalTree",
+          "offset": -60,
+          "seconds": 0.8
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 2,
+          "seconds": 1.0
+        },
+        {
+          "cmd": "vignette",
+          "amount": 0.6,
+          "seconds": 1.0
         },
         {
           "cmd": "say",
@@ -416,69 +2702,688 @@
           "cmd": "say",
           "speaker": "akane",
           "face": "surprised",
-          "text": "…갑자기 무슨—",
+          "text": "…엄마?",
           "side": "left"
-        },
-        {
-          "cmd": "sfx",
-          "name": "종소리",
-          "src": "종소리."
-        },
-        {
-          "cmd": "sfx",
-          "name": "종소리",
-          "src": "한 번, 두 번."
-        },
-        {
-          "cmd": "bgm",
-          "name": "stop",
-          "src": "축제 BGM이 뚝 끊긴다."
-        },
-        {
-          "cmd": "bgm",
-          "name": "stop",
-          "src": "침묵."
-        },
-        {
-          "cmd": "gameplay",
-          "do": "fireArrows",
-          "text": "하늘에서 불화살 수십 개가 포물선을 그리며 떨어진다."
-        },
-        {
-          "cmd": "flash",
-          "color": "red",
-          "src": "플래시(붉음)."
-        },
-        {
-          "cmd": "shake",
-          "strength": "strong",
-          "src": "흔들림 강."
         }
       ]
     },
     {
-      "id": "S0-5",
-      "place": "불타는 골목",
+      "id": "P-9",
+      "place": "종소리",
       "trigger": {
-        "raw": "체크포인트 1",
-        "type": "checkpoint",
-        "n": 1
+        "type": "chapterStart",
+        "raw": "종소리"
       },
+      "mode": "auto",
       "commands": [
         {
-          "cmd": "bgm",
-          "name": "북과 불꽃 소리",
-          "src": "BGM: 북과 불꽃 소리."
+          "cmd": "camZoom",
+          "zoom": 1,
+          "seconds": 0.6,
+          "src": "깊은 절 종소리 \"댕—\". 축제 음악이 늘어지며 멈춘다. 춤추던 사람들이 그 자세 그대로 멈춘다."
         },
         {
-          "cmd": "note",
-          "text": "마을이 불탄다."
+          "cmd": "vignette",
+          "amount": 0,
+          "seconds": 0.6
+        },
+        {
+          "cmd": "sfx",
+          "id": "gong"
+        },
+        {
+          "cmd": "ambience",
+          "id": null
+        },
+        {
+          "cmd": "silence"
         },
         {
           "cmd": "gameplay",
-          "do": "spawn",
-          "group": "alley",
-          "text": "흰 옷에 흰 가면을 쓴 무리가 횃불을 들고 들어온다."
+          "do": "freezeDancers"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 0.8,
+          "seconds": 1.0,
+          "src": "카메라 줌아웃. 1초 침묵, 바람 소리만. 두 번째 종소리."
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1
+        },
+        {
+          "cmd": "sfx",
+          "id": "wind"
+        },
+        {
+          "cmd": "sfx",
+          "id": "gong"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1
+        },
+        {
+          "cmd": "sfx",
+          "id": "whistle",
+          "volume": 0.4,
+          "src": "멀리서 휘파람 같은 소리가 커진다. 카메라가 하늘로 틸트업."
+        },
+        {
+          "cmd": "camTilt",
+          "y": -170,
+          "ms": 1200
+        },
+        {
+          "cmd": "sfx",
+          "id": "whistle",
+          "volume": 1.0
+        },
+        {
+          "cmd": "slowmo",
+          "scale": 0.3,
+          "seconds": 1.5,
+          "src": "보름달 앞을 지나가는 불화살 수십 개의 검은 실루엣. 슬로모션 0.3배 1.5초."
+        },
+        {
+          "cmd": "gameplay",
+          "do": "arrowVolley",
+          "seconds": 1.5
+        },
+        {
+          "cmd": "cutIn",
+          "speaker": "akane",
+          "face": "surprised",
+          "hold": 0.8,
+          "src": "컷인: 아카네의 눈. 눈동자에 불빛."
+        },
+        {
+          "cmd": "camTilt",
+          "y": 0,
+          "ms": 400,
+          "src": "정상 속도로 복귀하며 화살이 땅·지붕·나무에 꽂힌다. 붉은 플래시와 세로 흔들림."
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1,
+          "seconds": 0.4
+        },
+        {
+          "cmd": "gameplay",
+          "do": "arrowRain"
+        },
+        {
+          "cmd": "flash",
+          "color": "red"
+        },
+        {
+          "cmd": "shake",
+          "level": "strong",
+          "dir": "v"
+        },
+        {
+          "cmd": "sfx",
+          "id": "boom"
+        },
+        {
+          "cmd": "foregroundClear",
+          "src": "등롱 줄이 끊어져 떨어지고, 큰 벚나무 꼭대기부터 불이 번진다. 방금 아카네가 피운 꽃 한 송이가 클로즈업되고, 불티가 닿아 재가 된다."
+        },
+        {
+          "cmd": "prop",
+          "id": "rope",
+          "key": "prop_lantern_rope",
+          "at": "festivalTree",
+          "offset": -280,
+          "y": 340,
+          "depth": 11
+        },
+        {
+          "cmd": "propMove",
+          "id": "rope",
+          "ground": true,
+          "angle": 14,
+          "seconds": 0.6,
+          "ease": "Quad.easeIn"
+        },
+        {
+          "cmd": "sfx",
+          "id": "thud"
+        },
+        {
+          "cmd": "particles",
+          "preset": "embers",
+          "x": "festivalTree",
+          "y": 330,
+          "id": "treeFire"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": "festivalTree",
+          "y": 360,
+          "id": "treeFire"
+        },
+        {
+          "cmd": "camPan",
+          "x": "festivalTree",
+          "offset": -60,
+          "seconds": 0.8
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 2,
+          "seconds": 0.6
+        },
+        {
+          "cmd": "particles",
+          "preset": "embers",
+          "at": "festivalTree",
+          "id": "flowerEmbers"
+        },
+        {
+          "cmd": "propTint",
+          "id": "flower",
+          "color": "#3a3a3a",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "particles",
+          "preset": "dust",
+          "at": "festivalTree"
+        },
+        {
+          "cmd": "propOff",
+          "id": "flower",
+          "fade": 0.8
+        },
+        {
+          "cmd": "particlesStop",
+          "id": "flowerEmbers"
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1,
+          "seconds": 0.5
+        },
+        {
+          "cmd": "camFollow",
+          "actor": "akane"
+        },
+        {
+          "cmd": "mood",
+          "to": "fire",
+          "seconds": 1.5,
+          "src": "색감 남색 → 붉은색. 비명, 불길, 전투 북."
+        },
+        {
+          "cmd": "gameplay",
+          "do": "mood",
+          "mood": "fire"
+        },
+        {
+          "cmd": "sfx",
+          "id": "scream"
+        },
+        {
+          "cmd": "ambience",
+          "id": "fire",
+          "every": 1.0,
+          "volume": 0.6
+        },
+        {
+          "cmd": "ambience",
+          "id": "drum",
+          "every": 0.8,
+          "volume": 0.6
+        },
+        {
+          "cmd": "prop",
+          "id": "hat",
+          "key": "prop_hat",
+          "at": "festivalTree",
+          "offset": 220,
+          "y": 60,
+          "depth": 11,
+          "src": "하늘에서 삿갓 하나가 천천히 떨어져 광장 한가운데 굴러 멈춘다. 아카네가 그것을 본다."
+        },
+        {
+          "cmd": "propMove",
+          "id": "hat",
+          "to": "festivalTree",
+          "offset": 140,
+          "ground": true,
+          "angle": 340,
+          "seconds": 2.4
+        },
+        {
+          "cmd": "propMove",
+          "id": "hat",
+          "to": "festivalTree",
+          "offset": 60,
+          "angle": 720,
+          "seconds": 0.8,
+          "ease": "Quad.easeOut"
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "right"
+        },
+        {
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "!"
+        },
+        {
+          "cmd": "prop",
+          "id": "roof0",
+          "key": "prop_rooftop_cultist",
+          "at": 7520,
+          "y": 360,
+          "depth": 5,
+          "fade": 0.3,
+          "label": "흰 가면 신도",
+          "src": "지붕 위에 흰 가면 신도들이 하나씩 나타나고 횃불이 왼쪽부터 차례로 켜진다."
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": 7520,
+          "y": 320,
+          "id": "torch0"
+        },
+        {
+          "cmd": "sfx",
+          "id": "fire",
+          "volume": 0.4
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.25
+        },
+        {
+          "cmd": "prop",
+          "id": "roof1",
+          "key": "prop_rooftop_cultist",
+          "at": 7700,
+          "y": 360,
+          "depth": 5,
+          "fade": 0.3,
+          "label": ""
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": 7700,
+          "y": 320,
+          "id": "torch1"
+        },
+        {
+          "cmd": "sfx",
+          "id": "fire",
+          "volume": 0.4
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.25
+        },
+        {
+          "cmd": "prop",
+          "id": "roof2",
+          "key": "prop_rooftop_cultist",
+          "at": 7880,
+          "y": 360,
+          "depth": 5,
+          "fade": 0.3,
+          "label": ""
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": 7880,
+          "y": 320,
+          "id": "torch2"
+        },
+        {
+          "cmd": "sfx",
+          "id": "fire",
+          "volume": 0.4
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.25
+        },
+        {
+          "cmd": "prop",
+          "id": "roof3",
+          "key": "prop_rooftop_cultist",
+          "at": 8120,
+          "y": 360,
+          "depth": 5,
+          "fade": 0.3,
+          "label": ""
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": 8120,
+          "y": 320,
+          "id": "torch3"
+        },
+        {
+          "cmd": "sfx",
+          "id": "fire",
+          "volume": 0.4
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.25
+        },
+        {
+          "cmd": "prop",
+          "id": "roof4",
+          "key": "prop_rooftop_cultist",
+          "at": 8300,
+          "y": 360,
+          "depth": 5,
+          "fade": 0.3,
+          "label": ""
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": 8300,
+          "y": 320,
+          "id": "torch4"
+        },
+        {
+          "cmd": "sfx",
+          "id": "fire",
+          "volume": 0.4
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.25
+        },
+        {
+          "cmd": "prop",
+          "id": "roof5",
+          "key": "prop_rooftop_cultist",
+          "at": 8480,
+          "y": 360,
+          "depth": 5,
+          "fade": 0.3,
+          "label": ""
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": 8480,
+          "y": 320,
+          "id": "torch5"
+        },
+        {
+          "cmd": "sfx",
+          "id": "fire",
+          "volume": 0.4
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.25
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "angry",
+          "text": "소이치로! 아카네 데리고 가!",
+          "side": "left"
+        },
+        {
+          "cmd": "parallel",
+          "commands": [
+            {
+              "cmd": "propMove",
+              "id": "roof0",
+              "ground": true,
+              "seconds": 0.6,
+              "ease": "Quad.easeIn"
+            },
+            {
+              "cmd": "propMove",
+              "id": "roof1",
+              "ground": true,
+              "seconds": 0.6,
+              "ease": "Quad.easeIn"
+            },
+            {
+              "cmd": "propMove",
+              "id": "roof2",
+              "ground": true,
+              "seconds": 0.6,
+              "ease": "Quad.easeIn"
+            },
+            {
+              "cmd": "propMove",
+              "id": "roof3",
+              "ground": true,
+              "seconds": 0.6,
+              "ease": "Quad.easeIn"
+            },
+            {
+              "cmd": "propMove",
+              "id": "roof4",
+              "ground": true,
+              "seconds": 0.6,
+              "ease": "Quad.easeIn"
+            },
+            {
+              "cmd": "propMove",
+              "id": "roof5",
+              "ground": true,
+              "seconds": 0.6,
+              "ease": "Quad.easeIn"
+            }
+          ],
+          "src": "신도 무리가 광장으로 쏟아져 내려오고, 연기가 화면을 덮는다. 연기가 걷히면 아카네 혼자. 하루도 소이치로도 보이지 않는다. 레터박스 해제, 목표 자막 〈아빠에게〉."
+        },
+        {
+          "cmd": "gameplay",
+          "do": "fleeTag",
+          "tag": "festival"
+        },
+        {
+          "cmd": "particles",
+          "preset": "smoke",
+          "at": "akane",
+          "seconds": 2
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 0.6
+        },
+        {
+          "cmd": "propOff",
+          "id": "roof0"
+        },
+        {
+          "cmd": "propOff",
+          "id": "roof1"
+        },
+        {
+          "cmd": "propOff",
+          "id": "roof2"
+        },
+        {
+          "cmd": "propOff",
+          "id": "roof3"
+        },
+        {
+          "cmd": "propOff",
+          "id": "roof4"
+        },
+        {
+          "cmd": "propOff",
+          "id": "roof5"
+        },
+        {
+          "cmd": "propOff",
+          "id": "hat"
+        },
+        {
+          "cmd": "propOff",
+          "id": "rope"
+        },
+        {
+          "cmd": "disappear",
+          "actor": "haru",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "soichiro",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "hana",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "dumpling_grandma",
+          "fade": false
+        },
+        {
+          "cmd": "lightOff",
+          "id": "torch0"
+        },
+        {
+          "cmd": "lightOff",
+          "id": "torch1"
+        },
+        {
+          "cmd": "lightOff",
+          "id": "torch2"
+        },
+        {
+          "cmd": "lightOff",
+          "id": "torch3"
+        },
+        {
+          "cmd": "lightOff",
+          "id": "torch4"
+        },
+        {
+          "cmd": "lightOff",
+          "id": "torch5"
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.8
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "혼자 남았다",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "mode",
+          "mode": "play"
+        },
+        {
+          "cmd": "objective",
+          "text": "아빠에게"
+        }
+      ]
+    },
+    {
+      "id": "P-10",
+      "place": "불타는 마을",
+      "trigger": {
+        "type": "chapterStart",
+        "raw": "불타는 마을"
+      },
+      "mode": "play",
+      "commands": [
+        {
+          "cmd": "fadeOut",
+          "duration": 0.5
+        },
+        {
+          "cmd": "foregroundClear"
+        },
+        {
+          "cmd": "lightOff"
+        },
+        {
+          "cmd": "camReset",
+          "ms": 0
+        },
+        {
+          "cmd": "mood",
+          "to": "fire",
+          "seconds": 0
+        },
+        {
+          "cmd": "gameplay",
+          "do": "mood",
+          "mood": "fire"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "roadStart",
+          "face": "right"
+        },
+        {
+          "cmd": "prop",
+          "id": "pillar",
+          "key": "prop_pillar",
+          "at": "roadHana",
+          "depth": 9
+        },
+        {
+          "cmd": "spawn",
+          "actor": "hana",
+          "at": "roadHana",
+          "face": "left"
+        },
+        {
+          "cmd": "sit",
+          "actor": "hana"
+        },
+        {
+          "cmd": "ambience",
+          "id": "fire",
+          "every": 1.1,
+          "volume": 0.5
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 0.6
+        },
+        {
+          "cmd": "objective",
+          "text": "아빠에게"
+        },
+        {
+          "cmd": "gameplay",
+          "do": "fleeTag",
+          "tag": "road",
+          "dir": -1,
+          "src": "아침에 걸었던 그 길이 불타고 있다. 마을 사람들이 왼쪽으로 도망치고 아카네만 오른쪽으로 거슬러 간다. 바닥에 붉은 원이 깜빡인 뒤 불화살이 꽂힌다."
+        },
+        {
+          "cmd": "gameplay",
+          "do": "arrowTraps",
+          "every": 2.0
         },
         {
           "cmd": "say",
@@ -490,71 +3395,184 @@
         {
           "cmd": "gameplay",
           "do": "fight",
-          "group": "alley",
-          "text": "가면 신도 2명."
+          "group": "road",
+          "firstKillSlowmo": 0.5,
+          "src": "첫 신도를 처음 벨 때만 슬로모션 0.5초와 줌인. 아카네의 손이 떨린다 (스프라이트 1프레임 흔들림)."
+        },
+        {
+          "cmd": "tremble",
+          "actor": "akane",
+          "times": 3
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "…사람을, 벴다.",
+          "side": "left"
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": "roadHana",
+          "offset": -130,
+          "src": "만두 가게 앞. 무너진 노점 기둥 밑에 하나가 깔려 울고 있다. 고양이귀 가면이 반쯤 깨져 있다. 기둥 위에 베기 아이콘."
+        },
+        {
+          "cmd": "act",
+          "actor": "hana",
+          "name": "기둥 밑에 깔려 울고 있다 · 가면이 반쯤 깨져 있다",
+          "seconds": 1.6,
+          "wait": false
+        },
+        {
+          "cmd": "gameplay",
+          "do": "cutPillar",
+          "prop": "pillar",
+          "src": "기둥을 베면 하나가 기어 나온다."
+        },
+        {
+          "cmd": "act",
+          "actor": "hana",
+          "name": "기어 나온다",
+          "seconds": 1.0
+        },
+        {
+          "cmd": "standUp",
+          "actor": "hana"
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "hana",
+          "to": "akane",
+          "speed": "slow",
+          "near": true
         },
         {
           "cmd": "say",
-          "speaker": "villager",
+          "speaker": "hana",
           "face": "scared",
-          "text": "아카네! 하루 님이 광장에… 소이치로는 대장간에…!",
+          "text": "언니… 할머니가, 할머니가 안에…",
+          "side": "right"
+        },
+        {
+          "cmd": "gameplay",
+          "do": "collapse",
+          "at": "roadHana",
+          "offset": 60,
+          "id": "shopRuin",
+          "src": "만두 가게가 통째로 무너진다. 흔들림 강. 아카네가 하나를 감싸 안는다."
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "하나를 감싸 안는다",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "serious",
+          "text": "…뒷산으로. 동굴. 뒤돌아보지 말고 뛰어.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hana",
+          "face": "sad",
+          "text": "언니는?",
           "side": "right"
         },
         {
           "cmd": "say",
           "speaker": "akane",
-          "face": "angry",
-          "text": "…아빠!",
+          "face": "serious",
+          "text": "아빠 데리고 금방 갈게.",
           "side": "left"
+        },
+        {
+          "cmd": "prop",
+          "id": "maskOnRoad",
+          "key": "prop_mask_broken",
+          "at": "hana",
+          "dy": -2,
+          "src": "하나가 뛰어간다. 깨진 가면이 땅에 남는다."
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "hana",
+          "to": 9000,
+          "speed": "run",
+          "wait": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "hana",
+          "fade": 0.8,
+          "wait": false
         }
       ]
     },
     {
-      "id": "S0-6",
+      "id": "P-10b",
       "place": "대장간 앞",
       "trigger": {
-        "raw": "체크포인트 2",
-        "type": "checkpoint",
-        "n": 2
+        "type": "chapterStart",
+        "raw": "대장간 앞"
       },
+      "mode": "play",
+      "modeFlow": [
+        "play",
+        "auto"
+      ],
       "commands": [
         {
-          "cmd": "note",
-          "text": "대장간이 불타고 있다."
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 10880,
+          "face": "right"
         },
         {
-          "cmd": "gameplay",
-          "do": "npcPlace",
-          "who": "soichiro",
-          "at": "smithyFront",
-          "face": 1,
-          "text": "소이치로가 망치 하나로 신도 셋을 막고 있다."
+          "cmd": "spawn",
+          "actor": "soichiro",
+          "at": "smithySoichiro",
+          "face": "left"
         },
         {
-          "cmd": "gameplay",
-          "do": "npcPose",
-          "who": "soichiro",
-          "pose": "attack",
-          "text": "소이치로가 망치 하나로 신도 셋을 막고 있다."
+          "cmd": "anim",
+          "actor": "soichiro",
+          "anim": "guard",
+          "loop": true
+        },
+        {
+          "cmd": "particles",
+          "preset": "embers",
+          "at": "smithySoichiro",
+          "id": "smithyEmbers"
         },
         {
           "cmd": "gameplay",
           "do": "spawn",
           "group": "smithy",
-          "text": "소이치로가 망치 하나로 신도 셋을 막고 있다."
+          "src": "대장간이 불타고 있다. 소이치로가 망치 하나로 신도 셋을 막고 있다. 어깨에 화살."
         },
         {
-          "cmd": "gameplay",
-          "do": "npcPose",
-          "who": "soichiro",
-          "pose": "guard",
-          "text": "어깨에 화살이 꽂혀 있다."
+          "cmd": "act",
+          "actor": "soichiro",
+          "name": "망치 하나로 신도 셋을 막는다 · 어깨에 화살",
+          "seconds": 1.6,
+          "wait": false
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": "smithySoichiro",
+          "y": 400,
+          "id": "smithyFire"
         },
         {
           "cmd": "say",
           "speaker": "soichiro",
-          "face": "wounded",
-          "text": "왜 왔어! 뒷산으로 가라고 했잖아!",
+          "face": "angry",
+          "text": "왜 왔어! 엄마가 동굴로 가랬잖아!",
           "side": "right"
         },
         {
@@ -565,35 +3583,98 @@
           "side": "left"
         },
         {
+          "cmd": "mode",
+          "mode": "play",
+          "src": "〔조작〕"
+        },
+        {
           "cmd": "gameplay",
           "do": "fight",
           "group": "smithy",
           "slowmoLast": true,
-          "text": "플레이어가 신도들을 벤다."
+          "src": "신도들을 벤다. 마지막 신도를 베는 순간 슬로모션."
         },
         {
-          "cmd": "say",
-          "speaker": "soichiro",
-          "face": "wounded",
-          "text": "…많이 컸구나. 그 칼, 잘 맞네.",
-          "side": "right"
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
         },
         {
           "cmd": "gameplay",
-          "do": "npcPose",
-          "who": "soichiro",
-          "pose": "kneel",
-          "text": "소이치로가 무릎을 꿇는다."
+          "do": "arrowTraps",
+          "on": false,
+          "src": "화면 밖에서 휘파람 소리 두 번. 소이치로의 등에 화살이 꽂힐 때마다 히트스톱, 둔탁한 소리, 화면이 조금씩 탈색된다."
         },
         {
-          "cmd": "note",
-          "text": "등에 화살이 두 개 더 꽂혀 있다."
+          "cmd": "stopAnim",
+          "actor": "soichiro"
+        },
+        {
+          "cmd": "sfx",
+          "id": "whistle"
+        },
+        {
+          "cmd": "hitStop",
+          "seconds": 0.14
+        },
+        {
+          "cmd": "sfx",
+          "id": "thud"
+        },
+        {
+          "cmd": "act",
+          "actor": "soichiro",
+          "name": "등에 화살이 꽂힌다",
+          "seconds": 0.6
+        },
+        {
+          "cmd": "desaturate",
+          "amount": 0.15,
+          "seconds": 0.3
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.6
+        },
+        {
+          "cmd": "sfx",
+          "id": "whistle"
+        },
+        {
+          "cmd": "hitStop",
+          "seconds": 0.14
+        },
+        {
+          "cmd": "sfx",
+          "id": "thud"
+        },
+        {
+          "cmd": "act",
+          "actor": "soichiro",
+          "name": "또 한 대",
+          "seconds": 0.6
+        },
+        {
+          "cmd": "desaturate",
+          "amount": 0.3,
+          "seconds": 0.3
+        },
+        {
+          "cmd": "kneel",
+          "actor": "soichiro"
         },
         {
           "cmd": "say",
           "speaker": "soichiro",
           "face": "wounded",
-          "text": "엄마한테 가. 엄마는… 너를 지키려고 저기 있는 거다. 가.",
+          "text": "…그 칼, 잘 맞네. 역시 내가 잘 만들었어.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "soichiro",
+          "face": "serious",
+          "text": "엄마한테 가. 엄마는 지금 너를 지키려고 거기 있는 거다.",
           "side": "right"
         },
         {
@@ -606,185 +3687,343 @@
         {
           "cmd": "say",
           "speaker": "soichiro",
-          "face": "wounded",
+          "face": "smile",
           "text": "이름. 꼭 지어라.",
           "side": "right"
         },
         {
           "cmd": "gameplay",
-          "do": "roofCollapse",
-          "who": "soichiro",
-          "text": "대장간 지붕이 무너지며 화면을 가린다."
+          "do": "collapse",
+          "at": "smithySoichiro",
+          "offset": -110,
+          "id": "roofRuin",
+          "src": "대장간 지붕이 무너지며 불타는 잔해가 둘 사이를 막는다. 흰 플래시. 다시 밝아지면 아카네 혼자. 탈색 30% 유지. 목표 자막 〈엄마에게〉."
         },
         {
-          "cmd": "shake",
-          "strength": "strong",
-          "src": "흔들림 강."
+          "cmd": "flash",
+          "color": "white",
+          "ms": 500
         },
         {
-          "cmd": "fadeOut",
-          "duration": 0.3,
-          "src": "암전 0.3초 후 바로 명전, 아카네 혼자 서 있다."
+          "cmd": "disappear",
+          "actor": "soichiro",
+          "fade": false
         },
         {
-          "cmd": "fadeIn",
-          "duration": 0.8
+          "cmd": "lightOff",
+          "id": "smithyFire"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.6
+        },
+        {
+          "cmd": "objective",
+          "text": "엄마에게"
+        },
+        {
+          "cmd": "particlesStop"
         }
       ]
     },
     {
-      "id": "S0-7",
-      "place": "마을 광장",
+      "id": "P-11",
+      "place": "광장",
       "trigger": {
-        "raw": "위치 도달",
+        "raw": "결전",
         "type": "reach"
       },
+      "mode": "auto",
+      "modeNote": "패배 전투",
       "commands": [
         {
-          "cmd": "letterbox",
-          "on": true,
-          "src": "레터박스."
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 12240,
+          "face": "right"
         },
         {
-          "cmd": "note",
-          "text": "광장의 큰 벚나무가 불타며 꽃잎이 재가 되어 흩날린다."
+          "cmd": "particlesStop",
+          "id": "smithyEmbers"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": "fireHaru",
+          "face": "right"
+        },
+        {
+          "cmd": "pose",
+          "actor": "haru",
+          "pose": "guard"
         },
         {
           "cmd": "gameplay",
-          "do": "npcPlace",
-          "who": "haru",
-          "at": "fireHaru",
-          "face": 1,
-          "text": "하루가 목검이 아닌 진검을 들고 서 있다."
+          "do": "bossLook",
+          "color": null,
+          "show": true,
+          "x": 13450,
+          "face": -1
         },
         {
-          "cmd": "note",
-          "text": "그 앞에 흰 머리, 금빛 후광 장식을 단 사내."
+          "cmd": "objective",
+          "text": null,
+          "src": "레터박스. 불타는 큰 벚나무. 하루가 진검을 들고 서 있다. 그 앞, 불길 속에서 흰 머리 사내가 걸어 나온다. 삿갓은 없다. 금빛 고리 장식. 하쿠야."
         },
         {
-          "cmd": "note",
-          "text": "하쿠야."
+          "cmd": "moveTo",
+          "actor": "akane",
+          "to": "fireAkane",
+          "speed": "run"
         },
         {
-          "cmd": "note",
-          "text": "얼굴은 아직 그림자."
+          "cmd": "camPan",
+          "x": "fireHaru",
+          "offset": 120,
+          "seconds": 1.2
+        },
+        {
+          "cmd": "gameplay",
+          "do": "bossWalk",
+          "to": "fireHakuya"
+        },
+        {
+          "cmd": "particles",
+          "preset": "embers",
+          "at": "plazaStump",
+          "id": "plazaEmbers"
+        },
+        {
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "face": -1,
+          "src": "하쿠야가 아카네를 본다. 그리고 웃는다."
+        },
+        {
+          "cmd": "cutIn",
+          "speaker": "hakuya",
+          "face": "laugh",
+          "hold": 0.6
         },
         {
           "cmd": "say",
           "speaker": "hakuya",
           "face": "laugh",
-          "text": "오랜만이야, 누나. 여전히 꽃을 잘 피우네.",
+          "text": "또 만났네. 만두, 맛있었어.",
+          "side": "right"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "surprised",
+          "text": "…당신이었어?",
           "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "hakuya",
+          "face": "laugh",
+          "text": "오랜만이야, 누나. 편지는 받았지? 꽃을 받으러 온다고 했잖아.",
+          "side": "right"
         },
         {
           "cmd": "say",
           "speaker": "haru",
           "face": "angry",
-          "text": "하쿠야. 여기 있는 사람들은 아무 상관 없어. 돌아가.",
+          "text": "하쿠야. 저 아이는 안 돼. 데려갈 거면 나를 데려가.",
           "side": "right"
         },
         {
           "cmd": "say",
           "speaker": "hakuya",
           "face": "neutral",
-          "text": "상관없지. 그래서 태웠어. 상관없는 것들이 누나 곁에 너무 많으니까.",
-          "side": "left"
-        },
-        {
-          "cmd": "say",
-          "speaker": "hakuya",
-          "face": "laugh",
-          "text": "그 아이는 어디 있어?",
-          "side": "left"
-        },
-        {
-          "cmd": "gameplay",
-          "do": "playerRun",
-          "to": "fireAkane",
-          "text": "아카네가 광장에 뛰어든다."
-        },
-        {
-          "cmd": "gameplay",
-          "do": "npcFace",
-          "who": "haru",
-          "dir": -1,
-          "text": "하루가 돌아본다."
-        },
-        {
-          "cmd": "note",
-          "text": "처음으로 하루의 얼굴이 무너진다."
+          "text": "누나 꽃은 이제 늦었어. 필요한 건 저 아이야.",
+          "side": "right"
         },
         {
           "cmd": "say",
           "speaker": "haru",
-          "face": "scared",
-          "text": "…아카네, 오지 마!",
+          "face": "sad",
+          "text": "그날 너를 따라가지 못한 건 내 잘못이야. 하지만 이 아이는—",
           "side": "right"
         },
         {
           "cmd": "say",
           "speaker": "hakuya",
-          "face": "laugh",
-          "text": "아, 거기 있었구나.",
-          "side": "left"
+          "face": "angry",
+          "text": "그날 얘기 하지 마!",
+          "side": "right"
         },
         {
-          "cmd": "letterbox",
-          "on": false,
-          "src": "레터박스 해제."
+          "cmd": "mode",
+          "mode": "play",
+          "src": "레터박스 해제. 보스 이름 붓 자막 〈카미사마 · 하쿠야〉. 체력바가 줄지 않는다. 아카네의 공격은 금빛 막에 튕긴다. 20초 또는 3번 피격 후 자동 진행."
+        },
+        {
+          "cmd": "camFollow",
+          "actor": "akane"
         },
         {
           "cmd": "bossName",
-          "text": "하쿠야",
-          "src": "보스 체력바: \"하쿠야\" — 체력바가 줄지 않는다."
+          "text": "카미사마 · 하쿠야"
         },
         {
           "cmd": "gameplay",
           "do": "defeatBattle",
           "seconds": 20,
-          "hits": 3,
-          "text": "패배 이벤트 전투."
+          "hits": 3
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto"
+        },
+        {
+          "cmd": "monoCut",
+          "frames": 1,
+          "src": "하쿠야의 발도. 흑백 1프레임, 금빛 베기 선. 아카네가 날아가 쓰러진다. (P-0과 같은 시점, 같은 구도로 연결)"
         },
         {
           "cmd": "gameplay",
-          "do": "hakuyaIaido",
-          "text": "하쿠야의 발도."
+          "do": "hakuyaIaido"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "fireAkaneDown",
+          "face": "right"
+        },
+        {
+          "cmd": "pose",
+          "actor": "akane",
+          "pose": "down"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": "fireHaru",
+          "face": "right"
+        },
+        {
+          "cmd": "pose",
+          "actor": "haru",
+          "pose": "guard"
+        },
+        {
+          "cmd": "camPan",
+          "x": "fireHaru",
+          "seconds": 0.01
+        },
+        {
+          "cmd": "camTilt",
+          "y": 46,
+          "ms": 10
+        },
+        {
+          "cmd": "foreground",
+          "preset": "pillar",
+          "x": "fireAkaneDown"
+        },
+        {
+          "cmd": "particles",
+          "preset": "embers",
+          "at": "fireAkaneDown",
+          "id": "p0embers"
+        },
+        {
+          "cmd": "vignette",
+          "amount": 0.55,
+          "seconds": 0.01
+        },
+        {
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "x": "fireHakuya",
+          "face": -1
         },
         {
           "cmd": "say",
           "speaker": "hakuya",
           "face": "neutral",
           "text": "죽이진 마. 피가 상하면 안 되니까.",
-          "side": "left"
+          "side": "right"
         },
         {
-          "cmd": "gameplay",
-          "do": "npcMove",
-          "who": "haru",
-          "to": "player",
-          "offset": 60,
-          "wait": true,
-          "text": "하루가 아카네 앞을 막아선다."
+          "cmd": "pose",
+          "actor": "haru",
+          "pose": "idle",
+          "src": "하루가 아카네 앞을 막아선다. 하쿠야의 칼이 하루를 꿰뚫는다. 모든 소리 끊김. 슬로모션 0.2배. 화면 앞쪽으로 커다란 꽃잎 한 장이 천천히 떨어진다. 심장 소리 두 번."
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "haru",
+          "to": "fireAkaneDown",
+          "speed": "run",
+          "offset": 70
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "right"
         },
         {
           "cmd": "gameplay",
           "do": "stab",
-          "who": "haru",
-          "text": "하쿠야의 칼이 하루를 꿰뚫는다."
+          "who": "haru"
         },
         {
-          "cmd": "bgm",
-          "name": "stop",
-          "src": "효과음 없이 침묵."
+          "cmd": "silence"
+        },
+        {
+          "cmd": "ambience",
+          "id": null
+        },
+        {
+          "cmd": "slowmo",
+          "scale": 0.2,
+          "seconds": 3
+        },
+        {
+          "cmd": "prop",
+          "id": "bigPetal",
+          "key": "prop_petal",
+          "at": 0,
+          "screen": {
+            "x": 560,
+            "y": -10
+          },
+          "w": 64,
+          "h": 40,
+          "depth": 45,
+          "label": ""
+        },
+        {
+          "cmd": "propMove",
+          "id": "bigPetal",
+          "x": 430,
+          "y": 600,
+          "angle": 200,
+          "seconds": 3.0,
+          "wait": false
         },
         {
           "cmd": "sfx",
-          "name": "stop"
+          "id": "heartbeat"
         },
         {
-          "cmd": "gameplay",
-          "do": "petal",
-          "text": "꽃잎 한 장이 떨어진다."
+          "cmd": "wait",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "sfx",
+          "id": "heartbeat"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "propOff",
+          "id": "bigPetal"
         },
         {
           "cmd": "say",
@@ -798,25 +4037,28 @@
           "speaker": "hakuya",
           "face": "surprised",
           "text": "…….",
-          "side": "left"
+          "side": "right"
+        },
+        {
+          "cmd": "kneel",
+          "actor": "haru",
+          "src": "하루가 무릎 꿇은 채 아카네 쪽으로 손을 뻗는다. 아카네 주위로 꽃잎 수천 장이 소용돌이친다."
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "아카네 쪽으로 손을 뻗는다",
+          "seconds": 1.2,
+          "anim": "haru_reach"
         },
         {
           "cmd": "gameplay",
-          "do": "npcPose",
-          "who": "haru",
-          "pose": "reach",
-          "text": "하루가 마지막 힘으로 손을 뻗는다."
-        },
-        {
-          "cmd": "gameplay",
-          "do": "petalStorm",
-          "text": "아카네 주위로 분홍 꽃잎 수천 장이 소용돌이친다."
-        },
-        {
-          "cmd": "cg",
-          "no": 2,
-          "desc": "꽃잎에 감싸인 아카네와 손을 뻗은 하루",
-          "src": "CG 2: 꽃잎에 감싸인 아카네와 손을 뻗은 하루."
+          "do": "petalStorm"
         },
         {
           "cmd": "say",
@@ -826,6 +4068,35 @@
           "side": "right"
         },
         {
+          "cmd": "sfx",
+          "id": "wind",
+          "volume": 0.4,
+          "src": "바람에 아카네 머리의 방울이 울린다. 딸랑. 하루가 그 소리를 듣고 아주 작게 웃는다."
+        },
+        {
+          "cmd": "sfx",
+          "id": "chime",
+          "volume": 0.6
+        },
+        {
+          "cmd": "act",
+          "actor": "haru",
+          "name": "아주 작게 웃는다",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "sad",
+          "text": "…방울이 울렸는데. 엄마가, 찾으러 못 가겠다. 미안해.",
+          "side": "right"
+        },
+        {
+          "cmd": "cg",
+          "no": 2,
+          "src": "CG 2 페이드인 (꽃잎에 감싸인 아카네와 손을 뻗은 하루)."
+        },
+        {
           "cmd": "say",
           "speaker": "haru",
           "face": "smile",
@@ -833,53 +4104,955 @@
           "side": "right"
         },
         {
+          "cmd": "cgEnd",
+          "src": "흰 플래시. 꽃잎이 아카네를 싣고 하늘로 날아간다. 카메라가 따라 올라간다. 하쿠야가 손을 뻗지만 꽃잎이 그 손을 벤다."
+        },
+        {
           "cmd": "flash",
-          "color": "white",
-          "src": "플래시(흰색)."
+          "color": "white"
+        },
+        {
+          "cmd": "camTilt",
+          "y": -200,
+          "ms": 1800,
+          "wait": false
         },
         {
           "cmd": "gameplay",
-          "do": "carryAway",
-          "text": "꽃잎이 아카네를 싣고 하늘로 날아간다."
+          "do": "carryAway"
         },
         {
           "cmd": "gameplay",
           "do": "bossAnim",
           "anim": "hakuya_hurt",
-          "hold": true,
-          "text": "하쿠야가 손을 뻗지만 꽃잎이 그의 손을 벤다."
+          "hold": true
         },
         {
           "cmd": "say",
           "speaker": "hakuya",
           "face": "angry",
           "text": "누나아——!",
-          "side": "left"
+          "side": "right"
         },
         {
-          "cmd": "fadeOut",
-          "duration": 0.8,
-          "src": "암전."
-        },
-        {
-          "cmd": "bgm",
-          "name": "stop",
-          "src": "침묵 3초."
+          "cmd": "ambience",
+          "id": "chime",
+          "every": 0.9,
+          "volume": 0.25,
+          "src": "외침이 메아리처럼 작아진다. 방울 소리만 멀리서 계속 울리다가 끊긴다. 암전. 3초 침묵."
         },
         {
           "cmd": "wait",
-          "seconds": 3.0
+          "seconds": 2.4
+        },
+        {
+          "cmd": "ambience",
+          "id": null
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 1.2
+        },
+        {
+          "cmd": "silence"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 3
         }
       ]
     },
     {
-      "id": "S0-8",
-      "place": "검은 화면",
+      "id": "P-12",
+      "place": "뒷산 동굴",
       "trigger": {
-        "raw": "프롤로그 끝",
-        "type": "chapterEnd"
+        "raw": "새벽",
+        "type": "reach"
       },
+      "mode": "auto",
       "commands": [
+        {
+          "cmd": "desaturate",
+          "amount": 0,
+          "seconds": 0
+        },
+        {
+          "cmd": "vignette",
+          "amount": 0,
+          "seconds": 0
+        },
+        {
+          "cmd": "foregroundClear"
+        },
+        {
+          "cmd": "particlesStop"
+        },
+        {
+          "cmd": "mood",
+          "to": "cave",
+          "seconds": 0
+        },
+        {
+          "cmd": "gameplay",
+          "do": "mood",
+          "mood": null
+        },
+        {
+          "cmd": "camReset",
+          "ms": 0
+        },
+        {
+          "cmd": "camTilt",
+          "y": 0,
+          "ms": 10
+        },
+        {
+          "cmd": "gameplay",
+          "do": "revive",
+          "at": "caveAkane"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "caveAkane",
+          "face": "left"
+        },
+        {
+          "cmd": "pose",
+          "actor": "akane",
+          "pose": "down"
+        },
+        {
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "show": false
+        },
+        {
+          "cmd": "spawn",
+          "actor": "hana",
+          "at": "caveHana",
+          "face": "right"
+        },
+        {
+          "cmd": "sit",
+          "actor": "hana"
+        },
+        {
+          "cmd": "prop",
+          "id": "mask",
+          "key": "prop_mask_broken",
+          "at": 15440,
+          "dy": -6
+        },
+        {
+          "cmd": "prop",
+          "id": "wp1",
+          "key": "prop_petal",
+          "at": 15780,
+          "color": "#7a5530",
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "wp2",
+          "key": "prop_petal",
+          "at": 15860,
+          "color": "#7a5530",
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "wp3",
+          "key": "prop_petal",
+          "at": 15900,
+          "color": "#6a4a2a",
+          "label": ""
+        },
+        {
+          "cmd": "camPan",
+          "x": 15760,
+          "seconds": 0.01
+        },
+        {
+          "cmd": "particles",
+          "preset": "rain",
+          "id": "rain",
+          "src": "빗소리. 페이드인. 동굴 입구에 아카네가 쓰러져 있다. 주위의 꽃잎은 모두 갈색으로 시들어 있다."
+        },
+        {
+          "cmd": "ambience",
+          "id": "rain",
+          "every": 1.4,
+          "volume": 0.5
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 1.4
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "눈을 뜬다",
+          "seconds": 1.0,
+          "src": "아카네가 눈을 뜬다. 천천히 일어나 앉는다. 손이 머리끈의 방울에 닿는다."
+        },
+        {
+          "cmd": "sit",
+          "actor": "akane"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "손이 머리끈의 방울에 닿는다",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "방울을 흔든다",
+          "seconds": 0.8,
+          "src": "아카네가 방울을 흔든다. 딸랑."
+        },
+        {
+          "cmd": "sfx",
+          "id": "chime",
+          "volume": 0.7
+        },
+        {
+          "cmd": "wait",
+          "seconds": 5,
+          "src": "아무도 오지 않는다. 빗소리만. 5초 동안 카메라도 움직이지 않는다."
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "다시 흔든다",
+          "seconds": 0.6,
+          "src": "다시 흔든다. 딸랑, 딸랑."
+        },
+        {
+          "cmd": "sfx",
+          "id": "chime",
+          "volume": 0.7
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.35
+        },
+        {
+          "cmd": "sfx",
+          "id": "chime",
+          "volume": 0.7
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "…엄마.",
+          "side": "left"
+        },
+        {
+          "cmd": "tremble",
+          "actor": "hana",
+          "times": 2,
+          "src": "동굴 안쪽 어둠에서 무언가 움직인다. 하나다. 하나가 깨진 가면을 끌어안고 잠들어 있다. 아카네가 그 옆에 앉아 자기 망토를 덮어 준다. (하나가 살아 있다는 것만 보여 주고, 대사는 없다.)"
+        },
+        {
+          "cmd": "act",
+          "actor": "hana",
+          "name": "움직인다",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "camPan",
+          "x": "caveHana",
+          "offset": 150,
+          "seconds": 1.2
+        },
+        {
+          "cmd": "act",
+          "actor": "hana",
+          "name": "깨진 가면을 끌어안고 잠들어 있다",
+          "seconds": 1.6
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane"
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "akane",
+          "to": "caveHana",
+          "speed": "slow",
+          "offset": 50
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "hana"
+        },
+        {
+          "cmd": "sit",
+          "actor": "akane"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "자기 망토를 덮어 준다",
+          "seconds": 1.6
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane",
+          "src": "아카네가 일어나 비 속으로 걸어 나간다."
+        },
+        {
+          "cmd": "camFollow",
+          "actor": "akane"
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "akane",
+          "to": "caveExit",
+          "speed": "walk"
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 1.0
+        }
+      ]
+    },
+    {
+      "id": "P-13",
+      "place": "잿더미 마을",
+      "trigger": {
+        "raw": "비",
+        "type": "reach"
+      },
+      "mode": "slow",
+      "commands": [
+        {
+          "cmd": "mood",
+          "to": "ash",
+          "seconds": 0
+        },
+        {
+          "cmd": "camReset",
+          "ms": 0
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 5330,
+          "face": "left"
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane"
+        },
+        {
+          "cmd": "disappear",
+          "actor": "hana",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "dumpling_grandma",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "village_old_man",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "wanderer",
+          "fade": false
+        },
+        {
+          "cmd": "propOff",
+          "id": "steamer"
+        },
+        {
+          "cmd": "propOff",
+          "id": "sapling"
+        },
+        {
+          "cmd": "prop",
+          "id": "ashSteamer",
+          "key": "prop_steamer_burnt",
+          "at": 4240,
+          "w": 40,
+          "h": 26,
+          "color": "#2a2420",
+          "label": "타 버린 찜통"
+        },
+        {
+          "cmd": "prop",
+          "id": "ashLantern",
+          "key": "prop_lantern_fallen",
+          "at": 3560,
+          "w": 60,
+          "h": 20,
+          "color": "#4a4a48",
+          "label": "쓰러진 석등"
+        },
+        {
+          "cmd": "prop",
+          "id": "ashHammer",
+          "key": "prop_hammer",
+          "at": "forge"
+        },
+        {
+          "cmd": "prop",
+          "id": "ashSapling",
+          "key": "prop_sapling_burnt",
+          "at": "sapling",
+          "w": 22,
+          "h": 40,
+          "color": "#141010",
+          "label": "새까맣게 탄 묘목"
+        },
+        {
+          "cmd": "particles",
+          "preset": "rain",
+          "id": "rain"
+        },
+        {
+          "cmd": "ambience",
+          "id": "rain",
+          "every": 1.4,
+          "volume": 0.5
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 1
+        },
+        {
+          "cmd": "silence",
+          "src": "BGM 없음. 빗소리와 발소리뿐. 화면 채도 40%. 공격·대쉬 버튼 아이콘이 회색으로 꺼져 있다."
+        },
+        {
+          "cmd": "ambience",
+          "id": "rain",
+          "every": 1.4,
+          "volume": 0.5
+        },
+        {
+          "cmd": "desaturate",
+          "amount": 0.6,
+          "seconds": 0.01
+        },
+        {
+          "cmd": "objective",
+          "text": "지나온 길을 거꾸로 — 집 마당까지",
+          "src": "아침에 지나간 길을 거꾸로 걷는다. 장소마다 〔조사〕가 하나씩 있고, 조사하면 그 자리에서 아침에 들었던 대사가 반투명 분홍 글씨로 다시 떠올랐다가 빗물처럼 흘러내린다."
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-13:1",
+          "group": "P-13",
+          "label": "마을 입구, 나그네가 앉았던 돌",
+          "at": "gateStone",
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "갈색으로 시든 꽃잎 한 장."
+            }
+          ],
+          "recall": [
+            {
+              "text": "그래. 나도 못 했어."
+            }
+          ],
+          "recallColor": "#ffb7c5"
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-13:2",
+          "group": "P-13",
+          "label": "무너진 만두 가게",
+          "at": "dumplingShop",
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "타 버린 찜통."
+            }
+          ],
+          "recall": [
+            {
+              "text": "생일이라며? 하나 더 넣었다."
+            }
+          ],
+          "recallColor": "#ffb7c5"
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-13:3",
+          "group": "P-13",
+          "label": "신사 앞",
+          "at": 3560,
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "쓰러진 석등."
+            }
+          ],
+          "recall": [
+            {
+              "text": "올해도 큰 나무 잘 부탁한다고 전해 주렴."
+            }
+          ],
+          "recallColor": "#ffb7c5"
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-13:4",
+          "group": "P-13",
+          "label": "대장간 터",
+          "at": "forge",
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "재 속의 망치. 아카네가 망치를 줍는다."
+            }
+          ],
+          "recall": [
+            {
+              "text": "이름. 꼭 지어라."
+            }
+          ],
+          "recallColor": "#ffb7c5"
+        },
+        {
+          "cmd": "inspect",
+          "id": "P-13:5",
+          "group": "P-13",
+          "label": "집 마당",
+          "at": "sapling",
+          "lines": [
+            {
+              "speaker": "akane",
+              "text": "아침의 묘목이 새까맣게 타 있다."
+            }
+          ],
+          "recall": [
+            {
+              "text": "엄마가. 평생."
+            }
+          ],
+          "recallColor": "#ffb7c5"
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": "sapling",
+          "dir": -1,
+          "radius": 50,
+          "src": "조사를 모두 하지 않아도 광장으로 갈 수 있다. 조사한 개수에 따라 P-14의 아카네 속마음이 한 줄씩 늘어난다."
+        },
+        {
+          "cmd": "objective",
+          "text": null
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 1
+        }
+      ]
+    },
+    {
+      "id": "P-14",
+      "place": "큰 벚나무 아래",
+      "trigger": {
+        "raw": "무덤",
+        "type": "reach"
+      },
+      "mode": "auto",
+      "applied": [
+        "화면 위쪽에 하루의 마지막 말이 반투명 분홍 글씨로 천천히 떠오른다.",
+        "(P-13 조사 개수에 따라 추가되는 속마음, 하나씩 순서대로)"
+      ],
+      "commands": [
+        {
+          "cmd": "stageBg",
+          "id": "plaza",
+          "key": "bg_pro_grave"
+        },
+        {
+          "cmd": "camReset",
+          "ms": 0
+        },
+        {
+          "cmd": "mood",
+          "to": "ash",
+          "seconds": 0
+        },
+        {
+          "cmd": "desaturate",
+          "amount": 0.6,
+          "seconds": 0
+        },
+        {
+          "cmd": "prop",
+          "id": "stump",
+          "key": "prop_stump",
+          "at": "plazaStump",
+          "depth": 4
+        },
+        {
+          "cmd": "prop",
+          "id": "haruSword",
+          "key": "prop_haru_sword",
+          "at": 12830
+        },
+        {
+          "cmd": "prop",
+          "id": "hairpin",
+          "key": "prop_hairpin",
+          "at": 12800
+        },
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 12560,
+          "face": "right"
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane"
+        },
+        {
+          "cmd": "disappear",
+          "actor": "haru",
+          "fade": false
+        },
+        {
+          "cmd": "disappear",
+          "actor": "soichiro",
+          "fade": false
+        },
+        {
+          "cmd": "particles",
+          "preset": "rain",
+          "id": "rain"
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 1.2,
+          "src": "광장. 큰 벚나무는 검게 탄 그루터기만 남았다. 그 아래 진흙 속에 하루의 칼과 붉은 술 장식 비녀가 놓여 있다. 하루와 소이치로의 모습은 보이지 않는다."
+        },
+        {
+          "cmd": "camPan",
+          "x": "plazaStump",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "moveTo",
+          "actor": "akane",
+          "to": 12760,
+          "speed": "slow"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "비녀를 줍는다",
+          "seconds": 1.0,
+          "src": "아카네가 비녀를 줍는다. 오래 내려다본다."
+        },
+        {
+          "cmd": "propOff",
+          "id": "hairpin"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "오래 내려다본다",
+          "seconds": 2.0
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
+        },
+        {
+          "cmd": "kneel",
+          "actor": "akane",
+          "src": "아카네가 그루터기 옆에 맨손으로 흙을 판다. 망치와 비녀를 묻고, 돌을 쌓아 작은 무덤 두 개를 만든다. 빗줄기가 굵어진다."
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "맨손으로 흙을 판다",
+          "seconds": 2.0
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "망치와 비녀를 묻는다",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "prop",
+          "id": "grave1",
+          "key": "prop_grave",
+          "at": 12700,
+          "fade": 0.6
+        },
+        {
+          "cmd": "prop",
+          "id": "grave2",
+          "key": "prop_grave",
+          "at": 12735,
+          "fade": 0.6
+        },
+        {
+          "cmd": "particles",
+          "preset": "rain",
+          "id": "rain2"
+        },
+        {
+          "cmd": "ambience",
+          "id": "rain",
+          "every": 1.0,
+          "volume": 0.7
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane",
+          "src": "아카네가 검게 탄 그루터기에 손바닥을 댄다. 아무 일도 없다. 다시. 아무 일도 없다. 손바닥으로 그루터기를 친다. 한 번, 두 번."
+        },
+        {
+          "cmd": "face",
+          "actor": "akane",
+          "dir": "right"
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "그루터기에 손바닥을 댄다",
+          "seconds": 1.2
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "다시",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.8
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "손바닥으로 그루터기를 친다",
+          "seconds": 0.5
+        },
+        {
+          "cmd": "sfx",
+          "id": "thud"
+        },
+        {
+          "cmd": "shake",
+          "level": "weak"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.4
+        },
+        {
+          "cmd": "sfx",
+          "id": "thud"
+        },
+        {
+          "cmd": "shake",
+          "level": "weak"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "sad",
+          "text": "피어. 피라고. 엄마가 기다려 준다고 했잖아…",
+          "side": "left"
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane",
+          "src": "아카네가 일어선다. 칼자루를 쥔다. 분홍 글씨 위로 붉은 글씨가 덮어쓰듯 나타나고, 분홍 글씨가 지워진다."
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "칼자루를 쥔다",
+          "seconds": 1.0
+        },
+        {
+          "cmd": "overwrite",
+          "text": "미워하는 마음으로는, 꽃이 안 피어.",
+          "over": "…피우지 못해도 돼.",
+          "color": "#ffb7c5",
+          "overColor": "#ff4a4a"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "…피우지 못해도 돼.",
+          "side": "left"
+        },
+        {
+          "cmd": "say",
+          "speaker": "akane",
+          "face": "angry",
+          "text": "벨 수만 있으면.",
+          "side": "left"
+        },
+        {
+          "cmd": "condition",
+          "when": {
+            "inspectedAtLeast": 1,
+            "group": "P-13"
+          },
+          "then": [
+            {
+              "cmd": "think",
+              "speaker": "akane",
+              "text": "흰 머리. 금빛 고리.",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "cmd": "condition",
+          "when": {
+            "inspectedAtLeast": 2,
+            "group": "P-13"
+          },
+          "then": [
+            {
+              "cmd": "think",
+              "speaker": "akane",
+              "text": "만두를 받아 간 손.",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "cmd": "condition",
+          "when": {
+            "inspectedAtLeast": 3,
+            "group": "P-13"
+          },
+          "then": [
+            {
+              "cmd": "think",
+              "speaker": "akane",
+              "text": "그 손으로, 엄마를.",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "cmd": "condition",
+          "when": {
+            "inspectedAtLeast": 4,
+            "group": "P-13"
+          },
+          "then": [
+            {
+              "cmd": "think",
+              "speaker": "akane",
+              "text": "…내가 길을 알려 줬어.",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "cmd": "condition",
+          "when": {
+            "inspectedAtLeast": 5,
+            "group": "P-13"
+          },
+          "then": [
+            {
+              "cmd": "think",
+              "speaker": "akane",
+              "text": "내가.",
+              "side": "left"
+            }
+          ]
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "머리끈에서 방울을 푼다",
+          "seconds": 1.2,
+          "src": "아카네가 머리끈에서 방울을 풀어 천 조각으로 꽁꽁 감싼다. 이제 흔들어도 소리가 나지 않는다. 그것을 품에 넣는다."
+        },
+        {
+          "cmd": "sfx",
+          "id": "chime",
+          "volume": 0.3
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "천 조각으로 꽁꽁 감싼다",
+          "seconds": 1.6
+        },
+        {
+          "cmd": "setFlag",
+          "flag": "bellWrapped",
+          "value": true
+        },
+        {
+          "cmd": "act",
+          "actor": "akane",
+          "name": "품에 넣는다",
+          "seconds": 1.0
+        },
+        {
+          "cmd": "think",
+          "speaker": "akane",
+          "text": "울려도, 아무도 안 와.",
+          "side": "left"
+        },
+        {
+          "cmd": "kneel",
+          "actor": "akane",
+          "src": "CG B 페이드인: 비 내리는 잿더미, 검은 그루터기 앞 작은 돌무덤 두 개, 그 앞에 무릎 꿇은 아카네의 뒷모습. 오래 머문다. 빗소리 위로 하루의 자장가가 아주 희미하게, 한 소절만."
+        },
+        {
+          "cmd": "cg",
+          "no": "B",
+          "desc": "비 내리는 잿더미, 검은 그루터기 앞 작은 돌무덤 두 개, 그 앞에 무릎 꿇은 아카네의 뒷모습"
+        },
+        {
+          "cmd": "wait",
+          "seconds": 2.0
+        },
+        {
+          "cmd": "hum",
+          "speaker": "haru",
+          "lines": [
+            "잘 자라, 벚꽃아"
+          ],
+          "color": "rgba(255,183,197,0.6)"
+        },
         {
           "cmd": "caption",
           "text": "그날 밤, 사쿠라자와의 벚나무는 모두 죽었다."
@@ -889,14 +5062,26 @@
           "text": "단 한 그루도 다시 피지 않았다."
         },
         {
+          "cmd": "cgEnd",
+          "src": "암전. 3초 침묵. 칼 뽑는 소리 한 번."
+        },
+        {
+          "cmd": "fadeOut",
+          "duration": 1.0
+        },
+        {
+          "cmd": "silence"
+        },
+        {
+          "cmd": "particlesStop"
+        },
+        {
           "cmd": "wait",
-          "seconds": 3.0,
-          "src": "3초 정적."
+          "seconds": 3
         },
         {
           "cmd": "sfx",
-          "name": "칼 뽑는 소리",
-          "src": "칼 뽑는 소리 한 번."
+          "id": "draw"
         },
         {
           "cmd": "caption",
@@ -906,18 +5091,30 @@
           "cmd": "titleCard",
           "text": "카미사마 복수극",
           "style": "logo",
-          "sub": "서장",
-          "src": "타이틀 로고가 붓으로 써지며 등장."
+          "src": "로고 문양이 먹물로 그려지듯 나타나고 제목. 메인 테마."
         },
         {
           "cmd": "bgm",
-          "name": "메인 테마",
-          "src": "메인 테마 BGM 시작."
+          "id": "main_theme",
+          "fade": 1
         }
       ]
     }
   ],
   "pools": [],
+  "lullaby": [
+    "잘 자라, 벚꽃아",
+    "바람이 불어도",
+    "엄마가 여기서",
+    "기다려 줄게"
+  ],
+  "links": [
+    "5장 S5-10: 아카네가 품에서 천으로 감싼 방울을 꺼내 천을 푼 뒤 타누키치에게 준다. 삼 년 만에 방울이 다시 울린다. 대사 추가 — 아카네 (진지): \"삼 년 동안 안 울렸어. 울려도 아무도 안 와서.\"",
+    "6장 S6-7: 하쿠야의 첫 대사 앞에 추가 — 하쿠야 (기본): \"그날 낮에, 만두. …돌아갈까 했어. 정말로.\"",
+    "6장 S6-3: 뿌리 속 아이들이 흥얼거리는 노래는 하루의 자장가다. 아카네가 그걸 알아듣는다.",
+    "기억 조각 16: 제목 〈입구의 나그네〉로 교체 — 축제 날 낮, 하쿠야가 마을 입구 돌 위에서 몇 시간째 큰 나무를 보고 있다. 만두를 반만 먹고 나머지를 품에 넣는다.",
+    "에필로그 E-6: 아카네에게 검술을 배우는 아이들 중 한 명이 열 살이 된 하나다. 하나 (웃음): \"선생님이 꽃 피울 땐 내가 제일 크게 박수 쳤잖아요.\""
+  ],
   "meta": {
     "source": "카미사마 복수극 — 전체 스토리 대본.md",
     "faces": {

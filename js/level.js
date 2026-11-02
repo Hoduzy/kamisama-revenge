@@ -100,95 +100,116 @@ LEVELS.town = {
 // 프롤로그: 사쿠라자와 마을. 대장간(칼 선물) → 해 질 녘 연습장에서 튜토리얼 → 축제 광장(불화살) →
 // 불타는 골목(첫 실전) → 대장간 앞(소이치로) → 불타는 광장(하쿠야 패배 이벤트)
 LEVELS.prologue = {
-  width: 6300,
+  // 새 프롤로그 (P-0 ~ P-14, docs 대본). 한 줄로 이어진 맵을 구역으로 나눠 쓴다 — 장면이 아카네·인물을 그 구역으로 옮긴다.
+  //   아침: 아카네의 방 → 집 마당 → 대장간 → 마을 길 → 마을 입구 → 연습장 → 축제 광장  (P-1 ~ P-9, P-13 은 같은 길을 거꾸로)
+  //   밤  : 불타는 마을 길 → 불타는 대장간 앞 → 불타는 광장  (P-10 ~ P-11, P-0 · P-14 도 이 광장)
+  //   따로: 이로리(P-3) · 뒷산 동굴(P-12)
+  // 배경 그림이 아직 없는 구역은 화면 크기 임시 그림(단색 + 이름표, js/placeholders.js). manifest 에 같은 이름이 생기면 자동으로 그 그림
+  width: 16200,
   height: 720,
-  spawn: { x: 120, y: 560 },
-  mood: 'dusk', // 화면 색: dusk(해 질 녘) / night / fire (gameplay 'mood'·'fireArrows' 로 바뀜)
+  spawn: { x: 300, y: 560 },
+  mood: null,
 
-  // 구역 배경 (assets/sprites/bg_pro_*.png, tools/process_sprites.py 로 전처리). x0~x1 구역에서 보이고
-  // 경계에서 겹쳐 바뀐다. anchorX: 그림의 기준 가로 위치(manifest 의 anchor)가 화면 가운데 올 때의 카메라 중심 x.
-  // 축제 광장과 불타는 광장은 같은 곳이라 둘 다 큰 벚나무 줄기를 그 광장의 나무 자리(decorTrees)에 맞춘다
   backgrounds: [
-    { key: 'bg_pro_forge', x0: 0, x1: 700, anchorX: 350 },
-    { key: 'bg_pro_yard', x0: 700, x1: 2330, anchorX: 1515 },
-    { key: 'bg_pro_festival', x0: 2330, x1: 3120, anchorX: 2760 },
-    { key: 'bg_pro_alley', x0: 3120, x1: 4400, anchorX: 3760 },
-    { key: 'bg_pro_burning', x0: 4400, x1: 6300, anchorX: 5680 },
+    { id: 'room', key: 'bg_pro_room', x0: 0, x1: 960, anchorX: 480 },
+    { id: 'house', key: 'bg_pro_house', x0: 960, x1: 2000, anchorX: 1480 },
+    { id: 'forge', key: 'bg_pro_forge', x0: 2000, x1: 2900, anchorX: 2450 },
+    { id: 'village', key: 'bg_pro_village', x0: 2900, x1: 4700, anchorX: 3800 },
+    { id: 'gate', key: 'bg_pro_gate', x0: 4700, x1: 5700, anchorX: 5200 },
+    { id: 'yard', key: 'bg_pro_yard', x0: 5700, x1: 7400, anchorX: 6515 },
+    { id: 'festival', key: 'bg_pro_festival', x0: 7400, x1: 8700, anchorX: 8000 },
+    { id: 'road', key: 'bg_pro_alley', x0: 8700, x1: 10800, anchorX: 9900 },
+    { id: 'smithy', key: 'bg_pro_forge', x0: 10800, x1: 11800, anchorX: 11300, tint: 0xd07060 },
+    { id: 'plaza', key: 'bg_pro_burning', x0: 11800, x1: 13700, anchorX: 12900 },
+    { id: 'irori', key: 'bg_pro_irori', x0: 13700, x1: 15100, anchorX: 14480 },
+    { id: 'cave', key: 'bg_pro_cave', x0: 15100, x1: 16200, anchorX: 15680 },
   ],
 
   ground: [
-    { x: 0, y: 620, w: 3700, h: 100 },
-    { x: 1400, y: 572, w: 44, h: 48 },    // 연습장 낮은 담 (점프 튜토리얼)
-    { x: 3820, y: 620, w: 2480, h: 100 }, // 골목의 구덩이 3700~3820 너머
-    { x: 4250, y: 560, w: 90, h: 60 },    // 무너진 담
+    { x: 0, y: 620, w: 16200, h: 100 },
+    { x: 6400, y: 572, w: 44, h: 48 },     // 연습장 낮은 돌담 (점프)
     { x: -40, y: 0, w: 40, h: 720 },
-    { x: 6300, y: 0, w: 40, h: 720 },
+    { x: 8660, y: 0, w: 40, h: 720 },      // 아침 / 밤 사이 벽
+    { x: 13700, y: 0, w: 40, h: 720 },     // 밤 / 이로리
+    { x: 14000 - 40, y: 0, w: 40, h: 720 },
+    { x: 14960, y: 0, w: 40, h: 720 },
+    { x: 15200 - 40, y: 0, w: 40, h: 720 }, // 동굴
+    { x: 16160, y: 0, w: 40, h: 720 },
   ],
+  platforms: [],
 
-  platforms: [
-    { x: 3380, y: 500, w: 160, h: 20 },
-    { x: 3600, y: 450, w: 140, h: 20 },
-    { x: 3980, y: 500, w: 150, h: 20 },
-  ],
-
-  // 처음엔 없고 gameplay 'spawn' 으로 나타나는 무리는 group 을 단다
   enemies: [
-    { type: 'dummy', group: 'dummies', x: 1760, y: 620 },
-    { type: 'dummy', group: 'dummies', x: 1880, y: 620 },
-    { type: 'dummy', group: 'dummies', x: 2000, y: 620 },
-    { type: 'swordsman', group: 'alley', x: 3520, y: 620, minX: 3300, maxX: 3690 },
-    { type: 'swordsman', group: 'alley', x: 4000, y: 620, minX: 3830, maxX: 4240 },
-    { type: 'swordsman', group: 'smithy', x: 4830, y: 620, minX: 4600, maxX: 5050 },
-    { type: 'swordsman', group: 'smithy', x: 4920, y: 620, minX: 4600, maxX: 5050 },
-    { type: 'swordsman', group: 'smithy', x: 5010, y: 620, minX: 4600, maxX: 5050 },
-    // 하쿠야: 패배 이벤트 전투 (gameplay 'defeatBattle' 이 깨운다)
-    { type: 'boss', x: 5760, y: 620, minX: 5150, maxX: 6250, dormant: true },
+    { type: 'dummy', group: 'dummies', x: 6760, y: 620 },
+    { type: 'dummy', group: 'dummies', x: 6880, y: 620 },
+    { type: 'dummy', group: 'dummies', x: 7000, y: 620 },
+    // P-10 불타는 마을: 첫 신도 (처음 벨 때만 슬로모션)
+    { type: 'swordsman', group: 'road', x: 9500, y: 620, minX: 9300, maxX: 9700 },
+    // P-10b 대장간 앞: 소이치로가 막고 있는 신도 셋
+    { type: 'swordsman', group: 'smithy', x: 11180, y: 620, minX: 11000, maxX: 11500 },
+    { type: 'swordsman', group: 'smithy', x: 11270, y: 620, minX: 11000, maxX: 11500 },
+    { type: 'swordsman', group: 'smithy', x: 11360, y: 620, minX: 11000, maxX: 11500 },
+    // 하쿠야: P-0 실루엣 · P-11 패배 이벤트 전투
+    { type: 'boss', x: 13050, y: 620, minX: 12100, maxX: 13600, dormant: true },
   ],
 
+  // 체크포인트 벚꽃나무 (죽으면 마지막 나무에서). 첫 나무는 마을 길 어귀
   trees: [
-    { x: 120, y: 620 },
-    { x: 3240, y: 620 }, // 불타는 골목 입구 (S0-5)
-    { x: 4480, y: 620 }, // 대장간 앞 (S0-6)
+    { x: 3000, y: 620 },
+    { x: 9150, y: 620 },   // 불타는 마을 길
+    { x: 10900, y: 620 },  // 대장간 앞
   ],
-  // 광장의 큰 벚나무는 배경 그림 속 나무라 나무 그림은 숨기고(hidden) 꽃 피는 효과만 그 자리(canopy)에 낸다
   decorTrees: [
-    { id: 'festival', x: 2760, y: 620, hidden: true, canopy: { y: 300, w: 230 } },
-    { id: 'burning', x: 5680, y: 620, bloomed: true, burning: true, hidden: true, canopy: { y: 300, w: 230 } },
+    { id: 'festival', x: 8000, y: 620, hidden: true, canopy: { y: 300, w: 230 } },
+    { id: 'burning', x: 12900, y: 620, bloomed: true, burning: true, hidden: true, canopy: { y: 300, w: 230 } },
   ],
 
-  // 인물(그림만, 판정 없음). look: haru(주인공 그림을 물들임) / 그 밖엔 실루엣 + 이름
-  // 인물(그림만, 판정 없음). look: haru / soichiro / villager(sheet + 색 변형) / silhouette(그림이 없을 때)
-  // festival: 축제 때 춤추다가 불화살이 떨어지면 flee 쪽(-1 왼쪽 / 1 오른쪽)으로 도망친다
+  // 처음부터 맵에 있는 인물. 장면마다 spawn 으로 자리를 옮긴다. 그림이 없는 인물은 실루엣 + 이름표
   npcs: [
-    { id: 'soichiro', name: '소이치로', look: 'soichiro', x: 350, y: 620, face: -1 },
-    { id: 'haru', name: '하루', look: 'haru', x: 1030, y: 620, face: -1 },
-    { id: 'child', name: '마을 아이', look: 'villager', sheet: 'villager_child', x: 2520, y: 620, face: 1, festival: true, flee: -1 },
-    { id: 'vm1', name: '마을 사람', look: 'villager', sheet: 'villager_man', x: 2590, y: 620, face: 1, festival: true, flee: -1 },
-    { id: 'vw1', name: '마을 사람', look: 'villager', sheet: 'villager_woman_v1', x: 2650, y: 620, face: -1, festival: true, flee: -1 },
-    { id: 'vm2', name: '마을 사람', look: 'villager', sheet: 'villager_man_v2', x: 2860, y: 620, face: 1, festival: true, flee: 1 },
-    { id: 'vw2', name: '마을 사람', look: 'villager', sheet: 'villager_woman', x: 2920, y: 620, face: -1, festival: true, flee: 1 },
-    { id: 'vm3', name: '마을 사람', look: 'villager', sheet: 'villager_man_v3', x: 2990, y: 620, face: -1, festival: true, flee: 1 },
-    { id: 'vw3', name: '마을 사람', look: 'villager', sheet: 'villager_woman_v3', x: 3050, y: 620, face: 1, festival: true, flee: 1 },
-    { id: 'vm4', name: '마을 사람', look: 'villager', sheet: 'villager_man_v1', x: 2460, y: 620, face: 1, festival: true, flee: -1 },
-    // 불타는 골목: 신도가 들이닥치면 도망치는 마을 사람들 (S0-5)
-    { id: 'af1', name: '마을 사람', look: 'villager', sheet: 'villager_woman_v2', x: 3420, y: 620, face: -1, alley: true, flee: -1 },
-    { id: 'af2', name: '마을 사람', look: 'villager', sheet: 'villager_man_v2', x: 3480, y: 620, face: -1, alley: true, flee: -1 },
+    { id: 'haru', name: '하루', look: 'haru', x: 1700, y: 620, face: -1 },
+    { id: 'soichiro', name: '소이치로', look: 'soichiro', x: 2450, y: 620, face: -1 },
+    { id: 'hana', name: '하나', look: 'villager', sheet: 'villager_child', x: 3000, y: 620, face: -1 },
+    { id: 'dumpling_grandma', name: '만두 할머니', look: 'villager', sheet: 'villager_woman', x: 4260, y: 620, face: -1 },
+    { id: 'village_old_man', name: '마을 노인', look: 'villager', sheet: 'villager_man_v3', x: 3500, y: 620, face: -1 },
+    { id: 'wanderer', name: '나그네', look: 'wanderer', tall: true, hat: true, x: 5230, y: 620, face: 1 },
+    // 축제 광장 마을 사람들 (P-8 춤 → P-9 멈춤)
+    { id: 'vm1', name: '마을 사람', look: 'villager', sheet: 'villager_man', x: 7620, y: 620, face: 1, festival: true, flee: -1 },
+    { id: 'vw1', name: '마을 사람', look: 'villager', sheet: 'villager_woman_v1', x: 7700, y: 620, face: -1, festival: true, flee: -1 },
+    { id: 'vm2', name: '마을 사람', look: 'villager', sheet: 'villager_man_v2', x: 8260, y: 620, face: 1, festival: true, flee: 1 },
+    { id: 'vw2', name: '마을 사람', look: 'villager', sheet: 'villager_woman_v2', x: 8340, y: 620, face: -1, festival: true, flee: 1 },
+    { id: 'vm3', name: '마을 사람', look: 'villager', sheet: 'villager_man_v1', x: 8420, y: 620, face: -1, festival: true, flee: 1 },
+    { id: 'vw3', name: '마을 사람', look: 'villager', sheet: 'villager_woman_v3', x: 7540, y: 620, face: 1, festival: true, flee: -1 },
+    // P-10 왼쪽으로 도망치는 마을 사람들
+    { id: 'rf1', name: '마을 사람', look: 'villager', sheet: 'villager_woman_v2', x: 9320, y: 620, face: -1, road: true, flee: -1 },
+    { id: 'rf2', name: '마을 사람', look: 'villager', sheet: 'villager_man_v2', x: 9420, y: 620, face: -1, road: true, flee: -1 },
+    { id: 'rf3', name: '마을 사람', look: 'villager', sheet: 'villager_man', x: 9640, y: 620, face: -1, road: true, flee: -1 },
   ],
 
-  // gameplay 명령이 쓰는 위치(x)
+  // 장면이 쓰는 위치(x)
   points: {
-    wall: 1400, forge: 350, haruWall: 1340, haruDrill: 2200, plazaTree: 2700, smithyFront: 4660,
-    fireHaru: 5600, fireAkane: 5450, fireHaruAside: 5360,
+    // 아침
+    bed: 260, roomDoor: 900, sapling: 1500, houseExit: 1900,
+    forge: 2450, forgeFront: 2330, well: 3200, shrine: 3500, dumplingShop: 4200, villageEnd: 4600,
+    gateStone: 5230, gateAkane: 5130, forestPath: 5650,
+    wall: 6400, haruWall: 6340, haruDrill: 7200, yardHaru: 6100,
+    festivalTree: 8000, festivalAkane: 7880, festivalHaru: 7960, festivalSoichiro: 7820, festivalEdge: 8560,
+    // 밤
+    roadStart: 9100, dumplingFire: 9950, roadHana: 9950, smithyFront: 11050, smithySoichiro: 11450,
+    plazaEnter: 12300, fireAkane: 12560, fireAkaneDown: 12560, fireHaru: 12760, fireHaruAside: 12660, fireHakuya: 13060,
+    plazaStump: 12900, graveAkane: 12820,
+    // 따로
+    irori: 14480, iroriAkane: 14400, iroriHaru: 14560, iroriDoor: 14900,
+    caveMouth: 15900, caveAkane: 15820, caveHana: 15420, caveExit: 16120,
   },
-  // 보이지 않는 벽: 그 장면이 끝나기 전엔 앞으로 못 감
+  // 보이지 않는 벽: 그 장면이 끝나기 전엔 앞으로 못 감 (조작 장면이 끝나기 전에 다음 장소로 앞질러 가지 않게)
   gates: [
-    { x: 700, until: 'S0-3' },
-    { x: 2330, until: 'S0-2' },
-    { x: 3120, until: 'S0-4' },
-    { x: 4400, until: 'S0-5' },
-    { x: 5100, until: 'S0-6' },
+    { x: 960, until: 'P-1' },
+    { x: 2900, until: 'P-4' },
+    { x: 4760, until: 'P-5' },
+    { x: 5720, until: 'P-6' },
+    { x: 10780, until: 'P-10' },
+    { x: 11780, until: 'P-10b' },
   ],
-  memories: [], // 기억 조각은 1-1 ~ 6-3 에만 있다 (memories.json)
+  memories: [],
 };
 
 // 장 → 맵
@@ -204,15 +225,18 @@ window.levelFor = (chapter) => LEVELS[chapter] || LEVELS.town;
 //   next       : 마지막 장면 뒤 이어지는 장 (then: 'nextChapter')
 window.STORY_MAP = {
   prologue: {
-    start: ['S0-1', 'S0-3'],  // 대장간에서 칼을 받고 → 연습장으로
+    // 새 프롤로그: 불타는 광장 미리보기 → 열두 시간 전 아침부터. 장면 안에서 모드·자리·카메라를 정한다 (배우 시스템)
+    start: ['P-0', 'P-1'],
     triggers: [
-      { x: 780, scene: 'S0-2' },
-      { x: 2420, scene: 'S0-4' },
-      { x: 5330, scene: ['S0-7', 'S0-8'], then: 'nextChapter' },
+      { x: 1000, scene: ['P-2', 'P-3', 'P-4'] },        // 방을 나서 마당 → 밥상 → 대장간
+      { x: 2950, scene: 'P-5' },                        // 마을 길 (심부름)
+      { x: 4850, scene: 'P-6' },                        // 마을 입구 (나그네)
+      { x: 5750, scene: ['P-7', 'P-8', 'P-9', 'P-10'] }, // 연습장 → 축제 → 종소리 → 불타는 마을
+      { x: 10850, scene: 'P-10b' },                     // 대장간 앞
+      { x: 12200, scene: ['P-11', 'P-12', 'P-13', 'P-14'], then: 'nextChapter' }, // 광장 결전 → 동굴 → 잿더미 → 무덤
     ],
-    trees: { 1: 'S0-5', 2: 'S0-6' },
     next: 'ch1',
-    restartFromBeginning: true, // R: 프롤로그는 처음부터 (튜토리얼·연출이 이어져 있어서)
+    restartFromBeginning: true, // R: 프롤로그는 처음부터 (연출이 이어져 있어서)
   },
   ch1: {
     start: ['S1-1', 'S1-2'],

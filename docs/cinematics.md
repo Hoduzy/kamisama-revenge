@@ -236,3 +236,36 @@
 
 - '아카네가 다가가면 …' 처럼 조건(…면)이 붙은 문장은 바꾸지 않습니다 (플레이어 행동).
 - 시험 변환: `python3 tools/convert_story.py --dry-run --report 보고서.md` — `data/story` 는 그대로 두고, 장면별 모드·바꾼 연출 문장·위치가 필요한 것·남은 note 를 보고서로 씁니다.
+
+## 프롤로그용으로 더한 명령 (새 프롤로그 P-0 ~ P-14)
+
+새 프롤로그의 ▶ 연출은 `tools/prologue_directions.py` 표에서 줄마다 명령으로 옮깁니다. 대본을 변환할 때 표에 없는 ▶ 줄이 있으면 목록으로 경고합니다. 그림이 없는 배경·소품·인물·동작의 이름 목록은 `docs/prologue-assets.md` 에 있습니다.
+
+| 명령 | 매개변수 | 설명 |
+| --- | --- | --- |
+| `prop` | `id`, `key`(그림 이름), `at`/`x`, `y`·`dy`, `w`·`h`·`color`(임시 그림), `depth`, `angle`, `scale`, `fade`, `screen`: {x, y}(화면 고정), `label` | 소품 놓기. manifest 에 그림이 없으면 단색 네모 + 이름표 |
+| `propOff` | `id`, `fade` | 소품 치우기 |
+| `propMove` | `id`, `x`/`to`, `y`·`dy`·`ground`, `angle`, `seconds`, `ease` | 소품 옮기기 (떨어지는 삿갓, 쓰러지는 기둥) |
+| `propTint` | `id`, `color`, `alpha`, `seconds` | 소품 색 바꾸기 (꽃이 재가 됨, 꽃잎이 시듦) |
+| `act` | `actor`, `name`, `anim`, `loop`, `seconds`, `wait` | 동작. 애니메이션이 있으면 재생, 없으면 머리 위에 `(동작 이름)` |
+| `emoteHold` | `actor`, `kind`, `on` | 머리 위 아이콘을 계속 (심부름 중 바구니). 아이콘 종류에 `palm`(손바닥), `basket`(바구니) 추가 |
+| `tremble` | `actor`, `times` | 그림을 2px 씩 떨기 (손이 떨림) |
+| `stageBg` | `id`(구역), `key`, `tint` | 구역 배경 바꾸기 (P-14 잿더미 광장) |
+| `ambience` | `id`(효과음), `every`(초), `volume` / `id: null`(모두 멈춤) | 반복 환경음: 빗소리 `rain`, 불 `fire`, 북 `drum`, 피리 `pipe`, 망치 `hammer`, 방울 `chime` |
+| `mood` | `to`: … `morning`(아침) · `duskDeep`(짙은 해 질 녘) · `ash`(잿빛 비) · `cave`(동굴) 추가 | |
+| `particles` | `preset`: … `rain`(비) 추가 | |
+| `cutIn` | … `image`(manifest 그림), `label` | 초상화가 없는 컷인 (그림이 없으면 띠에 이름표) |
+
+| gameplay `do` | 설명 |
+| --- | --- |
+| `tutorialIcon` (`step`: move · jump · dashSlash · iaido · parry, `failLine`, `zoomOnThird`) | 글자 없이 머리 위 행동 아이콘만 쓰는 튜토리얼 (P-7) |
+| `arrowVolley` / `arrowRain` | 달 앞을 지나는 불화살 실루엣 / 화살이 땅·지붕·나무에 꽂힘 (P-9) |
+| `arrowTraps` (`every`, `on`) | 바닥에 붉은 원이 깜빡인 뒤 불화살이 꽂힘, 맞으면 피해 (P-10) |
+| `cutPillar` (`prop`) | 기둥 위에 베기 아이콘, 베면 기둥이 부서짐 (P-10 하나 구출) |
+| `collapse` (`at`) | 잔해가 쏟아지며 흔들림 강 (만두 가게 · 대장간 지붕) |
+| `freezeDancers` / `fleeTag` (`tag`) | 춤추던 사람들이 멈춤 / 표시 붙은 사람들이 도망 |
+| `bossLook` (`color: 'black'`, `show`, `x`, `face`) · `bossWalk` (`to`) | 하쿠야 실루엣 · 걸어 나오기 |
+| `revive` (`at`) | 하쿠야의 발도로 쓰러진 아카네를 다시 일으킴 (P-12) |
+| `fight` 에 `firstKillSlowmo`(초) 추가 | 처음 벨 때만 슬로모션 + 줌인 (P-10) |
+
+- 붉은 방울(`giveItem` 이름 `붉은 방울`)을 받으면 점프할 때마다 아주 작게 방울 소리가 납니다. `setFlag bellWrapped` (P-14 천으로 감쌈) 뒤에는 소리가 나지 않습니다.

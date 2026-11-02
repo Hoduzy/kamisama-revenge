@@ -191,8 +191,10 @@
           "side": "right"
         },
         {
-          "cmd": "note",
-          "text": "타누키치가 지붕 너머로 사라진다."
+          "cmd": "disappear",
+          "actor": "tanukichi",
+          "fade": 0.6,
+          "src": "타누키치가 지붕 너머로 사라진다."
         },
         {
           "cmd": "note",
@@ -508,8 +510,10 @@
           "side": "left"
         },
         {
-          "cmd": "note",
-          "text": "곤조가 쓰러진다."
+          "cmd": "pose",
+          "actor": "gonzo",
+          "pose": "down",
+          "src": "곤조가 쓰러진다."
         },
         {
           "cmd": "note",

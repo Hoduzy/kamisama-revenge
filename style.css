@@ -340,7 +340,7 @@ body.in-dialogue #ui .hud-skills, body.in-dialogue #ui .ctx-hints { opacity: 0; 
   font-family: var(--font-title); font-size: 16px; color: #cfc6b4; letter-spacing: 3px; }
 #ui .loading.show { display: flex; }
 #ui .loading span { animation: dlg-blink 1.2s steps(2, jump-none) infinite; }
-.fx-cg-ph { text-align: center; font-family: var(--font-story); color: #fff; padding: 40px 80px 160px; }
+.fx-cg-ph { box-sizing: border-box; width: 960px; max-width: 960px; text-align: center; font-family: var(--font-story); color: #fff; padding: 40px 120px 160px; white-space: normal; }
 .fx-cg-ph b { display: block; font-family: var(--font-title); font-weight: 400; font-size: 48px; letter-spacing: 6px; }
 .fx-cg-ph span { display: block; margin-top: 14px; font-size: 16px; line-height: 24px; word-break: keep-all; }
 .fx-cg-ph small { display: block; margin-top: 18px; font-family: var(--font-ui); font-size: 16px; color: #888; }
@@ -651,3 +651,11 @@ body.can-inspect #touch-controls .btn[data-action="interact"] { display: block; 
 .dm-actors { margin-top: -4px; }
 .dm-actors span { color: var(--gold); }
 .dm-actors button { margin-left: 0 !important; font: inherit; font-size: 16px; padding: 3px 10px; background: #3a2140; color: #ffd6e0; border: 1px solid var(--sakura); border-radius: 4px; cursor: pointer; }
+
+/* 임시 소품 이름표 · 그림 없는 동작 이름 */
+.float.prop-tag span { font-size: 16px; color: #d8cdb8; opacity: 0.75; transform: translate(-50%, -100%); }
+.float.act-tag span { font-size: 16px; color: #fde68a; transform: translate(-50%, -100%); text-shadow: 0 0 3px #000, 2px 2px 0 #000; }
+
+/* 그림 없는 컷인 (이름표) */
+.cine-cutin .cc-eyes.cc-ph { display: flex; align-items: center; justify-content: center; font-size: 16px; color: #f5e6c8;
+  background: repeating-linear-gradient(90deg, #1a1416 0 12px, #241c1e 12px 24px); }

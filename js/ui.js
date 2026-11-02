@@ -223,12 +223,22 @@ const UI = {
   },
 
   // 컷인: 가로 띠가 열리고 초상화의 눈 부분만 크게. ch = characters.json 인물 (sprite 시트 + 표정)
-  cineCutIn(ch, face, hold, eyes0 = { x: 0.5, y: 0.45 }) {
+  // extra: { image(manifest 그림 이름), label } — 초상화가 없는 컷인(삿갓 아래 흰 머리카락 등). 그림이 없으면 이름표
+  cineCutIn(ch, face, hold, eyes0 = { x: 0.5, y: 0.45 }, extra = {}) {
     const el = this.el('.cine-cutin');
     const eyes = el.querySelector('.cc-eyes');
     const sp = ch.sprite;
     const sheet = sp && Sprites.sheet(sp.key);
-    if (sheet) {
+    eyes.textContent = '';
+    eyes.classList.toggle('cc-ph', false);
+    const img = extra.image && Sprites.sheet(extra.image);
+    if (img) {
+      Object.assign(eyes.style, { backgroundImage: `url(${SPRITE_DIR}${img.file})`, backgroundSize: 'cover', backgroundPosition: 'center' });
+    } else if (extra.image || extra.label) {
+      eyes.style.backgroundImage = '';
+      eyes.classList.add('cc-ph');
+      eyes.textContent = `컷인 · ${extra.label || extra.image}`;
+    } else if (sheet) {
       const frame = (sp.faces && (sp.faces[face] ?? sp.faces.neutral)) || 0;
       const W = 620; // 초상화 한 칸을 이 폭으로 (약 6배)
       const k = W / sheet.frameWidth;

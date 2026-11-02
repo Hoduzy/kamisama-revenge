@@ -26,6 +26,8 @@ const EMOTE_ART = {
   '…': ['.........', '.........', '.........', 'kk.kk.kk.', 'kk.kk.kk.', '.........', '.........'],
   sweat: ['...b...', '..bbb..', '.bbbbb.', 'bbwbbbb', 'bwbbbbb', 'bbbbbbb', '.bbbbb.', '..bbb..'],
   heart: ['.pp...pp.', 'pppp.pppp', 'ppwpppppp', 'pwppppppp', 'ppppppppp', '.ppppppp.', '..ppppp..', '...ppp...', '....p....'],
+  palm: ['.k.k.k.', '.k.k.k.', 'kk.k.k.', 'kkkkkk.', 'kkkkkkk', '.kkkkk.', '..kkk..'],     // 손바닥 (묘목에 손 대기)
+  basket: ['..kkk..', '.k...k.', 'kkkkkkk', 'kbkbkbk', 'kkkkkkk', '.kbkbk.', '..kkk..'],   // 바구니 (심부름 중)
   note: ['...kk...', '...k.k..', '...k..k.', '...k....', '...k....', '.kkk....', 'kkkk....', 'kkk.....'],
 };
 const EMOTE_ALIAS = { '...': '…', 'dots': '…', '땀': 'sweat', '하트': 'heart', '음표': 'note', '♪': 'note', '느낌표': '!', '물음표': '?' };
@@ -89,12 +91,14 @@ class ActorDirector {
     this.emotes = new Set();
     this.follow = null; // 카메라가 따라가는 배우 (주인공이 아닐 때)
     this.points = [];   // 조사 지점 (inspect 명령으로 생김, 이 맵에 있는 동안 남음)
+    this.props = {};    // 소품 (prop 명령). 그림이 없으면 단색 네모 + 이름표 (js/placeholders.js)
     this.near = null;   // 지금 다가가 있는 조사 지점
     const tick = () => this.update();
     scene.events.on('postupdate', tick);
     scene.events.once('shutdown', () => {
       scene.events.off('postupdate', tick);
       this.running.clear();
+      for (const p of Object.values(this.props)) if (p.tag) p.tag.remove();
     });
   }
 
@@ -208,7 +212,7 @@ class ActorDirector {
     if (dist < 2) return Promise.resolve();
     a.setPose('run');
     const walkAnim = a.poses && a.poses.run !== a.poses.idle && !Array.isArray(a.poses.run);
-    if (walkAnim) a.sprite.anims.timeScale = Phaser.Math.Clamp(v / 200, 0.4, 1.3);
+    if (walkAnim && a.sprite.anims) a.sprite.anims.timeScale = Phaser.Math.Clamp(v / 200, 0.4, 1.3);
     const t0 = this.scene.time.now;
     return this.op((dist / v) * 1000, (t) => {
       a.x = from + (x - from) * t;
@@ -220,7 +224,7 @@ class ActorDirector {
       a.x = x;
       a.y = a.groundY;
       a.facing = dir;
-      a.sprite.anims.timeScale = 1;
+      if (a.sprite.anims) a.sprite.anims.timeScale = 1;
       a.setPose('idle');
     }, skip);
   }
@@ -324,7 +328,8 @@ class ActorDirector {
     if (!n) {
       const ch = (this.story && this.story.characters[id]) || {};
       const look = opts.look || (NPC_POSES[id] ? id : opts.sheet ? 'villager' : 'silhouette');
-      n = new Npc(this.scene, { id, name: opts.name || ch.name || id, look, sheet: opts.sheet, x, y: this.groundAt(x), face: face || 1 });
+      n = new Npc(this.scene, { id, name: opts.name || ch.name || id, look, sheet: opts.sheet, x, y: this.groundAt(x), face: face || 1,
+        tall: opts.tall, small: opts.small, hat: opts.hat });
       this.scene.npcs[id] = n;
       n.visible = false;
     } else {
@@ -334,6 +339,103 @@ class ActorDirector {
     }
     n.sync();
     return this.appear(n, true, opts.fade ?? 0, skip);
+  }
+
+  // ───────── 소품 ─────────
+  // prop: id, key(그림 이름), at/x, y(발 높이, 기본 땅) · dy, w·h·color(임시 그림), depth, flip, angle, alpha, fade,
+  //       screen: { x, y } (화면 고정, 앞쪽 큰 꽃잎처럼), label(이름표, '' = 없음)
+  prop(c, skip) {
+    const s = this.scene;
+    this.propOff({ id: c.id }, true);
+    const ph = Placeholders.prop(s, c.key || c.id, c.w, c.h, c.color);
+    let x;
+    let y;
+    if (c.screen) {
+      x = c.screen.x;
+      y = c.screen.y;
+    } else {
+      x = this.xOf(c.at ?? c.x, c.offset || 0) ?? s.player.body.center.x;
+      y = (c.y ?? this.groundAt(x)) + (c.dy || 0);
+    }
+    const img = s.add.image(Math.round(x), Math.round(y), ph.key).setOrigin(0.5, 1).setDepth(c.depth ?? 7);
+    if (c.screen) img.setScrollFactor(0);
+    if (c.flip) img.setFlipX(true);
+    if (c.angle) img.setAngle(c.angle);
+    if (c.scale) img.setScale(c.scale);
+    const label = c.label ?? (ph.real ? '' : ph.label);
+    const p = { id: c.id, img, real: ph.real };
+    if (label && !c.screen) p.tag = UI.tag(() => [img.x, img.y - img.displayHeight - 4], label);
+    if (p.tag) p.tag.el.classList.add('prop-tag');
+    this.props[c.id] = p;
+    const to = c.alpha ?? 1;
+    const sec = c.fade ?? 0;
+    img.setAlpha(sec ? 0 : to);
+    return this.op(sec * 1000, (t) => img.setAlpha(to * t), () => img.setAlpha(to), skip);
+  }
+
+  propOff(c, skip) {
+    const p = this.props[c.id];
+    if (!p) return Promise.resolve();
+    const img = p.img;
+    const a0 = img.alpha;
+    return this.op((c.fade ?? 0) * 1000, (t) => img.setAlpha(a0 * (1 - t)), () => {
+      img.destroy();
+      if (p.tag) p.tag.remove();
+      if (this.props[c.id] === p) delete this.props[c.id];
+    }, skip);
+  }
+
+  // 옮기기: x/to, y/dy, angle, seconds, ease (떨어지는 삿갓, 무너지는 기둥 …)
+  propMove(c, skip) {
+    const p = this.props[c.id];
+    if (!p) return Promise.resolve();
+    const img = p.img;
+    const x0 = img.x;
+    const y0 = img.y;
+    const r0 = img.angle;
+    const x1 = c.x != null || c.to != null ? this.xOf(c.x ?? c.to, c.offset || 0) : x0;
+    const y1 = c.y != null ? c.y : c.ground ? this.groundAt(x1) : y0 + (c.dy || 0);
+    const r1 = c.angle ?? r0;
+    const ease = Phaser.Tweens.Builders.GetEaseFunction(c.ease || 'Sine.easeInOut');
+    return this.op((c.seconds ?? 1) * 1000, (t) => {
+      const k = ease(t);
+      img.setPosition(Math.round(x0 + (x1 - x0) * k), Math.round(y0 + (y1 - y0) * k)).setAngle(r0 + (r1 - r0) * k);
+    }, () => img.setPosition(Math.round(x1), Math.round(y1)).setAngle(r1), skip);
+  }
+
+  // 색 바꾸기 (꽃이 재가 됨): color, seconds, alpha
+  propTint(c, skip) {
+    const p = this.props[c.id];
+    if (!p) return Promise.resolve();
+    const img = p.img;
+    const from = Phaser.Display.Color.ValueToColor(img.tintTopLeft);
+    const to = Phaser.Display.Color.HexStringToColor(c.color || '#555555');
+    const a0 = img.alpha;
+    const a1 = c.alpha ?? a0;
+    const set = (t) => {
+      const k = Phaser.Display.Color.Interpolate.ColorWithColor(from, to, 100, Math.round(t * 100));
+      img.setTint(Phaser.Display.Color.GetColor(k.r, k.g, k.b)).setAlpha(a0 + (a1 - a0) * t);
+    };
+    return this.op((c.seconds ?? 1) * 1000, set, () => set(1), skip);
+  }
+
+  // ───────── 동작 (그림이 없으면 머리 위에 동작 이름) ─────────
+  // act: actor, name(동작 이름, 예 '머리끈을 묶는다'), anim(그림 이름), loop, seconds
+  act(c, skip) {
+    const a = this.get(c.actor ?? c.who);
+    if (!a) return Promise.resolve();
+    const sec = c.seconds ?? 1.6;
+    const A = this.scene.anims;
+    const key = c.anim && (A.exists(c.anim) ? c.anim : a.look && A.exists(`${a.look}_${c.anim}`) ? `${a.look}_${c.anim}` : null);
+    if (key) {
+      this.anim(a, key, !!c.loop);
+      return skip ? Promise.resolve() : this.story.wait(sec * 1000, true);
+    }
+    if (skip || !c.name) return Promise.resolve();
+    const tag = UI.tag(() => [a.x, a.headY - 20], `(${c.name})`);
+    tag.el.classList.add('act-tag');
+    this.scene.time.delayedCall(sec * 1000, () => tag.remove());
+    return this.story.wait(sec * 1000, true);
   }
 
   // ───────── 머리 위 감정 아이콘 ─────────
@@ -514,7 +616,14 @@ class ActorDirector {
     const a = this.get(c.actor ?? c.who);
     let r = null;
     switch (c.cmd) {
-      case 'moveTo': r = this.moveTo(a, this.xOf(c.x ?? c.to, c.offset || 0), c.speed, skip); break;
+      case 'moveTo': {
+        let x = this.xOf(c.x ?? c.to, c.offset || 0);
+        // near: 대상 배우 바로 앞(gap 50px)에서 멈춤 — 다가오는 쪽에서
+        const t = c.near && this.get(c.x ?? c.to);
+        if (t && a) x = t.x - (Math.sign(t.x - a.x) || 1) * (c.gap ?? 50) + (c.offset || 0);
+        r = this.moveTo(a, x, c.speed, skip);
+        break;
+      }
       case 'face': this.face(a, c.dir ?? c.to); break;
       case 'anim': this.anim(a, c.anim ?? c.name, !!c.loop); break;
       case 'stopAnim': this.setPose(a, 'idle'); break;
@@ -529,6 +638,28 @@ class ActorDirector {
       case 'spawn': r = this.spawn(c.actor ?? c.who, c.at ?? c.x, c, skip); break;
       case 'camFollow': this.camFollow(c.actor ?? c.who); break;
       case 'inspect': this.addPoint(c); break;            // 건너뛰어도 지점은 생긴다
+      case 'emoteHold': {
+        // 머리 위 아이콘을 계속 (심부름 중 바구니 등). on: false 면 지움
+        this.held = this.held || {};
+        const key = `${c.actor}:${c.kind}`;
+        if (this.held[key]) { this.held[key].end(); delete this.held[key]; }
+        if (c.on !== false && a) this.held[key] = this.emoteHold(a, c.kind);
+        break;
+      }
+      case 'tremble': {
+        // 손이 떨림 (그림을 2px 씩 몇 번 흔든다)
+        if (skip || !a) break;
+        const obj = a === this.akane ? a.p.visual : a.sprite;
+        const x0 = obj.x;
+        this.scene.tweens.add({ targets: obj, x: x0 + 2, duration: 40, yoyo: true, repeat: (c.times ?? 3) * 2 - 1 });
+        break;
+      }
+      case 'prop': r = this.prop(c, skip); break;
+      case 'propOff': r = this.propOff(c, skip); break;
+      case 'propMove': r = this.propMove(c, skip); break;
+      case 'propTint': r = this.propTint(c, skip); break;
+      case 'act': r = this.act(c, skip); break;
+      case 'stageBg': this.scene.setStageBg(c.id, c.key, c.tint != null ? Phaser.Display.Color.HexStringToColor(c.tint).color : undefined); break;
       case 'inspectClear': this.removePoint(c.id ?? null); break;
       default: return false;
     }

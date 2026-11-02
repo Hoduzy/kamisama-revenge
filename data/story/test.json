@@ -346,7 +346,7 @@
         {
           "cmd": "spawn",
           "actor": "akane",
-          "at": 900,
+          "at": 1010,
           "face": "right"
         },
         {

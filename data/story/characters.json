@@ -403,5 +403,21 @@
       "clothes": "#5a5048",
       "bg": "#2a2622"
     }
+  },
+  "hana": {
+    "name": "하나",
+    "side": "auto"
+  },
+  "wanderer": {
+    "name": "나그네",
+    "side": "auto"
+  },
+  "dumpling_grandma": {
+    "name": "만두 할머니",
+    "side": "auto"
+  },
+  "village_old_man": {
+    "name": "마을 노인",
+    "side": "auto"
   }
 }

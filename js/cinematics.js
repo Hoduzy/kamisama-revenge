@@ -29,6 +29,10 @@ const CINE_MOODS = {
   dusk: [0xff8a3d, 0.17],   // 따뜻한 주황 (해 질 녘)
   night: [0x1a2258, 0.3],   // 밤 남색
   fire: [0xff3410, 0.24],   // 불타는 붉은색
+  morning: [0xfff2c8, 0.1], // 아침 햇살 (밝고 따뜻하게)
+  duskDeep: [0xff6a1a, 0.27], // 짙어진 해 질 녘 주황
+  ash: [0x3c4048, 0.34],    // 잿더미 · 비 오는 새벽 (회색)
+  cave: [0x0c1018, 0.42],   // 동굴 속 어둠
 };
 
 // 플래시 색
@@ -58,6 +62,8 @@ const CINE_PARTICLES = {
     speed: [160, 340], angle: [200, 340], gravityY: 800, scale: [1, 0.2], alpha: [1, 0] },
   steam: { kind: 'point', tex: 'cine-soft', tint: [0xffffff, 0xe8eef2], lifespan: 1700, frequency: 70,
     speedY: [-80, -40], speedX: [-20, 20], scale: [0.4, 2], alpha: [0.55, 0], area: 30 },
+  rain: { kind: 'area', tex: 'cine-line', tint: [0xa8c0e0, 0x8aa4c8], lifespan: 900, frequency: 10, speedY: [720, 900], wind: -50,
+    scale: [1, 1], alpha: [0.55, 0.35], rotate: [100, 100] },
   dust: { kind: 'burst', tex: 'cine-soft', tint: [0x9a8a78, 0x7a6a5a], count: 10, lifespan: 600,
     speed: [30, 90], angle: [190, 350], gravityY: -20, scale: [0.3, 0.9], alpha: [0.6, 0] },
 };
@@ -282,6 +288,13 @@ class Cinematics {
     if (!this.following) this.follow();
   }
 
+  // x 자리에 맵 points 이름 · 배우 이름도 쓸 수 있게
+  xOf(v) {
+    if (v == null || typeof v === 'number') return v;
+    const p = this.pointOf(v);
+    return p ? p.x : undefined;
+  }
+
   pointOf(t) {
     const s = this.scene;
     if (t == null || t === 'player') { const b = s.player.body; return { x: b.center.x, y: b.center.y - 40 }; }
@@ -427,9 +440,9 @@ class Cinematics {
   }
 
   // 컷인: 화면 가운데 가로 띠가 0.3초 만에 열리고, 그 안에 초상화의 눈 부분만 크게 → hold 초 → 닫힘
-  cutIn(speaker, { face, hold = this.cfg.cutInHold } = {}) {
+  cutIn(speaker, { face, hold = this.cfg.cutInHold, image, label } = {}) {
     const ch = (this.scene.story && this.scene.story.characters[speaker]) || {};
-    UI.cineCutIn(ch, face, hold, (ch.sprite && CINE_EYES[ch.sprite.key]) || { x: 0.5, y: 0.45 });
+    UI.cineCutIn(ch, face, hold, (ch.sprite && CINE_EYES[ch.sprite.key]) || { x: 0.5, y: 0.45 }, { image, label });
     return this.sleep(300 + hold * 1000 + 220);
   }
 
@@ -470,6 +483,7 @@ class Cinematics {
   }
 
   lightOff(id) {
+    if (id == null) { for (const k of Object.keys(this.lightList)) this.lightOff(k); return; }
     const L = this.lightList[id];
     if (!L) return;
     this.scene.lights.removeLight(L.light);
@@ -697,16 +711,30 @@ class Cinematics {
     return true;
   }
 
+  // 환경음: id 를 every 초마다 반복 (빗소리 · 불 타는 소리 · 전투 북). id 가 null 이면 모두(또는 stop 의 것) 멈춤
+  ambience(id, every = 1.6, volume = 0.6, stop) {
+    this.ambiences = this.ambiences || {};
+    if (!id) {
+      for (const [k, t] of Object.entries(this.ambiences)) if (!stop || k === stop) { t.remove(false); delete this.ambiences[k]; }
+      return;
+    }
+    if (this.ambiences[id]) this.ambiences[id].remove(false);
+    CineSound.sfx(id, { volume, pitch: 0.1 });
+    this.ambiences[id] = this.scene.time.addEvent({ delay: every * 1000, loop: true, callback: () => CineSound.sfx(id, { volume, pitch: 0.1 }) });
+  }
+
   runCommand(c, skip) {
     const S = CineSound;
     switch (c.cmd) {
+      case 'ambience': this.ambience(c.id, c.every, c.volume, c.stop); return null;
       case 'camZoom':
         if (skip) { this.scene.cameras.main.setZoom(c.zoom ?? 1); return null; }
         return this.zoom(c.zoom, c.seconds != null ? c.seconds * 1000 : c.ms, c.ease);
       case 'camPan': {
         // 배우 시스템 꼴: camPan(x, 초) = 그 x 로 옮겨 머문다 (back 기본 false). 예전 꼴: to, ms, hold, back(기본 true)
         const lookAt = c.x != null || c.seconds != null;
-        const to = c.x ?? c.to;
+        let to = c.x ?? c.to;
+        if (c.offset) { const p0 = this.pointOf(to); if (p0) to = { x: p0.x + c.offset, y: p0.y }; }
         if (lookAt && c.back !== true) this.lookAtPanned = true; // 장면이 끝나면 아카네에게 돌아온다 (ActorDirector.endScene)
         const opts = lookAt ? { ms: (c.seconds ?? 1) * 1000, hold: c.hold ?? 0, back: c.back ?? false, ease: c.ease } : c;
         if (skip) {
@@ -731,15 +759,15 @@ class Cinematics {
       case 'mood': return this.mood(c.to, skip ? 0 : c.seconds ?? this.cfg.moodSec);
       case 'cutIn': return skip ? null : this.cutIn(c.speaker, c);
       case 'lights': this.lights(c.on !== false, c.ambient != null ? Phaser.Display.Color.HexStringToColor(c.ambient).color : undefined); return null;
-      case 'light': { const pt = c.at ? this.pointOf(c.at) : { x: c.x, y: c.y }; if (pt) this.light(c.preset, pt.x, pt.y, c.id); return null; }
+      case 'light': { const pt = c.at ? this.pointOf(c.at) : { x: this.xOf(c.x), y: c.y }; if (pt) this.light(c.preset, pt.x, pt.y, c.id); return null; }
       case 'lightOff': this.lightOff(c.id); return null;
       case 'particles': {
-        const pt = c.at ? this.pointOf(c.at) : { x: c.x, y: c.y };
+        const pt = c.at ? this.pointOf(c.at) : { x: this.xOf(c.x), y: c.y };
         this.particles(c.preset, { ...c, x: pt && pt.x, y: pt && pt.y });
         return null;
       }
       case 'particlesStop': this.particlesStop(c.id); return null;
-      case 'foreground': this.foreground(c.preset, c.x); return null;
+      case 'foreground': this.foreground(c.preset, this.xOf(c.x)); return null;
       case 'foregroundClear': this.foregroundClear(); return null;
       case 'guideArrow': this.guideTo(c.to == null ? null : this.pointOf(c.to).x); return null;
       case 'guideWind': this.guideWind(c.to == null ? null : this.pointOf(c.to).x, c.kind); return null;
@@ -747,7 +775,7 @@ class Cinematics {
       case 'actionHint': if (c.action) this.actionHint(c.action); else this.clearActionHint(); return null;
       case 'exitGlow': if (c.on === false) this.exitGlowOff(); else this.exitGlow(this.pointOf(c.to ?? c.x).x); return null;
       case 'bgmDuck': S.duck(c.on !== false, c.seconds); return null;
-      case 'silence': S.silence(); return null;
+      case 'silence': S.silence(); this.ambience(null); return null;
       default: return false;
     }
   }
@@ -785,6 +813,17 @@ const CineSound = {
     boom: [2, 0.1, 40, 0.02, 0.3, 1.2, 4, 3, -1, 0, 0, 0, 0, 2, 0, 0.6, 0.1, 0.4, 0.4],
     wind: [0.5, 0.5, 300, 0.5, 1, 0.8, 4, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0.4, 0.4],
     heartbeat: [1.2, 0, 55, 0.005, 0.02, 0.2, 0, 2, -2, 0, 0, 0, 0.35],
+    // 프롤로그
+    chime: [0.5, 0.01, 1900, 0, 0.02, 0.5, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0.05, 0.5, 0.2], // 작은 방울 딸랑
+    gong: [1.5, 0, 98, 0.01, 0.7, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0.25, 0.5, 0.7, 0.03],   // 절 종소리 댕—
+    rain: [0.35, 0.9, 1300, 0.4, 1.6, 0.8, 4, 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0.3, 0.5],
+    thud: [1.6, 0.05, 80, 0, 0.03, 0.22, 4, 2, -4, 0, 0, 0, 0, 1.5],                       // 둔탁한 소리
+    whistle: [0.6, 0, 1500, 0.4, 0.5, 0.3, 0, 0, -3],                                     // 휘파람 같은 소리 (불화살)
+    cheer: [0.6, 0.7, 520, 0.1, 0.7, 0.6, 4, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0.6, 0.3],    // 환호성
+    scream: [0.5, 0.3, 760, 0.05, 0.3, 0.4, 3, 0, -6, 0, 0, 0, 0, 3],
+    clack: [1, 0.05, 420, 0, 0.01, 0.1, 4, 2, 0, 0, 0, 0, 0, 0.5],                         // 목검이 떨어지는 딱
+    draw: [0.8, 0.05, 2400, 0, 0.05, 0.3, 4, 0, -30, 0, 0, 0, 0, 6],                       // 칼 뽑는 소리
+    pipe: [0.4, 0.02, 880, 0.08, 0.5, 0.4, 0, 1, 0, 0, 120, 0.2, 0.3, 0, 3],               // 축제 피리
   },
   EXT: ['ogg', 'mp3', 'wav'],
   files: {},     // id → 찾은 파일 경로 | null

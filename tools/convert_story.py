@@ -22,6 +22,18 @@ from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).parent))
 from actor_verbs import actor_commands, parse_modes  # noqa: E402  배우 명령 (js/actors.js)
+import copy  # noqa: E402
+import prologue_directions as PD  # noqa: E402  새 프롤로그 연출 표 (▶ 줄 → 명령)
+
+# 둥근모꼴에 없는 한자를 대본에서 읽을 때 한글로 (docs 원고는 그대로 둔다)
+HANJA_FIX = [(f'第{c}章', f'제{i + 1}장') for i, c in enumerate('一二三四五六')] + [
+    ('〈終〉', '〈끝〉'), ('번(藩)', '번'), ('하루사쿠라(春桜)', '하루사쿠라'), ('풍경(風鈴)', '풍경')]
+
+
+def fix_hanja(line):
+    for a, b in HANJA_FIX:
+        line = line.replace(a, b)
+    return line
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'data/story'
@@ -157,69 +169,12 @@ OVERRIDES = {
 # gameplay 명령은 js/gameplay.js 가 실행한다 ({cmd:'gameplay', do: 동작, ...}). 빈 목록이면 메모만 지운다(앞 명령에 포함됨)
 G = lambda do, **kw: {'cmd': 'gameplay', 'do': do, **kw}
 GAMEPLAY = {
-    'S0-3': {
-        '불꽃이 튄다.': [G('npcPose', who='soichiro', pose='forge')],
-        '검은 칼집의 칼을 건넨다.': [G('npcPose', who='soichiro', pose='give')],
-    },
-    'S0-2': {
-        '해 질 녘.': [G('mood', mood='dusk')],
-        '이동 튜토리얼 표시.': [G('tutorial', step='move')],
-        '하루가 마당 끝으로 걸어간다.': [G('npcMove', who='haru', to='haruWall')],
-        '점프 튜토리얼.': [G('tutorial', step='jump')],
-        '낮은 담을 넘는다.': [G('npcMove', who='haru', to='haruDrill')],
-        '허수아비 3개.': [G('spawn', group='dummies')],
-        '대쉬 베기 튜토리얼.': [G('tutorial', step='dashSlash')],
-        '하루가 목검을 허리에 대고 자세를 낮춘다.': [G('npcPose', who='haru', pose='guard')],
-        '벨 때마다 칼에 분홍 꽃잎이 하나씩 붙는다 (벚꽃 스택 UI 처음 등장).': [],
-        '발도 튜토리얼.': [G('tutorial', step='iaido')],
-        '하루가 목검으로 천천히 공격한다.': [],
-        '패링에 성공할 때까지 반복.': [G('tutorial', step='parry')],
-        '성공 시 하얀 섬광 + 짧은 슬로모션.': [],
-    },
-    'S0-4': {
-        '등롱이 줄지어 걸리고 마을 사람들이 고양이귀 가면을 쓰고 춤춘다.': [G('festival')],
-        '하루가 손을 대자 분홍 빛이 퍼지며 꽃이 한꺼번에 핀다.': [G('bloomTree', tree='festival')],
-        '마을 사람들 환호.': [G('cheer')],
-        '아카네가 다가가면 하루가 귓속말.': [G('approach', who='haru')],
-        '하늘에서 불화살 수십 개가 포물선을 그리며 떨어진다.': [G('fireArrows')],
-    },
-    'S0-5': {
-        '흰 옷에 흰 가면을 쓴 무리가 횃불을 들고 들어온다.': [G('spawn', group='alley')],
-        '첫 실전 전투.': [],
-        '가면 신도 2명.': [G('fight', group='alley')],
-    },
-    'S0-6': {
-        '소이치로가 망치 하나로 신도 셋을 막고 있다.': [G('npcPlace', who='soichiro', at='smithyFront', face=1), G('npcPose', who='soichiro', pose='attack'), G('spawn', group='smithy')],
-        '어깨에 화살이 꽂혀 있다.': [G('npcPose', who='soichiro', pose='guard')],
-        '플레이어가 신도들을 벤다.': [G('fight', group='smithy', slowmoLast=True)],
-        '마지막 신도를 베는 순간 슬로모션.': [],
-        '소이치로가 무릎을 꿇는다.': [G('npcPose', who='soichiro', pose='kneel')],
-        '대장간 지붕이 무너지며 화면을 가린다.': [G('roofCollapse', who='soichiro')],
-    },
-    'S0-7': {
-        '하루가 목검이 아닌 진검을 들고 서 있다.': [G('npcPlace', who='haru', at='fireHaru', face=1)],
-        '아카네가 광장에 뛰어든다.': [G('playerRun', to='fireAkane')],
-        '하루가 돌아본다.': [G('npcFace', who='haru', dir=-1)],
-        '체력바가 줄지 않는다. (패배 이벤트 전투)': [],
-        '패배 이벤트 전투.': [G('defeatBattle', seconds=20, hits=3)],
-        '아카네의 공격은 모두 금빛 막에 튕긴다.': [],
-        '20초 후 또는 3번 피격 시 자동 진행.': [],
-        '하쿠야의 발도.': [G('hakuyaIaido')],
-        '아카네가 날아가 쓰러진다.': [],
-        '사망 연출이 나오지만 화면이 멈추지 않는다.': [],
-        '하루가 마지막 힘으로 손을 뻗는다.': [G('npcPose', who='haru', pose='reach')],
-        '하쿠야가 손을 뻗지만 꽃잎이 그의 손을 벤다.': [G('bossAnim', anim='hakuya_hurt', hold=True)],
-        '하루가 아카네 앞을 막아선다.': [G('npcMove', who='haru', to='player', offset=60, wait=True)],
-        '하쿠야의 칼이 하루를 꿰뚫는다.': [G('stab', who='haru')],
-        '꽃잎 한 장이 떨어진다.': [G('petal')],
-        '아카네 주위로 분홍 꽃잎 수천 장이 소용돌이친다.': [G('petalStorm')],
-        '꽃잎이 아카네를 싣고 하늘로 날아간다.': [G('carryAway')],
-    },
+    # 옛 프롤로그(S0-*) 표는 새 프롤로그(P-*)로 바뀌며 지웠다. 새 프롤로그 연출은 tools/prologue_directions.py
 }
 
 
-# 장면마다 표정을 고정: (장면, 화자) → 표정. 대장간 앞(S0-6) 소이치로는 다친 얼굴, 불타는 광장(S0-7) 하쿠야의 미소는 비웃음
-FACE_OVERRIDES = {('S0-6', 'soichiro'): 'wounded', ('S0-7', 'hakuya', 'smile'): 'laugh'}
+# 장면마다 표정을 고정: (장면, 화자, 표정) → 표정. 대장간 앞(P-10b) 슬픈 소이치로는 다친 얼굴, 광장(P-11) 하쿠야의 미소는 비웃음
+FACE_OVERRIDES = {('P-10b', 'soichiro', 'sad'): 'wounded', ('P-11', 'hakuya', 'smile'): 'laugh'}
 
 
 def apply_face_overrides(chapters):
@@ -440,6 +395,8 @@ class Converter:
         self.lines = lines
         self.unknown_speakers = Counter()
         self.lullaby = []      # '### 하루의 자장가' 가사 (흥얼거림 자막)
+        self.unmapped = []     # 새 프롤로그 연출 표에 없는 ▶ 줄 (장면, 글자)
+        self.used_keys = set()
         self.actor_hits = []   # (장면, 문장, 배우 명령) — 보고서용
 
     def speaker_id(self, name):
@@ -483,6 +440,26 @@ class Converter:
             for mode in flow:
                 out.append({'cmd': 'mode', 'mode': mode, 'src': m.group(0).strip()})
             text = text[m.end():]
+        # 새 프롤로그: 줄 전체가 표에 있으면 표대로 (자동 변환 안 함)
+        table = PD.LINES.get(scene['id'])
+        key = text.strip()
+        if table is not None and '조사 개수에 따라' not in key:
+            if key in table:
+                self.used_keys.add((scene['id'], key))
+                cmds = self.expand(copy.deepcopy(table[key]))
+                if cmds:
+                    cmds[0]['src'] = key
+                else:
+                    scene.setdefault('applied', []).append(key)
+                # 덮어쓰기 자막 (P-14): '화면 위쪽 … 반투명' → 다음 〈자막〉이 바탕 글, '덮어쓰' → 바로 다음 대사가 덮는 글
+                if '화면 위쪽' in key and re.search(r'반투명|떠오른', key):
+                    scene['_owPending'] = True
+                if '덮어쓰' in key and scene.get('_owBase'):
+                    ow = {'cmd': 'overwrite', 'text': scene.pop('_owBase'), 'over': None, 'color': '#ffb7c5', 'overColor': '#ff4a4a'}
+                    scene['_owCmd'] = ow
+                    cmds.append(ow)
+                return out + cmds
+            self.unmapped.append((scene['id'], key))
         for s in split_sentences(text):
             if s.startswith('→'):
                 ending = 'true' if '진엔딩' in s else 'normal'
@@ -670,12 +647,26 @@ class Converter:
             raise ValueError(f'{sid}: 해석 못 한 줄: {s}')
         return cmds
 
+    def expand(self, cmds):
+        """표의 '@lullaby' → 자장가 가사 (안쪽 parallel · sequence 도)"""
+        for c in cmds:
+            if c.get('lines') == PD.LULLABY:
+                c['lines'] = list(self.lullaby)
+            elif c.get('lines') == PD.LULLABY1:
+                c['lines'] = self.lullaby[:1]
+            if isinstance(c.get('commands'), list):
+                self.expand(c['commands'])
+        return cmds
+
     def inspect_command(self, sid, label, rest, scene):
         """〔조사〕 대상: 아카네 (속마음) "…"  |  〔조사〕 대상: 설명. 떠오르는 대사 — "…" → inspect 명령.
         위치는 대본에 없어서 at 을 비워 두고 needs='x' (게임에 넣을 때 맵 위치를 채운다)"""
         n = sum(1 for c in walk(scene.get('_inspects', []))) + 1
         scene.setdefault('_inspects', []).append({})
         c = {'cmd': 'inspect', 'id': f'{sid}:{n}', 'group': sid, 'label': label, 'at': None, 'needs': 'x'}
+        if c['id'] in PD.INSPECT_AT:  # 새 프롤로그: 맵 위치 (tools/prologue_directions.py)
+            c['at'] = PD.INSPECT_AT[c['id']]
+            del c['needs']
         m = re.match(r'^(.+?) \(([^)]+)\)\s*["“](.*)["”]$', rest)
         rc = re.match(r'^(.*?)\s*떠오르는 대사\s*—\s*["“](.*)["”]\s*$', rest)
         if m:
@@ -781,6 +772,10 @@ class Converter:
                     if modes[2]:
                         scene['modeNote'] = ' · '.join(modes[2])
                 scene['commands'] = self.parse_scene_body(sid, body, scene)
+                if sid in PD.SETUP or sid in PD.AFTER:
+                    scene['commands'] = self.expand(copy.deepcopy(PD.SETUP.get(sid, []))) + scene['commands'] + \
+                        self.expand(copy.deepcopy(PD.AFTER.get(sid, [])))
+                self.attach_tutorial_lines(scene)
                 for k in [k for k in scene if k.startswith('_')]:
                     scene.pop(k)  # 변환 중에만 쓰는 값
                 self.post_scene(scene)
@@ -795,6 +790,15 @@ class Converter:
                     self.assign_sides(blk, all_cmds=everything)
         memories = self.memories(L[mem_i:])
         return chapters, memories
+
+    def attach_tutorial_lines(self, scene):
+        """'실패 시 하루' 대사 → 패링 튜토리얼(tutorialIcon parry)의 failLine, '성공 시 하루' 는 성공한 뒤 이어지는 대사"""
+        cmds = scene['commands']
+        for k, c in enumerate(cmds):
+            if c.get('case') == 'fail':
+                cmds[k] = {'cmd': 'gameplay', 'do': 'tutorialIcon', 'step': 'parry', 'failLine': c['text'], 'src': '실패 시 / 성공 시 하루'}
+            elif c.get('case') == 'success':
+                c.pop('case')
 
     def post_scene(self, scene):
         # 초상화 없이 목소리/그림자/뒷모습만 나오는 장면
@@ -958,7 +962,7 @@ def write_audio_table(chapters):
 
     def walk(cmds):
         for c in cmds or []:
-            if c.get('cmd') in ('bgm', 'sfx') and c.get('name') != 'stop' and not c['name'].startswith('('):
+            if c.get('cmd') in ('bgm', 'sfx') and c.get('name') and c['name'] != 'stop' and not c['name'].startswith('('):
                 table[c['cmd']].setdefault(c['name'], '')
             for k in ('then', 'else', 'commands'):
                 walk(c.get(k))
@@ -982,11 +986,20 @@ def main():
     # docs/ 의 대본 원고 (이름에 '대본'이 들어간 파일. cinematics.md 같은 다른 문서는 건너뜀)
     src = Path(args.src) if args.src else next(p for p in sorted((ROOT / 'docs').glob('*.md'))
                                                        if '대본' in unicodedata.normalize('NFC', p.name))  # 맥에서 올린 이름은 자모가 풀려 있음
-    lines = src.read_text(encoding='utf-8').split('\n')
+    lines = [fix_hanja(x) for x in src.read_text(encoding='utf-8').split('\n')]
     conv = Converter(lines)
     chapters, memories = conv.run()
     apply_gameplay(chapters)
     apply_face_overrides(chapters)
+    if conv.unmapped:
+        print(f'⚠ 프롤로그 연출 표(tools/prologue_directions.py)에 없는 ▶ 줄 {len(conv.unmapped)}개:')
+        for sid, t in conv.unmapped:
+            print(f'  {sid}: {t}')
+    unused = [(sid, k) for sid, tb in PD.LINES.items() for k in tb if k not in {t for s2, t in conv.used_keys if s2 == sid}]
+    if unused:
+        print(f'⚠ 대본에서 못 찾은 표의 줄 {len(unused)}개 (대본 글자가 바뀌었는지 확인):')
+        for sid, k in unused:
+            print(f'  {sid}: {k[:60]}')
     if args.dry_run:
         text, tot, notes = report(chapters, memories, conv)
         text += actor_report(chapters, conv)

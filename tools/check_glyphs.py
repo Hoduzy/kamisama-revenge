@@ -63,12 +63,17 @@ def js_strings(src):
         yield m.group(0)[1:-1]
 
 
+# 화면에 나오지 않는 값 (원문 기록 · 장 소개 · 변환 메모)
+SKIP_KEYS = {'src', 'summary', 'applied', 'raw', 'modeNote', 'modeFlow', 'memoryNote', 'links', 'designNotes', 'description'}
+
+
 def json_strings(v):
     if isinstance(v, str):
         yield v
     elif isinstance(v, dict):
-        for x in v.values():
-            yield from json_strings(x)
+        for k, x in v.items():
+            if k not in SKIP_KEYS:
+                yield from json_strings(x)
     elif isinstance(v, list):
         for x in v:
             yield from json_strings(x)

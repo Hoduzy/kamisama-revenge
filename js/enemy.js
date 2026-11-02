@@ -324,7 +324,8 @@ class Enemy {
         if (walking && s.anims.currentAnim?.key !== 'hakuya_walk') s.play('hakuya_walk');
         else if (!walking && s.texture.key !== this.sheet) s.setTexture(this.sheet, 0);
       }
-      if (this.flash > 0) s.setTintFill(0xffffff);
+      if (this.forceTint != null) s.setTint(this.forceTint); // 연출: 불길 속 검은 실루엣 (gameplay bossLook)
+      else if (this.flash > 0) s.setTintFill(0xffffff);
       else if (winding && Math.floor(this.stateTimer * 16) % 2) s.setTint(0xff8080); // 공격 직전 붉게 깜빡임
       else s.clearTint();
     } else {
