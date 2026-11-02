@@ -213,6 +213,8 @@ SETUP = {
         # 잿더미 광장: 비 오는 새벽 잿더미 배경 위에 큰 벚나무 3단계 중 검게 탄 그림
         C('stageBg', id='plaza', key='bg_pro2_ash'), C('camReset', ms=0), G('bossLook', show=False),
         C('setFlag', flag='akaneRain', value=True),
+        # 밤의 불타는 잔해(P-0 · P-11 의 dbA · dbP)는 새벽 잿더미에는 없다
+        *[C('propOff', id=f'{g}{k}') for g in ('dbA', 'dbP') for k in range(4)],
         C('mood', to='ash', seconds=0), C('desaturate', amount=0.6, seconds=0),
         C('treeStage', tree='burning', stage='burnt'),  # 큰 벚나무 3단계: 검게 탄
         prop('haruSword', 'prop_haru_sword', 12830), prop('hairpin', 'kanzashi', 12800),
@@ -261,7 +263,7 @@ LINES = {
     },
     'P-1': {
         '장지문 사이로 아침 햇살. 아카네가 이불 속에서 자고 있다. 멀리서 망치 소리, 가까이 부엌에서 하루의 자장가.': [
-            C('fadeIn', duration=1.4), act('akane', '이불 속에서 자고 있다', 1.6),  # 햇살은 배경 그림(bg_pro2_house)에 있다
+            C('fadeIn', duration=1.4), act('akane', '이불 속에서 자고 있다', 1.6, anim='akane_sleep', loop=True),  # 햇살은 배경 그림(bg_pro2_house)에 있다
             C('ambience', id='hammer', every=2.2, volume=0.2), C('hum', speaker='haru', lines=LULLABY, wait=False)],
         '아카네가 뒤척이다 일어나 앉는다. 하품. 머리끈을 입에 물고 포니테일을 묶는다.': [
             act('akane', '뒤척인다', 1.0, anim='akane_sleep'), act('akane', '일어나 앉는다 · 하품', 1.4, anim='akane_stretch'),
@@ -342,7 +344,7 @@ LINES = {
     'P-6': {
         '작은 돌 도리이와 석등이 서 있는 마을 입구. 그 옆 돌 위에 삿갓을 깊게 눌러쓴 나그네가 앉아 있다. 회색 여행 망토. 얼굴은 삿갓 그림자에 가려 입가만 보인다. 그는 멀리 광장의 큰 나무를 보고 있다.': [
             C('camPan', x='gateStone', seconds=1.6),
-            act('wanderer', '회색 여행 망토 · 삿갓 그림자에 입가만 보인다 · 멀리 광장의 큰 나무를 본다', 2.2)],
+            act('wanderer', '회색 여행 망토 · 삿갓 그림자에 입가만 보인다 · 멀리 광장의 큰 나무를 본다', 2.2, anim='wanderer_sit', loop=True)],
         '아카네가 다가가면 레터박스. BGM이 조용히 빠진다.': [
             move('akane', 'gateAkane'), C('bgm', id=None, fade=2), C('bgmDuck', on=True), face('akane', 'wanderer'),
             C('camFollow', actor='akane')],
@@ -352,7 +354,7 @@ LINES = {
         '나그네가 만두를 받아 한참 내려다본다.': [
             face('wanderer', 'akane'), act('wanderer', '만두를 받아 한참 내려다본다', 2.2, anim='wanderer_look_manju', loop=True)],
         '긴 침묵. 나그네의 입가가 아주 조금 올라간다.': [
-            wait(2.5), act('wanderer', '입가가 아주 조금 올라간다', 1.4)],
+            wait(2.5), act('wanderer', '입가가 아주 조금 올라간다', 1.4, anim='wanderer_look_manju', loop=True)],
         '나그네가 일어선다. 바람이 불어 삿갓 끝이 들린다. 컷인 0.3초: 삿갓 아래로 흘러내린 흰 머리카락 한 가닥.': [
             act('wanderer', '일어선다', 0.6, anim='wanderer_stand'), sfx('wind'), C('particles', preset='petals', dir=1, seconds=2),
             act('wanderer', '삿갓 끝이 들린다', 0.6),
@@ -554,7 +556,7 @@ LINES = {
         '빗소리. 페이드인. 동굴 입구에 아카네가 쓰러져 있다. 주위의 꽃잎은 모두 갈색으로 시들어 있다.': [
             C('particles', preset='rain', id='rain'), C('ambience', id='rain', every=1.4, volume=0.5), C('fadeIn', duration=1.4), wait(0.8)],
         '아카네가 눈을 뜬다. 천천히 일어나 앉는다. 손이 머리끈의 방울에 닿는다.': [
-            act('akane', '눈을 뜬다', 1.0), act('akane', '천천히 일어나 앉는다', 1.0, anim='akane_sit_up'), act('akane', '손이 머리끈의 방울에 닿는다', 1.2)],
+            act('akane', '눈을 뜬다', 1.0, anim='akane_collapse', loop=True), act('akane', '천천히 일어나 앉는다', 1.0, anim='akane_sit_up'), act('akane', '손이 머리끈의 방울에 닿는다', 1.2, anim='akane_shake_bell')],
         '아카네가 방울을 흔든다. 딸랑.': [
             act('akane', '방울을 흔든다', 0.8, anim='akane_shake_bell', loop=True), sfx('chime', volume=0.7), C('pose', actor='akane', pose='sit')],
         '아무도 오지 않는다. 빗소리만. 5초 동안 카메라도 움직이지 않는다.': [
@@ -587,8 +589,8 @@ LINES = {
             prop('grave1', 'grave_a', 12700, fade=0.6), prop('grave2', 'grave_b', 12735, fade=0.6),
             C('particles', preset='rain', id='rain2'), C('ambience', id='rain', every=1.0, volume=0.7)],
         '아카네가 검게 탄 그루터기에 손바닥을 댄다. 아무 일도 없다. 다시. 아무 일도 없다. 손바닥으로 그루터기를 친다. 한 번, 두 번.': [
-            C('standUp', actor='akane'), face('akane', 'right'), act('akane', '그루터기에 손바닥을 댄다', 1.2), wait(0.8),
-            act('akane', '다시', 0.8), wait(0.8), act('akane', '손바닥으로 그루터기를 친다', 0.5, anim='akane_strike'), sfx('thud'),
+            C('standUp', actor='akane'), face('akane', 'right'), act('akane', '그루터기에 손바닥을 댄다', 1.2, anim='akane_strike'), wait(0.8),
+            act('akane', '다시', 0.8, anim='akane_strike'), wait(0.8), act('akane', '손바닥으로 그루터기를 친다', 0.5, anim='akane_strike'), sfx('thud'),
             C('shake', level='weak'), wait(0.4), sfx('thud'), C('shake', level='weak')],
         '화면 위쪽에 하루의 마지막 말이 반투명 분홍 글씨로 천천히 떠오른다.': [],  # 다음 〈자막〉이 덮어쓰기 자막의 바탕 글 (변환기)
         '아카네가 일어선다. 칼자루를 쥔다. 분홍 글씨 위로 붉은 글씨가 덮어쓰듯 나타나고, 분홍 글씨가 지워진다.': [

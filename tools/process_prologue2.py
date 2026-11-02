@@ -31,6 +31,7 @@ from process_props import blobs  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 RAW_NEW = ROOT / 'assets/raw/prologue2'
 RAW_OLD = ROOT / 'assets/raw/prologue'
+SRC_REL = ''
 OUT = ROOT / 'assets/sprites'
 PROPS_OUT = OUT / 'props'  # 소품은 모두 props/ 한 곳 (tools/process_props.py 와 같은 폴더)
 
@@ -186,7 +187,7 @@ def process_sheet(name, a, cfg, sheets):
         note = f'{ref} 키 {target:.0f}px 에 맞춤'
     frames = [pp.shrink(p, dot) for p in parts]
     labels = labels_for(cfg['expect'], len(frames))
-    entry = ps.save_sheet(name, frames, dict(anchor='feet', pad=2, facing=cfg['facing'], labels=labels), dot, OUT, f'prologue2/{name}.png')
+    entry = ps.save_sheet(name, frames, dict(anchor='feet', pad=2, facing=cfg['facing'], labels=labels), dot, OUT, SRC_REL)
     entry['heights'] = [int(f.shape[0]) for f in frames]
     if name in ANIMS:
         entry['anims'] = {k: {'frames': f, 'rate': r, 'loop': lp} for k, (f, r, lp) in ANIMS[name].items()}
@@ -202,7 +203,7 @@ def process_portraits(a, sheets):
     dot = max(p.shape[0] for p in parts) / target
     frames = [pp.shrink(p, dot) for p in parts]
     labels = PORTRAIT_LABELS if len(frames) == len(PORTRAIT_LABELS) else [f'f{i}' for i in range(len(frames))]
-    e = ps.save_sheet('portraits_pro2', frames, dict(anchor='bbox', pad=1, labels=labels), dot, OUT, 'prologue2/portraits_pro2.png')
+    e = ps.save_sheet('portraits_pro2', frames, dict(anchor='bbox', pad=1, labels=labels), dot, OUT, SRC_REL)
     return e, dict(found=len(frames), expect=len(PORTRAIT_LABELS), note=f'높이 {target}')
 
 
@@ -220,7 +221,7 @@ def process_props(a, kasa_w):
         small = ps.downscale(crop, scale)
         small, _ = ps.crop_to_content(small)
         Image.fromarray(small).save(PROPS_OUT / f'{n}.png')
-        out[n] = {'file': f'props/{n}.png', 'source': 'prologue2/props.png', 'width': int(small.shape[1]),
+        out[n] = {'file': f'props/{n}.png', 'source': SRC_REL, 'width': int(small.shape[1]),
                   'height': int(small.shape[0]), 'kind': 'prop', 'dot': round(scale, 2)}
     return out, dict(found=len(found), expect=len(PROP_NAMES), note=f'삿갓 폭 {kasa_w}px (나그네 시트 속 삿갓)에 맞춤, 배율 1/{scale:.2f}')
 
@@ -328,15 +329,17 @@ def main():
     props_raw = None
     for old, new, kind, why in FILES:
         p = src_path(old, new)
+        global SRC_REL
+        SRC_REL = p.relative_to(ROOT / 'assets/raw').as_posix()  # manifest 의 source: 실제 원본 파일
         img = Image.open(p)
         r = dict(old=old, new=new, kind=kind, why=why, size=f'{img.width}×{img.height}')
         if kind == 'bg':
             a = np.array(img.convert('RGBA'))
-            e = ps.process_stage_bg(a, OUT, new, f'prologue2/{new}.png', dict(anchor=0.5))
+            e = ps.process_stage_bg(a, OUT, new, SRC_REL, dict(anchor=0.5))
             new_sheets[new] = e
         elif kind == 'cg':
             a = np.array(img.convert('RGBA'))
-            e = ps.process_cg(a, new, f'prologue2/{new}.png', dict(top=0.5))
+            e = ps.process_cg(a, new, SRC_REL, dict(top=0.5))
             cgs[new] = e
         elif kind == 'sheet':
             a = np.array(img.convert('RGBA'))
@@ -354,10 +357,10 @@ def main():
             new_sheets[new] = e
             r.update(info)
         elif kind == 'props':
-            props_raw = (r, np.array(img.convert('RGBA')))
+            props_raw = (r, np.array(img.convert('RGBA')), SRC_REL)
         rows.append(r)
     # 소품은 나그네 시트의 삿갓 폭이 정해진 뒤
-    r, a = props_raw
+    r, a, SRC_REL = props_raw
     pp.remove_outer_white(a)
     props, info = process_props(a, kasa_width(new_sheets['hakuya_traveler']))
     r.update(info, props=props)

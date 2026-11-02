@@ -359,7 +359,9 @@
           "cmd": "act",
           "actor": "akane",
           "name": "이불 속에서 자고 있다",
-          "seconds": 1.6
+          "seconds": 1.6,
+          "anim": "akane_sleep",
+          "loop": true
         },
         {
           "cmd": "ambience",
@@ -1571,7 +1573,9 @@
           "cmd": "act",
           "actor": "wanderer",
           "name": "회색 여행 망토 · 삿갓 그림자에 입가만 보인다 · 멀리 광장의 큰 나무를 본다",
-          "seconds": 2.2
+          "seconds": 2.2,
+          "anim": "wanderer_sit",
+          "loop": true
         },
         {
           "cmd": "moveTo",
@@ -1699,7 +1703,9 @@
           "cmd": "act",
           "actor": "wanderer",
           "name": "입가가 아주 조금 올라간다",
-          "seconds": 1.4
+          "seconds": 1.4,
+          "anim": "wanderer_look_manju",
+          "loop": true
         },
         {
           "cmd": "say",
@@ -4663,6 +4669,8 @@
           "actor": "akane",
           "name": "눈을 뜬다",
           "seconds": 1.0,
+          "anim": "akane_collapse",
+          "loop": true,
           "src": "아카네가 눈을 뜬다. 천천히 일어나 앉는다. 손이 머리끈의 방울에 닿는다."
         },
         {
@@ -4676,7 +4684,8 @@
           "cmd": "act",
           "actor": "akane",
           "name": "손이 머리끈의 방울에 닿는다",
-          "seconds": 1.2
+          "seconds": 1.2,
+          "anim": "akane_shake_bell"
         },
         {
           "cmd": "act",
@@ -5104,6 +5113,38 @@
           "value": true
         },
         {
+          "cmd": "propOff",
+          "id": "dbA0"
+        },
+        {
+          "cmd": "propOff",
+          "id": "dbA1"
+        },
+        {
+          "cmd": "propOff",
+          "id": "dbA2"
+        },
+        {
+          "cmd": "propOff",
+          "id": "dbA3"
+        },
+        {
+          "cmd": "propOff",
+          "id": "dbP0"
+        },
+        {
+          "cmd": "propOff",
+          "id": "dbP1"
+        },
+        {
+          "cmd": "propOff",
+          "id": "dbP2"
+        },
+        {
+          "cmd": "propOff",
+          "id": "dbP3"
+        },
+        {
           "cmd": "mood",
           "to": "ash",
           "seconds": 0
@@ -5253,7 +5294,8 @@
           "cmd": "act",
           "actor": "akane",
           "name": "그루터기에 손바닥을 댄다",
-          "seconds": 1.2
+          "seconds": 1.2,
+          "anim": "akane_strike"
         },
         {
           "cmd": "wait",
@@ -5263,7 +5305,8 @@
           "cmd": "act",
           "actor": "akane",
           "name": "다시",
-          "seconds": 0.8
+          "seconds": 0.8,
+          "anim": "akane_strike"
         },
         {
           "cmd": "wait",
