@@ -276,6 +276,12 @@ class Cinematics {
 
   // 위아래 틸트: dy(px, 음수 = 위를 더 보여줌)로 ms 동안
   tilt(dy, ms = 700) {
+    // 한 곳에 멈춘 카메라(camPan)는 따라가기 오프셋이 안 먹으므로 그 자리에서 직접 위아래로 옮긴다
+    if (!this.following) {
+      const cam = this.scene.cameras.main;
+      const d = dy - this.tiltY;
+      if (d) cam.pan(cam.midPoint.x, cam.midPoint.y + d, ms, 'Sine.easeInOut', true);
+    }
     return new Promise((resolve) => {
       this.scene.tweens.add({ targets: this, tiltY: dy, duration: ms, ease: 'Sine.easeInOut', onComplete: resolve });
     });

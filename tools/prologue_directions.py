@@ -306,7 +306,7 @@ LINES = {
         '아카네가 밥그릇을 들 때, 카메라가 하루 쪽으로 천천히 이동한다. 하루가 소매 안의 접힌 편지를 손끝으로 만지작거리고 있다. 편지 위에 카메라가 0.8초 머문다. 아무도 그것에 대해 말하지 않는다.': [
             act('akane', '밥그릇을 든다', 1.0, anim='akane_eat', wait=False), C('anim', actor='soichiro', anim='soichiro_hide', loop=True),
             prop('letter', 'letter', 'iroriHaru', dy=-26, offset=-12, depth=12, scale=0.4),
-            C('camPan', x='iroriHaru', seconds=2.0), C('camTilt', y=150, ms=600), C('camZoom', zoom=2, seconds=0.8),  # 땅 높이의 인물 · 편지가 보이게 내려서
+            C('camPan', x='iroriHaru', seconds=2.0), C('camZoom', zoom=2, seconds=0.8), C('camTilt', y=80, ms=500),  # 확대한 뒤 내려서 땅 높이의 인물 · 편지가 보이게 (확대 전에는 맵 아래 끝에 막힘)
             act('haru', '소매 속 접힌 편지를 만지작거린다', 1.2, anim='haru_letter'), wait(0.8),
             C('camZoom', zoom=1, seconds=0.6), C('camTilt', y=0, ms=400), C('propOff', id='letter'), C('camPan', x='irori', seconds=0.8)],
     },

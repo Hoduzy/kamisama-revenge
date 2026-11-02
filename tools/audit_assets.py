@@ -31,6 +31,8 @@ FALLBACKS = {
     'lantern_rope': '없음 (조립 그림, 그림이 없으면 단색 네모)',
     'prop_rooftop_cultist': '없음 (enemy_sword 실루엣, 그림이 없으면 단색 네모)',
 }
+# 다른 그림의 재료로만 쓰이는 조각 (그 그림이 화면에 그려지면 쓰인 것)
+USED_VIA = {'rope_segment': 'lantern_rope', 'lantern_lit': 'lantern_rope', 'lantern_torn': 'lantern_rope_fallen'}
 KIND = [('bg_', '배경'), ('cg_', 'CG'), ('portraits', '초상화'), ('fx_', '이펙트'), ('prop', '소품'), ('ui_', 'UI'),
         ('tree', '벚나무'), ('logo', '로고')]
 
@@ -81,6 +83,8 @@ def main():
         if meta.get('frames'):
             cut += f" · {meta['frames']}칸"
         drawn = usage.get(name, {})
+        if not drawn and name in USED_VIA and usage.get(USED_VIA[name]):
+            drawn = {f'{USED_VIA[name]} 의 재료 → ' + ', '.join(sorted(usage[USED_VIA[name]])): 1}
         js, scenes = code_refs(name)
         if drawn:
             where = '**그려짐**: ' + ', '.join(sorted(drawn))

@@ -957,14 +957,14 @@
           "seconds": 2.0
         },
         {
-          "cmd": "camTilt",
-          "y": 150,
-          "ms": 600
-        },
-        {
           "cmd": "camZoom",
           "zoom": 2,
           "seconds": 0.8
+        },
+        {
+          "cmd": "camTilt",
+          "y": 80,
+          "ms": 500
         },
         {
           "cmd": "act",

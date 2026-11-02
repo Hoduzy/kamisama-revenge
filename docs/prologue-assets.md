@@ -39,14 +39,26 @@
 
 머리끈 방울: P-7 에서 받은 뒤부터 P-14 에서 천으로 감쌀 때까지 아카네 그림 위에 빨간 2×2 점 (`js/player.js` updateBell, 자리 표 `Player.BELL_TIE`).
 
+### 3차 그림 (tools/process_prologue3.py, 대응표 docs/prologue3-mapping.md)
+
+| 그림 | 쓰는 곳 |
+|---|---|
+| `player_idle_nosword` · `player_walk_nosword` · `player_run_nosword` · `player_jump_nosword` | 칼 받기 전 아카네 (P-1 ~ P-4 칼 획득 전, 깃발 `akaneNoSword`) |
+| `haru_gesture` | haru_ruffle(머리 헝클기, P-2) · haru_take_bell / haru_tie_bell (방울 꺼내 묶기, P-7) |
+| `hana_actions` | hana_wave_mask(P-5 가면 자랑, P-8 손뼉) · hana_trapped → hana_crawl (P-10 기둥) · hana_cry (P-10 아카네의 akane_hug 와 같은 자리에서 동시에) |
+| `akane_gesture` | akane_hug (P-10 하나 안기, P-12 망토 덮기) · akane_wrap_bell → akane_tuck (P-14) |
+| `cutin_traveler_hair` | P-6 컷인 (삿갓 끝이 들림) |
+| props/ `letter` `bokken` `blossom_single` `hammer` `haru_katana` | 편지(P-3) · 목검(P-7) · 피운 꽃(P-8) · 망치(P-13) · 하루의 칼(P-14) |
+| props/ `lantern_rope` · `lantern_rope_fallen` | P-9 등롱 줄 (줄 조각 + 켜진 등롱 조립 → 끊기면 찢긴 등롱이 땅에) |
+| props/ `prop_rooftop_cultist` | P-9 지붕 위 신도 (enemy_sword 대기 칸을 검은 실루엣 + 붉은 눈 2픽셀) |
+
+이미 있는 그림으로 대신한 것: 꽃잎 = `fx_petals` 4종, 빛 점 = 분홍 코드 입자(`glow`), 하루 목검 치켜들기 = haru_attack 1-3, 편지 만지기 = family_sitting 2번째 칸,
+소이치로 칼 내밀기 = soichiro_give · 화살 맞기 = soichiro_kneel, 칼자루 쥐기 = player_iaido_ready 첫 칸, 비녀 줍기 = akane_emote2 흙 파기 첫 칸,
+귀 까딱 = 코드(`earTwitch`), 마을 노인 등롱 걸기 = 생략(대기), 나그네 삿갓 끝 = 컷인.
+
 ### 아직 그림이 없는 것
 
-| 이름 | 무엇 | 지금 |
-|---|---|---|
-| `player_idle_nosword`, `player_run_nosword`, `player_jump_nosword` | 칼 받기 전 아카네(P-1 ~ P-3)의 서기 · 걷기 · 점프 | 칼 찬 그림 그대로 (깃발 `akaneNoSword`. 이 이름으로 넣으면 자동으로 바뀜) |
-| `player_ear_twitch` | 귀 까딱 (P-2) | 머리 위 동작 이름 |
-| `cutin_wanderer_hair` | 컷인: 삿갓 아래 흰 머리카락 (P-6) | 컷인 띠에 이름표 |
-| 그 밖의 동작 | 하루 · 소이치로 · 하나 · 마을 노인 등의 그림 없는 동작 | 머리 위에 노란 글씨로 동작 이름 |
+프롤로그 전체를 재생하며 단색 네모 · 이름표 · 머리 위 노란 글씨 · 실루엣이 만들어지는지 기록했을 때 0개.
 
 ## 소품
 
