@@ -1655,16 +1655,12 @@
           "src": "나그네가 만두를 받아 한참 내려다본다."
         },
         {
-          "cmd": "anim",
-          "actor": "wanderer",
-          "anim": "wanderer_look_manju",
-          "loop": true
-        },
-        {
           "cmd": "act",
           "actor": "wanderer",
           "name": "만두를 받아 한참 내려다본다",
-          "seconds": 2.2
+          "seconds": 2.2,
+          "anim": "wanderer_look_manju",
+          "loop": true
         },
         {
           "cmd": "say",

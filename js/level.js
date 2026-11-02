@@ -116,7 +116,8 @@ LEVELS.prologue = {
     { id: 'room', key: 'bg_pro2_house', x0: 0, x1: 960, anchorX: 480 },
     { id: 'house', key: 'bg_pro2_yard', x0: 960, x1: 2000, anchorX: 1480 },
     { id: 'forge', key: 'bg_pro_forge', x0: 2000, x1: 2900, anchorX: 2450 },
-    { id: 'village', key: 'bg_pro2_street', x0: 2900, x1: 4700, anchorX: 3800 },
+    // 마을 길: 그림 속 만두 가게(왼쪽 찜통)가 만두 할머니 자리(dumplingShop 4200) 뒤에 오도록 기준점을 옮김 (배경은 0.15배로 움직여 한 곳만 맞출 수 있다)
+    { id: 'village', key: 'bg_pro2_street', x0: 2900, x1: 4700, anchorX: 6547 },
     { id: 'gate', key: 'bg_pro2_gate', x0: 4700, x1: 5700, anchorX: 5200 },
     { id: 'yard', key: 'bg_pro_yard', x0: 5700, x1: 7400, anchorX: 6515 },
     { id: 'festival', key: 'bg_pro_festival', x0: 7400, x1: 8700, anchorX: 8000 },

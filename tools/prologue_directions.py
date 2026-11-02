@@ -350,7 +350,7 @@ LINES = {
             wait(3), act('akane', '바구니를 내려다본다', 1.2), C('emote', actor='akane', kind='…'),
             act('akane', '만두 하나를 꺼내 내민다', 1.4)],
         '나그네가 만두를 받아 한참 내려다본다.': [
-            face('wanderer', 'akane'), C('anim', actor='wanderer', anim='wanderer_look_manju', loop=True), act('wanderer', '만두를 받아 한참 내려다본다', 2.2)],
+            face('wanderer', 'akane'), act('wanderer', '만두를 받아 한참 내려다본다', 2.2, anim='wanderer_look_manju', loop=True)],
         '긴 침묵. 나그네의 입가가 아주 조금 올라간다.': [
             wait(2.5), act('wanderer', '입가가 아주 조금 올라간다', 1.4)],
         '나그네가 일어선다. 바람이 불어 삿갓 끝이 들린다. 컷인 0.3초: 삿갓 아래로 흘러내린 흰 머리카락 한 가닥.': [
