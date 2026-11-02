@@ -159,8 +159,9 @@ LEVELS.prologue = {
     { x: 10900, y: 620 },  // 대장간 앞
   ],
   decorTrees: [
-    { id: 'festival', x: 8000, y: 620, hidden: true, canopy: { y: 300, w: 230 } },
-    { id: 'burning', x: 12900, y: 620, bloomed: true, burning: true, hidden: true, canopy: { y: 300, w: 230 } },
+    // 큰 벚나무 (tree 시트, 2배): 장면이 treeStage 로 단계를 바꾼다 (P-8 만개 → P-9 불타는 → P-14 검게 탄)
+    { id: 'festival', x: 8000, y: 620, scale: 2, hidden: true, canopy: { y: 380, w: 200 } },
+    { id: 'burning', x: 12900, y: 620, scale: 2, hidden: true, canopy: { y: 380, w: 200 } },
   ],
 
   // 처음부터 맵에 있는 인물. 장면마다 spawn 으로 자리를 옮긴다. 그림이 없는 인물은 실루엣 + 이름표

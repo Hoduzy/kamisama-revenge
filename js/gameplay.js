@@ -179,16 +179,36 @@ class StoryGameplay {
     if (skip) return;
     const s = this.scene;
     const n = c.count || 36;
+    const img = Sprites.has(s, 'prop_fire_arrow');
     for (let i = 0; i < n; i++) {
       s.time.delayedCall(i * 40, () => {
         const y = 40 + Math.random() * 160;
-        const a = s.add.rectangle(-40 - Math.random() * 200, y, 44, 4, 0x050304).setScrollFactor(0).setDepth(25).setAngle(18);
-        const tip = s.add.rectangle(a.x + 22, y + 7, 8, 6, 0xffa040).setScrollFactor(0).setDepth(25).setBlendMode('ADD');
-        s.tweens.add({ targets: [a, tip], x: `+=${GAME_WIDTH + 400}`, y: `+=${130}`, duration: 1600 + Math.random() * 500,
-          onComplete: () => { a.destroy(); tip.destroy(); } });
+        const x0 = -40 - Math.random() * 200;
+        const dx = GAME_WIDTH + 400;
+        const dy = 130;
+        const ang = Phaser.Math.RadToDeg(Math.atan2(dy, dx));
+        // 불화살 그림 (오른쪽 아래 45°로 그려져 있음 → 날아가는 방향으로 돌림), 달 앞에서 검게 보이도록 어둡게
+        const parts = img
+          ? [s.add.image(x0, y, 'prop_fire_arrow').setScale(0.55).setAngle(ang - 45).setTint(0x3a2020).setScrollFactor(0).setDepth(25)]
+          : [s.add.rectangle(x0, y, 44, 4, 0x050304).setScrollFactor(0).setDepth(25).setAngle(18)];
+        s.tweens.add({ targets: parts, x: `+=${dx}`, y: `+=${dy}`, duration: 1600 + Math.random() * 500,
+          onComplete: () => parts.forEach((p) => p.destroy()) });
       });
     }
     await this.wait(c.seconds ? c.seconds * 1000 : 1500, skip);
+  }
+
+  // 화면 밖에서 날아온 불화살이 배우(target)에게 꽂힌다 (P-10b 소이치로). from: 'left' | 'right'
+  async do_arrowAt(c, skip) {
+    if (skip) return;
+    const s = this.scene;
+    const a = s.actors.get(c.target);
+    if (!a) return;
+    const view = s.cameras.main.worldView;
+    const side = c.from === 'right' ? 1 : -1;
+    const to = { x: a.x - side * 6, y: a.y - (c.height ?? 46) };
+    const from = { x: side > 0 ? view.right + 40 : view.x - 40, y: to.y - 70 };
+    await new Promise((r) => s.fireArrow(0, { from, to, ms: 360, onHit: r }));
   }
 
   // 화살이 땅 · 지붕 · 나무에 꽂힌다 (보이는 화면 곳곳에)

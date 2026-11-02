@@ -211,8 +211,8 @@ class GameScene extends Phaser.Scene {
   }
 
   createTextures() {
-    if (!this.textures.exists('scarecrow')) {
-      // 연습장 허수아비: 짚 몸통 + 나무 십자 + 삿갓
+    if (!this.textures.exists('scarecrow') && !Sprites.has(this, 'prop_scarecrow')) {
+      // 연습장 허수아비 (그림 prop_scarecrow 가 없을 때만 도형으로): 짚 몸통 + 나무 십자 + 삿갓
       const g = this.make.graphics({ x: 0, y: 0 }, false);
       g.fillStyle(0x5a4030).fillRect(21, 20, 6, 60).fillRect(4, 34, 40, 5);
       g.fillStyle(0xc9a35a).fillRoundedRect(12, 30, 24, 34, 6);
@@ -870,26 +870,46 @@ class GameScene extends Phaser.Scene {
   }
 
   // 불화살 하나: 하늘에서 비스듬히 떨어져 땅에 꽂히며 불꽃
-  fireArrow(x) {
+  // 불화살: 하늘에서 x 로 날아와 땅에 꽂힌다. 그림(prop_fire_arrow, 오른쪽 아래로 45° 그려져 있음)을 날아가는 방향으로
+  // 돌리고, 꽂힌 뒤 2초 박혀 있다가 사라진다. opts: { from: {x, y}, to: {x, y}, ms, stick: false(꽂히지 않고 사라짐), onHit }
+  fireArrow(x, opts = {}) {
     const view = this.cameras.main.worldView;
-    const y1 = 600 + Math.random() * 20;
-    const a = this.add.rectangle(x - 220, view.y - 20, 26, 3, 0xffc070).setDepth(17).setAngle(55);
+    const to = opts.to || { x, y: (this.actors ? this.actors.groundAt(x) : 620) - 2 };
+    const from = opts.from || { x: to.x - 220, y: view.y - 20 };
+    const ang = Phaser.Math.RadToDeg(Math.atan2(to.y - from.y, to.x - from.x));
+    let a;
+    if (Sprites.has(this, 'prop_fire_arrow')) {
+      // 원점 = 화살촉 (그림 오른쪽 아래)
+      a = this.add.image(from.x, from.y, 'prop_fire_arrow').setOrigin(0.88, 0.88).setScale(opts.scale ?? 0.7).setDepth(17).setAngle(ang - 45);
+    } else {
+      a = this.add.rectangle(from.x, from.y, 26, 3, 0xffc070).setOrigin(1, 0.5).setDepth(17).setAngle(ang);
+    }
     this.tweens.add({
-      targets: a, x, y: y1, duration: 520, ease: 'Quad.easeIn',
+      targets: a, x: to.x, y: to.y, duration: opts.ms ?? 520, ease: 'Quad.easeIn',
       onComplete: () => {
-        a.destroy();
-        this.spawnBurst(x, y1, 0xff6a20, 5);
+        this.spawnBurst(to.x, to.y, 0xff6a20, 5);
+        if (opts.onHit) opts.onHit(a);
+        if (opts.stick === false) { a.destroy(); return; }
+        // 땅(또는 맞은 것)에 박힌 채로 2초 → 사라짐
+        this.tweens.add({ targets: a, alpha: 0, delay: 2000, duration: 300, onComplete: () => a.destroy() });
       },
     });
+    return a;
   }
 
   // 무너지는 지붕 조각
+  // 떨어지는 불타는 잔해 조각 (그림 prop_debris_fire 를 작게. 그림이 없을 때만 네모)
   debris(x, groundY) {
     const view = this.cameras.main.worldView;
-    const d = this.add.rectangle(x, view.y - 20, Phaser.Math.Between(14, 34), Phaser.Math.Between(8, 18), 0x2a1d17).setDepth(17);
+    const d = Sprites.has(this, 'prop_debris_fire')
+      ? this.add.image(x, view.y - 20, 'prop_debris_fire').setScale(Phaser.Math.FloatBetween(0.25, 0.42)).setOrigin(0.5, 1).setDepth(17)
+      : this.add.rectangle(x, view.y - 20, Phaser.Math.Between(14, 34), Phaser.Math.Between(8, 18), 0x2a1d17).setDepth(17);
     this.tweens.add({
-      targets: d, y: groundY - 6, angle: Phaser.Math.Between(-90, 90), duration: 420 + Math.random() * 200, ease: 'Quad.easeIn',
-      onComplete: () => this.spawnDust(d.x, groundY, 3),
+      targets: d, y: groundY - 2, angle: Phaser.Math.Between(-40, 40), duration: 420 + Math.random() * 200, ease: 'Quad.easeIn',
+      onComplete: () => {
+        this.spawnDust(d.x, groundY, 3);
+        this.tweens.add({ targets: d, alpha: 0, delay: 1500, duration: 500, onComplete: () => d.destroy() });
+      },
     });
   }
 

@@ -86,6 +86,11 @@ SETUP = {
     'P-0': [
         C('fadeOut', duration=0), C('mood', to='fire', seconds=0), G('mood', mood='fire'),
         G('bossLook', color='black', x='fireHakuya', face=-1, show=True),
+        C('treeStage', tree='burning', stage='burning'),
+        prop('dbA0', 'prop_debris_fire', 12080, scale=0.7, depth=3, label=''),
+        prop('dbA1', 'prop_debris_fire', 12420, scale=0.5, depth=3, label=''),
+        prop('dbA2', 'prop_debris_fire', 13250, scale=0.7, depth=3, label=''),
+        prop('dbA3', 'prop_debris_fire', 13520, scale=0.5, depth=3, label=''),
     ],
     'P-1': [
         G('bossLook', color=None, show=False),
@@ -100,7 +105,7 @@ SETUP = {
         prop('window', 'prop_window', 700, dy=-150, w=90, h=70, color='#bfd8e8', label='창 (큰 나무가 보임)'),
     ],
     'P-2': [
-        spawn('akane', 1060, 'right'), C('exitGlow', on=False), prop('sapling', 'prop_sapling', 'sapling'),
+        spawn('akane', 1060, 'right'), C('exitGlow', on=False), prop('sapling', 'sapling_dead', 'sapling'),
         spawn('haru', 1080, 'right'), C('disappear', actor='haru', fade=False),
     ],
     'P-3': [
@@ -111,36 +116,55 @@ SETUP = {
     ],
     'P-4': [
         spawn('akane', 'houseExit', 'right'), C('standUp', actor='akane'), spawn('soichiro', 'forge', 'left'),
+        prop('anvil', 'prop_anvil', 'forge', offset=-80, depth=6),
         C('camReset', ms=0), C('fadeIn', duration=0.6),
     ],
     'P-5': [
         spawn('akane', 2990, 'right'), C('mood', to='morning', seconds=0),
         spawn('hana', 3480, 'left'), spawn('dumpling_grandma', 'dumplingShop', 'left'), spawn('village_old_man', 'shrine', 'left'),
-        prop('steamer', 'prop_steamer', 4240), prop('shrine', 'prop_shrine', 3560, depth=4),
+        prop('steamer', 'steamer', 4240), prop('shopBasket', 'manju_basket', 4180, depth=9),
+        prop('shrine', 'prop_shrine', 3560, depth=4),
         prop('well', 'prop_well', 'well', depth=4),
-        C('emoteHold', actor='akane', kind='basket'),
+        C('emoteHold', actor='akane', kind='img:manju_basket'),
     ],
     'P-6': [
         spawn('akane', 4880, 'right'), C('guideWind', to=None), spawn('wanderer', 'gateStone', 'right', tall=True, hat=True), C('sit', actor='wanderer'),
+        prop('wandererHat', 'kasa_hat', 'wanderer', head='wanderer', dy=12, depth=9, label=''),
         prop('torii', 'prop_torii', 4960, depth=3), prop('stoneLantern', 'prop_lantern_stone', 5060, depth=3),
         prop('stone', 'prop_stone', 'gateStone', depth=6),
     ],
     'P-7': [
-        C('emoteHold', actor='akane', kind='basket', on=False), C('objective', text=None),
+        C('emoteHold', actor='akane', kind='img:manju_basket', on=False), C('objective', text=None),
         spawn('akane', 5790, 'right'), spawn('haru', 'yardHaru', 'left'), C('mood', to='dusk', seconds=0),
+        prop('swordRack', 'prop_sword_rack', 5900, depth=3),
     ],
     'P-8': [
         C('mood', to='night', seconds=0), C('vignette', amount=0, seconds=0), C('camReset', ms=0),
         spawn('akane', 'festivalAkane', 'right'), spawn('haru', 'festivalHaru', 'left'), spawn('soichiro', 'festivalSoichiro', 'right'),
         spawn('dumpling_grandma', 7580, 'right'), spawn('hana', 7940, 'left'), C('disappear', actor='wanderer', fade=False),
         C('foreground', preset='lanterns', x='festivalTree'),
+        C('treeStage', tree='festival', stage='bare'),
+        prop('mask_vm1', 'prop_fox_mask', 'vm1', head='vm1', dy=6, scale=0.5, depth=9, label=''),
+        prop('mask_vw1', 'prop_fox_mask', 'vw1', head='vw1', dy=6, scale=0.5, depth=9, label=''),
+        prop('mask_vm2', 'prop_fox_mask', 'vm2', head='vm2', dy=6, scale=0.5, depth=9, label=''),
+        prop('mask_vw2', 'prop_fox_mask', 'vw2', head='vw2', dy=6, scale=0.5, depth=9, label=''),
+        prop('mask_vm3', 'prop_fox_mask', 'vm3', head='vm3', dy=6, scale=0.5, depth=9, label=''),
+        prop('mask_vw3', 'prop_fox_mask', 'vw3', head='vw3', dy=6, scale=0.5, depth=9, label=''),
+        prop('mask_hana', 'prop_fox_mask', 'hana', head='hana', dy=6, scale=0.5, depth=9, label=''),
         C('light', preset='lantern', at='festivalAkane', id='l1'), C('light', preset='lantern', at='festivalTree', id='l2'),
+    ],
+    'P-9': [
+        spawn('akane', 7910, 'right'),  # 개발 메뉴로 이 장면만 재생할 때도 축제 광장에서
     ],
     'P-10': [
         C('fadeOut', duration=0.5), C('foregroundClear'), C('lightOff'), C('camReset', ms=0),
         C('mood', to='fire', seconds=0), G('mood', mood='fire'),
         spawn('akane', 'roadStart', 'right'),
-        prop('pillar', 'prop_pillar', 'roadHana', depth=9),
+        prop('pillar', 'stall_burning', 'roadHana', depth=9),
+        prop('dbR0', 'prop_debris_fire', 9260, scale=0.7, depth=3, label=''),
+        prop('dbR1', 'prop_debris_fire', 9620, scale=0.5, depth=3, label=''),
+        prop('dbR2', 'prop_debris_fire', 10180, scale=0.7, depth=3, label=''),
+        prop('dbR3', 'prop_debris_fire', 10520, scale=0.5, depth=3, label=''),
         spawn('hana', 'roadHana', 'left'), C('sit', actor='hana'),
         C('ambience', id='fire', every=1.1, volume=0.5),
         C('fadeIn', duration=0.6), C('objective', text='아빠에게'),
@@ -152,6 +176,11 @@ SETUP = {
     'P-11': [
         spawn('akane', 12240, 'right'), C('particlesStop', id='smithyEmbers'), spawn('haru', 'fireHaru', 'right'), C('pose', actor='haru', pose='guard'),
         G('bossLook', color=None, show=True, x=13450, face=-1),
+        C('treeStage', tree='burning', stage='burning'),
+        prop('dbP0', 'prop_debris_fire', 12080, scale=0.7, depth=3, label=''),
+        prop('dbP1', 'prop_debris_fire', 12420, scale=0.5, depth=3, label=''),
+        prop('dbP2', 'prop_debris_fire', 13250, scale=0.7, depth=3, label=''),
+        prop('dbP3', 'prop_debris_fire', 13520, scale=0.5, depth=3, label=''),
     ],
     'P-12': [
         C('desaturate', amount=0, seconds=0), C('vignette', amount=0, seconds=0), C('foregroundClear'), C('particlesStop'),
@@ -159,29 +188,29 @@ SETUP = {
         G('revive', at='caveAkane'), spawn('akane', 'caveAkane', 'left'), C('pose', actor='akane', pose='down'),
         G('bossLook', show=False),
         spawn('hana', 'caveHana', 'right'), C('sit', actor='hana'),
-        prop('mask', 'prop_mask_broken', 15440, dy=-6),
+        prop('mask', 'mask_broken', 15440),
         prop('wp1', 'prop_petal', 15780, color='#7a5530', label=''), prop('wp2', 'prop_petal', 15860, color='#7a5530', label=''),
         prop('wp3', 'prop_petal', 15900, color='#6a4a2a', label=''),
         C('camPan', x=15760, seconds=0.01),
     ],
     'P-13': [
-        C('mood', to='ash', seconds=0), C('camReset', ms=0),
+        C('mood', to='ash', seconds=0), C('camReset', ms=0), G('bossLook', show=False),
         spawn('akane', 5330, 'left'), C('standUp', actor='akane'),
         C('disappear', actor='hana', fade=False), C('disappear', actor='dumpling_grandma', fade=False),
         C('disappear', actor='village_old_man', fade=False), C('disappear', actor='wanderer', fade=False),
         C('propOff', id='steamer'), C('propOff', id='sapling'),
-        prop('ashSteamer', 'prop_steamer_burnt', 4240, w=40, h=26, color='#2a2420', label='타 버린 찜통'),
+        prop('ashSteamer', 'steamer', 4240, tint='#3a3230', label='타 버린 찜통'),
         prop('ashLantern', 'prop_lantern_fallen', 3560, w=60, h=20, color='#4a4a48', label='쓰러진 석등'),
         prop('ashHammer', 'prop_hammer', 'forge'),
-        prop('ashSapling', 'prop_sapling_burnt', 'sapling', w=22, h=40, color='#141010', label='새까맣게 탄 묘목'),
+        prop('ashSapling', 'sapling_burnt', 'sapling'),
         C('particles', preset='rain', id='rain'), C('ambience', id='rain', every=1.4, volume=0.5),
         C('fadeIn', duration=1),
     ],
     'P-14': [
-        C('stageBg', id='plaza', key='bg_pro_grave'), C('camReset', ms=0),
+        C('stageBg', id='plaza', key='bg_pro_grave'), C('camReset', ms=0), G('bossLook', show=False),
         C('mood', to='ash', seconds=0), C('desaturate', amount=0.6, seconds=0),
-        prop('stump', 'prop_stump', 'plazaStump', depth=4),
-        prop('haruSword', 'prop_haru_sword', 12830), prop('hairpin', 'prop_hairpin', 12800),
+        C('treeStage', tree='burning', stage='burnt'),  # 큰 벚나무 3단계: 검게 탄
+        prop('haruSword', 'prop_haru_sword', 12830), prop('hairpin', 'kanzashi', 12800),
         spawn('akane', 12560, 'right'), C('standUp', actor='akane'),
         C('disappear', actor='haru', fade=False), C('disappear', actor='soichiro', fade=False),
         C('particles', preset='rain', id='rain'),
@@ -192,7 +221,7 @@ AFTER = {
     'P-0': [C('foregroundClear'), C('particlesStop'), C('vignette', amount=0, seconds=0), G('bossLook', color=None, show=False)],
     'P-2': [C('fadeOut', duration=0.8)],
     'P-3': [C('fadeOut', duration=0.8)],
-    'P-6': [C('emoteHold', actor='akane', kind='basket', on=False)],
+    'P-6': [C('emoteHold', actor='akane', kind='img:manju_basket', on=False)],
     'P-10b': [C('particlesStop')],
     'P-13': [C('fadeOut', duration=1)],
 }
@@ -348,7 +377,7 @@ LINES = {
         '하루가 목검을 내려놓고 품에서 작은 붉은 방울을 꺼낸다. 아이템 획득 연출. 붓 자막 〈붉은 방울〉.': [
             C('pose', actor='haru', pose='idle'), move('haru', 'akane', near=True),
             act('haru', '목검을 내려놓고 품에서 작은 붉은 방울을 꺼낸다', 1.6), C('flash', color='gold', ms=400),
-            prop('giftBell', 'prop_bell', 0, screen={'x': 480, 'y': 300}, depth=40, scale=3),
+            prop('giftBell', 'bell_red', 0, screen={'x': 480, 'y': 300}, depth=40, scale=3),
             C('propMove', id='giftBell', y=270, seconds=0.8), sfx('chime', volume=0.6), C('caption', text='붉은 방울'),
             C('propOff', id='giftBell', fade=0.4), C('giveItem', name='붉은 방울')],
         '하루가 아카네의 머리끈에 방울을 묶어 준다. 딸랑. 이후 아카네가 점프할 때마다 아주 작게 방울 소리가 난다.': [
@@ -377,7 +406,7 @@ LINES = {
             C('camPan', x='festivalTree', seconds=1.4), C('camZoom', zoom=2, seconds=1.0),
             prop('rise', 'prop_glow', 'festivalTree', dy=-20, w=6, h=6, color='#ff9eb8', label='', depth=12),
             C('propMove', id='rise', dy=-260, seconds=1.4, ease='Sine.easeIn'), C('propOff', id='rise'),
-            G('bloomTree', tree='festival'), C('particles', preset='petals', seconds=3), sfx('cheer'), G('cheer'),
+            G('bloomTree', tree='festival'), C('treeStage', tree='festival', stage='bloom'), C('particles', preset='petals', seconds=3), sfx('cheer'), G('cheer'),
             C('camZoom', zoom=1, seconds=0.8), C('camFollow', actor='akane')],
         '하루가 아카네의 손을 낮게 늘어진 가지에 올리고, 그 위에 자기 손을 겹친다.': [
             move('akane', 'festivalTree', offset=-90), face('akane', 'right'), face('haru', 'akane'),
@@ -396,6 +425,7 @@ LINES = {
         'CG 1 페이드아웃. 하루가 문득 고개를 든다. 광장 끝 등롱 빛이 닿지 않는 어둠 속에 삿갓 하나가 서 있다. 깜빡하면 사라진다.': [
             C('cgEnd'), act('haru', '문득 고개를 든다', 1.0),
             spawn('wanderer', 'festivalEdge', 'left', tall=True, hat=True),
+            prop('wandererHat', 'kasa_hat', 'wanderer', head='wanderer', dy=12, depth=9, label=''),
             par(C('camPan', to='festivalEdge', ms=800, hold=0.7), seq(wait(1.3), C('disappear', actor='wanderer', fade=0.12)))],
         '음악이 작아지고 두 사람에게 줌인, 비네트.': [
             C('ambience', id=None), C('bgmDuck', on=True), C('camPan', x='festivalTree', offset=-60, seconds=0.8),
@@ -419,6 +449,7 @@ LINES = {
         '등롱 줄이 끊어져 떨어지고, 큰 벚나무 꼭대기부터 불이 번진다. 방금 아카네가 피운 꽃 한 송이가 클로즈업되고, 불티가 닿아 재가 된다.': [
             C('foregroundClear'), prop('rope', 'prop_lantern_rope', 'festivalTree', offset=-280, y=340, depth=11),
             C('propMove', id='rope', ground=True, angle=14, seconds=0.6, ease='Quad.easeIn'), sfx('thud'),
+            C('treeStage', tree='festival', stage='burning'),
             C('particles', preset='embers', x='festivalTree', y=330, id='treeFire'), C('light', preset='fire', x='festivalTree', y=360, id='treeFire'),
             C('camPan', x='festivalTree', offset=-60, seconds=0.8), C('camZoom', zoom=2, seconds=0.6),
             C('particles', preset='embers', at='festivalTree', id='flowerEmbers'),
@@ -429,17 +460,21 @@ LINES = {
             C('mood', to='fire', seconds=1.5), G('mood', mood='fire'), sfx('scream'),
             C('ambience', id='fire', every=1.0, volume=0.6), C('ambience', id='drum', every=0.8, volume=0.6)],
         '하늘에서 삿갓 하나가 천천히 떨어져 광장 한가운데 굴러 멈춘다. 아카네가 그것을 본다.': [
-            prop('hat', 'prop_hat', 'festivalTree', offset=220, y=60, depth=11),
+            prop('hat', 'kasa_hat', 'festivalTree', offset=220, y=60, depth=11),
             C('propMove', id='hat', to='festivalTree', offset=140, ground=True, angle=340, seconds=2.4),
             C('propMove', id='hat', to='festivalTree', offset=60, angle=720, seconds=0.8, ease='Quad.easeOut'),
             face('akane', 'right'), C('emote', actor='akane', kind='!')],
         '지붕 위에 흰 가면 신도들이 하나씩 나타나고 횃불이 왼쪽부터 차례로 켜진다.': [
             *[x for i, px in enumerate((7520, 7700, 7880, 8120, 8300, 8480)) for x in (
                 prop(f'roof{i}', 'prop_rooftop_cultist', px, y=360, depth=5, fade=0.3, label='흰 가면 신도' if i == 0 else ''),
+                prop(f'flag{i}', 'fx_red_sun', px + 16, y=330, scale=0.12, anim='fx_red_sun_grow', depth=5, label=''),
                 C('light', preset='torch', x=px, y=320, id=f'torch{i}'), sfx('fire', volume=0.4), wait(0.25))]],
         '신도 무리가 광장으로 쏟아져 내려오고, 연기가 화면을 덮는다. 연기가 걷히면 아카네 혼자. 하루도 소이치로도 보이지 않는다. 레터박스 해제, 목표 자막 〈아빠에게〉.': [
             par(*[C('propMove', id=f'roof{i}', ground=True, seconds=0.6, ease='Quad.easeIn') for i in range(6)]),
             G('fleeTag', tag='festival'), C('particles', preset='smoke', at='akane', seconds=2),
+            *[C('propOff', id=f'flag{i}', fade=0.4, wait=False) for i in range(6)],
+            # 불타는 잔해: 불화살 뒤 광장 곳곳
+            *[prop(f'dbF{k}', 'prop_debris_fire', x, scale=0.7 if k % 2 == 0 else 0.5, depth=3, label='') for k, x in enumerate((7560, 7760, 8250, 8480))],
             C('fadeOut', duration=0.6), *[C('propOff', id=f'roof{i}') for i in range(6)], C('propOff', id='hat'), C('propOff', id='rope'),
             C('disappear', actor='haru', fade=False), C('disappear', actor='soichiro', fade=False),
             C('disappear', actor='hana', fade=False), C('disappear', actor='dumpling_grandma', fade=False),
@@ -458,7 +493,7 @@ LINES = {
         '만두 가게가 통째로 무너진다. 흔들림 강. 아카네가 하나를 감싸 안는다.': [
             G('collapse', at='roadHana', offset=60, id='shopRuin'), act('akane', '하나를 감싸 안는다', 1.4)],
         '하나가 뛰어간다. 깨진 가면이 땅에 남는다.': [
-            prop('maskOnRoad', 'prop_mask_broken', 'hana', dy=-2), move('hana', 9000, 'run', wait=False),
+            prop('maskOnRoad', 'mask_broken', 'hana'), move('hana', 9000, 'run', wait=False),
             C('disappear', actor='hana', fade=0.8, wait=False)],
     },
     'P-10b': {
@@ -469,9 +504,9 @@ LINES = {
             G('fight', group='smithy', slowmoLast=True)],
         '화면 밖에서 휘파람 소리 두 번. 소이치로의 등에 화살이 꽂힐 때마다 히트스톱, 둔탁한 소리, 화면이 조금씩 탈색된다.': [
             G('arrowTraps', on=False), C('stopAnim', actor='soichiro'),
-            sfx('whistle'), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '등에 화살이 꽂힌다', 0.6),
+            sfx('whistle'), G('arrowAt', target='soichiro', **{'from': 'left'}), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '등에 화살이 꽂힌다', 0.6),
             C('desaturate', amount=0.15, seconds=0.3), wait(0.6),
-            sfx('whistle'), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '또 한 대', 0.6),
+            sfx('whistle'), G('arrowAt', target='soichiro', height=36, **{'from': 'left'}), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '또 한 대', 0.6),
             C('desaturate', amount=0.3, seconds=0.3), C('kneel', actor='soichiro')],
         '대장간 지붕이 무너지며 불타는 잔해가 둘 사이를 막는다. 흰 플래시. 다시 밝아지면 아카네 혼자. 탈색 30% 유지. 목표 자막 〈엄마에게〉.': [
             G('collapse', at='smithySoichiro', offset=-110, id='roofRuin'), C('flash', color='white', ms=500),
@@ -543,7 +578,7 @@ LINES = {
             act('akane', '비녀를 줍는다', 1.0), C('propOff', id='hairpin'), act('akane', '오래 내려다본다', 2.0)],
         '아카네가 그루터기 옆에 맨손으로 흙을 판다. 망치와 비녀를 묻고, 돌을 쌓아 작은 무덤 두 개를 만든다. 빗줄기가 굵어진다.': [
             C('kneel', actor='akane'), act('akane', '맨손으로 흙을 판다', 2.0), act('akane', '망치와 비녀를 묻는다', 1.4),
-            prop('grave1', 'prop_grave', 12700, fade=0.6), prop('grave2', 'prop_grave', 12735, fade=0.6),
+            prop('grave1', 'grave_a', 12700, fade=0.6), prop('grave2', 'grave_b', 12735, fade=0.6),
             C('particles', preset='rain', id='rain2'), C('ambience', id='rain', every=1.0, volume=0.7)],
         '아카네가 검게 탄 그루터기에 손바닥을 댄다. 아무 일도 없다. 다시. 아무 일도 없다. 손바닥으로 그루터기를 친다. 한 번, 두 번.': [
             C('standUp', actor='akane'), face('akane', 'right'), act('akane', '그루터기에 손바닥을 댄다', 1.2), wait(0.8),
@@ -553,8 +588,10 @@ LINES = {
         '아카네가 일어선다. 칼자루를 쥔다. 분홍 글씨 위로 붉은 글씨가 덮어쓰듯 나타나고, 분홍 글씨가 지워진다.': [
             C('standUp', actor='akane'), act('akane', '칼자루를 쥔다', 1.0)],  # + overwrite (변환기)
         '아카네가 머리끈에서 방울을 풀어 천 조각으로 꽁꽁 감싼다. 이제 흔들어도 소리가 나지 않는다. 그것을 품에 넣는다.': [
-            act('akane', '머리끈에서 방울을 푼다', 1.2), sfx('chime', volume=0.3), act('akane', '천 조각으로 꽁꽁 감싼다', 1.6),
-            C('setFlag', flag='bellWrapped', value=True), act('akane', '품에 넣는다', 1.0)],
+            act('akane', '머리끈에서 방울을 푼다', 1.2), prop('bellInHand', 'bell_red', 'akane', offset=14, dy=-34, depth=12, label=''),
+            sfx('chime', volume=0.3), act('akane', '천 조각으로 꽁꽁 감싼다', 1.6), C('propOff', id='bellInHand'),
+            prop('bellWrapped', 'bell_wrapped', 'akane', offset=14, dy=-30, depth=12, label=''),
+            C('setFlag', flag='bellWrapped', value=True), act('akane', '품에 넣는다', 1.0), C('propOff', id='bellWrapped', fade=0.4)],
         'CG B 페이드인: 비 내리는 잿더미, 검은 그루터기 앞 작은 돌무덤 두 개, 그 앞에 무릎 꿇은 아카네의 뒷모습. 오래 머문다. 빗소리 위로 하루의 자장가가 아주 희미하게, 한 소절만.': [
             C('kneel', actor='akane'),
             C('cg', no='B', desc='비 내리는 잿더미, 검은 그루터기 앞 작은 돌무덤 두 개, 그 앞에 무릎 꿇은 아카네의 뒷모습'),

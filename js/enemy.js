@@ -31,7 +31,8 @@ class Enemy {
       this.obj.setFillStyle(COLORS.enemy, 0); // 그림은 NPC 가 보여 준다
     } else if (data.type === 'dummy') {
       this.obj.setFillStyle(COLORS.enemy, 0);
-      this.sprite = scene.add.image(data.x, data.y, 'scarecrow').setOrigin(0.5, 1).setDepth(6);
+      // 허수아비 그림 (assets/sprites/props/prop_scarecrow). 없을 때만 코드로 그린 도형 'scarecrow'
+      this.sprite = scene.add.image(data.x, data.y, Sprites.has(scene, 'prop_scarecrow') ? 'prop_scarecrow' : 'scarecrow').setOrigin(0.5, 1).setDepth(6);
     } else if (Sprites.has(scene, this.sheet)) {
       this.obj.setFillStyle(COLORS.enemy, 0); // 판정 사각형은 숨기고 그림만 보인다
       this.sprite = scene.add.sprite(data.x, data.y, this.sheet, 0).setOrigin(0.5, 1).setDepth(6);
@@ -222,8 +223,11 @@ class Enemy {
     }
     if (this.barrier) {
       // 금빛 막에 튕김: 피해 없음
-      const ring = scene.add.circle(b.center.x, b.center.y, 46).setStrokeStyle(4, 0xffd166).setDepth(14);
-      scene.tweens.add({ targets: ring, scale: 1.8, alpha: 0, duration: 300, onComplete: () => ring.destroy() });
+      // 금빛 막 튕김 (fx_barrier_break 4칸). 그림이 없을 때만 금빛 고리
+      if (!Sprites.fx(scene, 'fx_barrier_break', b.center.x - dir * 10, b.center.y, { depth: 14, flipX: dir > 0 })) {
+        const ring = scene.add.circle(b.center.x, b.center.y, 46).setStrokeStyle(4, 0xffd166).setDepth(14);
+        scene.tweens.add({ targets: ring, scale: 1.8, alpha: 0, duration: 300, onComplete: () => ring.destroy() });
+      }
       scene.popText(b.center.x, b.bottom - this.artHeight - 10, '튕김', '#ffd166');
       return false;
     }
@@ -269,9 +273,17 @@ class Enemy {
       const s = this.sprite;
       s.clearTint();
       if (this.type === 'boss') s.setTint(0x555566);
-      else if (this.type === 'dummy') s.setAngle(this.facing > 0 ? -80 : 80);
+      else if (this.type === 'dummy') {
+        // 베인 허수아비 그림으로 바로 바꾸고 짚 부스러기 (그림이 없으면 예전처럼 기울임)
+        if (Sprites.has(this.scene, 'prop_scarecrow_broken')) s.setTexture('prop_scarecrow_broken');
+        else s.setAngle(this.facing > 0 ? -80 : 80);
+        if (this.scene.cine) this.scene.cine.particles('straw', { x: s.x, y: s.y - 40 });
+      }
       else s.setFrame(3);
-      this.scene.tweens.add({ targets: s, alpha: 0, delay: withEffect ? 900 : 0, duration: 500, onComplete: () => s.destroy() });
+      // 베인 허수아비는 그 자리에 남는다 (연습장). 그 밖엔 잠깐 보여 주고 사라짐
+      if (this.type !== 'dummy' || !Sprites.has(this.scene, 'prop_scarecrow_broken')) {
+        this.scene.tweens.add({ targets: s, alpha: 0, delay: withEffect ? 900 : 0, duration: 500, onComplete: () => s.destroy() });
+      }
     }
     this.scene.time.delayedCall(0, () => this.obj.destroy());
     this.scene.onEnemyKilled(this, withEffect);

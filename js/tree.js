@@ -45,6 +45,36 @@ class CherryTree {
     this.canopyW = 50;
   }
 
+  // 큰 벚나무 단계 (프롤로그): bare(앙상함) · bloom(만개) · burning(불타는) · burnt(검게 탄).
+  // 그림: tree 시트 0 = 앙상함, 1 = 만개. 불타는 · 검게 탄 그림(tree_burning · tree_burnt)이 manifest 에 있으면 그 그림,
+  // 없으면 만개 그림을 불빛 색으로 + 불티 / 앙상한 그림을 검게 물들여 대신한다
+  setStage(stage, show = true) {
+    const s = this.sprite;
+    this.stage = stage;
+    if (!s) return;
+    if (show) s.setVisible(true);
+    const sc = this.scene;
+    if (this.fire) { this.fire.destroy(); this.fire = null; }
+    const own = { burning: 'tree_burning', burnt: 'tree_burnt' }[stage];
+    if (own && Sprites.has(sc, own)) {
+      s.setTexture(own, 0).clearTint();
+    } else {
+      s.setTexture('tree', stage === 'bloom' || stage === 'burning' ? 1 : 0);
+      if (stage === 'burning') s.setTint(0xff7a4a);
+      else if (stage === 'burnt') s.setTint(0x2a2222);
+      else s.clearTint();
+    }
+    this.active = stage === 'bloom'; // 꽃잎은 만개일 때만
+    if (stage === 'burning') {
+      this.fire = sc.add.particles(this.x, this.canopyY, sc.textures.exists('cine-dot') ? 'cine-dot' : 'petal', {
+        lifespan: 1600, frequency: 35, speedY: { min: -110, max: -40 }, speedX: { min: -30, max: 30 },
+        tint: [0xffb040, 0xff6020, 0xffe090], alpha: { start: 1, end: 0 }, blendMode: 'ADD',
+        emitZone: { type: 'random', source: new Phaser.Geom.Rectangle(-this.canopyW, -40, this.canopyW * 2, 120) },
+      }).setDepth(2);
+      sc.events.once('shutdown', () => { if (this.fire) this.fire.destroy(); });
+    }
+  }
+
   // 플레이어가 근처에 있는지
   isNear(body) {
     return Math.abs(body.center.x - this.x) < TUNING.treeActivateRadius && Math.abs(body.bottom - this.y) < 140;

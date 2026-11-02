@@ -146,7 +146,12 @@ const UI = {
   titleCard(text, { color, style, sub } = {}) {
     const el = this.el('.fx-title');
     el.className = 'fx-title show' + (color === 'red' ? ' red' : '') + (style === 'logo' ? ' logo' : '');
-    if (style !== 'logo') return this.brush(el, text, 90);
+    if (style !== 'logo') {
+      const ms = this.brush(el, text, 90);
+      // 장 제목 카드 뒤 교단 문양: 먹물처럼 번져(fx_red_sun_grow 5칸) 옅게 남는다. 그림이 없으면 없음
+      if (Sprites.sheet('fx_red_sun_grow')) el.insertAdjacentHTML('afterbegin', '<i class="title-emblem" aria-hidden="true"></i>');
+      return ms;
+    }
     el.innerHTML = `<img class="logo-emblem" src="${SPRITE_DIR}logo_emblem.png" alt=""><div class="logo-text"></div>`
       + (sub ? `<div class="logo-sub"></div>` : '');
     const ms = this.brush(el.querySelector('.logo-text'), GAME_TITLE, 260) + 600;

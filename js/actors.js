@@ -357,13 +357,21 @@ class ActorDirector {
       x = this.xOf(c.at ?? c.x, c.offset || 0) ?? s.player.body.center.x;
       y = (c.y ?? this.groundAt(x)) + (c.dy || 0);
     }
-    const img = s.add.image(Math.round(x), Math.round(y), ph.key).setOrigin(0.5, 1).setDepth(c.depth ?? 7);
+    // anim: 애니메이션을 한 번 재생한 뒤 key 그림으로 (교단 문양이 번져 나타남)
+    const animKey = c.anim && ph.real && s.anims.exists(c.anim) ? c.anim : null;
+    const img = (animKey ? s.add.sprite(Math.round(x), Math.round(y), c.anim, 0) : s.add.image(Math.round(x), Math.round(y), ph.key))
+      .setOrigin(0.5, c.originY ?? 1).setDepth(c.depth ?? 7);
+    if (animKey) {
+      img.play(animKey);
+      img.once('animationcomplete', () => { if (img.active) img.setTexture(ph.key); });
+    }
     if (c.screen) img.setScrollFactor(0);
     if (c.flip) img.setFlipX(true);
     if (c.angle) img.setAngle(c.angle);
     if (c.scale) img.setScale(c.scale);
+    if (c.tint) img.setTint(Phaser.Display.Color.HexStringToColor(c.tint).color); // 같은 그림을 탄 것처럼 (P-13 찜통)
     const label = c.label ?? (ph.real ? '' : ph.label);
-    const p = { id: c.id, img, real: ph.real };
+    const p = { id: c.id, img, real: ph.real, head: c.head || null, dy: c.dy || 0 };
     if (label && !c.screen) p.tag = UI.tag(() => [img.x, img.y - img.displayHeight - 4], label);
     if (p.tag) p.tag.el.classList.add('prop-tag');
     this.props[c.id] = p;
@@ -493,7 +501,10 @@ class ActorDirector {
   // 머리 위 아이콘을 계속 띄워 두기 (조사 지점 …): 돌려준 것의 end() 로 지움
   emoteHold(a, kind) {
     const s = this.scene;
-    const img = s.add.image(a.x, a.headY - 4, this.emoteTexture(EMOTE_ALIAS[kind] || kind)).setOrigin(0.5, 1).setScale(2).setDepth(30);
+    // 'img:<그림 이름>' 이면 그 그림을 그대로 (심부름 바구니 manju_basket). 그림이 없으면 도트 아이콘
+    const imgKey = kind.startsWith('img:') && Sprites.has(s, kind.slice(4)) ? kind.slice(4) : null;
+    const tex = imgKey || this.emoteTexture(EMOTE_ALIAS[kind] || (kind.startsWith('img:') ? 'basket' : kind));
+    const img = s.add.image(a.x, a.headY - 4, tex).setOrigin(0.5, 1).setScale(imgKey ? 1 : 2).setDepth(30);
     const e = { a, img, dy: 0, hold: true };
     e.end = () => { this.emotes.delete(e); img.destroy(); };
     this.emotes.add(e);
@@ -586,6 +597,14 @@ class ActorDirector {
 
   update() {
     this.updatePoints();
+    // 머리 위에 얹은 소품 (축제 가면): 그 배우를 따라다닌다
+    for (const p of Object.values(this.props)) {
+      if (!p.head) continue;
+      const a = this.get(p.head);
+      if (!a) continue;
+      p.img.setPosition(Math.round(a.x), Math.round(a.headY + p.dy)).setVisible(a.visible !== false);
+      if (a.facing != null) p.img.setFlipX(a.facing < 0);
+    }
     for (const e of this.emotes) {
       const bob = e.hold ? Math.floor(this.scene.time.now / 400) % 2 * 2 : 0;
       // 이름표가 있는 인물은 이름표 위로
@@ -659,6 +678,12 @@ class ActorDirector {
       case 'propMove': r = this.propMove(c, skip); break;
       case 'propTint': r = this.propTint(c, skip); break;
       case 'act': r = this.act(c, skip); break;
+      case 'treeStage': {
+        // 큰 벚나무 단계: tree(decorTrees id), stage: bare · bloom · burning · burnt, show
+        const t = this.scene.decorTrees[c.tree];
+        if (t && t.setStage) t.setStage(c.stage, c.show !== false);
+        break;
+      }
       case 'stageBg': this.scene.setStageBg(c.id, c.key, c.tint != null ? Phaser.Display.Color.HexStringToColor(c.tint).color : undefined); break;
       case 'inspectClear': this.removePoint(c.id ?? null); break;
       default: return false;

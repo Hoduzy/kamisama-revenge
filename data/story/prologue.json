@@ -35,6 +35,47 @@
           "show": true
         },
         {
+          "cmd": "treeStage",
+          "tree": "burning",
+          "stage": "burning"
+        },
+        {
+          "cmd": "prop",
+          "id": "dbA0",
+          "key": "prop_debris_fire",
+          "at": 12080,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbA1",
+          "key": "prop_debris_fire",
+          "at": 12420,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbA2",
+          "key": "prop_debris_fire",
+          "at": 13250,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbA3",
+          "key": "prop_debris_fire",
+          "at": 13520,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
+        },
+        {
           "cmd": "ambience",
           "id": "fire",
           "every": 0.9,
@@ -499,7 +540,7 @@
         {
           "cmd": "prop",
           "id": "sapling",
-          "key": "prop_sapling",
+          "key": "sapling_dead",
           "at": "sapling"
         },
         {
@@ -997,6 +1038,14 @@
           "face": "left"
         },
         {
+          "cmd": "prop",
+          "id": "anvil",
+          "key": "prop_anvil",
+          "at": "forge",
+          "offset": -80,
+          "depth": 6
+        },
+        {
           "cmd": "camReset",
           "ms": 0
         },
@@ -1290,8 +1339,15 @@
         {
           "cmd": "prop",
           "id": "steamer",
-          "key": "prop_steamer",
+          "key": "steamer",
           "at": 4240
+        },
+        {
+          "cmd": "prop",
+          "id": "shopBasket",
+          "key": "manju_basket",
+          "at": 4180,
+          "depth": 9
         },
         {
           "cmd": "prop",
@@ -1310,7 +1366,7 @@
         {
           "cmd": "emoteHold",
           "actor": "akane",
-          "kind": "basket"
+          "kind": "img:manju_basket"
         },
         {
           "cmd": "foreground",
@@ -1515,6 +1571,16 @@
         {
           "cmd": "sit",
           "actor": "wanderer"
+        },
+        {
+          "cmd": "prop",
+          "id": "wandererHat",
+          "key": "kasa_hat",
+          "at": "wanderer",
+          "head": "wanderer",
+          "dy": 12,
+          "depth": 9,
+          "label": ""
         },
         {
           "cmd": "prop",
@@ -1801,7 +1867,7 @@
         {
           "cmd": "emoteHold",
           "actor": "akane",
-          "kind": "basket",
+          "kind": "img:manju_basket",
           "on": false
         }
       ]
@@ -1818,7 +1884,7 @@
         {
           "cmd": "emoteHold",
           "actor": "akane",
-          "kind": "basket",
+          "kind": "img:manju_basket",
           "on": false
         },
         {
@@ -1841,6 +1907,13 @@
           "cmd": "mood",
           "to": "dusk",
           "seconds": 0
+        },
+        {
+          "cmd": "prop",
+          "id": "swordRack",
+          "key": "prop_sword_rack",
+          "at": 5900,
+          "depth": 3
         },
         {
           "cmd": "section",
@@ -2018,7 +2091,7 @@
         {
           "cmd": "prop",
           "id": "giftBell",
-          "key": "prop_bell",
+          "key": "bell_red",
           "at": 0,
           "screen": {
             "x": 480,
@@ -2311,6 +2384,88 @@
           "x": "festivalTree"
         },
         {
+          "cmd": "treeStage",
+          "tree": "festival",
+          "stage": "bare"
+        },
+        {
+          "cmd": "prop",
+          "id": "mask_vm1",
+          "key": "prop_fox_mask",
+          "at": "vm1",
+          "head": "vm1",
+          "dy": 6,
+          "scale": 0.5,
+          "depth": 9,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "mask_vw1",
+          "key": "prop_fox_mask",
+          "at": "vw1",
+          "head": "vw1",
+          "dy": 6,
+          "scale": 0.5,
+          "depth": 9,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "mask_vm2",
+          "key": "prop_fox_mask",
+          "at": "vm2",
+          "head": "vm2",
+          "dy": 6,
+          "scale": 0.5,
+          "depth": 9,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "mask_vw2",
+          "key": "prop_fox_mask",
+          "at": "vw2",
+          "head": "vw2",
+          "dy": 6,
+          "scale": 0.5,
+          "depth": 9,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "mask_vm3",
+          "key": "prop_fox_mask",
+          "at": "vm3",
+          "head": "vm3",
+          "dy": 6,
+          "scale": 0.5,
+          "depth": 9,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "mask_vw3",
+          "key": "prop_fox_mask",
+          "at": "vw3",
+          "head": "vw3",
+          "dy": 6,
+          "scale": 0.5,
+          "depth": 9,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "mask_hana",
+          "key": "prop_fox_mask",
+          "at": "hana",
+          "head": "hana",
+          "dy": 6,
+          "scale": 0.5,
+          "depth": 9,
+          "label": ""
+        },
+        {
           "cmd": "light",
           "preset": "lantern",
           "at": "festivalAkane",
@@ -2438,6 +2593,11 @@
           "cmd": "gameplay",
           "do": "bloomTree",
           "tree": "festival"
+        },
+        {
+          "cmd": "treeStage",
+          "tree": "festival",
+          "stage": "bloom"
         },
         {
           "cmd": "particles",
@@ -2642,6 +2802,16 @@
           "hat": true
         },
         {
+          "cmd": "prop",
+          "id": "wandererHat",
+          "key": "kasa_hat",
+          "at": "wanderer",
+          "head": "wanderer",
+          "dy": 12,
+          "depth": 9,
+          "label": ""
+        },
+        {
           "cmd": "parallel",
           "commands": [
             {
@@ -2716,6 +2886,12 @@
       },
       "mode": "auto",
       "commands": [
+        {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": 7910,
+          "face": "right"
+        },
         {
           "cmd": "camZoom",
           "zoom": 1,
@@ -2856,6 +3032,11 @@
           "id": "thud"
         },
         {
+          "cmd": "treeStage",
+          "tree": "festival",
+          "stage": "burning"
+        },
+        {
           "cmd": "particles",
           "preset": "embers",
           "x": "festivalTree",
@@ -2945,7 +3126,7 @@
         {
           "cmd": "prop",
           "id": "hat",
-          "key": "prop_hat",
+          "key": "kasa_hat",
           "at": "festivalTree",
           "offset": 220,
           "y": 60,
@@ -2992,6 +3173,17 @@
           "src": "지붕 위에 흰 가면 신도들이 하나씩 나타나고 횃불이 왼쪽부터 차례로 켜진다."
         },
         {
+          "cmd": "prop",
+          "id": "flag0",
+          "key": "fx_red_sun",
+          "at": 7536,
+          "y": 330,
+          "scale": 0.12,
+          "anim": "fx_red_sun_grow",
+          "depth": 5,
+          "label": ""
+        },
+        {
           "cmd": "light",
           "preset": "torch",
           "x": 7520,
@@ -3015,6 +3207,17 @@
           "y": 360,
           "depth": 5,
           "fade": 0.3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "flag1",
+          "key": "fx_red_sun",
+          "at": 7716,
+          "y": 330,
+          "scale": 0.12,
+          "anim": "fx_red_sun_grow",
+          "depth": 5,
           "label": ""
         },
         {
@@ -3044,6 +3247,17 @@
           "label": ""
         },
         {
+          "cmd": "prop",
+          "id": "flag2",
+          "key": "fx_red_sun",
+          "at": 7896,
+          "y": 330,
+          "scale": 0.12,
+          "anim": "fx_red_sun_grow",
+          "depth": 5,
+          "label": ""
+        },
+        {
           "cmd": "light",
           "preset": "torch",
           "x": 7880,
@@ -3067,6 +3281,17 @@
           "y": 360,
           "depth": 5,
           "fade": 0.3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "flag3",
+          "key": "fx_red_sun",
+          "at": 8136,
+          "y": 330,
+          "scale": 0.12,
+          "anim": "fx_red_sun_grow",
+          "depth": 5,
           "label": ""
         },
         {
@@ -3096,6 +3321,17 @@
           "label": ""
         },
         {
+          "cmd": "prop",
+          "id": "flag4",
+          "key": "fx_red_sun",
+          "at": 8316,
+          "y": 330,
+          "scale": 0.12,
+          "anim": "fx_red_sun_grow",
+          "depth": 5,
+          "label": ""
+        },
+        {
           "cmd": "light",
           "preset": "torch",
           "x": 8300,
@@ -3119,6 +3355,17 @@
           "y": 360,
           "depth": 5,
           "fade": 0.3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "flag5",
+          "key": "fx_red_sun",
+          "at": 8496,
+          "y": 330,
+          "scale": 0.12,
+          "anim": "fx_red_sun_grow",
+          "depth": 5,
           "label": ""
         },
         {
@@ -3202,6 +3449,78 @@
           "preset": "smoke",
           "at": "akane",
           "seconds": 2
+        },
+        {
+          "cmd": "propOff",
+          "id": "flag0",
+          "fade": 0.4,
+          "wait": false
+        },
+        {
+          "cmd": "propOff",
+          "id": "flag1",
+          "fade": 0.4,
+          "wait": false
+        },
+        {
+          "cmd": "propOff",
+          "id": "flag2",
+          "fade": 0.4,
+          "wait": false
+        },
+        {
+          "cmd": "propOff",
+          "id": "flag3",
+          "fade": 0.4,
+          "wait": false
+        },
+        {
+          "cmd": "propOff",
+          "id": "flag4",
+          "fade": 0.4,
+          "wait": false
+        },
+        {
+          "cmd": "propOff",
+          "id": "flag5",
+          "fade": 0.4,
+          "wait": false
+        },
+        {
+          "cmd": "prop",
+          "id": "dbF0",
+          "key": "prop_debris_fire",
+          "at": 7560,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbF1",
+          "key": "prop_debris_fire",
+          "at": 7760,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbF2",
+          "key": "prop_debris_fire",
+          "at": 8250,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbF3",
+          "key": "prop_debris_fire",
+          "at": 8480,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
         },
         {
           "cmd": "fadeOut",
@@ -3345,9 +3664,45 @@
         {
           "cmd": "prop",
           "id": "pillar",
-          "key": "prop_pillar",
+          "key": "stall_burning",
           "at": "roadHana",
           "depth": 9
+        },
+        {
+          "cmd": "prop",
+          "id": "dbR0",
+          "key": "prop_debris_fire",
+          "at": 9260,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbR1",
+          "key": "prop_debris_fire",
+          "at": 9620,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbR2",
+          "key": "prop_debris_fire",
+          "at": 10180,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbR3",
+          "key": "prop_debris_fire",
+          "at": 10520,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
         },
         {
           "cmd": "spawn",
@@ -3491,9 +3846,8 @@
         {
           "cmd": "prop",
           "id": "maskOnRoad",
-          "key": "prop_mask_broken",
+          "key": "mask_broken",
           "at": "hana",
-          "dy": -2,
           "src": "하나가 뛰어간다. 깨진 가면이 땅에 남는다."
         },
         {
@@ -3614,6 +3968,12 @@
           "id": "whistle"
         },
         {
+          "cmd": "gameplay",
+          "do": "arrowAt",
+          "target": "soichiro",
+          "from": "left"
+        },
+        {
           "cmd": "hitStop",
           "seconds": 0.14
         },
@@ -3639,6 +3999,13 @@
         {
           "cmd": "sfx",
           "id": "whistle"
+        },
+        {
+          "cmd": "gameplay",
+          "do": "arrowAt",
+          "target": "soichiro",
+          "height": 36,
+          "from": "left"
         },
         {
           "cmd": "hitStop",
@@ -3764,6 +4131,47 @@
           "show": true,
           "x": 13450,
           "face": -1
+        },
+        {
+          "cmd": "treeStage",
+          "tree": "burning",
+          "stage": "burning"
+        },
+        {
+          "cmd": "prop",
+          "id": "dbP0",
+          "key": "prop_debris_fire",
+          "at": 12080,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbP1",
+          "key": "prop_debris_fire",
+          "at": 12420,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbP2",
+          "key": "prop_debris_fire",
+          "at": 13250,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbP3",
+          "key": "prop_debris_fire",
+          "at": 13520,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
         },
         {
           "cmd": "objective",
@@ -4240,9 +4648,8 @@
         {
           "cmd": "prop",
           "id": "mask",
-          "key": "prop_mask_broken",
-          "at": 15440,
-          "dy": -6
+          "key": "mask_broken",
+          "at": 15440
         },
         {
           "cmd": "prop",
@@ -4450,6 +4857,11 @@
           "ms": 0
         },
         {
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "show": false
+        },
+        {
           "cmd": "spawn",
           "actor": "akane",
           "at": 5330,
@@ -4490,11 +4902,9 @@
         {
           "cmd": "prop",
           "id": "ashSteamer",
-          "key": "prop_steamer_burnt",
+          "key": "steamer",
           "at": 4240,
-          "w": 40,
-          "h": 26,
-          "color": "#2a2420",
+          "tint": "#3a3230",
           "label": "타 버린 찜통"
         },
         {
@@ -4516,12 +4926,8 @@
         {
           "cmd": "prop",
           "id": "ashSapling",
-          "key": "prop_sapling_burnt",
-          "at": "sapling",
-          "w": 22,
-          "h": 40,
-          "color": "#141010",
-          "label": "새까맣게 탄 묘목"
+          "key": "sapling_burnt",
+          "at": "sapling"
         },
         {
           "cmd": "particles",
@@ -4693,6 +5099,11 @@
           "ms": 0
         },
         {
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "show": false
+        },
+        {
           "cmd": "mood",
           "to": "ash",
           "seconds": 0
@@ -4703,11 +5114,9 @@
           "seconds": 0
         },
         {
-          "cmd": "prop",
-          "id": "stump",
-          "key": "prop_stump",
-          "at": "plazaStump",
-          "depth": 4
+          "cmd": "treeStage",
+          "tree": "burning",
+          "stage": "burnt"
         },
         {
           "cmd": "prop",
@@ -4718,7 +5127,7 @@
         {
           "cmd": "prop",
           "id": "hairpin",
-          "key": "prop_hairpin",
+          "key": "kanzashi",
           "at": 12800
         },
         {
@@ -4804,14 +5213,14 @@
         {
           "cmd": "prop",
           "id": "grave1",
-          "key": "prop_grave",
+          "key": "grave_a",
           "at": 12700,
           "fade": 0.6
         },
         {
           "cmd": "prop",
           "id": "grave2",
-          "key": "prop_grave",
+          "key": "grave_b",
           "at": 12735,
           "fade": 0.6
         },
@@ -5004,6 +5413,16 @@
           "src": "아카네가 머리끈에서 방울을 풀어 천 조각으로 꽁꽁 감싼다. 이제 흔들어도 소리가 나지 않는다. 그것을 품에 넣는다."
         },
         {
+          "cmd": "prop",
+          "id": "bellInHand",
+          "key": "bell_red",
+          "at": "akane",
+          "offset": 14,
+          "dy": -34,
+          "depth": 12,
+          "label": ""
+        },
+        {
           "cmd": "sfx",
           "id": "chime",
           "volume": 0.3
@@ -5015,6 +5434,20 @@
           "seconds": 1.6
         },
         {
+          "cmd": "propOff",
+          "id": "bellInHand"
+        },
+        {
+          "cmd": "prop",
+          "id": "bellWrapped",
+          "key": "bell_wrapped",
+          "at": "akane",
+          "offset": 14,
+          "dy": -30,
+          "depth": 12,
+          "label": ""
+        },
+        {
           "cmd": "setFlag",
           "flag": "bellWrapped",
           "value": true
@@ -5024,6 +5457,11 @@
           "actor": "akane",
           "name": "품에 넣는다",
           "seconds": 1.0
+        },
+        {
+          "cmd": "propOff",
+          "id": "bellWrapped",
+          "fade": 0.4
         },
         {
           "cmd": "think",

@@ -84,11 +84,7 @@ SHEETS = {
 # 조각마다 따로 저장하는 시트. 반짝이·부스러기가 흩어져 있어 자동으로 못 나누므로 원본 좌표 상자를 손으로 정했다
 # (y0, y1, x0, x1). 상자에 걸친 덩어리는 중심이 들어 있는 상자 쪽으로 간다. height_of: 이 조각의 키를 몇 px 로 할지 → 시트 공통 배율
 PIECES = {
-    'props_prologue': dict(height_of=('prop_scarecrow', 80), boxes=[
-        ('prop_scarecrow', (100, 580, 10, 335)), ('prop_scarecrow_broken', (100, 585, 336, 684)),
-        ('prop_katana', (370, 580, 685, 1425)), ('prop_fire_arrow', (185, 500, 1185, 1510)),
-        ('prop_debris_fire', (560, 960, 5, 627)), ('prop_fox_mask', (660, 935, 627, 845)),
-        ('prop_anvil', (635, 960, 846, 1186)), ('prop_sword_rack', (645, 955, 1187, 1525))]),
+    # 소품 시트(props_prologue)는 tools/process_props.py 가 덩어리마다 자른다 (좌표 상자 없이)
     # 붉은 태양 문양 / 문양이 번지는 5단계 / 금빛 막 4단계 / 막이 깨지는 4단계 / 타이틀 로고 문양
     'fx_prologue': dict(height_of=('fx_barrier_3', 130), boxes=[
         ('fx_red_sun', (0, 410, 0, 400)),

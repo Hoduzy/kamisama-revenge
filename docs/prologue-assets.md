@@ -53,39 +53,23 @@
 
 ## 소품
 
-| 이름 | 이름표 | 크기(px) |
-|---|---|---|
-| `prop_bed` | 이불 | 120×18 |
-| `prop_sapling` | 죽은 묘목 | 22×46 |
-| `prop_letter` | 접힌 편지 | 14×10 |
-| `prop_irori` | 이로리(화로) · 밥상 | 180×30 |
-| `prop_steamer` | 만두 찜통 | 40×30 |
-| `prop_well` | 우물 | 60×40 |
-| `prop_shrine` | 신사 | 90×110 |
-| `prop_torii` | 돌 도리이 | 120×150 |
-| `prop_lantern_stone` | 석등 | 26×60 |
-| `prop_stone` | 나그네가 앉은 돌 | 56×22 |
-| `prop_petal` | (이름표 없음) | 8×6 |
-| `prop_bell` | 붉은 방울 | 12×12 |
-| `prop_hat` | 삿갓 | 54×18 |
-| `prop_flower` | 아카네가 피운 꽃 | 14×14 |
-| `prop_lantern_rope` | 등롱 줄 | 260×26 |
-| `prop_pillar` | 무너진 노점 기둥 | 110×22 |
-| `prop_mask_broken` | 깨진 고양이귀 가면 | 18×14 |
-| `prop_haru_sword` | 하루의 칼 | 56×6 |
-| `prop_hairpin` | 붉은 술 비녀 | 18×8 |
-| `prop_grave` | 돌무덤 | 30×26 |
-| `prop_stump` | 검게 탄 그루터기 | 150×120 |
-| `prop_hammer` | 망치 | 26×14 |
-| `prop_cloth_bell` | 천으로 감싼 방울 | 14×14 |
-| `prop_sword_gift` | 검은 칼집의 칼 | 70×8 |
-| `prop_rooftop_cultist` | 흰 가면 신도 | 22×56 |
-| `prop_comb` | 거울 앞 빗 | 장면에서 정한 크기 |
-| `prop_glow` | (이름표 없음) | 장면에서 정한 크기 |
-| `prop_katana` | (이름표 없음) | 장면에서 정한 크기 |
-| `prop_lantern_fallen` | 쓰러진 석등 | 장면에서 정한 크기 |
-| `prop_sapling_burnt` | 새까맣게 탄 묘목 | 장면에서 정한 크기 |
-| `prop_steamer_burnt` | 타 버린 찜통 | 장면에서 정한 크기 |
-| `prop_window` | 창 (큰 나무가 보임) | 장면에서 정한 크기 |
-| `prop_wooden_sword` | (이름표 없음) | 장면에서 정한 크기 |
-| `prop_wooden_sword` | 작은 목검 | 장면에서 정한 크기 |
+소품 시트는 `python3 tools/process_props.py` 로 덩어리마다 잘라 `assets/sprites/props/` 에 넣는다 (조각 미리보기: `assets/sprites/props/props_preview.html`).
+어떤 그림이 어느 장면에 실제로 그려지는지는 `docs/asset-audit.md` (점검표, `python3 tools/audit_assets.py`).
+
+**그림이 있어 게임에 쓰이는 소품**: prop_scarecrow · prop_scarecrow_broken · prop_katana · prop_fire_arrow · prop_debris_fire · prop_fox_mask · prop_anvil · prop_sword_rack ·
+sapling_dead · sapling_burnt · bell_red · bell_wrapped · kanzashi · manju_basket · steamer · kasa_hat · grave_a · grave_b · stall_burning · mask_broken
+
+**아직 그림이 없어 단색 네모 + 이름표로 나오는 것** (프롤로그를 끝까지 재생하며 실제로 임시 그림이 쓰인 것):
+- `prop_flower`
+- `prop_glow`
+- `prop_hammer`
+- `prop_haru_sword`
+- `prop_lantern_fallen`
+- `prop_lantern_rope`
+- `prop_petal`
+- `prop_rooftop_cultist`
+- `prop_shrine`
+- `prop_well`
+
+**큰 벚나무**: `tree` 시트에 앙상함 · 만개 2단계만 있다. 불타는 단계(`tree_burning`)와 검게 탄 단계(`tree_burnt`)는 그림이 없어
+만개 그림을 불빛 색 + 불티로, 앙상한 그림을 검게 물들여 대신한다. 같은 이름의 그림을 넣으면 자동으로 바뀐다.

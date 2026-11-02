@@ -264,7 +264,9 @@
 - `tools/process_sprites.py` — 원본 도트 이미지 전처리
 - `tools/process_ui.py` / `tools/ui_slices.json` — UI 그림 전처리, 9-slice 값
 - `tools/process_result.py` — 결과 화면 그림 전처리
-- `tools/process_prologue.py` — 프롤로그 인물·마을 사람·소품·이펙트 전처리 (scipy, opencv-python-headless 필요)
+- `tools/process_prologue.py` — 프롤로그 인물·마을 사람·이펙트 전처리 (scipy, opencv-python-headless 필요)
+- `tools/process_props.py` — 소품 시트를 덩어리마다 잘라 `assets/sprites/props/` (격자 가정 없음, 작은 조각은 가까운 본체에 합침) + `props_preview.html`
+- `tools/audit_assets.py` — 그림 사용 점검표 `docs/asset-audit.md` (잘림 · 로드 · 실제로 그려지는 장면 · 남은 임시 도형 · 안 쓰이는 그림). 새 그림을 넣을 때마다 돌린다
 - `js/player.js` / `js/enemy.js` — 주인공, 적
 - `js/level.js` — 맵(`LEVELS.town`, `LEVELS.prologue`), 스토리 트리거 ↔ 장면 id 표(`STORY_MAP`)
 - `js/game-scene.js` — 충돌, 전투, 카메라, HUD
