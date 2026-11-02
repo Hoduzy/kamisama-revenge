@@ -198,6 +198,8 @@ class GameScene extends Phaser.Scene {
       const dt = Math.min(this.game.loop.delta / 1000, 1 / 30);
       this.player.syncVisual(dt);
       for (const e of this.enemies) e.syncVisual(dt);
+      // 구역 배경은 잠긴 컷신에서도 (배우가 걸어 다른 구역으로 가면 배경도 바뀌게)
+      if (this.stageBgs.length && this.story && this.story.blocking) this.updateStageBackgrounds();
       if (this.debugGfx.visible) this.drawDebug();
       UI.update();
     };

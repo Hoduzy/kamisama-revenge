@@ -383,7 +383,13 @@
               "speaker": "akane",
               "text": "하루 쪽이 한 칸 더 높다."
             }
-          ]
+          ],
+          "recall": [
+            {
+              "text": "언니보다 내가 더 크다!"
+            }
+          ],
+          "recallColor": "#ffb7c5"
         },
         {
           "cmd": "objective",
@@ -392,12 +398,11 @@
         {
           "cmd": "hum",
           "speaker": "haru",
-          "text": "자장 자장 우리 아가, 꽃잎 덮고 잠들어라"
-        },
-        {
-          "cmd": "hum",
-          "speaker": "haru",
-          "text": "벚꽃 지면 봄이 가고, 봄이 가면 또 오리니"
+          "lines": [
+            "자장 자장 우리 아가, 꽃잎 덮고 잠들어라",
+            "벚꽃 지면 봄이 가고, 봄이 가면 또 오리니"
+          ],
+          "wait": false
         },
         {
           "cmd": "waitForPlayerAt",

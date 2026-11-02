@@ -454,9 +454,18 @@ class StoryPlayer {
         break;
       case 'hum': {
         // 흥얼거림 자막 (하루의 자장가): 화면 아래 작게 분홍 글. 다음 명령은 거의 다 흐른 뒤에 (wait: false 면 바로)
+        // lines: [가사…] 면 한 줄씩 이어서 (줄 사이 gap 초)
         if (skip) break;
-        const ms = UI.hum(c.text, (c.seconds ?? Math.max(2.6, 1.4 + c.text.length * 0.12)) * 1000, c.color);
-        if (c.wait !== false) await this.wait(ms - 500, true);
+        const lines = c.lines || [c.text];
+        const dur = (t) => (c.seconds ?? Math.max(2.6, 1.4 + t.length * 0.12)) * 1000;
+        let at = 0;
+        lines.forEach((t) => {
+          const d = dur(t);
+          if (at === 0) UI.hum(t, d, c.color);
+          else scene.time.delayedCall(at, () => UI.hum(t, d, c.color));
+          at += d - 500 + (c.gap ?? 0) * 1000;
+        });
+        if (c.wait !== false) await this.wait(at, true);
         break;
       }
       case 'overwrite': {
@@ -474,7 +483,7 @@ class StoryPlayer {
         const x = A.xOf(c.at ?? c.x) ?? A.akane.x;
         const lines = c.lines || [{ speaker: c.speaker, text: c.text }];
         const names = Object.fromEntries(Object.entries(this.characters).map(([id, ch]) => [id, ch.name]));
-        const ms = UI.recall(lines, x, A.groundAt(x), names);
+        const ms = UI.recall(lines, x, A.groundAt(x), names, c.color);
         if (c.wait !== false) await this.wait(ms * 0.75, true);
         break;
       }
@@ -486,16 +495,24 @@ class StoryPlayer {
         const p = scene.player;
         if (skip) { A.akane.place(x); break; }
         if (!this.ctl) { await A.moveTo(A.akane, x, c.speed || 'walk', false); break; }
+        // dir: 1 = 오른쪽으로 가며 그 자리에 닿거나 지나가면(기본), -1 = 왼쪽으로. 0 = 반경 안에 들어올 때만
         const r = c.radius ?? 40;
-        const side = Math.sign(x - p.body.center.x);
-        if (c.guide !== false) scene.cine.guideTo(x);
-        await this.waitUntil(() => Math.abs(p.body.center.x - x) <= r || Math.sign(x - p.body.center.x) !== side);
+        const dir = c.dir ?? 1;
+        const reached = () => {
+          const px = p.body.center.x;
+          if (dir > 0) return px >= x - r;
+          if (dir < 0) return px <= x + r;
+          return Math.abs(px - x) <= r;
+        };
+        if (c.guide !== false && !reached()) scene.cine.guideTo(x);
+        await this.waitUntil(reached);
         if (c.guide !== false) scene.cine.guideTo(null);
         if (this.skipping) A.akane.place(x); // 기다리다 건너뛰면 그 자리로
         break;
       }
       default:
-        if (['moveTo', 'jump', 'spawn', 'appear', 'disappear'].includes(c.cmd) && c.wait !== false && !skip) dlg.hide();
+        // 배우·카메라 동작이 시작되면 앞 대사 창은 내린다 (인물이 가려지지 않게)
+        if (!skip && ['moveTo', 'jump', 'spawn', 'appear', 'disappear', 'sit', 'kneel', 'standUp', 'anim', 'emote', 'face', 'camPan', 'camZoom', 'camFollow'].includes(c.cmd)) dlg.hide();
         if (await scene.actors.command(c, skip)) break;
         // 연출 도구 명령 (camZoom, cutIn, particles, light, objective … docs/cinematics.md)
         if (!(await scene.cine.command(c, skip))) console.warn('[story] 모르는 명령', c);

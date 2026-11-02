@@ -413,10 +413,15 @@ class ActorDirector {
 
   addPoint(c) {
     const x = this.xOf(c.at ?? c.x, c.offset || 0);
-    if (x == null) return;
+    if (x == null) {
+      UI.note(`[조사] 위치 없음: ${c.id} ${c.label || ''} (at 을 채워야 함)`);
+      return;
+    }
     this.removePoint(c.id);
     const lines = c.lines || (c.text ? [{ speaker: c.speaker || 'akane', text: c.text }] : []);
-    this.points.push({ id: c.id, x, radius: c.radius ?? 60, lines, group: c.group ?? null, once: !!c.once });
+    // recall: 조사하면 그 자리에서 과거 대사가 떠올라 흘러내림 (회상 자막, P-13)
+    this.points.push({ id: c.id, x, radius: c.radius ?? 60, lines, group: c.group ?? null, once: !!c.once,
+      recall: c.recall || null, recallColor: c.recallColor });
   }
 
   removePoint(id) {
@@ -455,6 +460,10 @@ class ActorDirector {
       });
       t += ms;
     }
+    if (pt.recall) {
+      const nm = Object.fromEntries(Object.entries(names).map(([id, ch]) => [id, ch.name]));
+      UI.recall(pt.recall, pt.x, this.groundAt(pt.x), nm, pt.recallColor);
+    }
     this.scene.events.emit('inspect', pt.id);
     if (pt.once) this.removePoint(pt.id);
   }
@@ -477,7 +486,9 @@ class ActorDirector {
     this.updatePoints();
     for (const e of this.emotes) {
       const bob = e.hold ? Math.floor(this.scene.time.now / 400) % 2 * 2 : 0;
-      e.img.setPosition(Math.round(e.a.x), Math.round(e.a.headY - 4 + e.dy - bob));
+      // 이름표가 있는 인물은 이름표 위로
+      const tag = e.a.tag && e.a.tag.el.style.display !== 'none' && e.a.name ? 30 : 0;
+      e.img.setPosition(Math.round(e.a.x), Math.round(e.a.headY - 4 - tag + e.dy - bob));
       e.img.setVisible(e.a.visible !== false);
     }
   }

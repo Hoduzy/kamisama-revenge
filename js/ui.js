@@ -431,7 +431,7 @@ const UI = {
 
   // 회상 자막: 그 자리(월드 x)에 과거 대사가 반투명하게 떠올랐다가 글자마다 빗물처럼 흘러내린다.
   // lines: [{ text, speaker }] (speaker 이름은 작게 앞에). 돌려주는 값: 다 흘러내릴 때까지 ms
-  recall(lines, worldX, worldY, names = {}) {
+  recall(lines, worldX, worldY, names = {}, color) {
     const hold = 1600;
     let total = 0;
     lines.forEach((ln, i) => {
@@ -441,7 +441,7 @@ const UI = {
       const name = ln.speaker && names[ln.speaker] ? `<i>${names[ln.speaker]}</i>` : '';
       const start = i * 900;
       const dripAt = start + 1000 + hold;
-      el.innerHTML = `<span style="animation-delay:${start}ms">${name}${chars.map((ch) => {
+      el.innerHTML = `<span style="animation-delay:${start}ms${color ? `;color:${color}` : ''}">${name}${chars.map((ch) => {
         const delay = dripAt + Math.floor(Math.random() * 700);
         const fall = 40 + Math.floor(Math.random() * 6) * 16;
         return `<b style="--d:${delay}ms;--fall:${fall}px">${ch === ' ' ? '&nbsp;' : ch.replace(/[&<>]/g, '')}</b>`;

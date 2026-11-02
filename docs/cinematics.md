@@ -5,7 +5,7 @@
 - 대본(`data/story/*.json`)의 장면 `commands`에 아래 명령을 넣으면 컷신 엔진(`js/story-player.js`)이 차례로 실행합니다. 엔진이 따로 처리하지 않는 명령은 모두 `cine.command()`로 넘어갑니다.
 - 시간이 걸리는 명령(줌, 패닝, 틸트, 색감 전환, 컷인)은 끝날 때까지 다음 명령을 기다립니다. 기다리지 않게 하려면 `"wait": false`를 넣습니다.
 - 장면을 건너뛰는 중(길게 누르기, Esc)에는 보여 주기만 하는 효과는 생략하고, 상태(색감, 줌 배율, 빛 켜기 등)만 반영합니다.
-- **시험해 보기**: 일시정지 메뉴(ESC 또는 오른쪽 위 버튼) → `연출 시험` (F1 → `🎬 연출 시험`도 같음). 게임이 멈추지 않는 옆 창이라 걸어 다니면서 버튼을 눌러 볼 수 있습니다.
+- **시험해 보기**: 일시정지 메뉴(ESC 또는 오른쪽 위 버튼) → `연출 시험` (F1 → `연출 시험`도 같음). 게임이 멈추지 않는 옆 창이라 걸어 다니면서 버튼을 눌러 볼 수 있습니다. 인물이 대본대로 움직이는 배우 명령은 이 문서 아래쪽 「배우(Actor) 시스템」 절에 있습니다.
 
 위치를 받는 명령의 `to` / `at`은 다음 중 하나를 씁니다.
 - `"player"` (주인공)
@@ -121,3 +121,118 @@
   - 크롬·엣지: 파일 고르기 창에서 저장소의 `js/config.js`를 고르면 그 파일에 바로 씁니다.
   - 그 밖의 브라우저: 다운로드합니다. 받은 파일로 `js/config.js`를 바꾸면 됩니다.
   - 웹 페이지는 저장소 파일에 몰래 쓸 수 없어서 이렇게 합니다.
+
+---
+
+# 배우(Actor) 시스템 — 컷신에서 인물이 대본대로 움직인다
+
+코드는 `js/actors.js`(배우·조사 지점·감정 아이콘)와 `js/story-player.js`(조작 모드·블록·자막), 수치는 `js/config.js` 의 `TUNING.actors` 에 있습니다.
+
+- **시험해 보기**: 일시정지 메뉴 → `개발 메뉴` (또는 F1) → `배우 시험` 줄의 버튼.
+  - `나란히 걸어와 마주 보고 앉기` (`ACTOR-1`, 자동 모드)
+  - `조작 · 조사 · 자막 · 느린 조작` (`ACTOR-2`, 조작 → 느린 조작 → 자동)
+  - 시험 장면은 `data/story/test.json` 에 있고, 프롤로그 맵(연습장)에서 돌아갑니다. 프롤로그 대본에는 아직 쓰지 않았습니다.
+- **배우 이름**: `akane`(= `아카네`, `player`) 또는 맵 인물 id(`haru`, `soichiro` …)나 한글 이름(`characters.json`). 맵에 없는 인물은 `spawn` 으로 세웁니다.
+- **위치**: 숫자(x) · 맵 `points` 이름 · 배우 이름(+ `offset`) · `{ "x": … }`.
+- **속도**: `walk`(110) · `run`(260) · `slow`(60) · 숫자(px/초).
+
+## 조작 모드
+
+장면에 `"mode"` 를 정하거나, 장면 도중 `mode` 명령으로 바꿉니다. `mode` 를 쓰는 장면은 auto 일 때 레터박스가 자동으로 들어오고, play·slow 로 바뀌면 나갑니다.
+
+| 모드 | 플레이어 | 대사 | 레터박스 |
+| --- | --- | --- | --- |
+| `auto` | 입력 막힘, 대사 넘기기만. 아카네도 배우 명령대로 움직임 | Space·J·탭으로 넘김 | 들어옴 |
+| `play` | 보통 조작 | 화면에 흘러가며 자동으로 넘어감 (= 조작 가능 컷신) | 나감 |
+| `slow` | 걷기만, 이동 60%(`TUNING.actors.slowMode`). 점프·공격·대시·스킬 막힘, 그 버튼과 스킬 칸은 회색 | 자동으로 넘어감 | 나감 |
+
+| 명령 | 매개변수 | 설명 |
+| --- | --- | --- |
+| `mode` | `mode`: auto / play / slow, `letterbox` (false 면 레터박스는 그대로) | 조작 모드 바꾸기 |
+
+## 배우 명령
+
+| 명령 | 매개변수 | 설명 |
+| --- | --- | --- |
+| `moveTo` | `actor`, `x` 또는 `to`, `offset`, `near`(true = 대상 배우 바로 앞 50px 에서 멈춤), `speed`, `wait`(기본 true) | 걸어서(달려서) 이동. `wait: false` 면 도착을 기다리지 않고 다음 명령으로 |
+| `face` | `actor`, `dir`: left / right / 배우 이름 | 바라보기 |
+| `anim` | `actor`, `anim`(애니메이션 이름, 인물 접두사 생략 가능: `forge` → `soichiro_forge`), `loop` | 애니메이션 재생 |
+| `stopAnim` | `actor` | 서 있는 그림으로 |
+| `jump` | `actor`, `x` | 포물선으로 x 까지 뛰기 (`jumpHeight`, `jumpMs`) |
+| `sit` / `kneel` / `standUp` | `actor` | 앉기 / 무릎 꿇기 / 일어서기. 그림이 없으면 비슷한 그림으로 대신함 (아래) |
+| `pose` | `actor`, `pose` (idle · sit · kneel · down …) | 자세 직접 |
+| `emote` | `actor`, `kind`: `!` `?` `…` `sweat` `heart` `note`, `seconds` | 머리 위 픽셀 아이콘 (말풍선, 2배). 튀어나오는 0.35초만 기다림 |
+| `appear` / `disappear` | `actor`, `fade`(초, false = 바로) | 나타나기 / 사라지기 |
+| `spawn` | `actor`, `at`, `face`, `look`, `sheet`, `fade` | 그 자리에 세우기 (맵에 없으면 새로 만듦. 그림이 없으면 실루엣) |
+| `camFollow` | `actor` | 카메라가 그 배우를 따라감 (`akane` 이면 원래대로) |
+| `camPan` | `x`(또는 배우), `seconds`, `back`(기본 false) | 카메라를 x 로 옮겨 머묾. 장면이 끝나면 아카네에게 돌아옴 |
+| `camZoom` | `zoom`, `seconds` | 줌 |
+| `parallel` | `commands`: [...] | 안의 명령을 동시에 시작하고 모두 끝나면 다음으로 (여러 배우를 함께 걷게) |
+| `sequence` | `commands`: [...] | 하나 끝나면 다음 (parallel 안에서 순서가 필요할 때) |
+| `wait` | `seconds` | 기다리기 |
+| `waitForPlayerAt` | `x` 또는 `to`, `radius`(40), `dir`(1 = 오른쪽으로 닿거나 지나가면, -1 왼쪽, 0 반경 안), `guide`(기본 true = 길 안내 화살표) | play·slow 에서 플레이어가 그 자리에 오면 다음으로. auto 면 아카네가 걸어감 |
+
+```json
+{ "cmd": "parallel", "commands": [
+  { "cmd": "moveTo", "actor": "akane", "x": 1840 },
+  { "cmd": "moveTo", "actor": "haru", "x": 1920 } ] },
+{ "cmd": "face", "actor": "haru", "dir": "akane" },
+{ "cmd": "emote", "actor": "haru", "kind": "note" },
+{ "cmd": "sit", "actor": "haru" }
+```
+
+**그림이 없는 자세** (그림이 생기면 `js/actors.js` 의 `ACTOR_POSES`, `js/npc.js` 의 `NPC_POSES` 에 넣으면 됨)
+
+| 인물 | 앉기 | 무릎 | 걷기 |
+| --- | --- | --- | --- |
+| 아카네 | 임시: 발도 준비(웅크림) 첫 칸 | 임시: 같은 시트 마지막 칸 | `player_run` 을 속도에 맞춰 느리게 |
+| 하루 | `haru_reach` 첫 칸 (앉은 그림) | `haru_death` 4번째 칸 | 걷는 그림 없음 → 서 있는 그림이 2px 씩 통통 |
+| 소이치로 | `soichiro_kneel` 4번째 칸 | `soichiro_kneel` | 걷는 그림 없음 |
+| 그 밖 | 서 있는 그림을 세로 75% 로 (임시) | 85% | — |
+
+## 조사 지점 (대본의 〔조사〕)
+
+| 명령 | 매개변수 | 설명 |
+| --- | --- | --- |
+| `inspect` | `id`, `at`, `radius`(60), `lines`: [{ `speaker`, `text` }] 또는 `text`, `group`, `once`, `recall`: [{ `text` }], `recallColor` | 다가가면 아카네 머리 위에 `…` 와 `E` 키(터치는 `조사` 버튼). 누르면 속마음이 말풍선으로 짧게 (게임은 멈추지 않음). `recall` 이 있으면 그 자리에서 회상 자막도 |
+| `inspectClear` | `id` (없으면 모두) | 조사 지점 지우기 |
+
+- 조사한 것은 `registry.inspected` 에 `{ id: group }` 으로 남습니다 (개발 메뉴의 `본 장면·플래그 지우기` 로 지움).
+- 조건(`condition` 의 `when`): `inspected`(id 또는 목록, 모두 조사했으면), `notInspected`, `inspectedAtLeast` / `inspectedLessThan`(개수, `group` 이 있으면 그 묶음만).
+
+```json
+{ "cmd": "condition", "when": { "inspectedAtLeast": 3, "group": "P-13" }, "then": [ … ] }
+```
+
+## 대사 연출
+
+| 명령 | 매개변수 | 설명 |
+| --- | --- | --- |
+| `hum` | `text` 또는 `lines`, `speaker`, `seconds`, `gap`, `color`, `wait` | 흥얼거림 자막: 화면 아래 작게 흐르는 분홍 글 (대화창 없이). `lines` 면 한 줄씩 이어서 |
+| `overwrite` | `text`(바탕 글), `over`(덮는 글), `color`, `overColor`, `hold`(초), `keep` | 덮어쓰기 자막: 화면 위쪽에 반투명 글이 떠오르고, 다른 색 글이 왼쪽부터 그 위를 덮어 씀 |
+| `recall` | `lines`: [{ `speaker`, `text` }] 또는 `text`, `at`, `color`, `wait` | 회상 자막: 그 자리에 과거 대사가 반투명하게 떠올랐다가 글자마다 빗물처럼 흘러내림 |
+
+## 건너뛰기
+
+- 화면(또는 Space·J)을 길게 누르거나 **Esc 를 1초** 누르면 장면 전체를 건너뜁니다 (`TUNING.story.holdToSkip`).
+- 건너뛰어도 결과는 모두 남습니다: 걷던 배우는 도착한 자리로, 사라지던 배우는 사라진 채로, 앉기·무릎·그림 바꿈, `spawn`, 아이템(`giveItem`), 플래그, 조사 지점, `waitForPlayerAt` 의 위치 이동.
+
+## 대본 표기 → 명령 (tools/convert_story.py, tools/actor_verbs.py)
+
+| 대본 | 변환 |
+| --- | --- |
+| 머리말 끝 `〔자동〕` `〔조작〕` `〔느린 조작〕` `〔조작 가능 컷신〕` `〔자동 → 조작〕` | 장면 `mode`(첫 모드), `modeFlow`, `controllable` |
+| `▶ 〔자동〕 …` (연출 줄 맨 앞) | `mode` 명령 |
+| `〔조사〕 대상: 인물 (속마음) "…"` | `inspect` (위치는 비어 있음 → 맵에 넣을 때 `at` 채움) |
+| `〔조사〕 대상: 설명. 떠오르는 대사 — "…"` | `inspect` + `recall` |
+| `▶ (P-13 조사 개수에 따라 …)` 다음 `- 인물 (속마음): "…"` 줄들 | n 번째 줄 = `inspectedAtLeast: n` 조건 |
+| `### 하루의 자장가` 의 〈가사 / 가사〉 + 연출 문장의 '자장가' | `hum` (`한 소절` 이면 첫 줄만, '가사'가 없으면 기다리지 않음) |
+| '화면 위쪽 … 반투명' 다음 〈자막〉, '덮어쓰' 다음 대사 | `overwrite` (바탕 글 = 그 자막, 덮는 글 = 그 대사) |
+| 주어(인물 이름+이/가) + 걸어간다·달려온다·다가온다 | `moveTo` (대상 인물이 있으면 `near`, 없으면 '다가온다'는 아카네에게, 그 밖엔 위치 필요) |
+| 앉는다·쪼그려 앉아 / 무릎을 꿇는다 / 일어선다 | `sit` / `kneel` / `standUp` |
+| 사라진다 / 나타난다·들어온다 | `disappear` / `appear` |
+| X를 본다·돌아본다·마주 본다 | `face` |
+| 놀라 / 갸웃 / 머뭇·말없이 / 땀 / 흥얼 | `emote` ! / ? / … / sweat / note |
+
+- '아카네가 다가가면 …' 처럼 조건(…면)이 붙은 문장은 바꾸지 않습니다 (플레이어 행동).
+- 시험 변환: `python3 tools/convert_story.py --dry-run --report 보고서.md` — `data/story` 는 그대로 두고, 장면별 모드·바꾼 연출 문장·위치가 필요한 것·남은 note 를 보고서로 씁니다.

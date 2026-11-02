@@ -21,6 +21,7 @@ from collections import Counter, OrderedDict
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).parent))
+from actor_verbs import actor_commands, parse_modes  # noqa: E402  배우 명령 (js/actors.js)
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / 'data/story'
@@ -36,6 +37,7 @@ CHARACTERS = OrderedDict([
     ('승병', 'warrior_monk'), ('화승총병 A', 'gunner_a'), ('화승총병 B', 'gunner_b'),
     ('마을 아이', 'village_child'), ('마을 사람', 'villager'), ('마을 할머니', 'village_grandma'),
     ('마을 어른', 'village_elder'), ('쌀가게 노인', 'rice_seller'), ('하녀', 'maid'),
+    ('하나', 'hana'), ('나그네', 'wanderer'), ('만두 할머니', 'dumpling_grandma'), ('마을 노인', 'village_old_man'),
 ])
 FACES = {'기본': 'neutral', '웃음': 'smile', '분노': 'angry', '슬픔': 'sad', '놀람': 'surprised',
          '겁먹음': 'scared', '진지': 'serious'}
@@ -84,7 +86,9 @@ CHAPTERS = [  # (파일 이름, 대본의 장 제목 머리말 시작)
 ]
 
 # ───────── 대본 한 줄 패턴 ─────────
-RE_SCENE = re.compile(r'^### ((?:S\d+-\d+|E-\d+)) · (.+)$')
+RE_SCENE = re.compile(r'^### ((?:S\d+-\d+|E-\d+|P-\d+[a-z]?)) · (.+)$')
+RE_MODE_TAG = re.compile(r'\s*〔([^〕]+)〕\s*$')   # 장면 머리말 끝의 〔자동 → 조작〕
+RE_INSPECT = re.compile(r'^〔조사〕\s*(.+?):\s*(.+)$')
 RE_SAY = re.compile(r'^(?:- )?([^\s(":-][^(":]*?) \(([^)]+)\): ["“](.*)["”](?:\s*\((.+)\))?$')
 RE_CAPTION = re.compile(r'^〈(.+)〉$')
 RE_BOLD = re.compile(r'^\*\*(.+)\*\*$')
@@ -435,6 +439,8 @@ class Converter:
     def __init__(self, lines):
         self.lines = lines
         self.unknown_speakers = Counter()
+        self.lullaby = []      # '### 하루의 자장가' 가사 (흥얼거림 자막)
+        self.actor_hits = []   # (장면, 문장, 배우 명령) — 보고서용
 
     def speaker_id(self, name):
         if name not in CHARACTERS:
@@ -445,6 +451,9 @@ class Converter:
     def line_command(self, m):
         """say / think / voice 한 줄"""
         name, face_raw, text, tail = m.group(1).strip(), m.group(2), m.group(3), m.group(4)
+        case = re.match(r'^(성공|실패) 시 (.+)$', name)  # 튜토리얼의 '성공 시 하루 (웃음): …'
+        if case:
+            name = case.group(2)
         sid = self.speaker_id(name)
         parts = [p.strip() for p in face_raw.split(',')]
         face, manner = parts[0], parts[1:]
@@ -461,10 +470,19 @@ class Converter:
             c['manner'] = ', '.join(manner)
         if tail:
             c['note'] = tail
+        if case:
+            c['case'] = 'success' if case.group(1) == '성공' else 'fail'
         return c
 
     def dir_commands(self, text, scene):
         out = []
+        # ▶ 〔자동〕 … : 줄 맨 앞의 조작 모드 표기 → mode 명령
+        m = re.match(r'^〔([^〕]+)〕\s*', text)
+        if m:
+            flow, ctl, extra = parse_modes(m.group(1))
+            for mode in flow:
+                out.append({'cmd': 'mode', 'mode': mode, 'src': m.group(0).strip()})
+            text = text[m.end():]
         for s in split_sentences(text):
             if s.startswith('→'):
                 ending = 'true' if '진엔딩' in s else 'normal'
@@ -487,6 +505,31 @@ class Converter:
             if '(조작 가능 컷신)' in s:
                 scene['controllable'] = True
             cmds = direction_commands(s)
+            # 하루의 자장가: 화면 아래 분홍 흥얼거림 자막 (장 머리의 '### 하루의 자장가' 가사)
+            if '자장가' in s and self.lullaby and not any(c['cmd'] == 'hum' for c in cmds):
+                lines = self.lullaby[:1] if '한 소절' in s else self.lullaby
+                ambient = '가사' not in s  # 배경으로 흐르는 노래는 기다리지 않고 그 위로 장면이 이어진다
+                cmds.append({'cmd': 'hum', 'speaker': 'haru', 'lines': lines, **({'wait': False} if ambient else {})})
+            # 덮어쓰기 자막: '화면 위쪽 … 반투명' 다음 〈자막〉이 바탕 글, '덮어쓰' 다음 대사가 덮는 글 (P-14)
+            if '화면 위쪽' in s and re.search(r'반투명|떠오른', s):
+                scene['_owPending'] = True
+                cmds.append({'cmd': 'section', 'title': '(덮어쓰기 자막 바탕 글 대기)'})
+            if '덮어쓰' in s and scene.get('_owBase'):
+                ow = {'cmd': 'overwrite', 'text': scene.pop('_owBase'), 'over': None, 'color': '#ffb7c5', 'overColor': '#ff4a4a'}
+                scene['_owCmd'] = ow
+                cmds.append(ow)
+            # 배우 동작 (걷는다, 앉는다, 다가온다, 사라진다 …)
+            acts = actor_commands(s, CHARACTERS)
+            for x in acts:
+                x['src'] = s
+            if acts:
+                cmds += acts
+                self.actor_hits.append((scene['id'], s, acts))
+            if '조사 개수에 따라' in s:
+                g = re.search(r'([PSE]\d*-\d+[a-z]?) 조사', s)
+                scene['_inspectCount'] = {'group': g.group(1) if g else scene['id'], 'n': 0}
+                scene.setdefault('applied', []).append(s)
+                continue
             if cmds and not (len(cmds) == 1 and cmds[0]['cmd'] == 'note'):
                 first = next(c for c in cmds if c['cmd'] != 'note')
                 first['src'] = s
@@ -563,8 +606,17 @@ class Converter:
                 else:
                     target.append({'cmd': 'section', 'title': title})
                 continue
+            if not s.startswith('- '):
+                scene.pop('_inspectCount', None)  # 조사 개수 조건 목록은 이어지는 '- ' 줄까지
             if s.startswith('▶'):
                 target.extend(self.dir_commands(s[1:].strip(), scene))
+                continue
+            if re.match(r'^\d+\.\s', s):  # '1. 깊은 절 종소리 …' 처럼 번호 매긴 연출 순서
+                target.extend(self.dir_commands(re.sub(r'^\d+\.\s*', '', s), scene))
+                continue
+            ins = RE_INSPECT.match(s)
+            if ins:
+                target.append(self.inspect_command(sid, ins.group(1), ins.group(2), scene))
                 continue
             cap = RE_CAPTION.match(s)
             if cap and ' / ' in s and '〉 / 〈' in s:  # 〈벤다〉 / 〈나눈다〉 선택지
@@ -587,6 +639,9 @@ class Converter:
                 share = next(o for o in choice['options'] if not o['commands'])
                 target = share['commands']  # '아래 장면' = 이후 줄들
                 continue
+            if cap and scene.pop('_owPending', None):
+                scene['_owBase'] = cap.group(1)  # 덮어쓰기 자막의 바탕 글 (덮어쓰기는 '덮어쓰' 연출 자리에서)
+                continue
             if cap:
                 target.append({'cmd': 'caption', 'text': cap.group(1)})
                 continue
@@ -601,10 +656,39 @@ class Converter:
                 continue
             m = RE_SAY.match(s)
             if m:
-                target.append(self.line_command(m))
+                line = self.line_command(m)
+                if scene.get('_owCmd') and scene['_owCmd']['over'] is None:
+                    scene['_owCmd']['over'] = line['text']  # 덮는 글 = 덮어쓰기 바로 다음 대사
+                ic = scene.get('_inspectCount')
+                if ic and s.startswith('- '):
+                    # P-13 조사 개수에 따라 한 줄씩: n 번째 줄은 n 개 이상 조사했을 때
+                    ic['n'] += 1
+                    target.append({'cmd': 'condition', 'when': {'inspectedAtLeast': ic['n'], 'group': ic['group']}, 'then': [line]})
+                else:
+                    target.append(line)
                 continue
             raise ValueError(f'{sid}: 해석 못 한 줄: {s}')
         return cmds
+
+    def inspect_command(self, sid, label, rest, scene):
+        """〔조사〕 대상: 아카네 (속마음) "…"  |  〔조사〕 대상: 설명. 떠오르는 대사 — "…" → inspect 명령.
+        위치는 대본에 없어서 at 을 비워 두고 needs='x' (게임에 넣을 때 맵 위치를 채운다)"""
+        n = sum(1 for c in walk(scene.get('_inspects', []))) + 1
+        scene.setdefault('_inspects', []).append({})
+        c = {'cmd': 'inspect', 'id': f'{sid}:{n}', 'group': sid, 'label': label, 'at': None, 'needs': 'x'}
+        m = re.match(r'^(.+?) \(([^)]+)\)\s*["“](.*)["”]$', rest)
+        rc = re.match(r'^(.*?)\s*떠오르는 대사\s*—\s*["“](.*)["”]\s*$', rest)
+        if m:
+            sp = self.speaker_id(m.group(1).strip())
+            c['lines'] = [{'speaker': sp, 'text': m.group(3), **({'think': True} if m.group(2) == '속마음' else {})}]
+        elif rc:
+            if rc.group(1).strip():
+                c['lines'] = [{'speaker': 'akane', 'text': rc.group(1).strip()}]
+            c['recall'] = [{'text': rc.group(2)}]
+            c['recallColor'] = '#ffb7c5'
+        else:
+            c['lines'] = [{'speaker': 'akane', 'text': rest}]
+        return c
 
     def pool(self, title, body, chapter):
         """'타누키치 체크포인트 한마디' 같은 목록 → 랜덤 풀"""
@@ -665,15 +749,40 @@ class Converter:
                 m = RE_SCENE.match(head)
                 if not m:
                     t = head[4:].strip()
+                    if t == '하루의 자장가':
+                        # 〈잘 자라, 벚꽃아 / 바람이 불어도 / …〉 → 흥얼거림 자막 줄
+                        lyr = next((x.strip() for x in body if x.strip().startswith('〈')), '')
+                        self.lullaby = [p.strip() for p in lyr.strip('〈〉').split('/') if p.strip()]
+                        ch['lullaby'] = self.lullaby
+                        continue
+                    if t.startswith('이후 장과의 연결'):
+                        ch['links'] = [x.strip()[2:] for x in body if x.strip().startswith('- ')]
+                        continue
                     if '기억 조각 연결' in t:
                         ch['memoryNote'] = ' '.join(x.strip() for x in body if x.strip())
                     else:
                         ch['pools'].append(self.pool(t, body, name))
                     continue
                 sid, rest = m.group(1), m.group(2)
+                # 머리말 끝 〔자동 → 조작〕: 첫 모드가 장면의 mode, 흐름은 modeFlow 로 남긴다
+                mt = RE_MODE_TAG.search(rest)
+                modes = None
+                if mt:
+                    rest = rest[:mt.start()]
+                    modes = parse_modes(mt.group(1))
                 place, trig = parse_trigger(rest)
                 scene = {'id': sid, 'place': place, 'trigger': trig}
+                if modes and modes[0]:
+                    scene['mode'] = modes[0][0]
+                    if len(modes[0]) > 1:
+                        scene['modeFlow'] = modes[0]
+                    if modes[1]:
+                        scene['controllable'] = True
+                    if modes[2]:
+                        scene['modeNote'] = ' · '.join(modes[2])
                 scene['commands'] = self.parse_scene_body(sid, body, scene)
+                for k in [k for k in scene if k.startswith('_')]:
+                    scene.pop(k)  # 변환 중에만 쓰는 값
                 self.post_scene(scene)
                 ch['scenes'].append(scene)
             chapters[name] = ch
@@ -804,6 +913,40 @@ def report(chapters, memories, conv):
     return '\n'.join(out) + '\n', tot, notes_by
 
 
+ACTOR_CMDS = ('moveTo', 'face', 'anim', 'stopAnim', 'jump', 'sit', 'kneel', 'standUp', 'pose', 'emote', 'appear', 'disappear', 'spawn',
+              'camFollow', 'parallel', 'sequence', 'waitForPlayerAt', 'inspect', 'mode', 'hum', 'overwrite', 'recall')
+
+
+def actor_report(chapters, conv):
+    """배우 시스템 변환 결과: 장면별 조작 모드, 배우 명령, 위치가 필요한 것, 대사 연출"""
+    out = ['', '## 배우 시스템 (조작 모드 · 배우 명령)', '']
+    cnt = Counter()
+    rows, needs = [], []
+    for name, ch in chapters.items():
+        for sc in ch['scenes']:
+            allc = list(walk(sc['commands']))
+            for x in allc:
+                if x.get('cmd') in ACTOR_CMDS:
+                    cnt[x['cmd']] += 1
+                if x.get('needs') == 'x':
+                    what = x.get('label') if x['cmd'] == 'inspect' else x.get('actor')
+                    needs.append((sc['id'], x['cmd'], what, x.get('src', '')))
+            if sc.get('mode') or any(x.get('cmd') == 'mode' for x in allc):
+                flow = ' → '.join(sc.get('modeFlow') or [sc.get('mode', '?')])
+                inline = [x['mode'] for x in allc if x.get('cmd') == 'mode']
+                rows.append(f"| {sc['id']} | {sc['place']} | {flow}{' (조작 가능 컷신)' if sc.get('controllable') else ''} | "
+                            f"{' → '.join(inline) or '-'} | {sc.get('modeNote', '')} |")
+    out += ['| 장면 | 장소 | 머리말 모드 | 본문의 모드 바꿈 | 덧붙은 말 |', '|---|---|---|---|---|'] + rows
+    out += ['', '명령 수: ' + ', '.join(f'{k} {v}' for k, v in sorted(cnt.items(), key=lambda t: -t[1])), '',
+            '### 배우 동작으로 바꾼 연출 문장', '']
+    for sid, sent, acts in conv.actor_hits:
+        desc = ', '.join(f"{a['cmd']}({a.get('actor', '')}{', ' + str(a.get('to') or a.get('dir') or a.get('kind') or '') if (a.get('to') or a.get('dir') or a.get('kind')) else ''})" for a in acts)
+        out.append(f'- **{sid}** {sent} → `{desc}`')
+    out += ['', '### 맵 위치가 필요한 것 (to / at 비어 있음 — 게임에 넣을 때 points 이름이나 x 를 채운다)', '']
+    out += [f'- **{sid}** {cmd} `{what}` — {src}' for sid, cmd, what, src in needs]
+    return '\n'.join(out) + '\n'
+
+
 def write_audio_table(chapters):
     """대본의 bgm/sfx 이름 → 소리 파일 경로 표 (data/story/audio.json).
     이미 적어 둔 경로는 그대로 두고 새 이름만 빈 값으로 더한다. 경로가 비어 있으면 게임은 조용히 넘어간다."""
@@ -833,6 +976,8 @@ def write_audio_table(chapters):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--src', default=None)
+    ap.add_argument('--dry-run', action='store_true', help='data/story 를 건드리지 않고 보고서만 (--report 경로, 없으면 화면에 요약)')
+    ap.add_argument('--report', default=None, help='--dry-run 보고서를 쓸 파일')
     args = ap.parse_args()
     # docs/ 의 대본 원고 (이름에 '대본'이 들어간 파일. cinematics.md 같은 다른 문서는 건너뜀)
     src = Path(args.src) if args.src else next(p for p in sorted((ROOT / 'docs').glob('*.md'))
@@ -842,6 +987,16 @@ def main():
     chapters, memories = conv.run()
     apply_gameplay(chapters)
     apply_face_overrides(chapters)
+    if args.dry_run:
+        text, tot, notes = report(chapters, memories, conv)
+        text += actor_report(chapters, conv)
+        if args.report:
+            Path(args.report).write_text(text, encoding='utf-8')
+            print('보고서:', args.report)
+        print(f"(시험 변환 · data/story 는 그대로) 장면 {tot['scenes']} · say {tot['say']} · think {tot['think']} · voice {tot['voice']} · 연출 명령 {tot['dir']} · note {tot['note']}")
+        if conv.unknown_speakers:
+            print('인물 표에 없는 화자:', dict(conv.unknown_speakers))
+        return
     OUT.mkdir(parents=True, exist_ok=True)
     meta = {'source': src.name, 'faces': FACES, 'voiceStyles': VOICE_STYLE}
     for name, ch in chapters.items():
