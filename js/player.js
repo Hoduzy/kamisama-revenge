@@ -40,6 +40,8 @@ class Player {
     this.coyote = 0;
     this.jumpBuffer = 0;
     this.isJumping = false; // 가변 점프용: 점프로 상승 중인지
+    this.airJump = true;    // 2단 점프를 쓸 수 있는지 (착지하면 다시)
+    this.flipTimer = 0;     // 2단 점프 공중제비 남은 시간
     this.wasGrounded = false;
 
     this.dashTimer = 0;
@@ -85,9 +87,12 @@ class Player {
     this.jumpBuffer -= dt;
     this.attackBuffer -= dt;
 
+    this.flipTimer -= dt;
     if (grounded) {
       this.coyote = T.coyoteTime;
       this.airDashAvailable = true;
+      this.airJump = true;
+      if (this.flipTimer > 0 && this.body.velocity.y >= 0) this.flipTimer = 0;
       if (!this.wasGrounded) this.onLand();
     } else {
       this.coyote -= dt;
@@ -153,6 +158,9 @@ class Player {
       // 점프 (버퍼 + 코요테)
       if (this.jumpBuffer > 0 && this.coyote > 0 && this.hurtLock <= 0) {
         this.jump();
+      } else if (c.jump.pressed && !grounded && this.coyote <= 0 && this.airJump && this.hurtLock <= 0) {
+        // 2단 점프: 공중에서 한 번 더 (누른 그 순간만. 착지 직전 누른 점프는 위의 버퍼가 받는다)
+        this.doubleJump();
       }
 
       // 가변 점프: 상승 중 키를 떼면 상승 속도 컷
@@ -249,7 +257,14 @@ class Player {
       this.actionAnim = null;
     }
     if (sk.charging) return play('player_iaido_ready');
-    if (sk.slashing || this.dashing) return play('player_dash'); // 대쉬·대쉬베기: 1회 재생
+    if (sk.slashing || sk.iaidoDashing || this.dashing) return play('player_dash'); // 대쉬·대쉬베기·발도 돌진: 1회 재생
+    // 2단 점프 공중제비: 그림 칸으로 돈다 (코드로 돌리지 않음). 빠르기 = 8칸 / flipTime
+    if (this.flipTimer > 0 && A.exists('player_double_jump')) {
+      if (v.anims.currentAnim?.key !== 'player_double_jump' || v.texture.key !== 'player_double_jump') v.play('player_double_jump');
+      v.anims.timeScale = (8 / 23) / Math.max(0.05, TUNING.doubleJump.flipTime);
+      return;
+    }
+    if (v.anims.timeScale !== 1) v.anims.timeScale = 1;
     if (v.anims.currentAnim?.key === 'player_dash' && v.anims.isPlaying) return; // 대쉬 모션은 끝까지
     if (this.attackTimer > 0) return play('player_attack');
     if (v.anims.currentAnim?.key === 'player_attack' && v.anims.isPlaying) return;
@@ -312,6 +327,23 @@ class Player {
     this.scaleY = 1.32;
     this.scene.spawnDust(this.body.center.x, this.body.bottom, 5);
     // 프롤로그 P-7 에서 받은 붉은 방울: 점프할 때마다 아주 작게 딸랑 (P-14 에서 천으로 감싼 뒤엔 소리 없음)
+    const reg = this.scene.registry;
+    if ((reg.get('items') || []).includes('붉은 방울') && !(reg.get('storyFlags') || {}).bellWrapped) {
+      CineSound.sfx('chime', { volume: 0.16, pitch: 0.08 });
+    }
+  }
+
+  // 2단 점프: 1단의 power 배 힘. 발밑에 바람(fx_double_jump_puff) · 효과음, 공중제비(player_double_jump) 한 번
+  doubleJump() {
+    const D = TUNING.doubleJump;
+    this.airJump = false;
+    this.jumpBuffer = 0;
+    this.body.setVelocityY(-TUNING.jumpVelocity * D.power);
+    this.isJumping = true;
+    this.flipTimer = D.flipTime;
+    const fx = Sprites.fx(this.scene, 'fx_double_jump_puff', this.body.center.x, this.body.bottom + 4, { depth: 9 });
+    if (!fx) this.scene.spawnDust(this.body.center.x, this.body.bottom, 6);
+    CineSound.sfx('wind', { volume: 0.35, pitch: 0.4 });
     const reg = this.scene.registry;
     if ((reg.get('items') || []).includes('붉은 방울') && !(reg.get('storyFlags') || {}).bellWrapped) {
       CineSound.sfx('chime', { volume: 0.16, pitch: 0.08 });
@@ -416,6 +448,9 @@ class Player {
     if (this.useSprite) {
       this.visual.setFlipX(this.facing < 0); // 도트가 뭉개지지 않게 늘이고 줄이지 않는다
       this.updateAnim(dt);
+      // 공중제비 칸은 몸 중심이 칸 가운데 → 몸통 판정 가운데에 맞춘다 (판정 박스는 그대로)
+      if (this.visual.texture.key === 'player_double_jump') this.visual.setOrigin(0.5, 0.5).setY(this.body.center.y);
+      else if (this.visual.originY !== 1) this.visual.setOrigin(0.5, 1);
     } else {
       this.visual.setScale(this.scaleX, this.scaleY);
     }

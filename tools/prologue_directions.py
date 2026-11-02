@@ -376,7 +376,11 @@ LINES = {
         '낮은 돌담 — 점프 아이콘. 하루: "검은 발에서 시작해. 발이 늦으면 칼도 늦어."': [
             move('haru', 'haruWall', wait=False), G('tutorialIcon', step='move'),
             say('haru', '검은 발에서 시작해. 발이 늦으면 칼도 늦어.', 'serious'),
-            G('tutorialIcon', step='jump'), C('jump', actor='haru', x=6480), move('haru', 'haruDrill', wait=False)],
+            G('tutorialIcon', step='jump'), C('jump', actor='haru', x=6480),
+            # 조금 높은 담: 2단 점프 (대본에 없는 추가 대사)
+            say('haru', '한 번 더 뛰어 봐. 공중에서. 엄마는 그거 열 살에 했다?', 'smile'),
+            G('tutorialIcon', step='doubleJump'), C('jump', actor='haru', x=6680, height=200),
+            move('haru', 'haruDrill', wait=False)],
         '허수아비 셋 — 대쉬 베기 아이콘. 하루: "상대 품으로 단숨에 파고들어서, 지나가며 베는 거야. 그 짧은 순간엔 아무것도 너를 못 건드려."': [
             say('haru', '상대 품으로 단숨에 파고들어서, 지나가며 베는 거야. 그 짧은 순간엔 아무것도 너를 못 건드려.', 'smile'),
             G('tutorialIcon', step='dashSlash', zoomOnThird=True)],

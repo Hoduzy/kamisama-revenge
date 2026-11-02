@@ -114,6 +114,19 @@ const CineLab = {
       ['히트스톱 시간(초)', 'hitStop', 0, 0.4, 0.01, () => C().hitStop()],
       ['줌 인 배율', 'zoomIn', 1, 2, 0.05, () => C().zoom(TUNING.cine.zoomIn)],
       ['줌 아웃 배율', 'zoomOut', 0.5, 1, 0.05, () => C().zoom(TUNING.cine.zoomOut)],
+      ['— 스킬 (TUNING.dashSlash · iaido · doubleJump) —'],
+      ['스킬1 대쉬 거리(px)', 'T.dashSlash.distance', 100, 600, 10],
+      ['스킬1 대쉬 시간(초)', 'T.dashSlash.time', 0.05, 0.4, 0.01],
+      ['스킬1 히트스톱(초)', 'T.dashSlash.hitStop', 0, 0.2, 0.01],
+      ['발도 반경 R(px)', 'T.iaido.radius', 40, 260, 5],
+      ['발도 R 스택당 증가', 'T.iaido.radiusPerStack', 0, 0.3, 0.01],
+      ['발도 돌진 거리(스킬1 대비)', 'T.iaido.dashRatio', 0.2, 1.5, 0.05],
+      ['발도 1차 히트스톱(초)', 'T.iaido.hitStop1', 0, 0.3, 0.01],
+      ['발도 2차 히트스톱(초)', 'T.iaido.hitStop2', 0, 0.3, 0.01],
+      ['발도 1차 흔들림', 'T.iaido.shake1', 0, 0.03, 0.0005],
+      ['발도 2차 흔들림', 'T.iaido.shake2', 0, 0.05, 0.0005],
+      ['2단 점프 힘(1단 대비)', 'T.doubleJump.power', 0.3, 1.5, 0.05],
+      ['공중제비 시간(초)', 'T.doubleJump.flipTime', 0.15, 0.8, 0.01],
       ['— 결과 화면 —'],
       ['전체 빠르기', 'result.speed', 0.1, 2, 0.05, res(false)],
       ['두루마리 폭', 'result.scrollWidth', 0.3, 0.9, 0.01, res(false)],
@@ -143,7 +156,10 @@ const CineLab = {
   },
 
   // 'result.…' 는 TUNING.result, 나머지는 TUNING.cine
-  root(path) { return path.startsWith('result.') ? [TUNING.result, path.slice(7)] : [TUNING.cine, path]; },
+  root(path) {
+    if (path.startsWith('T.')) return [TUNING, path.slice(2)]; // 스킬 수치
+    return path.startsWith('result.') ? [TUNING.result, path.slice(7)] : [TUNING.cine, path];
+  },
   get(path) { const [r, p] = this.root(path); return p.split('.').reduce((o, k) => o[k], r); },
   set(path, v) {
     const [r, p] = this.root(path);
@@ -194,7 +210,7 @@ const CineLab = {
       inp.oninput = () => { this.set(path, +inp.value); out.textContent = inp.value; };
       inp.onchange = () => inp.blur();
     });
-    el.querySelectorAll('[data-try]').forEach((b) => { b.onclick = () => { sl[+b.dataset.try][5](); b.blur(); }; });
+    el.querySelectorAll('[data-try]').forEach((b) => { b.onclick = () => { if (sl[+b.dataset.try][5]) sl[+b.dataset.try][5](); b.blur(); }; });
     el.querySelector('.cl-local').onclick = () => this.saveLocal();
     el.querySelector('.cl-file').onclick = () => this.saveFile();
     el.querySelector('.cl-reset').onclick = () => this.reset();
@@ -221,6 +237,7 @@ const CineLab = {
     try {
       localStorage.setItem('kamisama-cine', JSON.stringify(TUNING.cine));
       localStorage.setItem('kamisama-result', JSON.stringify(TUNING.result));
+      localStorage.setItem('kamisama-skills', JSON.stringify(Object.fromEntries(SKILL_TUNING.map((g) => [g, TUNING[g]]))));
       this.msg('이 브라우저에 저장했다. 다른 기기·배포에도 쓰려면 config.js 로 저장.');
     } catch (e) { this.msg('브라우저 저장소를 쓸 수 없다.'); }
   },
@@ -231,13 +248,16 @@ const CineLab = {
     let text;
     try { text = await (await fetch('js/config.js', { cache: 'no-store' })).text(); } catch (e) { return this.msg('config.js 를 읽지 못했다.'); }
     let out = text;
-    for (const name of ['cine', 'result']) {
+    for (const name of ['cine', 'result', 'skills']) {
       const a = out.indexOf(`  // <${name}>`);
       const b = out.indexOf(`  // </${name}>`);
       if (a < 0 || b < 0) return this.msg(`config.js 에 <${name}> 표시 줄이 없다.`);
       const head = out.slice(a, out.indexOf('\n', out.indexOf('\n', a) + 1) + 1); // 표시 줄 + 설명 줄
       const keep = head.split('\n').filter((l) => l.trim().startsWith('//')).join('\n') + '\n';
-      out = out.slice(0, a) + keep + `  ${name}: ` + this.serialize(TUNING[name], '  ') + ',\n' + out.slice(b);
+      // skills 는 표시 줄 사이에 dashSlash · iaido · doubleJump 세 묶음
+      const body = name === 'skills' ? SKILL_TUNING.map((g) => `  ${g}: ` + this.serialize(TUNING[g], '  ') + ',\n').join('')
+        : `  ${name}: ` + this.serialize(TUNING[name], '  ') + ',\n';
+      out = out.slice(0, a) + keep + body + out.slice(b);
     }
     if (window.showSaveFilePicker) {
       try {
@@ -264,7 +284,7 @@ const CineLab = {
   },
 
   reset() {
-    try { localStorage.removeItem('kamisama-cine'); localStorage.removeItem('kamisama-result'); } catch (e) { /* 무시 */ }
+    try { localStorage.removeItem('kamisama-cine'); localStorage.removeItem('kamisama-result'); localStorage.removeItem('kamisama-skills'); } catch (e) { /* 무시 */ }
     this.msg('브라우저 저장값을 지웠다. 새로고침하면 config.js 값으로 돌아간다.');
   },
 };

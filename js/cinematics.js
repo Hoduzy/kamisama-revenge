@@ -21,7 +21,13 @@
     const r = JSON.parse(localStorage.getItem('kamisama-result') || 'null');
     if (r) for (const [k, v] of Object.entries(r)) if (k in TUNING.result) TUNING.result[k] = v;
   } catch (e) { /* 무시 */ }
+  try {
+    // 스킬 수치 (연출 시험의 '스킬' 슬라이더)
+    const sk = JSON.parse(localStorage.getItem('kamisama-skills') || 'null');
+    if (sk) for (const g of ['dashSlash', 'iaido', 'doubleJump']) for (const [k, v] of Object.entries(sk[g] || {})) if (k in TUNING[g]) TUNING[g][k] = v;
+  } catch (e) { /* 무시 */ }
 })();
+const SKILL_TUNING = ['dashSlash', 'iaido', 'doubleJump'];
 
 // 화면 색감 (컬러 오버레이)
 const CINE_MOODS = {
@@ -88,6 +94,7 @@ const CINE_EYES = {
 const CINE_ACTIONS = {
   move: { kb: 'A D', touch: '◀ ▶', buttons: ['left', 'right'] },
   jump: { kb: 'Space', touch: '점프', buttons: ['jump'] },
+  jump2: { kb: 'Space ×2', touch: '점프 ×2', buttons: ['jump'] },  // 2단 점프 (공중에서 한 번 더)
   attack: { kb: 'J', touch: '공격', buttons: ['attack'] },
   dash: { kb: 'K', touch: '대시', buttons: ['dash'] },
   skill1: { kb: 'U', touch: '베기', buttons: ['skill1'] },

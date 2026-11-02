@@ -280,13 +280,13 @@ class ActorDirector {
   }
 
   // 제자리에서 x 로 뛰어 건너간다 (포물선)
-  jump(a, x, skip) {
+  jump(a, x, skip, height) {
     if (!a) return Promise.resolve();
     const from = a.x;
     if (x == null) x = from;
     const dir = Math.sign(x - from) || a.facing;
     a.face(dir);
-    const H = this.T.jumpHeight;
+    const H = height ?? this.T.jumpHeight; // height: 높은 담을 넘을 때
     const ms = this.T.jumpMs + Math.abs(x - from) * 0.6;
     if (a === this.akane) {
       const y0 = this.groundAt(from);
@@ -678,7 +678,7 @@ class ActorDirector {
       case 'face': this.face(a, c.dir ?? c.to); break;
       case 'anim': this.anim(a, c.anim ?? c.name, !!c.loop); break;
       case 'stopAnim': this.setPose(a, 'idle'); break;
-      case 'jump': r = this.jump(a, this.xOf(c.x ?? c.to, c.offset || 0), skip); break;
+      case 'jump': r = this.jump(a, this.xOf(c.x ?? c.to, c.offset || 0), skip, c.height); break;
       case 'sit': this.setPose(a, 'sit'); break;
       case 'kneel': this.setPose(a, 'kneel'); break;
       case 'standUp': this.setPose(a, 'idle'); break;

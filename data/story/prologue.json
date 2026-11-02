@@ -1943,6 +1943,24 @@
           "x": 6480
         },
         {
+          "cmd": "say",
+          "speaker": "haru",
+          "face": "smile",
+          "text": "한 번 더 뛰어 봐. 공중에서. 엄마는 그거 열 살에 했다?",
+          "side": "right"
+        },
+        {
+          "cmd": "gameplay",
+          "do": "tutorialIcon",
+          "step": "doubleJump"
+        },
+        {
+          "cmd": "jump",
+          "actor": "haru",
+          "x": 6680,
+          "height": 200
+        },
+        {
           "cmd": "moveTo",
           "actor": "haru",
           "to": "haruDrill",

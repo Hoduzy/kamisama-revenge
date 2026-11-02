@@ -118,6 +118,8 @@ class StoryGameplay {
     const steps = {
       move: { action: 'move', done: () => Math.abs(p.body.center.x - x0) > 140 },
       jump: { action: 'jump', done: () => p.body.left > this.point('wall') + 60 && p.grounded },
+      // 조금 높은 담: 2단 점프로만 넘는다 (행동 아이콘 Space 두 번)
+      doubleJump: { action: 'jump2', done: () => p.body.left > this.point('wall2') + 60 && p.grounded },
       dashSlash: {
         action: 'skill1',
         start: () => {

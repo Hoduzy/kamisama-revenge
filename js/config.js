@@ -241,31 +241,46 @@ window.TUNING = {
   // 벚꽃 스택
   sakuraMax: 5,
 
-  // 스킬1 대쉬베기 (U)
+  // <skills> 스킬 1·2 · 2단 점프. F1 → '연출 시험'의 '스킬' 슬라이더로 바꾸고 저장할 수 있다 (이 표시 줄은 지우지 말 것)
+  // 스킬1 대쉬베기 (U): 적에게 닿아도 멈추지 않고 늘 최대 거리까지. 벽 · 낭떠러지 끝에서만 멈춤. 지나는 적을 한 번씩 벰
   dashSlash: {
-    distance: 230,       // 대쉬 거리(px)
-    time: 0.12,          // 대쉬에 걸리는 시간(초). 속도 = distance / time
+    distance: 260,
+    time: 0.14,
     cooldown: 0.8,
     damage: 1,
-    stacksPerHit: 1,     // 적 하나 맞힐 때마다 벚꽃 스택 증가량
-    hitHeight: 72,       // 판정 높이
-    endGrace: 0.2,       // 대쉬가 끝난 직후 무적 시간 (적 몸에 겹쳐 끝나도 바로 맞지 않게)
+    stacksPerHit: 1,
+    hitHeight: 72,
+    endGrace: 0.2,
+    hitStop: 0.04
   },
-
-  // 스킬2 발도 (I)
+  // 스킬2 발도 (I): 준비 1초(앞 0.5초 패링) → 1차 원형 타격 → 돌진(스킬1 거리 × dashRatio) → 2차 원형 타격(벚꽃 스택 폭발)
   iaido: {
-    chargeTime: 1.0,     // 준비 시간
-    parryWindow: 0.5,    // 준비 시작 후 이 시간까지 패링
+    chargeTime: 1,
+    parryWindow: 0.5,
     cooldown: 6,
+    radius: 110,
+    radiusPerStack: 0.1,
+    hit1Damage: 2,
+    dashRatio: 0.7,
+    dashTime: 0.12,
+    dashDamage: 1,
     baseDamage: 3,
-    damagePerStack: 2,   // 벚꽃 스택 1개당 추가 피해
-    range: 200,          // 베기 사거리(px, 몸 앞쪽부터)
-    height: 84,          // 베기 판정 높이
-    lungeSpeed: 650,     // 벨 때 앞으로 내딛는 속도
-    parryDamage: 2,      // 패링당한 적이 받는 피해
-    parryKnockback: 480,
-    hitStop: 0.12,       // 발도는 일반 베기보다 묵직하게
+    damagePerStack: 2,
+    hitStop1: 0.08,
+    hitStop2: 0.1,
+    shake1: 0.007,
+    shake1Ms: 240,
+    shake2: 0.014,
+    shake2Ms: 420,
+    parryDamage: 2,
+    parryKnockback: 480
   },
+  // 2단 점프: 공중에서 점프를 한 번 더. 착지하면 다시 쓸 수 있다
+  doubleJump: {
+    power: 0.85,
+    flipTime: 0.35
+  },
+  // </skills>
 };
 
 // 게임 제목 (타이틀 로고에 붓글씨로 써 넣는다. 정해지면 여기만 바꾸면 된다)

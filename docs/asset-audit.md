@@ -18,12 +18,18 @@
 |---|---|---|---|---|---|
 | `fx_barrier.png` | 이펙트 | 잘림 (fx_prologue.png) · 4칸 | 로드됨 | **그려짐**: P-11 | 없음 |
 | `fx_barrier_break.png` | 이펙트 | 잘림 (fx_prologue.png) · 4칸 | 로드됨 | **그려짐**: P-11 | enemy.js 금빛 고리 (그림 없을 때만) |
+| `fx_blade_storm.png` | 이펙트 | 잘림 (2A1AA123-289D-469B-9352-BF7D4069BB57.png) · 8칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
+| `fx_dash_trail.png` | 이펙트 | 잘림 (B359E473-6DF0-4005-A371-7AC5A1E9EFEB.png) · 5칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
+| `fx_dash_wake.png` | 이펙트 | 잘림 (5549C6EC-2DF1-406F-BE61-F9B615E3CE71.png) · 8칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
+| `fx_double_jump_puff.png` | 이펙트 | 잘림 (E0E474E1-9061-4030-9650-214BB01ECBA1.png) · 5칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
+| `fx_iaido_charge.png` | 이펙트 | 잘림 (CE06CE9D-0BC5-4E4A-ACA6-9D549BE9A34C.png) · 6칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
 | `fx_parry_flash.png` | 이펙트 | 잘림 (effects.png) · 4칸 | 로드됨 | 코드·대본에서 씀 (시험에서 안 봄): skills.js, sprites.js | 없음 |
 | `fx_petals.png` | 이펙트 | 잘림 (effects.png) · 4칸 | 로드됨 | **그려짐**: (맵), P-0, P-10, P-10b, P-11, P-12, P-13, P-5, P-6, P-7, P-8 | 없음 |
 | `fx_red_sun.png` | 이펙트 | 잘림 (fx_prologue.png) | 로드됨 | **그려짐**: P-9 | 없음 |
 | `fx_red_sun_grow.png` | 이펙트 | 잘림 (fx_prologue.png) · 5칸 | 로드됨 | **그려짐**: P-9, 장 제목 카드 (HTML) | 없음 (그림이 없으면 문양을 안 그림) |
-| `fx_sakura_burst.png` | 이펙트 | 잘림 (effects.png) · 4칸 | 로드됨 | **그려짐**: (맵), P-10, P-10b, P-7, P-8 | 없음 |
-| `fx_slash.png` | 이펙트 | 잘림 (effects.png) · 4칸 | 로드됨 | **그려짐**: P-10, P-10b, P-11, P-7 | 없음 |
+| `fx_sakura_burst.png` | 이펙트 | 잘림 (effects.png) · 4칸 | 로드됨 | **그려짐**: (맵), P-10, P-10b, P-7, P-8, 스킬 시험 | 없음 |
+| `fx_shock_ring.png` | 이펙트 | 잘림 (A8EF0A46-FFE4-41B9-8688-B951591623B9.png) · 5칸 | 로드됨 | **그려짐**: 스킬 시험 | 없음 |
+| `fx_slash.png` | 이펙트 | 잘림 (effects.png) · 4칸 | 로드됨 | **그려짐**: P-10, P-10b, P-11, P-7, 스킬 시험 | 없음 |
 | `logo_emblem.png` | 로고 | 잘림 (fx_prologue.png) | 로드됨 | **그려짐**: P-14 (HTML 타이틀 로고) | 없음 |
 | `props/bell_red.png` | 소품 | 잘림 (prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png) | 로드됨 | **그려짐**: P-14, P-7 | placeholders.js 단색 네모 (그림 없을 때만) |
 | `props/bell_wrapped.png` | 소품 | 잘림 (prologue/F5323BD8-A0E4-4ECA-86B0-BF088FDDF4DF.png) | 로드됨 | **그려짐**: P-14 | placeholders.js 단색 네모 (그림 없을 때만) |

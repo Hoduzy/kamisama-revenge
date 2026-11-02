@@ -10,6 +10,7 @@ class Enemy {
   constructor(scene, data) {
     this.scene = scene;
     this.type = data.type;
+    this.data = data;
     this.cfg = TUNING[data.type];
     this.minX = data.minX;
     this.maxX = data.maxX;
@@ -40,7 +41,7 @@ class Enemy {
     this.artHeight = data.type === 'dummy' ? 74 : Sprites.height(this.sheet, this.h); // 머리 위 '!' 위치용
     this.throwPose = 0; // 닌자: 던진 직후 투척 자세 유지 시간
 
-    this.hp = this.cfg.hp;
+    this.hp = data.hp ?? this.cfg.hp; // 스킬 시험 허수아비는 hp 를 크게
     this.facing = Math.random() < 0.5 ? -1 : 1;
     this.state = data.type === 'trainer' ? 'chase' : 'patrol';
     this.stateTimer = 0;
@@ -216,7 +217,7 @@ class Enemy {
     if (this.dead) return false;
     const scene = this.scene;
     const b = this.body;
-    if (this.type === 'dummy' && source !== 'dashSlash') {
+    if (this.type === 'dummy' && source !== 'dashSlash' && !this.data.anySkill) { // 스킬 시험 허수아비(anySkill)는 발도에도 맞음
       this.flash = 0.06;
       scene.popText(b.center.x, b.bottom - 96, '대쉬베기로!', '#cfcfcf');
       return false;

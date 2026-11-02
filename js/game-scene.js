@@ -27,6 +27,7 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, L.width, L.height);
 
     this.hitStopTimer = 0;
+    this.cutscene = false; // 장면을 다시 시작하면(restart) 같은 객체라 앞 장의 잠금이 남아 있을 수 있다
     this.playTime = 0; // 결과 화면의 시간 (컷신으로 멈춘 동안은 세지 않음)
     this.kills = 0;  // 처치 (결과 화면)
     this.deaths = 0; // 죽음 (결과 화면)
@@ -479,11 +480,27 @@ class GameScene extends Phaser.Scene {
     box(this.bodyRect(p.body), 0x16a34a, 1, 0.15);
     const atk = p.getAttackRect();
     if (atk) box(atk, 0xeab308, 1, 0.25);
-    if (p.skills.charging) {
-      const I = TUNING.iaido, b = p.body;
-      const x0 = p.facing > 0 ? b.right : b.left - I.range;
-      box(new Phaser.Geom.Rectangle(x0, b.center.y - I.height / 2, I.range, I.height), 0xff7aa2, 0.9);
+    // 발도: 준비 중엔 1차 반경(실선)과 2차 반경(점선 대신 옅게, 지금 벚꽃 스택 반영), 돌진 거리 끝 표시
+    const sk = p.skills;
+    const I = TUNING.iaido;
+    const b = p.body;
+    if (sk.charging) {
+      g.lineStyle(1, 0xff7aa2, 1).strokeCircle(b.center.x, b.center.y, I.radius);
+      const dx = p.facing * TUNING.dashSlash.distance * I.dashRatio;
+      g.lineStyle(1, 0xff7aa2, 0.5).strokeCircle(b.center.x + dx, b.center.y, I.radius * (1 + I.radiusPerStack * sk.sakura));
+      g.lineStyle(1, 0xffffff, 0.8).lineBetween(b.center.x, b.center.y, b.center.x + dx, b.center.y);
     }
+    // 돌진(대쉬베기 · 발도 돌진): 시작점 → 지금, 그리고 남은 거리 끝까지 판정 띠
+    if (sk.run) {
+      const r = sk.run;
+      const H = TUNING.dashSlash.hitHeight;
+      const x0 = Math.min(r.startX, b.center.x) - p.width / 2;
+      const x1 = Math.max(r.startX, b.center.x) + p.width / 2;
+      box(new Phaser.Geom.Rectangle(x0, b.center.y - H / 2, x1 - x0, H), 0xeab308, 1, 0.15);
+      g.lineStyle(1, 0xeab308, 0.6).lineBetween(b.center.x, b.center.y, b.center.x + r.dir * r.left, b.center.y);
+    }
+    // 방금 친 원형 타격
+    for (const c of sk.debugCircles) g.lineStyle(2, 0xff7aa2, Math.min(1, c.t * 2)).strokeCircle(c.x, c.y, c.r);
     for (const e of this.enemies) {
       if (e.dead) continue;
       box(this.bodyRect(e.body), 0xdc2626, 1, 0.12);

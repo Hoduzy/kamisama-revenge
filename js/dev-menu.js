@@ -28,6 +28,9 @@ const DevMenu = {
           <button type="button" data-scene="ACTOR-1">나란히 걸어와 마주 보고 앉기</button>
           <button type="button" data-scene="ACTOR-2">조작 · 조사 · 자막 · 느린 조작</button>
         </div>
+        <div class="dm-opts"><span>스킬 시험</span>
+          <button type="button" class="dm-skilltest">허수아비 5개 일렬 · 원형 (스킬 1 · 2 · 2단 점프)</button>
+        </div>
         <input type="search" class="dm-search" placeholder="장면 id · 장소 · 대사로 찾기 (↑↓ 고르기, Enter 재생)">
         <div class="dm-list"></div>
       </div>`;
@@ -55,6 +58,16 @@ const DevMenu = {
     el.addEventListener('pointerdown', (e) => { if (e.target === el) this.close(); });
     // 연출 도구 시험 창 (게임을 멈추지 않는 옆 창)
     el.querySelector('.dm-cine').onclick = () => { this.close(); CineLab.open(); };
+    // 스킬 시험 맵 (LEVELS.skilltest): 스토리 없이 바로 조작
+    el.querySelector('.dm-skilltest').onclick = () => {
+      const reg = this.game.registry;
+      reg.set('chapterOverride', 'skilltest');
+      reg.set('chapterStarted', true);
+      reg.remove('devPlay');
+      this.close();
+      StoryAudio.stopBgm(0.2);
+      this.gameScene.scene.restart();
+    };
     // 배우 시스템 시험 장면 (data/story/test.json 의 ACTOR-*)
     for (const b of el.querySelectorAll('.dm-actors button')) {
       b.onclick = () => {

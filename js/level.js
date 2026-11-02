@@ -131,6 +131,7 @@ LEVELS.prologue = {
   ground: [
     { x: 0, y: 620, w: 16200, h: 100 },
     { x: 6400, y: 572, w: 44, h: 48 },     // 연습장 낮은 돌담 (점프)
+    { x: 6560, y: 450, w: 44, h: 170 },    // 조금 높은 담 (2단 점프로만 넘음. 1단 최고 높이 ≈ 140)
     { x: -40, y: 0, w: 40, h: 720 },
     { x: 8660, y: 0, w: 40, h: 720 },      // 아침 / 밤 사이 벽
     { x: 13700, y: 0, w: 40, h: 720 },     // 밤 / 이로리
@@ -194,7 +195,7 @@ LEVELS.prologue = {
     bed: 260, roomDoor: 900, sapling: 1500, houseExit: 1900,
     forge: 2450, forgeFront: 2330, well: 3200, shrine: 3500, dumplingShop: 4200, villageEnd: 4600,
     gateStone: 5230, gateAkane: 5130, forestPath: 5650,
-    wall: 6400, haruWall: 6340, haruDrill: 7200, yardHaru: 6100,
+    wall: 6400, wall2: 6560, haruWall: 6340, haruDrill: 7200, yardHaru: 6100,
     festivalTree: 8000, festivalAkane: 7880, festivalHaru: 7960, festivalSoichiro: 7820, festivalEdge: 8560,
     // 밤
     roadStart: 9100, dumplingFire: 9950, roadHana: 9950, smithyFront: 11050, smithySoichiro: 11450,
@@ -213,6 +214,36 @@ LEVELS.prologue = {
     { x: 10780, until: 'P-10' },
     { x: 11780, until: 'P-10b' },
   ],
+  memories: [],
+};
+
+// 스킬 시험 (F1 개발 메뉴 → '스킬 시험'): 허수아비 5개를 일렬로, 5개를 원형으로. 낭떠러지 · 벽에서 대쉬가 멈추는지도 본다
+LEVELS.skilltest = {
+  width: 2600,
+  height: 720,
+  spawn: { x: 300, y: 560 },
+  mood: null,
+  backgrounds: [{ id: 'yard', key: 'bg_pro_yard', x0: 0, x1: 2600, anchorX: 1300 }],
+  ground: [
+    { x: 0, y: 620, w: 2200, h: 100 },     // 2200 에서 낭떠러지
+    { x: 2380, y: 620, w: 220, h: 100 },
+    { x: 1460, y: 530, w: 80, h: 16 },      // 원형 위쪽 허수아비 발판
+    { x: -40, y: 0, w: 40, h: 720 },
+    { x: 2600, y: 0, w: 40, h: 720 },
+  ],
+  platforms: [],
+  // anySkill: 대쉬베기 말고 발도에도 맞는 허수아비, hp 크게 (맞아도 쓰러지지 않고 피해 숫자만)
+  enemies: [
+    // 일렬 (스킬 1 관통)
+    ...[560, 605, 650, 695, 740].map((x) => ({ type: 'dummy', x, y: 620, hp: 999, anySkill: true })),
+    // 원형: 가운데(1500)에 서면 좌우 두 겹 + 위 발판 하나가 둘러싼다 (스킬 2 원형 타격)
+    ...[1410, 1450, 1550, 1590].map((x) => ({ type: 'dummy', x, y: 620, hp: 999, anySkill: true })),
+    { type: 'dummy', x: 1500, y: 530, hp: 999, anySkill: true },
+  ],
+  trees: [{ x: 160, y: 620 }],  // 부활 자리 (맵마다 하나는 있어야 한다)
+  decorTrees: [],
+  npcs: [],
+  points: { line: 560, ring: 1500, ledge: 2200 },
   memories: [],
 };
 

@@ -3737,6 +3737,211 @@
    "source": "4B813E01-0E0D-4F49-BC8C-396752B3DF32.png",
    "width": 724,
    "height": 242
+  },
+  "fx_blade_storm": {
+   "file": "fx_blade_storm.png",
+   "source": "2A1AA123-289D-469B-9352-BF7D4069BB57.png",
+   "frameWidth": 210,
+   "frameHeight": 224,
+   "frames": 8,
+   "origin": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "dot": 1.3,
+   "align": "center",
+   "anims": {
+    "fx_blade_storm": {
+     "frames": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+     ],
+     "rate": 24,
+     "loop": false
+    }
+   }
+  },
+  "fx_shock_ring": {
+   "file": "fx_shock_ring.png",
+   "source": "A8EF0A46-FFE4-41B9-8688-B951591623B9.png",
+   "frameWidth": 232,
+   "frameHeight": 242,
+   "frames": 5,
+   "origin": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "dot": 2.05,
+   "align": "center",
+   "anims": {
+    "fx_shock_ring": {
+     "frames": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "rate": 20,
+     "loop": false
+    }
+   }
+  },
+  "fx_iaido_charge": {
+   "file": "fx_iaido_charge.png",
+   "source": "CE06CE9D-0BC5-4E4A-ACA6-9D549BE9A34C.png",
+   "frameWidth": 122,
+   "frameHeight": 122,
+   "frames": 6,
+   "origin": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "dot": 2.76,
+   "align": "center",
+   "anims": {
+    "fx_iaido_charge": {
+     "frames": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "rate": 14,
+     "loop": true
+    }
+   }
+  },
+  "fx_dash_trail": {
+   "file": "fx_dash_trail.png",
+   "source": "B359E473-6DF0-4005-A371-7AC5A1E9EFEB.png",
+   "frameWidth": 202,
+   "frameHeight": 72,
+   "frames": 5,
+   "origin": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "dot": 1.85,
+   "align": "center",
+   "anims": {
+    "fx_dash_trail": {
+     "frames": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "rate": 18,
+     "loop": false
+    }
+   }
+  },
+  "fx_dash_wake": {
+   "file": "fx_dash_wake.png",
+   "source": "5549C6EC-2DF1-406F-BE61-F9B615E3CE71.png",
+   "frameWidth": 73,
+   "frameHeight": 40,
+   "frames": 8,
+   "origin": {
+    "x": 1.0,
+    "y": 0.5
+   },
+   "dot": 3.31,
+   "align": "right",
+   "anims": {
+    "fx_dash_wake_start": {
+     "frames": [
+      0,
+      1
+     ],
+     "rate": 24,
+     "loop": false
+    },
+    "fx_dash_wake_loop": {
+     "frames": [
+      2,
+      3,
+      4,
+      5
+     ],
+     "rate": 24,
+     "loop": true
+    },
+    "fx_dash_wake_end": {
+     "frames": [
+      6,
+      7
+     ],
+     "rate": 16,
+     "loop": false
+    }
+   }
+  },
+  "player_double_jump": {
+   "file": "player_double_jump.png",
+   "source": "01CEB073-955A-41EB-992F-6B2A7AFCF4AB.png",
+   "frameWidth": 90,
+   "frameHeight": 90,
+   "frames": 8,
+   "origin": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "dot": 4.11,
+   "align": "mass",
+   "facing": "right",
+   "anims": {
+    "player_double_jump": {
+     "frames": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+     ],
+     "rate": 23,
+     "loop": false
+    }
+   }
+  },
+  "fx_double_jump_puff": {
+   "file": "fx_double_jump_puff.png",
+   "source": "E0E474E1-9061-4030-9650-214BB01ECBA1.png",
+   "frameWidth": 66,
+   "frameHeight": 44,
+   "frames": 5,
+   "origin": {
+    "x": 0.5,
+    "y": 0.5
+   },
+   "dot": 5.23,
+   "align": "center",
+   "anims": {
+    "fx_double_jump_puff": {
+     "frames": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "rate": 18,
+     "loop": false
+    }
+   }
   }
  },
  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.",
