@@ -28,6 +28,8 @@ FALLBACKS = {
     'tree': 'tree.js 도형 나무 (그림 없을 때만)',
     'fx_red_sun_grow': '없음 (그림이 없으면 문양을 안 그림)',
     'logo_emblem': '없음',
+    'lantern_rope': '없음 (조립 그림, 그림이 없으면 단색 네모)',
+    'prop_rooftop_cultist': '없음 (enemy_sword 실루엣, 그림이 없으면 단색 네모)',
 }
 KIND = [('bg_', '배경'), ('cg_', 'CG'), ('portraits', '초상화'), ('fx_', '이펙트'), ('prop', '소품'), ('ui_', 'UI'),
         ('tree', '벚나무'), ('logo', '로고')]

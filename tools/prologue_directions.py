@@ -107,15 +107,18 @@ SETUP = {
         spawn('akane', 'bed', 'right'), C('anim', actor='akane', anim='akane_sleep', loop=True),
     ],
     'P-2': [
+        C('setFlag', flag='akaneNoSword', value=True),  # 칼 받기 전 (개발 메뉴로 이 장면만 재생할 때도)
         spawn('akane', 1060, 'right'), C('exitGlow', on=False), prop('sapling', 'sapling_dead', 'sapling'),
         spawn('haru', 1080, 'right'), C('disappear', actor='haru', fade=False),
     ],
     'P-3': [
+        C('setFlag', flag='akaneNoSword', value=True),
         C('ambience', id=None), spawn('akane', 'iroriAkane', 'right'), C('sit', actor='akane'),
         spawn('haru', 'iroriHaru', 'left'), C('sit', actor='haru'),
         spawn('soichiro', 'iroriDoor', 'left'), C('disappear', actor='soichiro', fade=False),
     ],
     'P-4': [
+        C('setFlag', flag='akaneNoSword', value=True),  # 칼은 이 장면 가운데에서 받는다
         spawn('akane', 'houseExit', 'right'), C('standUp', actor='akane'), spawn('soichiro', 'forge', 'left'),
         prop('anvil', 'prop_anvil', 'forge', offset=-80, depth=6),
         C('camReset', ms=0), C('fadeIn', duration=0.6),
@@ -165,7 +168,7 @@ SETUP = {
         prop('dbR1', 'prop_debris_fire', 9620, scale=0.5, depth=3, label=''),
         prop('dbR2', 'prop_debris_fire', 10180, scale=0.7, depth=3, label=''),
         prop('dbR3', 'prop_debris_fire', 10520, scale=0.5, depth=3, label=''),
-        spawn('hana', 'roadHana', 'left'), C('sit', actor='hana'),
+        spawn('hana', 'roadHana', 'left'), C('anim', actor='hana', anim='hana_trapped', loop=True),  # 기둥 밑에 깔려 운다
         C('ambience', id='fire', every=1.1, volume=0.5),
         C('fadeIn', duration=0.6), C('objective', text='아빠에게'),
     ],
@@ -190,8 +193,9 @@ SETUP = {
         G('bossLook', show=False),
         spawn('hana', 'caveHana', 'right'), C('sit', actor='hana'),
         prop('mask', 'mask_broken', 15440),
-        prop('wp1', 'prop_petal', 15780, color='#7a5530', label=''), prop('wp2', 'prop_petal', 15860, color='#7a5530', label=''),
-        prop('wp3', 'prop_petal', 15900, color='#6a4a2a', label=''),
+        # 시든 꽃잎: effects 의 꽃잎 입자 그림을 갈색으로
+        prop('wp1', 'fx_petals', 15780, frame=0, tint='#7a5530'), prop('wp2', 'fx_petals', 15860, frame=2, tint='#7a5530'),
+        prop('wp3', 'fx_petals', 15900, frame=3, tint='#6a4a2a'),
         C('camPan', x=15760, seconds=0.01),
     ],
     'P-13': [
@@ -204,7 +208,7 @@ SETUP = {
         C('disappear', actor='village_old_man', fade=False), C('disappear', actor='wanderer', fade=False),
         C('propOff', id='steamer'), C('propOff', id='sapling'),
         prop('ashSteamer', 'steamer', 4240, tint='#3a3230', label='타 버린 찜통'),
-        prop('ashHammer', 'prop_hammer', 'forge'),
+        prop('ashHammer', 'hammer', 'forge'),
         prop('ashSapling', 'sapling_burnt', 'sapling'),
         C('particles', preset='rain', id='rain'), C('ambience', id='rain', every=1.4, volume=0.5),
         C('fadeIn', duration=1),
@@ -217,7 +221,7 @@ SETUP = {
         *[C('propOff', id=f'{g}{k}') for g in ('dbA', 'dbP') for k in range(4)],
         C('mood', to='ash', seconds=0), C('desaturate', amount=0.6, seconds=0),
         C('treeStage', tree='burning', stage='burnt'),  # 큰 벚나무 3단계: 검게 탄
-        prop('haruSword', 'prop_haru_sword', 12830), prop('hairpin', 'kanzashi', 12800),
+        prop('haruSword', 'haru_katana', 12840), prop('hairpin', 'kanzashi', 12800),
         spawn('akane', 12560, 'right'), C('standUp', actor='akane'),
         C('disappear', actor='haru', fade=False), C('disappear', actor='soichiro', fade=False),
         C('particles', preset='rain', id='rain'),
@@ -245,14 +249,14 @@ LINES = {
         '완전한 검은 화면. 불 타는 소리만 들린다. 3초.': [
             C('ambience', id='fire', every=0.9, volume=0.7), wait(3)],
         '페이드인. 아주 낮은 시점. 불타는 광장 바닥에 아카네가 쓰러져 있다. 눈이 반쯤 떠져 있다. 화면 앞쪽은 흐릿한 불길.': [
-            *FRAME_P0, C('fadeIn', duration=1.4), act('akane', '눈이 반쯤 떠져 있다', 1.6)],
+            *FRAME_P0, C('fadeIn', duration=1.4), wait(1.6)],
         '아카네의 시선 끝: 칼을 든 하루의 뒷모습. 그 너머 불길 속 흰 머리 사내의 실루엣. 얼굴은 보이지 않는다.': [
-            C('camPan', x=12900, seconds=1.8), act('haru', '칼을 든 뒷모습', 1.2), wait(0.8)],
+            C('camPan', x=12900, seconds=1.8), wait(2.0)],
         '하루가 고개를 반쯤 돌려 아카네를 본다. 입술이 움직이지만 소리는 없다.': [
-            face('haru', 'akane'), act('haru', '입술이 움직인다 — 소리 없음', 2.0)],
+            face('haru', 'akane'), wait(2.0)],
         '꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다.': [
             C('camPan', x='fireAkaneDown', seconds=0.9),
-            prop('p0petal', 'prop_petal', 'fireAkaneDown', dy=-180, offset=12, depth=12, label=''),
+            prop('p0petal', 'fx_petals', 'fireAkaneDown', frame=0, dy=-180, offset=12, depth=12),
             C('propMove', id='p0petal', dy=160, angle=200, seconds=2.2),
             C('propTint', id='p0petal', color='#ff5a20', seconds=0.4), C('propTint', id='p0petal', color='#444444', alpha=0, seconds=0.7),
             C('propOff', id='p0petal')],
@@ -278,17 +282,17 @@ LINES = {
             move('akane', 'sapling', offset=-34), face('akane', 'right'), C('anim', actor='akane', anim='akane_crouch', loop=True),
             act('akane', '묘목에 손바닥을 댄다 · 숨을 고른다', 2.0, anim='akane_reach'), wait(1.0)],
         '다시 댄다. 손끝에서 분홍 빛 한 점이 반짝이다가 꺼진다.': [
-            act('akane', '다시 댄다', 1.0, anim='akane_reach'), act('akane', '불씨', 0.6, anim='akane_ember'), prop('spark', 'prop_glow', 'sapling', dy=-24, w=4, h=4, color='#ff9eb8', label='', depth=12, fade=0.3),
+            act('akane', '다시 댄다', 1.0, anim='akane_reach'), act('akane', '불씨', 0.6, anim='akane_ember'), prop('spark', 'glow', 'sapling', offset=-14, dy=-14, depth=12, fade=0.2), C('propMove', id='spark', dy=-16, seconds=0.9, wait=False),
             sfx('chime', volume=0.25), C('propOff', id='spark', fade=0.6)],
         '뒤에서 하루가 다가온다. 앞치마 차림. 아카네가 놀라 손을 뗀다.': [
-            C('appear', actor='haru', fade=0.4), move('haru', 'akane', near=True), act('haru', '앞치마 차림', 1.0, wait=False),
+            C('appear', actor='haru', fade=0.4), move('haru', 'akane', near=True),
             C('emote', actor='akane', kind='!'), face('akane', 'haru')],
         '하루가 옆에 쪼그려 앉아 아카네의 손 위에 자기 손을 겹친다. 묘목은 여전히 그대로다.': [
             face('haru', 'right'), act('haru', '아카네의 손 위에 자기 손을 겹친다', 1.8, anim='haru_crouch_reach')],
         '하루가 아카네의 머리를 헝클어뜨리고 일어난다.': [
-            act('haru', '아카네의 머리를 헝클어뜨린다', 1.2), C('standUp', actor='haru')],
+            C('standUp', actor='haru'), act('haru', '아카네의 머리를 헝클어뜨린다', 1.2, anim='haru_ruffle'), C('standUp', actor='haru')],
         '아카네의 귀가 살짝 움직인다 (스프라이트 귀 까딱 1프레임).': [
-            act('akane', '귀 까딱', 0.7, anim='player_ear_twitch'), C('standUp', actor='akane')],
+            C('standUp', actor='akane'), wait(0.3), C('earTwitch', actor='akane'), wait(0.4)],  # 귀 까딱: 그림 위쪽 1프레임 흔들기
     },
     'P-3': {
         '레터박스. 이로리(화로) 앞 밥상. 하루와 아카네가 마주 앉아 있다. 문이 열리고 얼굴에 그을음이 묻은 소이치로가 들어온다. 등 뒤로 뭔가를 숨기고 있다.': [
@@ -301,9 +305,9 @@ LINES = {
             C('emote', actor='akane', kind='heart'), C('cutIn', speaker='akane', face='happy', hold=1.0)],
         '아카네가 밥그릇을 들 때, 카메라가 하루 쪽으로 천천히 이동한다. 하루가 소매 안의 접힌 편지를 손끝으로 만지작거리고 있다. 편지 위에 카메라가 0.8초 머문다. 아무도 그것에 대해 말하지 않는다.': [
             act('akane', '밥그릇을 든다', 1.0, anim='akane_eat', wait=False), C('anim', actor='soichiro', anim='soichiro_hide', loop=True),
-            prop('letter', 'prop_letter', 'iroriHaru', dy=-34, offset=-12, depth=12),
+            prop('letter', 'letter', 'iroriHaru', dy=-26, offset=-12, depth=12, scale=0.4),
             C('camPan', x='iroriHaru', seconds=2.0), C('camZoom', zoom=2, seconds=0.8),
-            act('haru', '소매 속 접힌 편지를 만지작거린다', 1.2), wait(0.8),
+            act('haru', '소매 속 접힌 편지를 만지작거린다', 1.2, anim='haru_letter'), wait(0.8),
             C('camZoom', zoom=1, seconds=0.6), C('propOff', id='letter'), C('camPan', x='irori', seconds=0.8)],
     },
     'P-4': {
@@ -316,7 +320,7 @@ LINES = {
             act('soichiro', '마지막 담금질', 1.6, anim='soichiro_forge'), sfx('steam'),
             C('particles', preset='steam', at='forge', seconds=2.5), C('flash', color='white', ms=900), wait(0.8)],
         '소이치로가 검은 칼집의 칼을 두 손으로 내민다. 칼 획득 연출 (화면 정지, 칼이 떠오르며 회전, 빛이 칼날을 훑음). 붓 자막 〈칼을 얻었다〉.': [
-            C('anim', actor='soichiro', anim='give'), act('soichiro', '검은 칼집의 칼을 두 손으로 내민다', 1.2),
+            act('soichiro', '검은 칼집의 칼을 두 손으로 내민다', 1.2, anim='soichiro_give'),
             C('flash', color='gold', ms=400), prop('giftSword', 'prop_katana', 0, screen={'x': 480, 'y': 300}, depth=40, scale=2),
             C('propMove', id='giftSword', y=250, angle=360, seconds=1.2), sfx('ui_confirm'),
             C('caption', text='칼을 얻었다'), C('propOff', id='giftSword', fade=0.4),
@@ -325,14 +329,14 @@ LINES = {
             act('akane', '칼을 처음 반쯤 뽑는다', 0.9, anim='player_iaido_ready'), sfx('draw'),
             C('cutIn', speaker='akane', face='angry', hold=0.9)],
         '이후 아카네 스프라이트가 칼 찬 버전으로 바뀐다. 목표 자막 〈만두 가게로〉.': [
-            C('setFlag', flag='akaneSword', value=True), C('setFlag', flag='akaneNoSword', value=False), act('akane', '칼을 허리에 찬다', 0.8), C('objective', text='만두 가게로')],
+            C('setFlag', flag='akaneSword', value=True), C('setFlag', flag='akaneNoSword', value=False), wait(0.8), C('objective', text='만두 가게로')],
     },
     'P-5': {
         '밝은 아침 마을. 축제 준비로 사람들이 등롱을 걸고 있다. 아카네 머리 위에 작은 바구니 아이콘 (심부름 중 표시). 오른쪽으로 꽃잎이 흐른다.': [
-            C('foreground', preset='lanterns', x=3400), act('village_old_man', '등롱을 건다', 1.6, wait=False),
+            C('foreground', preset='lanterns', x=3400),  # 마을 노인은 대기 동작
             C('guideWind', to='dumplingShop', kind='petals')],
         '마을 아이 하나가 고양이귀 가면을 흔들며 달려온다.': [
-            C('waitForPlayerAt', x=3150), move('hana', 'akane', 'run', near=True), act('hana', '고양이귀 가면을 흔든다', 1.0)],
+            C('waitForPlayerAt', x=3150), move('hana', 'akane', 'run', near=True), act('hana', '고양이귀 가면을 흔든다', 1.2, anim='hana_wave_mask', loop=True)],
         '하나가 달려간다. 아카네가 그 뒷모습을 잠깐 본다.': [
             move('hana', 2960, 'run', wait=False), face('akane', 'hana'), wait(1.2), C('disappear', actor='hana', fade=0.6, wait=False)],
         '만두 가게. 김이 오르는 찜통. 할머니가 바구니에 만두를 담는다.': [
@@ -349,21 +353,19 @@ LINES = {
             move('akane', 'gateAkane'), C('bgm', id=None, fade=2), C('bgmDuck', on=True), face('akane', 'wanderer'),
             C('camFollow', actor='akane')],
         '3초 침묵. 아카네가 바구니를 내려다본다. 머뭇거리다가 만두 하나를 꺼내 내민다.': [
-            wait(3), act('akane', '바구니를 내려다본다', 1.2), C('emote', actor='akane', kind='…'),
-            act('akane', '만두 하나를 꺼내 내민다', 1.4)],
+            wait(3), wait(1.2), C('emote', actor='akane', kind='…'), wait(1.4)],
         '나그네가 만두를 받아 한참 내려다본다.': [
             face('wanderer', 'akane'), act('wanderer', '만두를 받아 한참 내려다본다', 2.2, anim='wanderer_look_manju', loop=True)],
         '긴 침묵. 나그네의 입가가 아주 조금 올라간다.': [
             wait(2.5), act('wanderer', '입가가 아주 조금 올라간다', 1.4, anim='wanderer_look_manju', loop=True)],
         '나그네가 일어선다. 바람이 불어 삿갓 끝이 들린다. 컷인 0.3초: 삿갓 아래로 흘러내린 흰 머리카락 한 가닥.': [
             act('wanderer', '일어선다', 0.6, anim='wanderer_stand'), sfx('wind'), C('particles', preset='petals', dir=1, seconds=2),
-            act('wanderer', '삿갓 끝이 들린다', 0.6),
-            C('cutIn', speaker='wanderer', hold=0.3, image='cutin_wanderer_hair', label='삿갓 아래 흘러내린 흰 머리카락 한 가닥')],
+            C('cutIn', speaker='wanderer', hold=0.6, image='cutin_traveler_hair')],  # 삿갓 끝이 들림 = 컷인
         '나그네가 숲길로 걸어 사라진다. 그가 앉았던 돌 위에 꽃잎 한 장이 떨어지는데, 닿는 순간 갈색으로 시든다. 아카네는 보지 못한다. 플레이어만 본다.': [
             par(seq(move('wanderer', 'forestPath'), C('disappear', actor='wanderer', fade=1.0)),
                 seq(wait(1.2), face('akane', 'left'))),
             C('camPan', x='gateStone', seconds=0.8),
-            prop('witheredPetal', 'prop_petal', 'gateStone', dy=-170, depth=12, label=''),
+            prop('witheredPetal', 'fx_petals', 'gateStone', frame=1, dy=-170, depth=12),
             C('propMove', id='witheredPetal', dy=150, angle=160, seconds=2.2),
             C('propTint', id='witheredPetal', color='#7a5530', seconds=0.35), wait(1.0), C('camFollow', actor='akane'),
             C('bgmDuck', on=False)],
@@ -382,19 +384,19 @@ LINES = {
             C('section', title='대쉬베기 단계에 포함: 벨 때마다 꽃잎 스택, 세 번째 허수아비에서 줌인')],
         '발도 아이콘. 하루가 목검을 치켜든다 (끝에 별빛 예고). 패링 성공할 때까지 반복.': [
             G('tutorialIcon', step='iaido'), face('haru', 'akane'), C('pose', actor='haru', pose='guard'),
-            act('haru', '목검을 치켜든다 (끝에 별빛)', 1.0), C('particles', preset='sparks', at='haru')],
+            act('haru', '목검을 치켜든다 (끝에 별빛)', 1.0, anim='haru_raise_bokken'), C('particles', preset='sparks', at='haru')],
         '하루가 목검을 내려놓고 품에서 작은 붉은 방울을 꺼낸다. 아이템 획득 연출. 붓 자막 〈붉은 방울〉.': [
             C('pose', actor='haru', pose='idle'), move('haru', 'akane', near=True),
-            act('haru', '목검을 내려놓고 품에서 작은 붉은 방울을 꺼낸다', 1.6), C('flash', color='gold', ms=400),
+            act('haru', '목검을 내려놓고 품에서 작은 붉은 방울을 꺼낸다', 1.6, anim='haru_take_bell'), C('flash', color='gold', ms=400),
             prop('giftBell', 'bell_red', 0, screen={'x': 480, 'y': 300}, depth=40, scale=3),
             C('propMove', id='giftBell', y=270, seconds=0.8), sfx('chime', volume=0.6), C('caption', text='붉은 방울'),
             C('propOff', id='giftBell', fade=0.4), C('giveItem', name='붉은 방울')],
         '하루가 아카네의 머리끈에 방울을 묶어 준다. 딸랑. 이후 아카네가 점프할 때마다 아주 작게 방울 소리가 난다.': [
-            act('haru', '아카네의 머리끈에 방울을 묶어 준다', 1.6), sfx('chime', volume=0.5)],
+            act('haru', '아카네의 머리끈에 방울을 묶어 준다', 1.6, anim='haru_tie_bell'), sfx('chime', volume=0.5), C('standUp', actor='haru')],
         '해가 지기 시작한다. 색감이 주황으로 짙어진다.': [
             C('mood', to='duskDeep', seconds=2.5)],
         '하루가 들고 있던 목검이 땅에 떨어진다. 딱. BGM이 끊긴다. 바람 소리.': [
-            prop('woodSword', 'prop_wooden_sword', 'haru', dy=-46, offset=10, w=44, h=6, color='#a08060', label=''),
+            prop('woodSword', 'bokken', 'haru', dy=-46, offset=10, scale=0.7),
             C('propMove', id='woodSword', dy=46, angle=80, seconds=0.3, ease='Quad.easeIn'), sfx('clack'),
             C('silence'), sfx('wind'), C('emote', actor='haru', kind='!')],
         '하루가 아무 말 없이 마을 입구 쪽을 본다. 3초. 하루의 초상화가 아주 잠깐 겁먹음으로 바뀌었다가 웃음으로 돌아온다.': [
@@ -408,31 +410,31 @@ LINES = {
         '등롱이 줄지어 흔들리고 고양이귀 가면을 쓴 마을 사람들이 춤춘다. 하나가 가면을 쓰고 아카네 주위를 맴돈다. 만두 할머니가 손을 흔든다. 소이치로가 그을음을 씻은 얼굴로 서 있다.': [
             C('fadeIn', duration=1.0),
             par(seq(move('hana', 'akane', 'run', offset=70), move('hana', 'akane', 'run', offset=-70), move('hana', 'akane', 'run', offset=60)),
-                act('hana', '가면을 쓰고 아카네 주위를 맴돈다', 1.6, wait=False)),
-            act('dumpling_grandma', '손을 흔든다', 1.4, anim='grandma_wave', wait=False), act('soichiro', '그을음을 씻은 얼굴', 1.4, wait=False), wait(1.6)],
+                wait(1.6)),
+            act('dumpling_grandma', '손을 흔든다', 1.4, anim='grandma_wave', wait=False), wait(1.6)],
         '하루가 큰 벚나무 앞에 선다. 카메라가 나무로 패닝하며 줌인. 하루의 손에서 분홍 빛이 줄기를 타고 오르고, 꼭대기에 닿는 순간 나무가 만개한다. 꽃잎 폭발, 환호성.': [
             move('haru', 'festivalTree', offset=-30), face('haru', 'right'),
             C('camPan', x='festivalTree', seconds=1.4), C('camZoom', zoom=2, seconds=1.0),
-            prop('rise', 'prop_glow', 'festivalTree', dy=-20, w=6, h=6, color='#ff9eb8', label='', depth=12),
+            prop('rise', 'glow', 'festivalTree', dy=-20, depth=12, scale=2),
             C('propMove', id='rise', dy=-260, seconds=1.4, ease='Sine.easeIn'), C('propOff', id='rise'),
             G('bloomTree', tree='festival'), C('treeStage', tree='festival', stage='bloom'), C('particles', preset='petals', seconds=3), sfx('cheer'), G('cheer'),
             C('camZoom', zoom=1, seconds=0.8), C('camFollow', actor='akane')],
         '하루가 아카네의 손을 낮게 늘어진 가지에 올리고, 그 위에 자기 손을 겹친다.': [
             move('akane', 'festivalTree', offset=-90), face('akane', 'right'), face('haru', 'akane'),
-            act('haru', '아카네의 손을 낮은 가지에 올리고 자기 손을 겹친다', 1.8)],
+            wait(1.8)],
         '모든 소리가 작아진다. 두 손 사이로 빛이 스민다. CG A 페이드인: 가지 위에 겹친 두 손, 아카네 손바닥 아래에서 막 벌어지는 꽃 한 송이.': [
             C('ambience', id=None), C('bgmDuck', on=True),
-            prop('handGlow', 'prop_glow', 'festivalTree', offset=-60, dy=-70, w=10, h=10, color='#ffd0e0', label='', depth=12, fade=0.6),
+            prop('handGlow', 'glow', 'festivalTree', offset=-60, dy=-70, depth=12, fade=0.6, scale=3),
             C('cg', no='A', desc='가지 위에 겹친 두 손, 아카네 손바닥 아래에서 막 벌어지는 꽃 한 송이')],
         'CG A 페이드아웃. 하나가 누구보다 크게 손뼉 친다.': [
             C('cgEnd'), C('propOff', id='handGlow'),
-            prop('flower', 'prop_flower', 'festivalTree', offset=-60, dy=-74, depth=12),
-            act('hana', '누구보다 크게 손뼉 친다', 1.2), sfx('cheer', volume=0.6), C('emote', actor='hana', kind='!')],
+            prop('flower', 'blossom_single', 'festivalTree', offset=-60, dy=-64, depth=12, scale=0.35),
+            act('hana', '누구보다 크게 손뼉 친다', 1.2, anim='hana_wave_mask', loop=True), sfx('cheer', volume=0.6), C('emote', actor='hana', kind='!')],
         '소이치로가 다가와 셋이 나무 아래 앉는다. CG 1 페이드인 (축제 밤의 가족).': [
             move('soichiro', 'akane', near=True), par(C('sit', actor='akane'), C('sit', actor='haru'), C('sit', actor='soichiro')),
             C('cg', no=1)],
         'CG 1 페이드아웃. 하루가 문득 고개를 든다. 광장 끝 등롱 빛이 닿지 않는 어둠 속에 삿갓 하나가 서 있다. 깜빡하면 사라진다.': [
-            C('cgEnd'), act('haru', '문득 고개를 든다', 1.0),
+            C('cgEnd'), wait(1.0),
             spawn('wanderer', 'festivalEdge', 'left'),
             par(C('camPan', to='festivalEdge', ms=800, hold=0.7), seq(wait(1.3), C('disappear', actor='wanderer', fade=0.12)))],
         '음악이 작아지고 두 사람에게 줌인, 비네트.': [
@@ -455,8 +457,10 @@ LINES = {
             C('camTilt', y=0, ms=400), C('camZoom', zoom=1, seconds=0.4), G('arrowRain'),
             C('flash', color='red'), C('shake', level='strong', dir='v'), sfx('boom')],
         '등롱 줄이 끊어져 떨어지고, 큰 벚나무 꼭대기부터 불이 번진다. 방금 아카네가 피운 꽃 한 송이가 클로즈업되고, 불티가 닿아 재가 된다.': [
-            C('foregroundClear'), prop('rope', 'prop_lantern_rope', 'festivalTree', offset=-280, y=340, depth=11),
-            C('propMove', id='rope', ground=True, angle=14, seconds=0.6, ease='Quad.easeIn'), sfx('thud'),
+            # 등롱 줄: 줄 조각을 이어 붙이고 켜진 등롱을 매단 그림(lantern_rope). 끊기면 떨어져 찢긴 등롱(lantern_rope_fallen)으로
+            C('foregroundClear'), prop('rope', 'lantern_rope', 'festivalTree', offset=-280, y=420, depth=11),
+            C('propMove', id='rope', ground=True, angle=6, seconds=0.6, ease='Quad.easeIn'), C('propSwap', id='rope', key='lantern_rope_fallen'),
+            C('propMove', id='rope', angle=0, seconds=0.01), sfx('thud'),
             C('treeStage', tree='festival', stage='burning'),
             C('particles', preset='embers', x='festivalTree', y=330, id='treeFire'), C('light', preset='fire', x='festivalTree', y=360, id='treeFire'),
             C('camPan', x='festivalTree', offset=-60, seconds=0.8), C('camZoom', zoom=2, seconds=0.6),
@@ -474,7 +478,7 @@ LINES = {
             face('akane', 'right'), C('emote', actor='akane', kind='!')],
         '지붕 위에 흰 가면 신도들이 하나씩 나타나고 횃불이 왼쪽부터 차례로 켜진다.': [
             *[x for i, px in enumerate((7520, 7700, 7880, 8120, 8300, 8480)) for x in (
-                prop(f'roof{i}', 'prop_rooftop_cultist', px, y=360, depth=5, fade=0.3, label='흰 가면 신도' if i == 0 else ''),
+                prop(f'roof{i}', 'prop_rooftop_cultist', px, y=360, depth=5, fade=0.3),  # enemy_sword 대기를 검은 실루엣 + 붉은 눈
                 prop(f'flag{i}', 'fx_red_sun', px + 16, y=330, scale=0.12, anim='fx_red_sun_grow', depth=5, label=''),
                 C('light', preset='torch', x=px, y=320, id=f'torch{i}'), sfx('fire', volume=0.4), wait(0.25))]],
         '신도 무리가 광장으로 쏟아져 내려오고, 연기가 화면을 덮는다. 연기가 걷히면 아카네 혼자. 하루도 소이치로도 보이지 않는다. 레터박스 해제, 목표 자막 〈아빠에게〉.': [
@@ -487,7 +491,7 @@ LINES = {
             C('disappear', actor='haru', fade=False), C('disappear', actor='soichiro', fade=False),
             C('disappear', actor='hana', fade=False), C('disappear', actor='dumpling_grandma', fade=False),
             *[C('lightOff', id=f'torch{i}') for i in range(6)], C('fadeIn', duration=0.8),
-            act('akane', '혼자 남았다', 1.4), C('mode', mode='play'), C('objective', text='아빠에게')],
+            wait(1.4), C('mode', mode='play'), C('objective', text='아빠에게')],
     },
     'P-10': {
         '아침에 걸었던 그 길이 불타고 있다. 마을 사람들이 왼쪽으로 도망치고 아카네만 오른쪽으로 거슬러 간다. 바닥에 붉은 원이 깜빡인 뒤 불화살이 꽂힌다.': [
@@ -495,26 +499,29 @@ LINES = {
         '첫 신도를 처음 벨 때만 슬로모션 0.5초와 줌인. 아카네의 손이 떨린다 (스프라이트 1프레임 흔들림).': [
             G('fight', group='road', firstKillSlowmo=0.5), C('tremble', actor='akane', times=3)],
         '만두 가게 앞. 무너진 노점 기둥 밑에 하나가 깔려 울고 있다. 고양이귀 가면이 반쯤 깨져 있다. 기둥 위에 베기 아이콘.': [
-            C('waitForPlayerAt', x='roadHana', offset=-130), act('hana', '기둥 밑에 깔려 울고 있다 · 가면이 반쯤 깨져 있다', 1.6, wait=False)],
+            C('waitForPlayerAt', x='roadHana', offset=-130), C('anim', actor='hana', anim='hana_trapped', loop=True)],
         '기둥을 베면 하나가 기어 나온다.': [
-            G('cutPillar', prop='pillar'), act('hana', '기어 나온다', 1.0), C('standUp', actor='hana'), move('hana', 'akane', 'slow', near=True)],
+            G('cutPillar', prop='pillar'), act('hana', '기어 나온다', 1.2, anim='hana_crawl'), C('standUp', actor='hana'), move('hana', 'akane', 'slow', near=True)],
         '만두 가게가 통째로 무너진다. 흔들림 강. 아카네가 하나를 감싸 안는다.': [
-            G('collapse', at='roadHana', offset=60, id='shopRuin'), act('akane', '하나를 감싸 안는다', 1.4)],
+            # 아카네의 안기와 하나의 안겨 울기를 같은 자리에 겹쳐 동시에
+            G('collapse', at='roadHana', offset=60, id='shopRuin'), face('akane', 'hana'),
+            spawn('hana', 'akane', 'left', offset=10), C('anim', actor='hana', anim='hana_cry', loop=True),
+            act('akane', '하나를 감싸 안는다', 1.6, anim='akane_hug'), C('standUp', actor='akane')],
         '하나가 뛰어간다. 깨진 가면이 땅에 남는다.': [
             prop('maskOnRoad', 'mask_broken', 'hana'), move('hana', 9000, 'run', wait=False),
             C('disappear', actor='hana', fade=0.8, wait=False)],
     },
     'P-10b': {
         '대장간이 불타고 있다. 소이치로가 망치 하나로 신도 셋을 막고 있다. 어깨에 화살.': [
-            G('spawn', group='smithy'), act('soichiro', '망치 하나로 신도 셋을 막는다 · 어깨에 화살', 1.6, wait=False),
+            G('spawn', group='smithy'), act('soichiro', '망치 하나로 신도 셋을 막는다 · 어깨에 화살', 1.6, anim='soichiro_guard', loop=True, wait=False),
             C('light', preset='fire', x='smithySoichiro', y=400, id='smithyFire')],
         '신도들을 벤다. 마지막 신도를 베는 순간 슬로모션.': [
             G('fight', group='smithy', slowmoLast=True)],
         '화면 밖에서 휘파람 소리 두 번. 소이치로의 등에 화살이 꽂힐 때마다 히트스톱, 둔탁한 소리, 화면이 조금씩 탈색된다.': [
             G('arrowTraps', on=False), C('stopAnim', actor='soichiro'),
-            sfx('whistle'), G('arrowAt', target='soichiro', **{'from': 'left'}), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '등에 화살이 꽂힌다', 0.6),
+            sfx('whistle'), G('arrowAt', target='soichiro', **{'from': 'left'}), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '등에 화살이 꽂힌다', 0.6, anim='soichiro_hit1'),
             C('desaturate', amount=0.15, seconds=0.3), wait(0.6),
-            sfx('whistle'), G('arrowAt', target='soichiro', height=36, **{'from': 'left'}), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '또 한 대', 0.6),
+            sfx('whistle'), G('arrowAt', target='soichiro', height=36, **{'from': 'left'}), C('hitStop', seconds=0.14), sfx('thud'), act('soichiro', '또 한 대', 0.6, anim='soichiro_hit2'),
             C('desaturate', amount=0.3, seconds=0.3), C('kneel', actor='soichiro')],
         '대장간 지붕이 무너지며 불타는 잔해가 둘 사이를 막는다. 흰 플래시. 다시 밝아지면 아카네 혼자. 탈색 30% 유지. 목표 자막 〈엄마에게〉.': [
             G('collapse', at='smithySoichiro', offset=-110, id='roofRuin'), C('flash', color='white', ms=500),
@@ -535,14 +542,14 @@ LINES = {
         '하루가 아카네 앞을 막아선다. 하쿠야의 칼이 하루를 꿰뚫는다. 모든 소리 끊김. 슬로모션 0.2배. 화면 앞쪽으로 커다란 꽃잎 한 장이 천천히 떨어진다. 심장 소리 두 번.': [
             C('pose', actor='haru', pose='idle'), move('haru', 'fireAkaneDown', 'run', offset=70), face('haru', 'right'),
             G('stab', who='haru'), C('silence'), C('ambience', id=None), C('slowmo', scale=0.2, seconds=3),
-            prop('bigPetal', 'prop_petal', 0, screen={'x': 560, 'y': -10}, w=64, h=40, depth=45, label=''),
+            prop('bigPetal', 'fx_petals', 0, frame=2, screen={'x': 560, 'y': -10}, scale=5, depth=45),
             C('propMove', id='bigPetal', x=430, y=600, angle=200, seconds=3.0, wait=False),
             sfx('heartbeat'), wait(0.8), sfx('heartbeat'), wait(1.2), C('propOff', id='bigPetal')],
         '하루가 무릎 꿇은 채 아카네 쪽으로 손을 뻗는다. 아카네 주위로 꽃잎 수천 장이 소용돌이친다.': [
             C('kneel', actor='haru'), face('haru', 'akane'), act('haru', '아카네 쪽으로 손을 뻗는다', 1.2, anim='haru_reach'),
             G('petalStorm')],
         '바람에 아카네 머리의 방울이 울린다. 딸랑. 하루가 그 소리를 듣고 아주 작게 웃는다.': [
-            sfx('wind', volume=0.4), sfx('chime', volume=0.6), act('haru', '아주 작게 웃는다', 1.2)],
+            sfx('wind', volume=0.4), sfx('chime', volume=0.6), wait(1.2)],
         'CG 2 페이드인 (꽃잎에 감싸인 아카네와 손을 뻗은 하루).': [
             C('cg', no=2)],
         '흰 플래시. 꽃잎이 아카네를 싣고 하늘로 날아간다. 카메라가 따라 올라간다. 하쿠야가 손을 뻗지만 꽃잎이 그 손을 벤다.': [
@@ -564,10 +571,10 @@ LINES = {
         '다시 흔든다. 딸랑, 딸랑.': [
             act('akane', '다시 흔든다', 0.6, anim='akane_shake_bell', loop=True), sfx('chime', volume=0.7), wait(0.35), sfx('chime', volume=0.7), C('pose', actor='akane', pose='sit')],
         '동굴 안쪽 어둠에서 무언가 움직인다. 하나다. 하나가 깨진 가면을 끌어안고 잠들어 있다. 아카네가 그 옆에 앉아 자기 망토를 덮어 준다. (하나가 살아 있다는 것만 보여 주고, 대사는 없다.)': [
-            C('tremble', actor='hana', times=2), act('hana', '움직인다', 0.8), C('camPan', x='caveHana', offset=150, seconds=1.2),
-            act('hana', '깨진 가면을 끌어안고 잠들어 있다', 1.6), C('standUp', actor='akane'),
+            C('tremble', actor='hana', times=2), wait(0.8), C('camPan', x='caveHana', offset=150, seconds=1.2),
+            wait(1.6), C('standUp', actor='akane'),
             move('akane', 'caveHana', 'slow', offset=50), face('akane', 'hana'), C('sit', actor='akane'),
-            act('akane', '자기 망토를 덮어 준다', 1.6)],
+            act('akane', '자기 망토를 덮어 준다', 1.6, anim='akane_hug')],
         '아카네가 일어나 비 속으로 걸어 나간다.': [
             C('standUp', actor='akane'), C('camFollow', actor='akane'), move('akane', 'caveExit'), C('fadeOut', duration=1.0)],
     },
@@ -583,7 +590,9 @@ LINES = {
         '광장. 큰 벚나무는 검게 탄 그루터기만 남았다. 그 아래 진흙 속에 하루의 칼과 붉은 술 장식 비녀가 놓여 있다. 하루와 소이치로의 모습은 보이지 않는다.': [
             C('fadeIn', duration=1.2), C('camPan', x='plazaStump', seconds=1.4), move('akane', 12760, 'slow')],
         '아카네가 비녀를 줍는다. 오래 내려다본다.': [
-            act('akane', '비녀를 줍는다', 1.0), C('propOff', id='hairpin'), act('akane', '오래 내려다본다', 2.0)],
+            # 비녀 줍기 → 오래 내려다본 뒤 하루의 칼 옆에 놓는다
+            act('akane', '비녀를 줍는다', 1.0, anim='akane_pick'), C('propOff', id='hairpin'), C('standUp', actor='akane'), wait(2.0),
+            prop('hairpinBySword', 'kanzashi', 12872, fade=0.4)],
         '아카네가 그루터기 옆에 맨손으로 흙을 판다. 망치와 비녀를 묻고, 돌을 쌓아 작은 무덤 두 개를 만든다. 빗줄기가 굵어진다.': [
             C('kneel', actor='akane'), act('akane', '맨손으로 흙을 판다', 2.0, anim='akane_dig', loop=True), act('akane', '망치와 비녀를 묻는다', 1.4, anim='akane_dig', loop=True),
             prop('grave1', 'grave_a', 12700, fade=0.6), prop('grave2', 'grave_b', 12735, fade=0.6),
@@ -594,12 +603,12 @@ LINES = {
             C('shake', level='weak'), wait(0.4), sfx('thud'), C('shake', level='weak')],
         '화면 위쪽에 하루의 마지막 말이 반투명 분홍 글씨로 천천히 떠오른다.': [],  # 다음 〈자막〉이 덮어쓰기 자막의 바탕 글 (변환기)
         '아카네가 일어선다. 칼자루를 쥔다. 분홍 글씨 위로 붉은 글씨가 덮어쓰듯 나타나고, 분홍 글씨가 지워진다.': [
-            C('standUp', actor='akane'), act('akane', '칼자루를 쥔다', 1.0)],  # + overwrite (변환기)
+            C('standUp', actor='akane'), act('akane', '칼자루를 쥔다', 1.0, anim='akane_grip')],  # + overwrite (변환기)
         '아카네가 머리끈에서 방울을 풀어 천 조각으로 꽁꽁 감싼다. 이제 흔들어도 소리가 나지 않는다. 그것을 품에 넣는다.': [
-            act('akane', '머리끈에서 방울을 푼다', 1.2), prop('bellInHand', 'bell_red', 'akane', offset=14, dy=-34, depth=12, label=''),
-            sfx('chime', volume=0.3), act('akane', '천 조각으로 꽁꽁 감싼다', 1.6), C('propOff', id='bellInHand'),
-            prop('bellWrapped', 'bell_wrapped', 'akane', offset=14, dy=-30, depth=12, label=''),
-            C('setFlag', flag='bellWrapped', value=True), act('akane', '품에 넣는다', 1.0), C('propOff', id='bellWrapped', fade=0.4)],
+            # 방울 풀어 감싸기 → 품에 넣기 (akane_gesture). 머리끈의 방울 점은 푸는 순간 사라진다
+            C('setFlag', flag='bellWrapped', value=True), sfx('chime', volume=0.3),
+            act('akane', '머리끈에서 방울을 풀어 천 조각으로 꽁꽁 감싼다', 2.8, anim='akane_wrap_bell'),
+            act('akane', '품에 넣는다', 1.4, anim='akane_tuck')],
         'CG B 페이드인: 비 내리는 잿더미, 검은 그루터기 앞 작은 돌무덤 두 개, 그 앞에 무릎 꿇은 아카네의 뒷모습. 오래 머문다. 빗소리 위로 하루의 자장가가 아주 희미하게, 한 소절만.': [
             C('kneel', actor='akane'),
             C('cg', no='B', desc='비 내리는 잿더미, 검은 그루터기 앞 작은 돌무덤 두 개, 그 앞에 무릎 꿇은 아카네의 뒷모습'),

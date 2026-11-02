@@ -97,6 +97,19 @@ class PlayerActor {
 }
 
 class ActorDirector {
+  // 빛 점: 분홍빛 작은 원 (지름 3픽셀, 가장자리는 옅게)
+  static glowTexture(scene) {
+    const key = 'glow_dot';
+    if (scene.textures.exists(key)) return key;
+    const g = scene.make.graphics({ x: 0, y: 0 }, false);
+    g.fillStyle(0xff9eb8, 0.5).fillRect(0, 1, 5, 3).fillRect(1, 0, 3, 5);
+    g.fillStyle(0xffd6e2, 1).fillRect(1, 1, 3, 3);
+    g.fillStyle(0xffffff, 1).fillRect(2, 2, 1, 1);
+    g.generateTexture(key, 5, 5);
+    g.destroy();
+    return key;
+  }
+
   constructor(scene) {
     this.scene = scene;
     this.akane = new PlayerActor(scene);
@@ -215,7 +228,7 @@ class ActorDirector {
     if (a === this.akane) {
       if (dist < 2) return Promise.resolve();
       const sheetSpeed = 300; // player_run 12fps 가 어울리는 속도
-      a.script({ anim: ((this.scene.registry.get('storyFlags') || {}).akaneRain && this.scene.anims.exists('akane_slow_walk')) ? 'akane_slow_walk' : a.poses.walk, loop: true, timeScale: Phaser.Math.Clamp(v / sheetSpeed, 0.35, 1.3) });
+      a.script({ anim: ((this.scene.registry.get('storyFlags') || {}).akaneRain && this.scene.anims.exists('akane_slow_walk')) ? 'akane_slow_walk' : a.poses.walk, loop: true, timeScale: Phaser.Math.Clamp(v / sheetSpeed, 0.35, 1.3), walk: speed !== 'run' });
       return this.op((dist / v) * 1000, (t) => a.place(from + (x - from) * t), () => {
         a.place(x, dir);
         a.script(null);
@@ -360,7 +373,8 @@ class ActorDirector {
   prop(c, skip) {
     const s = this.scene;
     this.propOff({ id: c.id }, true);
-    const ph = Placeholders.prop(s, c.key || c.id, c.w, c.h, c.color);
+    // glow: 분홍빛 작은 원(코드 입자) — 깜빡이며 떠오르는 빛 점 (P-2 손끝, P-8 나무를 타고 오르는 빛)
+    const ph = c.key === 'glow' ? { key: ActorDirector.glowTexture(s), real: true } : Placeholders.prop(s, c.key || c.id, c.w, c.h, c.color);
     let x;
     let y;
     if (c.screen) {
@@ -372,7 +386,7 @@ class ActorDirector {
     }
     // anim: 애니메이션을 한 번 재생한 뒤 key 그림으로 (교단 문양이 번져 나타남)
     const animKey = c.anim && ph.real && s.anims.exists(c.anim) ? c.anim : null;
-    const img = (animKey ? s.add.sprite(Math.round(x), Math.round(y), c.anim, 0) : s.add.image(Math.round(x), Math.round(y), ph.key))
+    const img = (animKey ? s.add.sprite(Math.round(x), Math.round(y), c.anim, 0) : s.add.image(Math.round(x), Math.round(y), ph.key, c.frame))
       .setOrigin(0.5, c.originY ?? 1).setDepth(c.depth ?? 7);
     if (animKey) {
       img.play(animKey);
@@ -391,6 +405,10 @@ class ActorDirector {
     const to = c.alpha ?? 1;
     const sec = c.fade ?? 0;
     img.setAlpha(sec ? 0 : to);
+    if (c.key === 'glow') {
+      img.setBlendMode(Phaser.BlendModes.ADD);
+      p.flicker = s.tweens.add({ targets: img, alpha: { from: to, to: to * 0.35 }, duration: 160, yoyo: true, repeat: -1, delay: sec * 1000 });
+    }
     return this.op(sec * 1000, (t) => img.setAlpha(to * t), () => img.setAlpha(to), skip);
   }
 
@@ -398,6 +416,7 @@ class ActorDirector {
     const p = this.props[c.id];
     if (!p) return Promise.resolve();
     const img = p.img;
+    if (p.flicker) p.flicker.stop();
     const a0 = img.alpha;
     return this.op((c.fade ?? 0) * 1000, (t) => img.setAlpha(a0 * (1 - t)), () => {
       img.destroy();
@@ -687,6 +706,18 @@ class ActorDirector {
         break;
       }
       case 'prop': r = this.prop(c, skip); break;
+      case 'propSwap': { const p = this.props[c.id]; if (p) p.img.setTexture(c.key, c.frame); break; } // 그림만 바꾸기 (떨어진 등롱 줄)
+      case 'earTwitch': {
+        // 귀 까딱: 그림 위쪽(귀) 몇 줄만 1px 옆으로 밀린 사본을 한 프레임 겹친다
+        if (skip || !a) break;
+        const obj = a === this.akane ? a.p.visual : a.sprite;
+        const f = obj.frame;
+        const rows = c.rows ?? 14;
+        const ear = this.scene.add.image(obj.x + (obj.flipX ? -1 : 1), obj.y, obj.texture.key, f.name)
+          .setOrigin(obj.originX, obj.originY).setFlipX(obj.flipX).setDepth(obj.depth + 0.05).setCrop(0, 0, f.width, rows);
+        this.scene.time.delayedCall(90, () => ear.destroy());
+        break;
+      }
       case 'propOff': r = this.propOff(c, skip); break;
       case 'propMove': r = this.propMove(c, skip); break;
       case 'propTint': r = this.propTint(c, skip); break;

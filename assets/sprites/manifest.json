@@ -3351,6 +3351,392 @@
     "traveler_smile",
     "manju_grandma"
    ]
+  },
+  "player_idle_nosword": {
+   "file": "player_idle_nosword.png",
+   "source": "CEC6ABFB-2AAE-4F8B-8D76-BE2C55A47C23.png",
+   "frameWidth": 40,
+   "frameHeight": 85,
+   "frames": 4,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 8.57,
+   "facing": "right",
+   "heights": [
+    83,
+    82,
+    82,
+    82
+   ],
+   "anims": {
+    "player_idle_nosword": {
+     "frames": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "rate": 6,
+     "loop": true
+    }
+   }
+  },
+  "player_jump_nosword": {
+   "file": "player_jump_nosword.png",
+   "source": "731B05A5-0FCE-436C-8965-4224613BFA76.png",
+   "frameWidth": 66,
+   "frameHeight": 75,
+   "frames": 6,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 6.22,
+   "facing": "right",
+   "heights": [
+    58,
+    73,
+    71,
+    73,
+    70,
+    65
+   ]
+  },
+  "haru_gesture": {
+   "file": "haru_gesture.png",
+   "source": "F4C71650-BE62-48D5-9876-558426334AD7.png",
+   "frameWidth": 54,
+   "frameHeight": 100,
+   "frames": 8,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 5.56,
+   "facing": "left",
+   "heights": [
+    97,
+    98,
+    98,
+    97,
+    98,
+    97,
+    97,
+    97
+   ],
+   "anims": {
+    "haru_ruffle": {
+     "frames": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "rate": 5,
+     "loop": false
+    },
+    "haru_tie_bell": {
+     "frames": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "rate": 4,
+     "loop": false
+    },
+    "haru_take_bell": {
+     "frames": [
+      4,
+      5
+     ],
+     "rate": 3,
+     "loop": false
+    }
+   }
+  },
+  "hana_actions": {
+   "file": "hana_actions.png",
+   "source": "4E5F6F93-66EF-429D-AA51-A08888254E1A.png",
+   "frameWidth": 38,
+   "frameHeight": 46,
+   "frames": 12,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 5.7,
+   "facing": "right",
+   "heights": [
+    42,
+    44,
+    43,
+    43,
+    23,
+    23,
+    27,
+    30,
+    33,
+    36,
+    39,
+    41
+   ],
+   "anims": {
+    "hana_wave_mask": {
+     "frames": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "rate": 6,
+     "loop": true
+    },
+    "hana_trapped": {
+     "frames": [
+      4,
+      5
+     ],
+     "rate": 3,
+     "loop": true
+    },
+    "hana_crawl": {
+     "frames": [
+      6,
+      7,
+      8,
+      9
+     ],
+     "rate": 4,
+     "loop": false
+    },
+    "hana_cry": {
+     "frames": [
+      10,
+      11
+     ],
+     "rate": 3,
+     "loop": true
+    }
+   }
+  },
+  "akane_gesture": {
+   "file": "akane_gesture.png",
+   "source": "402484DE-E596-479E-B159-4282D95D37AC.png",
+   "frameWidth": 44,
+   "frameHeight": 52,
+   "frames": 10,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 6.73,
+   "facing": "right",
+   "heights": [
+    49,
+    49,
+    47,
+    49,
+    49,
+    49,
+    49,
+    49,
+    49,
+    50
+   ],
+   "anims": {
+    "akane_hug": {
+     "frames": [
+      0,
+      1,
+      2
+     ],
+     "rate": 4,
+     "loop": false
+    },
+    "akane_wrap_bell": {
+     "frames": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "rate": 2.5,
+     "loop": false
+    },
+    "akane_tuck": {
+     "frames": [
+      7,
+      8,
+      9
+     ],
+     "rate": 2.5,
+     "loop": false
+    }
+   }
+  },
+  "player_walk_nosword": {
+   "file": "player_walk_nosword.png",
+   "source": "B0A8903B-2FB8-4179-8A4A-AFF493A8E49D.png",
+   "frameWidth": 44,
+   "frameHeight": 83,
+   "frames": 6,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 4.22,
+   "facing": "right",
+   "heights": [
+    80,
+    80,
+    81,
+    80,
+    81,
+    81
+   ],
+   "anims": {
+    "player_walk_nosword": {
+     "frames": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "rate": 10,
+     "loop": true
+    }
+   }
+  },
+  "player_run_nosword": {
+   "file": "player_run_nosword.png",
+   "source": "B0A8903B-2FB8-4179-8A4A-AFF493A8E49D.png",
+   "frameWidth": 72,
+   "frameHeight": 79,
+   "frames": 6,
+   "origin": {
+    "x": 0.5,
+    "y": 1.0
+   },
+   "dot": 4.22,
+   "facing": "right",
+   "heights": [
+    75,
+    75,
+    72,
+    73,
+    77,
+    76
+   ],
+   "anims": {
+    "player_run_nosword": {
+     "frames": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "rate": 12,
+     "loop": true
+    }
+   }
+  },
+  "letter": {
+   "file": "props/letter.png",
+   "source": "10B6081D-1681-4893-B8E3-C164F165FE44.png",
+   "width": 34,
+   "height": 21,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "bokken": {
+   "file": "props/bokken.png",
+   "source": "10B6081D-1681-4893-B8E3-C164F165FE44.png",
+   "width": 55,
+   "height": 12,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "blossom_single": {
+   "file": "props/blossom_single.png",
+   "source": "10B6081D-1681-4893-B8E3-C164F165FE44.png",
+   "width": 34,
+   "height": 32,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "hammer": {
+   "file": "props/hammer.png",
+   "source": "10B6081D-1681-4893-B8E3-C164F165FE44.png",
+   "width": 46,
+   "height": 27,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "haru_katana": {
+   "file": "props/haru_katana.png",
+   "source": "10B6081D-1681-4893-B8E3-C164F165FE44.png",
+   "width": 58,
+   "height": 20,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "lantern_lit": {
+   "file": "props/lantern_lit.png",
+   "source": "10B6081D-1681-4893-B8E3-C164F165FE44.png",
+   "width": 24,
+   "height": 56,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "lantern_torn": {
+   "file": "props/lantern_torn.png",
+   "source": "10B6081D-1681-4893-B8E3-C164F165FE44.png",
+   "width": 52,
+   "height": 25,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "rope_segment": {
+   "file": "props/rope_segment.png",
+   "source": "10B6081D-1681-4893-B8E3-C164F165FE44.png",
+   "width": 56,
+   "height": 26,
+   "kind": "prop",
+   "dot": 7.86
+  },
+  "lantern_rope": {
+   "file": "props/lantern_rope.png",
+   "source": "props/rope_segment · lantern_lit · lantern_torn 으로 조립",
+   "width": 392,
+   "height": 76,
+   "kind": "prop"
+  },
+  "lantern_rope_fallen": {
+   "file": "props/lantern_rope_fallen.png",
+   "source": "props/rope_segment · lantern_lit · lantern_torn 으로 조립",
+   "width": 392,
+   "height": 51,
+   "kind": "prop"
+  },
+  "prop_rooftop_cultist": {
+   "file": "props/prop_rooftop_cultist.png",
+   "source": "enemy_sword.png (대기 칸을 검은 실루엣으로, 붉은 눈 2픽셀)",
+   "width": 54,
+   "height": 100,
+   "kind": "prop"
+  },
+  "cutin_traveler_hair": {
+   "file": "cutin_traveler_hair.png",
+   "source": "4B813E01-0E0D-4F49-BC8C-396752B3DF32.png",
+   "width": 724,
+   "height": 242
   }
  },
  "note": "tools/process_sprites.py 로 생성. origin 은 프레임 칸 기준 (0.5, 1) = 발바닥 중앙.",

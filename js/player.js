@@ -225,9 +225,13 @@ class Player {
     const S = this.scripted;
     if (S) {
       if (S.sheet) return still(S.sheet, S.frame);
+      // 칼 받기 전: 컷신 걷기는 걷는 그림, 달리기는 달리는 그림 (칼 없는 아카네)
+      let sa = S.anim;
+      if (flags.akaneNoSword && sa === 'player_run' && A.exists('player_walk_nosword') && S.walk) sa = 'player_walk_nosword';
+      else sa = bare(sa);
       const cur = v.anims.currentAnim?.key;
-      if (cur !== S.anim || v.texture.key !== v.anims.currentAnim.frames[0].textureKey || (!v.anims.isPlaying && S.loop)) {
-        v.play({ key: S.anim, repeat: S.loop ? -1 : 0 });
+      if (cur !== sa || v.texture.key !== v.anims.currentAnim.frames[0].textureKey || (!v.anims.isPlaying && S.loop)) {
+        v.play({ key: sa, repeat: S.loop ? -1 : 0 });
       }
       v.anims.timeScale = S.timeScale || 1;
       return;
@@ -436,3 +440,4 @@ Player.BELL_TIE = {
   player_run: [5, -63],
   player_jump: [-1, -70],
 };
+// 칼 없는 그림은 P-1 ~ P-3 (방울을 받기 전)이라 방울 점이 없다

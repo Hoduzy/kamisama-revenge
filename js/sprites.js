@@ -90,6 +90,13 @@ const Sprites = {
     }
     add('villager_child_dance', 'villager_child', n('villager_child'), 8, -1);
     add('villager_child_flee', 'villager_child', [4, 5, 6, 7], 12, -1);
+    // 이미 있는 시트의 몇 칸으로 만드는 동작 (프롤로그: 그림 없이 글씨로만 나오던 동작을 대신)
+    add('haru_raise_bokken', 'haru_attack', [0, 1, 2], 6);   // 목검을 치켜든다 (느린 내려치기 1-3)
+    add('haru_letter', 'family_sitting', [1], 1);             // 소매 속 편지를 만지작 (하루 정좌 2번째 칸)
+    add('soichiro_hit1', 'soichiro_kneel', [0, 1], 8);        // 화살 맞고 버티기
+    add('soichiro_hit2', 'soichiro_kneel', [1, 2], 8);
+    add('akane_grip', 'player_iaido_ready', [0], 1);          // 칼자루를 쥔다
+    add('akane_pick', 'akane_emote2', [10], 1);               // 비녀를 줍는다 (흙 파기 첫 칸)
     // 시트에 anims 가 적혀 있으면 그대로 (tools/process_prologue2.py: akane_sleep, wanderer_walk, haru_seiza …)
     for (const [sheet, s] of Object.entries((this.manifest && this.manifest.sheets) || {})) {
       for (const [key, a] of Object.entries(s.anims || {})) add(key, sheet, a.frames, a.rate, a.loop ? -1 : 0);

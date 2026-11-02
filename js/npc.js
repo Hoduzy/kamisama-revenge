@@ -59,7 +59,8 @@ class Npc {
       this.sprite = scene.add.image(this.x, this.y, key).setOrigin(0.5, 1).setDepth(8);
     }
     // 이름표 (HTML 글자, 머리 위를 따라다님). 마을 사람은 이름표 없음
-    this.tag = UI.tag(() => [this.x, this.y - this.sprite.displayHeight - 8], data.look === 'villager' ? '' : this.name);
+    // 그림이 있는 인물은 이름표 없이 (그림이 없는 실루엣만 이름표)
+    this.tag = UI.tag(() => [this.x, this.y - this.sprite.displayHeight - 8], data.look === 'villager' || this.poses ? '' : this.name);
     this.sync();
   }
 
@@ -136,7 +137,7 @@ class Npc {
     const drawn = this.poses ? ((Sprites.sheet(s.texture.key) || {}).facing || this.sheetFacing) : 'right';
     s.setFlipX((this.facing < 0) === (drawn === 'right'));
     s.setVisible(this.visible);
-    this.tag.el.style.display = this.visible && this.name && this.data.look !== 'villager' && this.pose !== 'down' ? '' : 'none';
+    this.tag.el.style.display = this.visible && this.name && this.data.look !== 'villager' && !this.poses && this.pose !== 'down' ? '' : 'none';
   }
 
   setPose(pose) {
