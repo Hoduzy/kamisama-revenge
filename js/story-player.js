@@ -301,8 +301,6 @@ class StoryPlayer {
     const cy = y + (GAME_HEIGHT / 2 - D.screenY) / D.zoom;
     if (!this.dlgCam) {
       this.dlgCam = { following: cine.following, x: cam.midPoint.x, y: cam.midPoint.y };
-      // 맵 아래 끝에 막혀 인물을 대화창 위로 못 올리지 않게, 대화 동안만 카메라 경계를 아래로 넓힌다 (넓힌 곳은 대화창 뒤라 안 보임)
-      cam.setBounds(0, 0, LEVEL.width, LEVEL.height + 240);
       cam.stopFollow();
       cine.following = false;
       cam.zoomTo(D.zoom, D.ms, 'Sine.easeInOut', true);
@@ -319,7 +317,6 @@ class StoryPlayer {
     const cine = this.scene.cine;
     const ms = TUNING.dialogueCam.ms;
     cam.zoomTo(1, ms, 'Sine.easeInOut', true);
-    this.scene.time.delayedCall(ms + 30, () => { if (!this.dlgCam) cam.setBounds(0, 0, LEVEL.width, LEVEL.height); });
     // 원래대로: 아카네를 따라가던 중이었으면 다시 따라가고, 한 곳을 비추던 중이었으면 그 자리로
     if (prev.following) cine.follow();
     else cam.pan(prev.x, prev.y, ms, 'Sine.easeInOut', true);
@@ -339,6 +336,7 @@ class StoryPlayer {
         break;
       case 'cut': if (!skip) UI.cut(c); break;
       case 'cutLids': if (!skip) UI.cutLids(c.seconds); break;
+      case 'cutFaint': if (!skip) UI.cutFaint(c.seconds); break;
       case 'cutEnd': UI.cutEnd(skip ? 0 : c.fade ?? 0.4); break;
       case 'caption': {
         if (skip) break;

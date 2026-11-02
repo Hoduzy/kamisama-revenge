@@ -249,6 +249,8 @@ body.in-dialogue #touch-controls .pad {
 .dlg-portrait.left { left: -14px; }   /* 화면 가장자리에 붙여 가운데 인물을 가리지 않게 */
 .dlg-portrait.right { right: -14px; }
 .dlg-portrait.speaking { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 158, 184, 0.35)); }
+/* 말하는 사람 초상화 하나만 (듣는 사람은 숨김) */
+.dlg-portrait.filled:not(.speaking) { display: none; }
 .dlg-portrait.left.enter { animation: portrait-in-left 0.22s ease-out; }
 .dlg-portrait.right.enter { animation: portrait-in-right 0.22s ease-out; }
 @keyframes portrait-in-left { from { transform: translateX(-36px); opacity: 0; } }
@@ -694,3 +696,6 @@ body.can-inspect #touch-controls .btn[data-action="interact"] { display: block; 
 /* 조작 가능 컷신 말풍선의 작은 초상 */
 .float.bubble.has-face .bubble-box { position: relative; padding-left: 74px; min-height: 52px; }
 .float.bubble .bubble-face { position: absolute; left: 4px; bottom: 2px; background-repeat: no-repeat; image-rendering: pixelated; }
+
+/* 개발 모드 경고 (배경 그림 못 불러옴) */
+#ui .dev-warn { left: 8px; top: 40px; z-index: 60; font-family: var(--font-ui); font-size: 16px; color: #ff4040; text-shadow: 0 1px 2px #000; pointer-events: none; }

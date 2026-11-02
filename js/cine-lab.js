@@ -127,9 +127,8 @@ const CineLab = {
       ['발도 2차 흔들림', 'T.iaido.shake2', 0, 0.05, 0.0005],
       ['2단 점프 힘(1단 대비)', 'T.doubleJump.power', 0.3, 1.5, 0.05],
       ['공중제비 시간(초)', 'T.doubleJump.flipTime', 0.15, 0.8, 0.01],
-      ['— 배경 배율 (TUNING.bgScale: 문 높이 = 아카네 키 × 1.4) —'],
-      ['화면 위까지 덮는 최소 비율', 'T.bgCover', 0, 1, 0.05, () => this.scene && this.scene.rebuildStageBackgrounds && this.scene.rebuildStageBackgrounds()],
-      ...Object.keys(TUNING.bgScale || {}).map((k) => [k.replace('bg_', ''), `T.bgScale.${k}`, 0.5, 3, 0.05, () => this.scene && this.scene.rebuildStageBackgrounds && this.scene.rebuildStageBackgrounds()]),
+      ['— 배경 바닥선 (TUNING.bgFloor: 그림 위에서부터 비율) —'],
+      ...Object.keys(TUNING.bgFloor || {}).map((k) => [k.replace('bg_', ''), `T.bgFloor.${k}`, 0.5, 1, 0.005, () => this.scene && this.scene.rebuildStageBackgrounds && this.scene.rebuildStageBackgrounds()]),
       ['— 결과 화면 —'],
       ['전체 빠르기', 'result.speed', 0.1, 2, 0.05, res(false)],
       ['두루마리 폭', 'result.scrollWidth', 0.3, 0.9, 0.01, res(false)],
@@ -212,7 +211,7 @@ const CineLab = {
       out.textContent = (+inp.value).toString();
       inp.oninput = () => {
         this.set(path, +inp.value); out.textContent = inp.value;
-        if ((path.startsWith('T.bgScale.') || path === 'T.bgCover') && this.scene && this.scene.rebuildStageBackgrounds) this.scene.rebuildStageBackgrounds(); // 바로 보이게
+        if (path.startsWith('T.bgFloor.') && this.scene && this.scene.rebuildStageBackgrounds) this.scene.rebuildStageBackgrounds(); // 바로 보이게
       };
       inp.onchange = () => inp.blur();
     });
@@ -243,7 +242,7 @@ const CineLab = {
     try {
       localStorage.setItem('kamisama-cine', JSON.stringify(TUNING.cine));
       localStorage.setItem('kamisama-result', JSON.stringify(TUNING.result));
-      localStorage.setItem('kamisama-bgscale', JSON.stringify(TUNING.bgScale));
+      localStorage.setItem('kamisama-bgfloor', JSON.stringify(TUNING.bgFloor));
       localStorage.setItem('kamisama-skills', JSON.stringify(Object.fromEntries(SKILL_TUNING.map((g) => [g, TUNING[g]]))));
       this.msg('이 브라우저에 저장했다. 다른 기기·배포에도 쓰려면 config.js 로 저장.');
     } catch (e) { this.msg('브라우저 저장소를 쓸 수 없다.'); }
@@ -255,7 +254,7 @@ const CineLab = {
     let text;
     try { text = await (await fetch('js/config.js', { cache: 'no-store' })).text(); } catch (e) { return this.msg('config.js 를 읽지 못했다.'); }
     let out = text;
-    for (const name of ['cine', 'result', 'skills', 'bgscale']) {
+    for (const name of ['cine', 'result', 'skills', 'bgfloor']) {
       const a = out.indexOf(`  // <${name}>`);
       const b = out.indexOf(`  // </${name}>`);
       if (a < 0 || b < 0) return this.msg(`config.js 에 <${name}> 표시 줄이 없다.`);
@@ -263,7 +262,7 @@ const CineLab = {
       const keep = head.split('\n').filter((l) => l.trim().startsWith('//')).join('\n') + '\n';
       // skills 는 표시 줄 사이에 dashSlash · iaido · doubleJump 세 묶음
       const body = name === 'skills' ? SKILL_TUNING.map((g) => `  ${g}: ` + this.serialize(TUNING[g], '  ') + ',\n').join('')
-        : name === 'bgscale' ? '  bgScale: ' + this.serialize(TUNING.bgScale, '  ') + ',\n' + `  bgCover: ${TUNING.bgCover},\n`
+        : name === 'bgfloor' ? '  bgFloor: ' + this.serialize(TUNING.bgFloor, '  ') + ',\n'
         : `  ${name}: ` + this.serialize(TUNING[name], '  ') + ',\n';
       out = out.slice(0, a) + keep + body + out.slice(b);
     }
@@ -292,7 +291,7 @@ const CineLab = {
   },
 
   reset() {
-    try { localStorage.removeItem('kamisama-cine'); localStorage.removeItem('kamisama-result'); localStorage.removeItem('kamisama-skills'); localStorage.removeItem('kamisama-bgscale'); } catch (e) { /* 무시 */ }
+    try { localStorage.removeItem('kamisama-cine'); localStorage.removeItem('kamisama-result'); localStorage.removeItem('kamisama-skills'); localStorage.removeItem('kamisama-bgfloor'); } catch (e) { /* 무시 */ }
     this.msg('브라우저 저장값을 지웠다. 새로고침하면 config.js 값으로 돌아간다.');
   },
 };

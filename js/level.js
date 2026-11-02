@@ -109,6 +109,7 @@ LEVELS.prologue = {
   height: 720,
   spawn: { x: 300, y: 560 },
   mood: null,
+  paintedFloor: true, // 구역 배경에 바닥이 그려져 있다 → 돌 타일을 그리지 않고 판정만 (game-scene.js)
 
   backgrounds: [
     // 새 프롤로그 배경 (tools/process_prologue2.py): 집 실내 = 아카네의 방 · 이로리, 앞마당, 마을 길, 마을 입구, 동굴.

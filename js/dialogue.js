@@ -94,7 +94,7 @@ class DialogueBox {
     if (f && this.scene.textures.exists(f.key) && Sprites.sheet(f.key)) {
       const s = Sprites.sheet(f.key);
       const frame = f.frame;
-      const k = 2.5; // 도트 1칸 = 2.5px
+      const k = 1.5; // 도트 1칸 = 1.5px (예전 2.5 의 60%)
       return {
         backgroundImage: `url(${SPRITE_DIR}${s.file})`,
         backgroundSize: `${s.frameWidth * s.frames * k}px ${s.frameHeight * k}px`,
@@ -105,7 +105,7 @@ class DialogueBox {
     }
     if (!ch.name && !ch.image) return null;
     const url = ch.image || Portraits.silhouette(id, ch);
-    return { boxed: true, backgroundImage: `url(${url})`, backgroundSize: '100% 100%', backgroundPosition: '0 0', width: '200px', height: '200px' };
+    return { boxed: true, backgroundImage: `url(${url})`, backgroundSize: '100% 100%', backgroundPosition: '0 0', width: '120px', height: '120px' };
   }
 
   // 한 줄 보여 주고, 넘길 때 끝나는 Promise

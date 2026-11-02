@@ -17,6 +17,55 @@
           "duration": 0
         },
         {
+          "cmd": "gameplay",
+          "do": "mood",
+          "mood": "fire"
+        },
+        {
+          "cmd": "gameplay",
+          "do": "bossLook",
+          "color": "black",
+          "x": "fireHakuya",
+          "face": -1,
+          "show": true
+        },
+        {
+          "cmd": "prop",
+          "id": "dbA0",
+          "key": "prop_debris_fire",
+          "at": 12080,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbA1",
+          "key": "prop_debris_fire",
+          "at": 12420,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbA2",
+          "key": "prop_debris_fire",
+          "at": 13250,
+          "scale": 0.7,
+          "depth": 3,
+          "label": ""
+        },
+        {
+          "cmd": "prop",
+          "id": "dbA3",
+          "key": "prop_debris_fire",
+          "at": 13520,
+          "scale": 0.5,
+          "depth": 3,
+          "label": ""
+        },
+        {
           "cmd": "ambience",
           "id": "fire",
           "every": 0.9,
@@ -28,23 +77,179 @@
           "seconds": 3
         },
         {
+          "cmd": "spawn",
+          "actor": "akane",
+          "at": "fireAkaneDown",
+          "face": "right",
+          "src": "페이드인. 아주 낮은 시점. 불타는 광장 바닥에 아카네가 쓰러져 있다. 눈이 반쯤 떠져 있다. 화면 앞쪽은 흐릿한 불길."
+        },
+        {
+          "cmd": "pose",
+          "actor": "akane",
+          "pose": "down"
+        },
+        {
+          "cmd": "spawn",
+          "actor": "haru",
+          "at": "fireHaru",
+          "face": "right"
+        },
+        {
+          "cmd": "pose",
+          "actor": "haru",
+          "pose": "guard"
+        },
+        {
+          "cmd": "treeStage",
+          "tree": "burning",
+          "stage": "burning"
+        },
+        {
+          "cmd": "mood",
+          "to": "fireLow",
+          "seconds": 0
+        },
+        {
+          "cmd": "lights",
+          "on": true,
+          "ambient": "#6a5a66"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": "fireHakuya",
+          "y": 560,
+          "id": "plazaFire1"
+        },
+        {
+          "cmd": "light",
+          "preset": "fire",
+          "x": 12150,
+          "y": 600,
+          "id": "plazaFire2"
+        },
+        {
+          "cmd": "light",
+          "preset": "brazier",
+          "x": "plazaStump",
+          "y": 520,
+          "id": "plazaFire3"
+        },
+        {
+          "cmd": "light",
+          "preset": "torch",
+          "x": "fireAkaneDown",
+          "y": 590,
+          "id": "plazaFire4"
+        },
+        {
+          "cmd": "prop",
+          "id": "ff0",
+          "key": "fx_fire_small",
+          "at": 12180,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff1",
+          "key": "fx_fire_small",
+          "at": 12470,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff2",
+          "key": "fx_fire_small",
+          "at": 12690,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff3",
+          "key": "fx_fire_small",
+          "at": 12980,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "prop",
+          "id": "ff4",
+          "key": "fx_fire_small",
+          "at": 13280,
+          "anim": "fx_fire_small",
+          "loop": true,
+          "depth": 4,
+          "optional": true
+        },
+        {
+          "cmd": "camPan",
+          "x": "fireAkaneDown",
+          "offset": 300,
+          "seconds": 0.01
+        },
+        {
+          "cmd": "camZoom",
+          "zoom": 1.0,
+          "seconds": 0.01
+        },
+        {
+          "cmd": "camTilt",
+          "y": 0,
+          "ms": 10
+        },
+        {
+          "cmd": "foreground",
+          "preset": "pillar",
+          "x": 12565
+        },
+        {
+          "cmd": "foreground",
+          "preset": "fireWall",
+          "x": 13170
+        },
+        {
+          "cmd": "particles",
+          "preset": "embers",
+          "at": "fireAkaneDown",
+          "id": "p0embers"
+        },
+        {
+          "cmd": "vignette",
+          "amount": 0.55,
+          "seconds": 0.01
+        },
+        {
+          "cmd": "fadeIn",
+          "duration": 1.0
+        },
+        {
+          "cmd": "wait",
+          "seconds": 2.0
+        },
+        {
           "cmd": "cut",
           "image": "cut_p0_1",
-          "fade": 1.2,
+          "fade": 0.6,
           "zoomTo": 1.04,
           "zoomSec": 4.5,
           "breathe": true,
           "embers": true,
-          "src": "페이드인. 아주 낮은 시점. 불타는 광장 바닥에 아카네가 쓰러져 있다. 눈이 반쯤 떠져 있다. 화면 앞쪽은 흐릿한 불길."
-        },
-        {
-          "cmd": "wait",
-          "seconds": 1.3
-        },
-        {
-          "cmd": "wait",
-          "seconds": 1.2,
           "src": "아카네의 시선 끝: 칼을 든 하루의 뒷모습. 그 너머 불길 속 흰 머리 사내의 실루엣. 얼굴은 보이지 않는다."
+        },
+        {
+          "cmd": "wait",
+          "seconds": 2.5
         },
         {
           "cmd": "cut",
@@ -73,29 +278,41 @@
           "seconds": 2.0
         },
         {
-          "cmd": "cut",
-          "image": "cut_p0_3",
-          "fade": 0.2,
-          "zoomTo": 1.19,
-          "zoomSec": 2.5,
-          "breathe": false,
-          "flicker": {
-            "x": 0.575,
-            "y": 0.13
-          },
+          "cmd": "cutFaint",
+          "seconds": 3.4,
           "src": "꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다."
         },
         {
-          "cmd": "wait",
-          "seconds": 1.5
+          "cmd": "ambience",
+          "id": "fire",
+          "every": 1.4,
+          "volume": 0.05
         },
         {
-          "cmd": "cutLids",
-          "seconds": 1.0
+          "cmd": "sfx",
+          "id": "heartbeat",
+          "volume": 0.5
         },
         {
           "cmd": "wait",
-          "seconds": 1.0
+          "seconds": 1.4
+        },
+        {
+          "cmd": "sfx",
+          "id": "heartbeat",
+          "volume": 0.3
+        },
+        {
+          "cmd": "wait",
+          "seconds": 1.4
+        },
+        {
+          "cmd": "ambience",
+          "id": null
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.7
         },
         {
           "cmd": "fadeOut",

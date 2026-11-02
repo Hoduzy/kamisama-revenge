@@ -101,9 +101,14 @@ FRAME_P0 = [
 ]
 
 SETUP = {
-    # P-0 은 게임 화면 대신 1인칭 컷 3장(cut_p0_1~3, tools/process_cuts.py)으로 — 게임 화면은 검게 둔다
+    # P-0: 게임 화면(불타는 광장, 약 3초) → 1인칭 컷1 · 컷2 (cut_p0_1~2, tools/process_cuts.py) → 의식이 흐려지며 쓰러짐
     'P-0': [
-        C('fadeOut', duration=0),
+        C('fadeOut', duration=0), G('mood', mood='fire'),
+        G('bossLook', color='black', x='fireHakuya', face=-1, show=True),
+        prop('dbA0', 'prop_debris_fire', 12080, scale=0.7, depth=3, label=''),
+        prop('dbA1', 'prop_debris_fire', 12420, scale=0.5, depth=3, label=''),
+        prop('dbA2', 'prop_debris_fire', 13250, scale=0.7, depth=3, label=''),
+        prop('dbA3', 'prop_debris_fire', 13520, scale=0.5, depth=3, label=''),
     ],
     'P-1': [
         G('bossLook', color=None, show=False),
@@ -267,17 +272,20 @@ LINES = {
             C('ambience', id='fire', every=0.9, volume=0.7), wait(3)],
         # 컷1 (2.5초): 검은 화면에서 페이드인, 아주 느린 확대, 가장자리 숨쉬기, 아래 앞쪽에서 불티
         '페이드인. 아주 낮은 시점. 불타는 광장 바닥에 아카네가 쓰러져 있다. 눈이 반쯤 떠져 있다. 화면 앞쪽은 흐릿한 불길.': [
-            C('cut', image='cut_p0_1', fade=1.2, zoomTo=1.04, zoomSec=4.5, breathe=True, embers=True), wait(1.3)],
+            # 게임 화면: 불타는 광장, 쓰러진 아카네, 진검을 든 하루의 뒷모습, 불길 속 하쿠야 실루엣, 전경 불벽 (약 3초)
+            *FRAME_P0, C('fadeIn', duration=1.0), wait(2.0)],
+        # 컷1: 아카네의 눈으로 (아주 느린 확대, 가장자리 숨쉬기, 불티)
         '아카네의 시선 끝: 칼을 든 하루의 뒷모습. 그 너머 불길 속 흰 머리 사내의 실루엣. 얼굴은 보이지 않는다.': [
-            wait(1.2)],
+            C('cut', image='cut_p0_1', fade=0.6, zoomTo=1.04, zoomSec=4.5, breathe=True, embers=True), wait(2.5)],
         # 컷2 (2초): 0.2초 크로스페이드, 하루가 고개를 돌린 순간 모든 소리를 낮추고 심장 소리 한 번
         '하루가 고개를 반쯤 돌려 아카네를 본다. 입술이 움직이지만 소리는 없다.': [
             C('cut', image='cut_p0_2', fade=0.2, breathe=True, embers=True),
             C('ambience', id='fire', every=0.9, volume=0.15), C('bgmDuck', on=True), sfx('heartbeat'), wait(2.0)],
-        # 컷3 (2.5초): 꽃잎이 다가오듯 1.0→1.15배, 꽃잎 끝 불씨 깜빡임, 눈꺼풀처럼 위아래 검은 띠가 닫힘
+        # 컷2 직후: 의식이 흐려진다 — 블러가 점점 강해지고, 눈꺼풀이 두세 번 감겼다 뜨다 완전히 감김, 마지막에 5도 기울며 쓰러짐.
+        # 소리도 먹먹해짐 (불 소리를 낮추고 낮은 심장 소리만). cut_p0_3 은 쓰지 않는다
         '꽃잎 한 장이 아카네의 뺨 위로 떨어진다. 꽃잎 끝에 불이 붙어 재가 된다.': [
-            C('cut', image='cut_p0_3', fade=0.2, zoomTo=1.19, zoomSec=2.5, breathe=False, flicker={'x': 0.575, 'y': 0.13}),
-            wait(1.5), C('cutLids', seconds=1.0), wait(1.0)],
+            C('cutFaint', seconds=3.4), C('ambience', id='fire', every=1.4, volume=0.05),
+            sfx('heartbeat', volume=0.5), wait(1.4), sfx('heartbeat', volume=0.3), wait(1.4), C('ambience', id=None), wait(0.7)],
         '컷. 검은 화면. 완전한 침묵 2초.': [
             C('fadeOut', duration=0), C('cutEnd', fade=0), C('silence'), wait(2)],
         '검은 화면 속에서 하루의 자장가 흥얼거림이 따뜻하게 들려온다. 가사 자막.': [

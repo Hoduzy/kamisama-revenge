@@ -289,6 +289,17 @@ const UI = {
     }
   },
 
+  // 개발 모드에서만 보이는 빨간 경고 (배경 그림을 못 불러옴 등)
+  devWarn(text) {
+    let box = this.el('.dev-warn');
+    if (!box) { box = document.createElement('div'); box.className = 'dev-warn dev-only'; this.root.append(box); }
+    if ([...box.children].some((d) => d.textContent === text)) return;
+    const d = document.createElement('div');
+    d.textContent = '[경고] ' + text;
+    box.append(d);
+    console.warn(text);
+  },
+
   // CG 위에서 꽃이 필 때: 그림을 잠깐 밝게 (amount 0~1, sec 초에 올라갔다가 천천히 내려옴)
   cgGlow(amount = 0.2, sec = 1.2) {
     const img = this.el('.fx-cg img');
@@ -307,7 +318,36 @@ const UI = {
     });
   },
 
+  // 의식이 흐려짐: sec 초 동안 블러가 강해지고, 눈꺼풀이 두세 번 감겼다 뜨다 완전히 감기며, 마지막에 화면이 5도 기운다
+  cutFaint(sec = 3.4) {
+    const root = this.el('.fx-cut');
+    const stage = root.querySelector('.cut-stage');
+    const ms = sec * 1000;
+    stage.animate([{ filter: 'blur(0px)' }, { filter: 'blur(2px)', offset: 0.4 }, { filter: 'blur(6px)' }], { duration: ms, fill: 'forwards', easing: 'ease-in' });
+    // 눈꺼풀: 반쯤 → 뜸 → 더 깊이 → 뜸 → 완전히
+    const lids = root.querySelectorAll('.cut-lid');
+    const frames = [
+      { height: '0%' }, { height: '32%', offset: 0.14 }, { height: '6%', offset: 0.26 },
+      { height: '42%', offset: 0.44 }, { height: '12%', offset: 0.56 },
+      { height: '47%', offset: 0.72 }, { height: '30%', offset: 0.8 }, { height: '56%' },
+    ];
+    lids.forEach((l) => { l.style.transition = 'none'; l.animate(frames, { duration: ms, fill: 'forwards', easing: 'ease-in-out' }); });
+    // 마지막 30%: 옆으로 5도 기울며 쓰러지는 느낌
+    root.animate([{ transform: 'rotate(0deg)' }, { transform: 'rotate(0deg)', offset: 0.65 }, { transform: 'rotate(5deg) translateY(6px)' }],
+      { duration: ms, fill: 'forwards', easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)' });
+    this.cutFaintAnim = true;
+  },
+
   cutEnd(sec = 0.4) {
+    if (this.cutFaintAnim) {
+      // 기울기 · 블러 · 눈꺼풀 애니메이션 정리 (다음 컷 연출을 위해)
+      const root = this.el('.fx-cut');
+      setTimeout(() => {
+        root.getAnimations().forEach((a) => a.cancel());
+        root.querySelectorAll('.cut-stage, .cut-lid').forEach((e) => e.getAnimations().forEach((a) => a.cancel()));
+      }, sec * 1000 + 60);
+      this.cutFaintAnim = false;
+    }
     const root = this.el('.fx-cut');
     root.style.transition = `opacity ${sec * 1000}ms ease`;
     root.classList.remove('show', 'breathe');

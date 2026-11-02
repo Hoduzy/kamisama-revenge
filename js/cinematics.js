@@ -23,8 +23,8 @@
   } catch (e) { /* 무시 */ }
   try {
     // 스킬 수치 (연출 시험의 '스킬' 슬라이더)
-    const bs = JSON.parse(localStorage.getItem('kamisama-bgscale') || 'null');
-    if (bs) Object.assign(TUNING.bgScale, bs);
+    const bf = JSON.parse(localStorage.getItem('kamisama-bgfloor') || 'null');
+    if (bf) Object.assign(TUNING.bgFloor, bf);
     const sk = JSON.parse(localStorage.getItem('kamisama-skills') || 'null');
     if (sk) for (const g of ['dashSlash', 'iaido', 'doubleJump']) for (const [k, v] of Object.entries(sk[g] || {})) if (k in TUNING[g]) TUNING[g][k] = v;
   } catch (e) { /* 무시 */ }

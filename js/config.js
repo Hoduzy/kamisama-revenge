@@ -223,24 +223,22 @@ window.TUNING = {
   },
   // </result>
 
-  // <bgscale> 구역 배경 배율 (화면 px / 그림 1px). 배경 속 문 · 장지문 · 처마 아래 높이가 아카네 키(82)의 1.4배(≈115)가 되게 배경마다 잰 값.
-  // 실내(집 · 대장간)는 그 값(0.7대)이면 그림이 화면 위까지 안 닿아 1.3 으로 (위는 맨 윗줄을 늘려 잇는다). F1 → 연출 시험 → 배경 배율 (이 표시 줄은 지우지 말 것)
-  bgScale: {
-    bg_pro_yard: 1.2,
-    bg_pro_forge: 1.3,
-    bg_pro_festival: 1.6,
-    bg_pro_alley: 1.5,
-    bg_pro_burning: 1.45,
-    bg_pro2_house: 1.3,
-    bg_pro2_yard: 1.15,
-    bg_pro2_street: 1.1,
-    bg_pro2_gate: 1.25,
-    bg_pro2_cave: 1.1,
-    bg_pro2_ash: 1.15
+  // <bgfloor> 구역 배경의 바닥선: 그림 위에서부터 몇 % 높이에 발이 닿는 바닥(마루 · 흙 · 돌길 앞쪽)이 있는지. 게임 바닥 판정이 이 선에 온다.
+  // F1 → 연출 시험 → 배경 바닥선 슬라이더 (이 표시 줄은 지우지 말 것)
+  bgFloor: {
+    bg_pro2_house: 0.81,
+    bg_pro2_yard: 0.8,
+    bg_pro2_street: 0.83,
+    bg_pro2_gate: 0.77,
+    bg_pro2_cave: 0.75,
+    bg_pro2_ash: 0.8,
+    bg_pro_yard: 0.74,
+    bg_pro_forge: 0.73,
+    bg_pro_festival: 0.76,
+    bg_pro_alley: 0.75,
+    bg_pro_burning: 0.76
   },
-  // 배경이 땅에서 화면 위 끝까지 닿는 비율의 최소값 (1 = 빈 곳 없음, 0 = 문 기준 배율 그대로). 모자라면 배율을 키운다
-  bgCover: 0.85,
-  // </bgscale>
+  // </bgfloor>
 
   // 대화 카메라: 대화창 대사가 이어지는 동안 확대 · 말하는 사람들을 대화창 위 공간 가운데(화면 y = screenY)로. ms = 들어가고 나오는 시간
   dialogueCam: { zoom: 1.25, screenY: 290, ms: 400 },
