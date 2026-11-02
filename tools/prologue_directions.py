@@ -458,7 +458,7 @@ LINES = {
             C('flash', color='red'), C('shake', level='strong', dir='v'), sfx('boom')],
         '등롱 줄이 끊어져 떨어지고, 큰 벚나무 꼭대기부터 불이 번진다. 방금 아카네가 피운 꽃 한 송이가 클로즈업되고, 불티가 닿아 재가 된다.': [
             # 등롱 줄: 줄 조각을 이어 붙이고 켜진 등롱을 매단 그림(lantern_rope). 끊기면 떨어져 찢긴 등롱(lantern_rope_fallen)으로
-            C('foregroundClear'), prop('rope', 'lantern_rope', 'festivalTree', offset=-280, y=420, depth=11),
+            C('foregroundClear'), prop('rope', 'lantern_rope', 'festivalTree', offset=-280, y=400, depth=11), wait(0.9),
             C('propMove', id='rope', ground=True, angle=6, seconds=0.6, ease='Quad.easeIn'), C('propSwap', id='rope', key='lantern_rope_fallen'),
             C('propMove', id='rope', angle=0, seconds=0.01), sfx('thud'),
             C('treeStage', tree='festival', stage='burning'),

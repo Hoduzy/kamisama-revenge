@@ -2963,8 +2963,12 @@
           "key": "lantern_rope",
           "at": "festivalTree",
           "offset": -280,
-          "y": 420,
+          "y": 400,
           "depth": 11
+        },
+        {
+          "cmd": "wait",
+          "seconds": 0.9
         },
         {
           "cmd": "propMove",
