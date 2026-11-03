@@ -175,6 +175,13 @@ const RoomRuntime = {
     Rooms.current = null;
 
     scene.events.on('storySceneEnd', () => RoomRuntime.refreshExits(scene));
+    // 줌 하한: 어떤 연출(줌아웃 · 줌 되돌리기)도 방 기본 줌보다 작게 하지 않는다 → 방 밖이 절대 안 보임
+    // (카메라 효과가 줌을 바꾼 뒤, 그리기 전에 확인)
+    scene.events.on('postupdate', () => {
+      const r = Rooms.current;
+      const cam = scene.cameras.main;
+      if (r && cam.zoom < r.zoom - 1e-4) cam.setZoom(r.zoom);
+    });
   },
 
   // 아카네가 있는 방이 바뀌었으면 카메라 경계 · 기본 줌 · 환경음 · 출구 빛
@@ -220,7 +227,11 @@ const RoomRuntime = {
     scene.cine.followY = 0.35 * viewH - 30;
     // 부활 자리: 이 방의 입구 (스토리 방에는 체크포인트 나무를 따로 세우지 않는다)
     scene.activeTree = { x: Rooms.entryX(r, 'left') + 20, y: ROOM_FLOOR_Y };
-    if (!scene.story.running || Math.abs(cam.zoom - 1) < 0.01 || !scene.cine.zoomTouched) cam.setZoom(r.zoom);
+    // 방이 바뀌면 (검은 화면 동안) 언제나 그 방의 기본 줌으로. 앞 방의 대화 카메라 · 연출 줌이 남으면
+    // 화면이 방보다 넓어져 방 밖(오른쪽 띠)이 보인다
+    if (cam.zoomEffect && cam.zoomEffect.isRunning) cam.zoomEffect.reset();
+    if (cam.panEffect && cam.panEffect.isRunning) cam.panEffect.reset();
+    cam.setZoom(r.zoom);
     scene.cine.zoomTouched = false;
     const amb = r.c.ambience;
     if (amb && amb.id) scene.cine.ambience(amb.id, amb.every ?? 1.4, amb.volume ?? 0.5);
