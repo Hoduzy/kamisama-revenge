@@ -116,7 +116,8 @@ class StoryGameplay {
     const cine = scene.cine;
     const x0 = p.body.center.x;
     const steps = {
-      move: { action: 'move', done: () => Math.abs(p.body.center.x - x0) > 140 },
+      // 이동: 140px 움직이거나, 이미 첫 담 앞(또는 그 너머)까지 와 있으면 끝 (방 끝에 붙어 더 못 가는 경우에도 멈추지 않게)
+      move: { action: 'move', done: () => Math.abs(p.body.center.x - x0) > 140 || p.body.center.x > this.point('wall') - 60 },
       jump: { action: 'jump', done: () => p.body.left > this.point('wall') + 60 && p.grounded },
       // 조금 높은 담: 2단 점프로만 넘는다 (행동 아이콘 Space 두 번)
       doubleJump: { action: 'jump2', done: () => p.body.left > this.point('wall2') + 60 && p.grounded },

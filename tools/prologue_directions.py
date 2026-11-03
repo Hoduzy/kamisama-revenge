@@ -155,21 +155,24 @@ SETUP = {
         spawn('hana', 3480, 'left'), spawn('dumpling_grandma', 'dumplingShop', 'left'), spawn('village_old_man', 'shrine', 'left'),
         prop('steamer', 'steamer', 4240), prop('shopBasket', 'manju_basket', 4180, depth=9),
         C('emoteHold', actor='akane', kind='img:manju_basket'),
+        C('talkStop', on=True),  # 말풍선이 나오면 그 사람과 이야기하는 동안 아카네는 멈춰 서서 그 사람을 본다
         C('roomIn'),
     ],
     'P-6': [
         C('room', id='gate'),  # 방 (data/rooms/gate.json)
         # 오후: 마을 입구 배경(bg_pro2_gate)의 해 질 녘 같은 하늘을 그대로 (아침 색감을 걷어 냄)
-        spawn('akane', 4880, 'right'), C('guideWind', to=None), C('mood', to='none', seconds=2.5),
+        spawn('akane', 4880, 'right'), C('guideWind', to=None), C('mood', to='none', seconds=2.5, wait=False),
         # 나그네(hakuya_traveler): 돌에 앉은 그림 — 삿갓 · 돌은 그림에 들어 있다. 도리이 · 석등은 배경 그림
-        spawn('wanderer', 'gateStone', 'left'), C('sit', actor='wanderer'),
+        # 방이 보이기 전(검은 화면)에 이미 바위 위에 앉아 먼 곳(왼쪽 너머 광장의 큰 나무)을 바라보는 동작을 반복
+        spawn('wanderer', 'gateStone', 'left'), C('anim', actor='wanderer', anim='wanderer_sit', loop=True),
         C('roomIn'),
     ],
     'P-7': [
         C('room', id='training'),  # 방 (data/rooms/training.json)
         C('emoteHold', actor='akane', kind='img:manju_basket', on=False), C('objective', text=None),
         # 해 질 녘으로: 오후(P-6) 색 그대로 시작해 점점 주황 (아래 '해가 지기 시작한다' 에서 더 짙게)
-        spawn('akane', 5790, 'right'), spawn('haru', 'yardHaru', 'left'), C('mood', to='dusk', seconds=14),
+        # 하루는 연습장 입구 가까이에서 안쪽(오른쪽)을 보고 서 있다가, 아카네가 들어오자마자 돌아본다
+        spawn('akane', 5790, 'right'), spawn('haru', 'yardHaru', 'right'), C('mood', to='dusk', seconds=14, wait=False),  # 기다리지 않음 (들어오자마자 대사)
         prop('swordRack', 'prop_sword_rack', 5900, depth=3),
         C('roomIn'),
     ],
@@ -284,7 +287,7 @@ AFTER = {
     'P-0': [C('foregroundClear'), C('particlesStop'), C('vignette', amount=0, seconds=0), G('bossLook', color=None, show=False),
             C('lightOff'), C('camZoom', zoom=1, seconds=0), *[C('propOff', id=f'ff{k}') for k in range(5)]],
     'P-2': [C('fadeOut', duration=0.8)],
-    'P-3': [C('fadeOut', duration=0.8)],
+    'P-3': [C('fadeOut', duration=0.8), C('propOff', id='letter')],
     'P-6': [C('emoteHold', actor='akane', kind='img:manju_basket', on=False)],
     'P-10b': [C('particlesStop')],
     'P-13': [C('fadeOut', duration=1)],
@@ -357,16 +360,19 @@ LINES = {
             C('camPan', x='irori', seconds=0.01), C('fadeIn', duration=0.8), wait(0.6), sfx('clack', volume=0.6),
             C('appear', actor='soichiro', fade=0.4), move('soichiro', 14660), face('soichiro', 'akane'),
             C('sit', actor='soichiro'), act('soichiro', '그을음 묻은 얼굴 · 등 뒤로 뭔가를 숨긴다', 1.6, anim='soichiro_hide')],
-        '셋이 동시에 웃는다. 아카네의 초상화가 처음으로 활짝 웃는 얼굴로 바뀐다 (1초).': [
+        # 컷인 없음: 머리 위 아이콘만 (활짝 웃는 초상화는 바로 앞 아카네 대사 — FACE_OVERRIDES 의 happy)
+        '셋이 동시에 웃는다. 머리 위에 웃음 아이콘 (컷인 없음. 바로 앞 아카네 대사의 초상화가 처음으로 활짝 웃는 얼굴).': [
             C('anim', actor='soichiro', anim='soichiro_laugh', loop=True), C('anim', actor='akane', anim='akane_smile'),
             C('emote', actor='haru', kind='note', wait=False), C('emote', actor='soichiro', kind='note', wait=False),
-            C('emote', actor='akane', kind='heart'), C('cutIn', speaker='akane', face='happy', hold=1.0)],
-        '아카네가 밥그릇을 들 때, 카메라가 하루 쪽으로 천천히 이동한다. 하루가 소매 안의 접힌 편지를 손끝으로 만지작거리고 있다. 편지 위에 카메라가 0.8초 머문다. 아무도 그것에 대해 말하지 않는다.': [
+            C('emote', actor='akane', kind='heart', seconds=1.0)],
+        # 편지: 정좌한 하루(왼쪽을 봄)의 무릎 옆 바닥, 손끝(family_sitting 하루 정좌 2번째 칸 = haru_letter)이 닿는 자리.
+        # 카메라: 편지를 가운데로 1.4배 (0.6초 이동) → 0.8초 머묾 → 0.5초 동안 원래 자리 · 배율로 (camFocus)
+        '아카네가 밥그릇을 들 때, 정좌한 하루의 무릎 옆 바닥에 접힌 편지가 놓여 있다. 하루가 손끝으로 편지를 만지작거린다. 카메라가 편지 쪽으로 1.4배 줌인 (0.6초 이동), 편지 위에 0.8초 머물고, 0.5초 동안 원래 자리로. 아무도 그것에 대해 말하지 않는다.': [
             act('akane', '밥그릇을 든다', 1.0, anim='akane_eat', wait=False), C('anim', actor='soichiro', anim='soichiro_hide', loop=True),
-            prop('letter', 'letter', 'iroriHaru', dy=-26, offset=-12, depth=12, scale=0.4),
-            C('camPan', x='iroriHaru', seconds=2.0), C('camZoom', zoom=2, seconds=0.8), C('camTilt', y=80, ms=500),  # 확대한 뒤 내려서 땅 높이의 인물 · 편지가 보이게 (확대 전에는 맵 아래 끝에 막힘)
-            act('haru', '소매 속 접힌 편지를 만지작거린다', 1.2, anim='haru_letter'), wait(0.8),
-            C('camZoom', zoom=1, seconds=0.6), C('camTilt', y=0, ms=400), C('propOff', id='letter'), C('camPan', x='irori', seconds=0.8)],
+            prop('letter', 'letter', 'iroriHaru', offset=-15, depth=12, scale=0.5),
+            C('anim', actor='haru', anim='haru_letter', loop=True),
+            C('camFocus', x='iroriHaru', offset=-15, dy=6, zoom=1.4, inSec=0.6, hold=0.8, outSec=0.5),
+            C('sit', actor='haru')],
     },
     'P-4': {
         '집을 나서면 오른쪽에서 망치 소리. 가까이 갈수록 커진다.': [
@@ -377,17 +383,18 @@ LINES = {
             C('ambience', id=None), C('objective', text=None), face('akane', 'soichiro'),
             act('soichiro', '마지막 담금질', 1.6, anim='soichiro_forge'), sfx('steam'),
             C('particles', preset='steam', at='forge', seconds=2.5), C('flash', color='white', ms=900), wait(0.8)],
-        '소이치로가 검은 칼집의 칼을 두 손으로 내민다. 칼 획득 연출 (화면 정지, 칼이 떠오르며 회전, 빛이 칼날을 훑음). 붓 자막 〈칼을 얻었다〉.': [
+        # 칼은 화면 가운데에 떠오른 채 가만히 (회전 없음), 빛이 칼날을 한 번 훑고 지나감
+        '소이치로가 검은 칼집의 칼을 두 손으로 내민다. 칼 획득 연출 (화면 정지, 칼이 화면 가운데에 떠오른 채 가만히 있고, 빛이 칼날을 한 번 훑고 지나감. 회전 없음). 붓 자막 〈칼을 얻었다〉.': [
             act('soichiro', '검은 칼집의 칼을 두 손으로 내민다', 1.2, anim='soichiro_give'),
-            C('flash', color='gold', ms=400), prop('giftSword', 'prop_katana', 0, screen={'x': 480, 'y': 300}, depth=40, scale=2),
-            C('propMove', id='giftSword', y=250, angle=360, seconds=1.2), sfx('ui_confirm'),
+            C('flash', color='gold', ms=400), prop('giftSword', 'prop_katana', 0, screen={'x': 480, 'y': 330}, depth=40, scale=3, fade=0.3),
+            C('propMove', id='giftSword', y=300, seconds=0.6, ease='Sine.easeOut'), C('propShine', id='giftSword', seconds=0.7), sfx('ui_confirm'),
             C('caption', text='칼을 얻었다'), C('propOff', id='giftSword', fade=0.4),
             C('giveItem', name='아카네의 칼 (이름 없음)'),
             # 칼을 건넸으니 소이치로는 빈손 (칼 없는 선 그림이 없어 망치질 시트 첫 칸)
             C('setFlag', flag='swordGiven', value=True), C('standUp', actor='soichiro')],
-        '아카네가 칼을 처음 반쯤 뽑는다. 컷인: 칼날에 비친 아카네의 붉은 눈.': [
+        '아카네가 칼을 처음 반쯤 뽑는다. 아카네 머리 위에 「!」.': [
             act('akane', '칼을 처음 반쯤 뽑는다', 0.9, anim='player_iaido_ready'), sfx('draw'),
-            C('cutIn', speaker='akane', face='angry', hold=0.9)],
+            C('emote', actor='akane', kind='!'), C('standUp', actor='akane')],
         '이후 아카네 스프라이트가 칼 찬 버전으로 바뀐다. 목표 자막 〈만두 가게로〉.': [
             C('setFlag', flag='akaneSword', value=True), C('setFlag', flag='akaneNoSword', value=False), wait(0.8), C('objective', text='만두 가게로')],
     },
@@ -406,12 +413,11 @@ LINES = {
             C('objective', text='연습장으로 — 마을 입구 쪽 길'), C('guideWind', to='gateAkane', kind='petals'), C('foregroundClear')],
     },
     'P-6': {
-        '작은 돌 도리이와 석등이 서 있는 마을 입구. 그 옆 돌 위에 삿갓을 깊게 눌러쓴 나그네가 앉아 있다. 회색 여행 망토. 얼굴은 삿갓 그림자에 가려 입가만 보인다. 그는 멀리 광장의 큰 나무를 보고 있다.': [
-            C('camPan', x='gateStone', seconds=1.6),
-            act('wanderer', '회색 여행 망토 · 삿갓 그림자에 입가만 보인다 · 멀리 광장의 큰 나무를 본다', 2.2, anim='wanderer_sit', loop=True)],
+        # 〔조작〕 아카네가 걸어서 다가간다. 나그네는 앉은 채 큰 나무 쪽을 보는 동작 반복 (SETUP 에서 이미 앉아 있음)
+        '작은 돌 도리이와 석등이 서 있는 마을 입구. 그 옆 돌 위에 삿갓을 깊게 눌러쓴 나그네가 앉아 있다 (마을 입구에 들어올 때부터 이미 바위 위에 앉아 있다). 회색 여행 망토. 얼굴은 삿갓 그림자에 가려 입가만 보인다. 그는 멀리 광장의 큰 나무를 보고 있다.': [
+            C('waitForPlayerAt', x='gateStone', offset=-90)],
         '아카네가 다가가면 레터박스. BGM이 조용히 빠진다.': [
-            move('akane', 'gateAkane'), C('bgm', id=None, fade=2), C('bgmDuck', on=True), face('akane', 'wanderer'),
-            C('camFollow', actor='akane')],
+            move('akane', 'gateAkane'), C('bgm', id=None, fade=2), C('bgmDuck', on=True), face('akane', 'wanderer')],
         '3초 침묵. 아카네가 바구니를 내려다본다. 머뭇거리다가 만두 하나를 꺼내 내민다.': [
             wait(3), wait(1.2), C('emote', actor='akane', kind='…'), wait(1.4)],
         '나그네가 만두를 받아 한참 내려다본다.': [
@@ -434,15 +440,22 @@ LINES = {
             C('cutEnd', fade=0.4), wait(0.4), C('camFollow', actor='akane'), C('bgmDuck', on=False)],
     },
     'P-7': {
-        '튜토리얼. 글자 설명 없이 하루의 대사와 머리 위 행동 아이콘으로만 가르친다.': [
-            C('section', title='튜토리얼: 글자 없이 하루의 대사 + 머리 위 행동 아이콘 (gameplay tutorialIcon)')],
-        '낮은 돌담 — 점프 아이콘. 하루: "검은 발에서 시작해. 발이 늦으면 칼도 늦어."': [
+        '튜토리얼. 글자 설명 없이 하루의 대사와 머리 위 행동 아이콘으로만 가르친다. 아카네가 연습장에 들어오자마자 입구 가까이 서 있던 하루가 돌아본다.': [
+            C('section', title='튜토리얼: 글자 없이 하루의 대사 + 머리 위 행동 아이콘 (gameplay tutorialIcon)'),
+            face('haru', 'akane'), C('emote', actor='haru', kind='note', seconds=0.6, wait=False)],
+        # 첫 담 (data/rooms/training.json walls · wall): 높이 110 — 1단 점프(최고 ≈ 137)로 겨우 넘는다
+        '낮은 돌담 (1단 점프로 겨우 넘는 높이) — 점프 아이콘. 하루: "검은 발에서 시작해. 발이 늦으면 칼도 늦어."': [
             move('haru', 'haruWall', wait=False), G('tutorialIcon', step='move'),
             say('haru', '검은 발에서 시작해. 발이 늦으면 칼도 늦어.', 'serious'),
-            G('tutorialIcon', step='jump'), C('jump', actor='haru', x=6480),
-            # 조금 높은 담: 2단 점프 (대본에 없는 추가 대사)
+            C('jump', actor='haru', x='haruWallOver'), face('haru', 'akane'),
+            G('tutorialIcon', step='jump')],
+        # 둘째 담 (walls · wall2): 높이 195 — 1단으로는 닿지 않고 2단으로만. 윗면에 설 수 없고(slip) 첫 담과 멀리 떨어져 있다
+        '한참 떨어진 곳의 높은 담 (1단 점프로는 닿지 않아 2단 점프로만 넘는다. 윗면에는 설 수 없다) — Space 두 번 아이콘. 하루: "한 번 더 뛰어 봐. 공중에서. 엄마는 그거 열 살에 했다?"': [
+            move('haru', 'haruWall2'), face('haru', 'akane'),
+            C('waitForPlayerAt', x='haruWall2', offset=-110),
             say('haru', '한 번 더 뛰어 봐. 공중에서. 엄마는 그거 열 살에 했다?', 'smile'),
-            G('tutorialIcon', step='doubleJump'), C('jump', actor='haru', x=6680, height=200),
+            C('jump', actor='haru', x='haruWall2Over', height=220), face('haru', 'akane'),
+            G('tutorialIcon', step='doubleJump'),
             move('haru', 'haruDrill', wait=False)],
         '허수아비 셋 — 대쉬 베기 아이콘. 하루: "상대 품으로 단숨에 파고들어서, 지나가며 베는 거야. 그 짧은 순간엔 아무것도 너를 못 건드려."': [
             say('haru', '상대 품으로 단숨에 파고들어서, 지나가며 베는 거야. 그 짧은 순간엔 아무것도 너를 못 건드려.', 'smile'),
@@ -462,12 +475,14 @@ LINES = {
             act('haru', '아카네의 머리끈에 방울을 묶어 준다', 1.6, anim='haru_tie_bell'), sfx('chime', volume=0.5), C('standUp', actor='haru')],
         '해가 지기 시작한다. 색감이 주황으로 짙어진다.': [
             C('mood', to='duskDeep', seconds=2.5)],
-        '하루가 들고 있던 목검이 땅에 떨어진다. 딱. BGM이 끊긴다. 바람 소리.': [
+        # 남기는 컷인 2개 중 하나: 목검을 떨어뜨리며 놀라는 하루
+        '하루가 들고 있던 목검이 땅에 떨어진다. 딱. 컷인: 놀란 하루의 얼굴. BGM이 끊긴다. 바람 소리.': [
             prop('woodSword', 'bokken', 'haru', dy=-46, offset=10, scale=0.7),
             C('propMove', id='woodSword', dy=46, angle=80, seconds=0.3, ease='Quad.easeIn'), sfx('clack'),
+            C('cutIn', speaker='haru', face='surprised', hold=0.6),
             C('silence'), sfx('wind'), C('emote', actor='haru', kind='!')],
-        '하루가 아무 말 없이 마을 입구 쪽을 본다. 3초. 하루의 초상화가 아주 잠깐 겁먹음으로 바뀌었다가 웃음으로 돌아온다.': [
-            face('haru', 'left'), wait(3), C('cutIn', speaker='haru', face='scared', hold=0.35)],
+        '하루가 아무 말 없이 마을 입구 쪽을 본다. 3초. 하루 머리 위에 「…」. 다음 대사의 초상화는 다시 웃음.': [
+            face('haru', 'left'), wait(1.5), C('emote', actor='haru', kind='…', seconds=1.5)],
         '색감이 주황 → 남색으로 2초 동안 바뀌고 암전. 붓 자막 〈그날 밤, 벚꽃 축제.〉 피리와 북 소리 페이드인.': [
             C('mood', to='night', seconds=2), wait(2), C('fadeOut', duration=0.8), C('propOff', id='woodSword'),
             C('caption', text='그날 밤, 벚꽃 축제.'),
@@ -522,8 +537,8 @@ LINES = {
             sfx('whistle', volume=0.4), C('camTilt', y=-170, ms=1200), sfx('whistle', volume=1.0)],
         '보름달 앞을 지나가는 불화살 수십 개의 검은 실루엣. 슬로모션 0.3배 1.5초.': [
             C('slowmo', scale=0.3, seconds=1.5), G('arrowVolley', seconds=1.5)],
-        '컷인: 아카네의 눈. 눈동자에 불빛.': [
-            C('cutIn', speaker='akane', face='surprised', hold=0.8)],
+        '아카네가 놀란다. 머리 위에 「!」. 눈동자에 불빛.': [
+            C('emote', actor='akane', kind='!', seconds=0.8)],
         '정상 속도로 복귀하며 화살이 땅·지붕·나무에 꽂힌다. 붉은 플래시와 세로 흔들림.': [
             C('camTilt', y=0, ms=400), C('camZoom', zoom=1, seconds=0.4), G('arrowRain'),
             C('flash', color='red'), C('shake', level='strong', dir='v'), sfx('boom')],
@@ -606,7 +621,7 @@ LINES = {
             C('objective', text=None), move('akane', 'fireAkane', 'run'), C('camPan', x='fireHaru', offset=120, seconds=1.2),
             G('bossWalk', to='fireHakuya'), C('particles', preset='embers', at='plazaStump', id='plazaEmbers')],
         '하쿠야가 아카네를 본다. 그리고 웃는다.': [
-            G('bossLook', face=-1), C('cutIn', speaker='hakuya', face='laugh', hold=0.6)],
+            G('bossLook', face=-1), wait(0.6)],  # 컷인 없음: 웃음은 다음 대사 초상화(laugh)로
         '레터박스 해제. 보스 이름 붓 자막 〈카미사마 · 하쿠야〉. 체력바가 줄지 않는다. 아카네의 공격은 금빛 막에 튕긴다. 20초 또는 3번 피격 후 자동 진행.': [
             C('mode', mode='play'), C('camFollow', actor='akane'), C('bossName', text='카미사마 · 하쿠야'),
             G('defeatBattle', seconds=20, hits=3), C('mode', mode='auto')],

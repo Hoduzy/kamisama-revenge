@@ -567,6 +567,7 @@ const UI = {
     const el = document.createElement('div');
     el.className = 'float bubble';
     el.innerHTML = `<div class="bubble-box">${name ? `<i>${name}</i>` : ''}${text}</div>`;
+    this.nine(el.querySelector('.bubble-box'), 'ui_dialogue_frame', 0.25); // 대화창과 같은 틀을 작게 (꼬리 없음)
     this.el('.floats').append(el);
     const f = { el, target, until: performance.now() + ms };
     this.floats.push(f);

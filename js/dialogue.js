@@ -192,6 +192,8 @@ class DialogueBox {
 
   bubbleLine(c, a) {
     this.hide();
+    // 말풍선 대화 멈춤: 장면이 talkStop 을 켰을 때만 (P-5 마을. 연습장 튜토리얼처럼 계속 조작하는 장면은 아님)
+    if (this.scene.story && this.scene.story.talkStop) this.scene.story.beginTalk(a);
     const ch = this.characters[c.speaker] || {};
     const name = c.cmd === 'think' ? `${ch.name || ''} · 속마음` : (ch.name || '');
     const T = TUNING.story;

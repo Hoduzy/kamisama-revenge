@@ -113,10 +113,7 @@ LEVELS.prologue = {
 
 
   // 방 시스템(js/rooms.js · data/rooms)이 바닥 · 벽을 방마다 다시 만든다. 아래 x 는 예전 한 줄 맵 기준 (방 legacy 표로 옮김)
-  extraGround: [
-    { x: 6400, y: 572, w: 44, h: 48 },     // 연습장 낮은 돌담 (점프)
-    { x: 6560, y: 450, w: 44, h: 170 },    // 조금 높은 담 (2단 점프로만 넘음. 1단 최고 높이 ≈ 140)
-  ],
+  extraGround: [], // 연습장 점프 담은 방 설정(data/rooms/training.json 의 walls)에서 (그림 · 판정이 같은 자리)
   ground: [
     { x: 0, y: 620, w: 16200, h: 100 },
     { x: -40, y: 0, w: 40, h: 720 },

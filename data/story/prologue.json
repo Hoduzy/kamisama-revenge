@@ -1055,7 +1055,7 @@
           "actor": "soichiro",
           "anim": "soichiro_laugh",
           "loop": true,
-          "src": "셋이 동시에 웃는다. 아카네의 초상화가 처음으로 활짝 웃는 얼굴로 바뀐다 (1초)."
+          "src": "셋이 동시에 웃는다. 머리 위에 웃음 아이콘 (컷인 없음. 바로 앞 아카네 대사의 초상화가 처음으로 활짝 웃는 얼굴)."
         },
         {
           "cmd": "anim",
@@ -1077,13 +1077,8 @@
         {
           "cmd": "emote",
           "actor": "akane",
-          "kind": "heart"
-        },
-        {
-          "cmd": "cutIn",
-          "speaker": "akane",
-          "face": "happy",
-          "hold": 1.0
+          "kind": "heart",
+          "seconds": 1.0
         },
         {
           "cmd": "act",
@@ -1092,7 +1087,7 @@
           "seconds": 1.0,
           "anim": "akane_eat",
           "wait": false,
-          "src": "아카네가 밥그릇을 들 때, 카메라가 하루 쪽으로 천천히 이동한다. 하루가 소매 안의 접힌 편지를 손끝으로 만지작거리고 있다. 편지 위에 카메라가 0.8초 머문다. 아무도 그것에 대해 말하지 않는다."
+          "src": "아카네가 밥그릇을 들 때, 정좌한 하루의 무릎 옆 바닥에 접힌 편지가 놓여 있다. 하루가 손끝으로 편지를 만지작거린다. 카메라가 편지 쪽으로 1.4배 줌인 (0.6초 이동), 편지 위에 0.8초 머물고, 0.5초 동안 원래 자리로. 아무도 그것에 대해 말하지 않는다."
         },
         {
           "cmd": "anim",
@@ -1105,55 +1100,29 @@
           "id": "letter",
           "key": "letter",
           "at": "iroriHaru",
-          "dy": -26,
-          "offset": -12,
+          "offset": -15,
           "depth": 12,
-          "scale": 0.4
+          "scale": 0.5
         },
         {
-          "cmd": "camPan",
-          "x": "iroriHaru",
-          "seconds": 2.0
-        },
-        {
-          "cmd": "camZoom",
-          "zoom": 2,
-          "seconds": 0.8
-        },
-        {
-          "cmd": "camTilt",
-          "y": 80,
-          "ms": 500
-        },
-        {
-          "cmd": "act",
+          "cmd": "anim",
           "actor": "haru",
-          "name": "소매 속 접힌 편지를 만지작거린다",
-          "seconds": 1.2,
-          "anim": "haru_letter"
+          "anim": "haru_letter",
+          "loop": true
         },
         {
-          "cmd": "wait",
-          "seconds": 0.8
+          "cmd": "camFocus",
+          "x": "iroriHaru",
+          "offset": -15,
+          "dy": 6,
+          "zoom": 1.4,
+          "inSec": 0.6,
+          "hold": 0.8,
+          "outSec": 0.5
         },
         {
-          "cmd": "camZoom",
-          "zoom": 1,
-          "seconds": 0.6
-        },
-        {
-          "cmd": "camTilt",
-          "y": 0,
-          "ms": 400
-        },
-        {
-          "cmd": "propOff",
-          "id": "letter"
-        },
-        {
-          "cmd": "camPan",
-          "x": "irori",
-          "seconds": 0.8
+          "cmd": "sit",
+          "actor": "haru"
         },
         {
           "cmd": "say",
@@ -1179,6 +1148,10 @@
         {
           "cmd": "fadeOut",
           "duration": 0.8
+        },
+        {
+          "cmd": "propOff",
+          "id": "letter"
         }
       ]
     },
@@ -1338,7 +1311,7 @@
           "name": "검은 칼집의 칼을 두 손으로 내민다",
           "seconds": 1.2,
           "anim": "soichiro_give",
-          "src": "소이치로가 검은 칼집의 칼을 두 손으로 내민다. 칼 획득 연출 (화면 정지, 칼이 떠오르며 회전, 빛이 칼날을 훑음). 붓 자막 〈칼을 얻었다〉."
+          "src": "소이치로가 검은 칼집의 칼을 두 손으로 내민다. 칼 획득 연출 (화면 정지, 칼이 화면 가운데에 떠오른 채 가만히 있고, 빛이 칼날을 한 번 훑고 지나감. 회전 없음). 붓 자막 〈칼을 얻었다〉."
         },
         {
           "cmd": "flash",
@@ -1352,17 +1325,23 @@
           "at": 0,
           "screen": {
             "x": 480,
-            "y": 300
+            "y": 330
           },
           "depth": 40,
-          "scale": 2
+          "scale": 3,
+          "fade": 0.3
         },
         {
           "cmd": "propMove",
           "id": "giftSword",
-          "y": 250,
-          "angle": 360,
-          "seconds": 1.2
+          "y": 300,
+          "seconds": 0.6,
+          "ease": "Sine.easeOut"
+        },
+        {
+          "cmd": "propShine",
+          "id": "giftSword",
+          "seconds": 0.7
         },
         {
           "cmd": "sfx",
@@ -1415,17 +1394,20 @@
           "name": "칼을 처음 반쯤 뽑는다",
           "seconds": 0.9,
           "anim": "player_iaido_ready",
-          "src": "아카네가 칼을 처음 반쯤 뽑는다. 컷인: 칼날에 비친 아카네의 붉은 눈."
+          "src": "아카네가 칼을 처음 반쯤 뽑는다. 아카네 머리 위에 「!」."
         },
         {
           "cmd": "sfx",
           "id": "draw"
         },
         {
-          "cmd": "cutIn",
-          "speaker": "akane",
-          "face": "angry",
-          "hold": 0.9
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "!"
+        },
+        {
+          "cmd": "standUp",
+          "actor": "akane"
         },
         {
           "cmd": "say",
@@ -1556,6 +1538,10 @@
           "cmd": "emoteHold",
           "actor": "akane",
           "kind": "img:manju_basket"
+        },
+        {
+          "cmd": "talkStop",
+          "on": true
         },
         {
           "cmd": "roomIn"
@@ -1736,7 +1722,11 @@
         "raw": "나그네",
         "type": "reach"
       },
-      "mode": "auto",
+      "mode": "play",
+      "modeFlow": [
+        "play",
+        "auto"
+      ],
       "commands": [
         {
           "cmd": "room",
@@ -1755,7 +1745,8 @@
         {
           "cmd": "mood",
           "to": "none",
-          "seconds": 2.5
+          "seconds": 2.5,
+          "wait": false
         },
         {
           "cmd": "spawn",
@@ -1764,25 +1755,29 @@
           "face": "left"
         },
         {
-          "cmd": "sit",
-          "actor": "wanderer"
+          "cmd": "anim",
+          "actor": "wanderer",
+          "anim": "wanderer_sit",
+          "loop": true
         },
         {
           "cmd": "roomIn"
         },
         {
-          "cmd": "camPan",
-          "x": "gateStone",
-          "seconds": 1.6,
-          "src": "작은 돌 도리이와 석등이 서 있는 마을 입구. 그 옆 돌 위에 삿갓을 깊게 눌러쓴 나그네가 앉아 있다. 회색 여행 망토. 얼굴은 삿갓 그림자에 가려 입가만 보인다. 그는 멀리 광장의 큰 나무를 보고 있다."
+          "cmd": "mode",
+          "mode": "play",
+          "src": "〔조작〕"
         },
         {
-          "cmd": "act",
-          "actor": "wanderer",
-          "name": "회색 여행 망토 · 삿갓 그림자에 입가만 보인다 · 멀리 광장의 큰 나무를 본다",
-          "seconds": 2.2,
-          "anim": "wanderer_sit",
-          "loop": true
+          "cmd": "waitForPlayerAt",
+          "x": "gateStone",
+          "offset": -90,
+          "src": "작은 돌 도리이와 석등이 서 있는 마을 입구. 그 옆 돌 위에 삿갓을 깊게 눌러쓴 나그네가 앉아 있다 (마을 입구에 들어올 때부터 이미 바위 위에 앉아 있다). 회색 여행 망토. 얼굴은 삿갓 그림자에 가려 입가만 보인다. 그는 멀리 광장의 큰 나무를 보고 있다."
+        },
+        {
+          "cmd": "mode",
+          "mode": "auto",
+          "src": "〔자동〕"
         },
         {
           "cmd": "moveTo",
@@ -1804,10 +1799,6 @@
           "cmd": "face",
           "actor": "akane",
           "dir": "wanderer"
-        },
-        {
-          "cmd": "camFollow",
-          "actor": "akane"
         },
         {
           "cmd": "say",
@@ -2103,12 +2094,13 @@
           "cmd": "spawn",
           "actor": "haru",
           "at": "yardHaru",
-          "face": "left"
+          "face": "right"
         },
         {
           "cmd": "mood",
           "to": "dusk",
-          "seconds": 14
+          "seconds": 14,
+          "wait": false
         },
         {
           "cmd": "prop",
@@ -2123,7 +2115,19 @@
         {
           "cmd": "section",
           "title": "튜토리얼: 글자 없이 하루의 대사 + 머리 위 행동 아이콘 (gameplay tutorialIcon)",
-          "src": "튜토리얼. 글자 설명 없이 하루의 대사와 머리 위 행동 아이콘으로만 가르친다."
+          "src": "튜토리얼. 글자 설명 없이 하루의 대사와 머리 위 행동 아이콘으로만 가르친다. 아카네가 연습장에 들어오자마자 입구 가까이 서 있던 하루가 돌아본다."
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
+          "cmd": "emote",
+          "actor": "haru",
+          "kind": "note",
+          "seconds": 0.6,
+          "wait": false
         },
         {
           "cmd": "say",
@@ -2152,7 +2156,7 @@
           "to": "haruWall",
           "speed": "walk",
           "wait": false,
-          "src": "낮은 돌담 — 점프 아이콘. 하루: \"검은 발에서 시작해. 발이 늦으면 칼도 늦어.\""
+          "src": "낮은 돌담 (1단 점프로 겨우 넘는 높이) — 점프 아이콘. 하루: \"검은 발에서 시작해. 발이 늦으면 칼도 늦어.\""
         },
         {
           "cmd": "gameplay",
@@ -2167,14 +2171,36 @@
           "side": "right"
         },
         {
+          "cmd": "jump",
+          "actor": "haru",
+          "x": "haruWallOver"
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
           "cmd": "gameplay",
           "do": "tutorialIcon",
           "step": "jump"
         },
         {
-          "cmd": "jump",
+          "cmd": "moveTo",
           "actor": "haru",
-          "x": 6480
+          "to": "haruWall2",
+          "speed": "walk",
+          "src": "한참 떨어진 곳의 높은 담 (1단 점프로는 닿지 않아 2단 점프로만 넘는다. 윗면에는 설 수 없다) — Space 두 번 아이콘. 하루: \"한 번 더 뛰어 봐. 공중에서. 엄마는 그거 열 살에 했다?\""
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
+          "cmd": "waitForPlayerAt",
+          "x": "haruWall2",
+          "offset": -110
         },
         {
           "cmd": "say",
@@ -2184,15 +2210,20 @@
           "side": "right"
         },
         {
+          "cmd": "jump",
+          "actor": "haru",
+          "x": "haruWall2Over",
+          "height": 220
+        },
+        {
+          "cmd": "face",
+          "actor": "haru",
+          "dir": "akane"
+        },
+        {
           "cmd": "gameplay",
           "do": "tutorialIcon",
           "step": "doubleJump"
-        },
-        {
-          "cmd": "jump",
-          "actor": "haru",
-          "x": 6680,
-          "height": 200
         },
         {
           "cmd": "moveTo",
@@ -2436,7 +2467,7 @@
           "dy": -46,
           "offset": 10,
           "scale": 0.7,
-          "src": "하루가 들고 있던 목검이 땅에 떨어진다. 딱. BGM이 끊긴다. 바람 소리."
+          "src": "하루가 들고 있던 목검이 땅에 떨어진다. 딱. 컷인: 놀란 하루의 얼굴. BGM이 끊긴다. 바람 소리."
         },
         {
           "cmd": "propMove",
@@ -2449,6 +2480,12 @@
         {
           "cmd": "sfx",
           "id": "clack"
+        },
+        {
+          "cmd": "cutIn",
+          "speaker": "haru",
+          "face": "surprised",
+          "hold": 0.6
         },
         {
           "cmd": "silence"
@@ -2480,17 +2517,17 @@
           "cmd": "face",
           "actor": "haru",
           "dir": "left",
-          "src": "하루가 아무 말 없이 마을 입구 쪽을 본다. 3초. 하루의 초상화가 아주 잠깐 겁먹음으로 바뀌었다가 웃음으로 돌아온다."
+          "src": "하루가 아무 말 없이 마을 입구 쪽을 본다. 3초. 하루 머리 위에 「…」. 다음 대사의 초상화는 다시 웃음."
         },
         {
           "cmd": "wait",
-          "seconds": 3
+          "seconds": 1.5
         },
         {
-          "cmd": "cutIn",
-          "speaker": "haru",
-          "face": "scared",
-          "hold": 0.35
+          "cmd": "emote",
+          "actor": "haru",
+          "kind": "…",
+          "seconds": 1.5
         },
         {
           "cmd": "say",
@@ -3207,11 +3244,11 @@
           "seconds": 1.5
         },
         {
-          "cmd": "cutIn",
-          "speaker": "akane",
-          "face": "surprised",
-          "hold": 0.8,
-          "src": "컷인: 아카네의 눈. 눈동자에 불빛."
+          "cmd": "emote",
+          "actor": "akane",
+          "kind": "!",
+          "seconds": 0.8,
+          "src": "아카네가 놀란다. 머리 위에 「!」. 눈동자에 불빛."
         },
         {
           "cmd": "camTilt",
@@ -4619,10 +4656,8 @@
           "src": "하쿠야가 아카네를 본다. 그리고 웃는다."
         },
         {
-          "cmd": "cutIn",
-          "speaker": "hakuya",
-          "face": "laugh",
-          "hold": 0.6
+          "cmd": "wait",
+          "seconds": 0.6
         },
         {
           "cmd": "say",

@@ -180,6 +180,8 @@ class StoryPlayer {
     if (this.stopped) return;
     // 정리: 대화창 닫기, 연출 걷기, 느린 화면·카메라 원래대로, 게임 재개
     this.dialogueCamOff();
+    this.endTalk();
+    this.talkStop = false;
     this.dialogue.close();
     if (TUNING.cine.duckDuringDialogue) CineSound.duck(false);
     // CG 가 남아 있으면 페이드아웃이 끝난 뒤 다음 장면으로
@@ -216,6 +218,8 @@ class StoryPlayer {
     this.locked = on;
     const scene = this.scene;
     scene.cutscene = on;
+    // 잠글 때 달리던 속도를 지운다 (잠금이 풀린 뒤 저절로 달리거나, 멈춘 채 달리는 그림이 나오지 않게)
+    if (on && scene.player && scene.player.body) scene.player.body.setVelocityX(0);
     if (on) scene.physics.world.pause();
     else if (!(scene.hitStopTimer > 0)) scene.physics.world.resume();
   }
@@ -277,8 +281,49 @@ class StoryPlayer {
       // 대화 카메라: 대사(대화창)가 이어지는 동안 1.25배 확대해 말하는 사람들을 대화창이 가리지 않는 위쪽 공간 가운데로 (방 밖은 보이지 않게 카메라 경계 안에서만). 대사 아닌 연출이 오면 원래대로
       if (['say', 'think'].includes(c.cmd)) this.dialogueCam(c);
       else if (!DIALOGUE_CAM_KEEP.includes(c.cmd)) this.dialogueCamOff();
+      // 말풍선 대화(조작 가능 장면)는 대사가 끝나면(대사 아닌 명령이 오면) 아카네를 다시 움직일 수 있게
+      if (this.talk && !['say', 'think', 'emote', 'face', 'wait', 'sfx'].includes(c.cmd)) this.endTalk();
       await this.exec(c, sc);
     }
+  }
+
+  // ───────── 말풍선 대화 (조작 가능 장면) ─────────
+  // 말풍선이 나오면 그 사람과 이야기하는 동안 아카네를 멈춰 세운다: 말하는 사람의 왼쪽에 적당히(70px) 떨어져 그 사람을 본다.
+  // 걷던 마을 사람도 그동안 멈춰 서서 아카네를 본다. 대사가 끝나면(endTalk) 다시 조작 · 걸음
+  beginTalk(a) {
+    const A = this.scene.actors;
+    if (!A) return;
+    const ak = A.akane;
+    if (!this.talk) {
+      this.talk = { partner: null };
+      this.lock(true);
+    }
+    let partner = a !== ak ? a : this.talk.partner;
+    if (!partner) {
+      // 아카네가 먼저 말하면 가장 가까운 사람 (화면 안, 300px 안)
+      let best = 300;
+      for (const o of A.all ? A.all() : []) {
+        if (o === ak || o.visible === false) continue;
+        const d = Math.abs(o.x - ak.x);
+        if (d < best) { best = d; partner = o; }
+      }
+    }
+    if (!partner || partner === this.talk.partner) return;
+    this.talk.partner = partner;
+    A.holdWalk(partner, true);
+    A.face(partner, 'akane');
+    const tx = partner.x - (TUNING.story.talkGap ?? 70);
+    const look = () => { ak.face(Math.sign(partner.x - ak.x) || 1); A.face(partner, 'akane'); };
+    if (Math.abs(ak.x - tx) > 6) A.moveTo(ak, tx, Math.abs(ak.x - tx) > 100 ? 'run' : 'walk').then(look);
+    else look();
+  }
+
+  endTalk() {
+    if (!this.talk) return;
+    const p = this.talk.partner;
+    this.talk = null;
+    if (p && this.scene.actors) this.scene.actors.holdWalk(p, false);
+    if (this.ctl && !this.cinema && !this.faded) this.lock(false);
   }
 
   // ───────── 대화 카메라 ─────────
@@ -354,6 +399,8 @@ class StoryPlayer {
         // 방 시스템: 장면이 다른 방에서 시작하면 검은 화면(0.6초)으로 옮긴다. 이미 검으면 그대로 옮김
         if (!LEVEL.rooms) break;
         const r = Rooms.byId(c.id);
+        // 걸어서 들어온 방(RoomRuntime.go)은 이미 검은 화면: 준비가 끝난 뒤 roomIn 에서 밝게
+        if (this.roomRevealNext && r === Rooms.current) { this.roomRevealNext = false; this.roomReveal = true; break; }
         if (!r || r === Rooms.current) break;
         const black = this.faded || +getComputedStyle(UI.root.querySelector('.fx-fade')).opacity > 0.9;
         if (!black && !skip) { UI.fade(1, 0.25); await this.wait(250); }
@@ -387,6 +434,10 @@ class StoryPlayer {
         if (this.ctl && !this.cinema) this.lock(false);
         break;
       }
+      case 'talkStop':
+        // 이 장면의 말풍선 대화 동안 아카네를 멈춰 세운다 (beginTalk). 장면이 끝나면 꺼진다
+        this.talkStop = c.on !== false;
+        break;
       case 'letterbox':
         // 조작 가능한 장면에서는 띠를 그리지 않는다 (조작 잠금은 그대로)
         UI.letterbox(!!c.on && !this.ctl, skip);
@@ -593,7 +644,8 @@ class StoryPlayer {
       }
       default:
         // 배우·카메라 동작이 시작되면 앞 대사 창은 내린다 (인물이 가려지지 않게)
-        if (!skip && ['moveTo', 'jump', 'spawn', 'appear', 'disappear', 'sit', 'kneel', 'standUp', 'anim', 'emote', 'face', 'camPan', 'camZoom', 'camFollow'].includes(c.cmd)) dlg.hide();
+        if (!skip && ['moveTo', 'jump', 'spawn', 'appear', 'disappear', 'sit', 'kneel', 'standUp', 'anim', 'emote', 'face', 'camPan', 'camZoom', 'camFollow', 'camFocus', 'propShine'].includes(c.cmd)) dlg.hide();
+        if (!skip && c.cmd === 'prop' && c.screen) dlg.hide(); // 화면 가운데 획득 연출 (칼 · 방울)
         if (await scene.actors.command(c, skip)) break;
         // 연출 도구 명령 (camZoom, cutIn, particles, light, objective … docs/cinematics.md)
         if (!(await scene.cine.command(c, skip))) console.warn('[story] 모르는 명령', c);

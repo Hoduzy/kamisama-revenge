@@ -208,6 +208,10 @@ class Player {
   // 상태에 맞는 애니메이션을 고른다 (우선순위 순)
   updateAnim(dt) {
     if (!this.useSprite) return;
+    // 실제로 움직인 속도 (속도 값만 남아 있고 제자리인 경우 — 잠긴 컷신 · 벽에 막힘 — 달리는 그림이 나오지 않게)
+    const bx = this.body.x;
+    const moved = this.prevAnimX == null ? 0 : Math.abs(bx - this.prevAnimX) / Math.max(dt, 1e-3);
+    this.prevAnimX = bx;
     const v = this.visual;
     const sk = this.skills;
     const HOLD_LAST = ['player_iaido_ready', 'player_death']; // 끝나면 마지막 프레임 유지
@@ -276,7 +280,8 @@ class Player {
       return still('player_jump', vy < -150 ? 1 : vy > 150 ? 3 : 2);
     }
     if (this.landTimer > 0) return still('player_jump', this.landTimer > 0.05 ? 4 : 5); // 착지 → 착지 마무리
-    if (Math.abs(this.body.velocity.x) > 40) return play('player_run');
+    // 이동 속도가 0 이면 반드시 대기 동작 (컷신으로 멈춘 뒤 · 배우 명령 moveTo 가 끝난 뒤 · 벽에 막힘)
+    if (!this.scene.cutscene && Math.abs(this.body.velocity.x) > 40 && moved > 30) return play('player_run');
     play('player_idle');
   }
 

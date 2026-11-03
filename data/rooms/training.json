@@ -27,7 +27,16 @@
  },
  "ambience": null,
  "props": [],
- "points": {},
+ "points": {
+  "yardHaru": 70,
+  "haruWall": 95,
+  "haruWallOver": 175,
+  "haruWall2": 262,
+  "haruWall2Over": 340,
+  "wall": 120,
+  "wall2": 300,
+  "haruDrill": 490
+ },
  "legacy": [
   [
    [
@@ -75,5 +84,30 @@
     505
    ]
   ]
- ]
+ ],
+ "walls": [
+  {
+   "id": "wall",
+   "x": 120,
+   "w": 30,
+   "h": 110,
+   "slip": true,
+   "note": "낮은 돌담: 1단 점프로 겨우 넘음"
+  },
+  {
+   "id": "wall2",
+   "x": 300,
+   "w": 22,
+   "h": 195,
+   "slip": true,
+   "note": "높은 담: 1단 최고 높이(≈137)보다 높아 2단 점프로만. 윗면에 서지 못함"
+  }
+ ],
+ "enemies": {
+  "dummies": [
+   375,
+   410,
+   445
+  ]
+ }
 }

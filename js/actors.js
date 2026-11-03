@@ -145,6 +145,9 @@ class ActorDirector {
     return npc ? npc.id : name;
   }
 
+  // 지금 있는 배우 전부 (아카네 + 맵 인물)
+  all() { return [this.akane, ...Object.values(this.scene.npcs)]; }
+
   get(name) {
     const id = this.idOf(name);
     if (id === 'akane') return this.akane;
@@ -189,6 +192,8 @@ class ActorDirector {
       let done = false;
       const rec = {};
       const tw = this.scene.tweens.add({ targets: o, t: 1, duration, onUpdate: () => step(o.t), onComplete: () => rec.end() });
+      rec.tween = tw;
+      this.lastOp = rec;
       rec.end = () => {
         if (done) return;
         done = true;
@@ -241,7 +246,7 @@ class ActorDirector {
     const walkAnim = a.poses && a.poses.run !== a.poses.idle && !Array.isArray(a.poses.run);
     if (walkAnim && a.sprite.anims) a.sprite.anims.timeScale = Phaser.Math.Clamp(v / 200, 0.4, 1.3);
     const t0 = this.scene.time.now;
-    return this.op((dist / v) * 1000, (t) => {
+    const pr = this.op((dist / v) * 1000, (t) => {
       a.x = from + (x - from) * t;
       a.y += (a.groundY - a.y) * 0.4;
       a.sync();
@@ -253,7 +258,22 @@ class ActorDirector {
       a.facing = dir;
       if (a.sprite.anims) a.sprite.anims.timeScale = 1;
       a.setPose('idle');
+      a.walkOp = null;
     }, skip);
+    if (!skip && this.lastOp && this.lastOp.tween) a.walkOp = this.lastOp;
+    return pr;
+  }
+
+  // 말풍선 대화 동안 걷던 인물을 멈춰 세운다 (hold false: 하던 걸음을 이어 감)
+  holdWalk(a, hold) {
+    if (!a || a === this.akane) return;
+    const op = a.walkOp;
+    if (hold) {
+      if (op && op.tween && op.tween.isPlaying()) { op.tween.pause(); a.walkPaused = true; a.setPose('idle'); }
+    } else if (a.walkPaused) {
+      a.walkPaused = false;
+      if (op && op.tween) { a.setPose('run'); op.tween.resume(); }
+    }
   }
 
   face(a, dir) {
@@ -381,8 +401,7 @@ class ActorDirector {
     let x;
     let y;
     if (c.screen) {
-      x = c.screen.x;
-      y = c.screen.y;
+      [x, y] = this.screenToProp(c.screen.x, c.screen.y);
     } else {
       x = this.xOf(c.at ?? c.x, c.offset || 0) ?? s.player.body.center.x;
       y = (c.y ?? this.groundAt(x)) + (c.dy || 0);
@@ -400,9 +419,11 @@ class ActorDirector {
     if (c.flip) img.setFlipX(true);
     if (c.angle) img.setAngle(c.angle);
     if (c.scale) img.setScale(c.scale);
+    // 화면 고정 소품(칼 획득 등)은 카메라 줌을 받지 않게: 화면 960×540 기준 크기 그대로
+    if (c.screen) img.setScale((c.scale || 1) / this.scene.cameras.main.zoom);
     if (c.tint) img.setTint(Phaser.Display.Color.HexStringToColor(c.tint).color); // 같은 그림을 탄 것처럼 (P-13 찜통)
     const label = ph.real ? '' : (c.label ?? ph.label); // 이름표는 그림이 없을 때(임시 네모)만
-    const p = { id: c.id, img, real: ph.real, head: c.head || null, dy: c.dy || 0 };
+    const p = { id: c.id, img, real: ph.real, head: c.head || null, dy: c.dy || 0, screen: !!c.screen };
     if (label && !c.screen) p.tag = UI.tag(() => [img.x, img.y - img.displayHeight - 4], label);
     if (p.tag) p.tag.el.classList.add('prop-tag');
     this.props[c.id] = p;
@@ -414,6 +435,21 @@ class ActorDirector {
       p.flicker = s.tweens.add({ targets: img, alpha: { from: to, to: to * 0.35 }, duration: 160, yoyo: true, repeat: -1, delay: sec * 1000 });
     }
     return this.op(sec * 1000, (t) => img.setAlpha(to * t), () => img.setAlpha(to), skip);
+  }
+
+  // 화면 고정(scrollFactor 0) 그림은 카메라 줌이 화면 가운데를 기준으로 걸린다 → 화면 좌표와 그림 좌표 바꾸기
+  screenToProp(sx, sy) {
+    const z = this.scene.cameras.main.zoom;
+    const cx = GAME_WIDTH / 2;
+    const cy = GAME_HEIGHT / 2;
+    return [cx + (sx - cx) / z, cy + (sy - cy) / z];
+  }
+
+  propToScreen(x, y) {
+    const z = this.scene.cameras.main.zoom;
+    const cx = GAME_WIDTH / 2;
+    const cy = GAME_HEIGHT / 2;
+    return [cx + (x - cx) * z, cy + (y - cy) * z];
   }
 
   propOff(c, skip) {
@@ -437,14 +473,42 @@ class ActorDirector {
     const x0 = img.x;
     const y0 = img.y;
     const r0 = img.angle;
-    const x1 = c.x != null || c.to != null ? this.xOf(c.x ?? c.to, c.offset || 0) : x0;
-    const y1 = c.y != null ? c.y : c.ground ? this.groundAt(x1) : y0 + (c.dy || 0);
+    let x1 = c.x != null || c.to != null ? this.xOf(c.x ?? c.to, c.offset || 0) : x0;
+    let y1 = c.y != null ? c.y : c.ground ? this.groundAt(x1) : y0 + (c.dy || 0);
+    if (p.screen) { // 화면 고정 소품: x · y · dy 는 화면(960×540) 좌표
+      const z = this.scene.cameras.main.zoom;
+      if (c.x != null || c.y != null) [x1, y1] = this.screenToProp(c.x ?? this.propToScreen(x0, y0)[0], c.y ?? this.propToScreen(x0, y0)[1]);
+      if (c.dy && c.y == null) y1 = y0 + c.dy / z;
+    }
     const r1 = c.angle ?? r0;
     const ease = Phaser.Tweens.Builders.GetEaseFunction(c.ease || 'Sine.easeInOut');
     return this.op((c.seconds ?? 1) * 1000, (t) => {
       const k = ease(t);
       img.setPosition(Math.round(x0 + (x1 - x0) * k), Math.round(y0 + (y1 - y0) * k)).setAngle(r0 + (r1 - r0) * k);
     }, () => img.setPosition(Math.round(x1), Math.round(y1)).setAngle(r1), skip);
+  }
+
+  // 빛이 그림 위를 왼쪽 → 오른쪽으로 한 번 훑고 지나감 (칼 획득: 칼날). 그림을 흰색으로 칠한 사본을 좁은 띠만 잘라 보여 준다
+  propShine(c, skip) {
+    const p = this.props[c.id];
+    if (!p || skip) return Promise.resolve();
+    const img = p.img;
+    const sh = this.scene.add.image(img.x, img.y, img.texture.key, img.frame.name)
+      .setOrigin(img.originX, img.originY).setScale(img.scaleX, img.scaleY).setAngle(img.angle).setDepth(img.depth + 0.1)
+      .setTintFill(0xffffff).setBlendMode(Phaser.BlendModes.ADD).setAlpha(c.alpha ?? 0.8);
+    if (img.scrollFactorX === 0) sh.setScrollFactor(0);
+    const fw = img.frame.width;
+    const fh = img.frame.height;
+    const band = Math.max(3, Math.round(fw * (c.band ?? 0.12)));
+    const set = (t) => {
+      const x = Math.round(-band + (fw + band) * t);
+      const x0 = Math.max(0, x);
+      const w = Math.min(fw, x + band) - x0;
+      sh.setVisible(w > 0).setPosition(img.x, img.y);
+      if (w > 0) sh.setCrop(x0, 0, w, fh);
+    };
+    set(0);
+    return this.op((c.seconds ?? 0.7) * 1000, set, () => sh.destroy(), false);
   }
 
   // 색 바꾸기 (꽃이 재가 됨): color, seconds, alpha
@@ -725,6 +789,7 @@ class ActorDirector {
       case 'propOff': r = this.propOff(c, skip); break;
       case 'propMove': r = this.propMove(c, skip); break;
       case 'propTint': r = this.propTint(c, skip); break;
+      case 'propShine': r = this.propShine(c, skip); break;
       case 'act': r = this.act(c, skip); break;
       case 'treeStage': {
         // 큰 벚나무 단계: tree(decorTrees id), stage: bare · bloom · burning · burnt, show

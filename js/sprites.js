@@ -7,6 +7,8 @@ const SPRITE_DIR = 'assets/sprites/';
 const GROUND_TILES = { top: 'tile_r3_c00', platform: 'tile_r2_c00', fill: 'tile_r2_c06' };
 // 바닥 타일 밝기: 윗면·발판 70%, 그 아래 돌담 55% (배경 그림과 어울리게)
 const GROUND_TINT = { top: 0xb3b3b3, fill: 0x8c8c8c };
+// 방의 담(연습장 점프 담): 갓돌 있는 돌담 윗줄 + 돌담 (타일셋 3 · 4번째 줄)
+const WALL_TILES = { top: 'tile_r3_c01', fill: 'tile_r4_c01' };
 
 const Sprites = {
   manifest: null,
@@ -22,7 +24,7 @@ const Sprites = {
         scene.load.image(name, SPRITE_DIR + (s.strip ? s.strip.file : s.file));
       }
     }
-    for (const t of Object.values(GROUND_TILES)) scene.load.image(t, `${SPRITE_DIR}tiles/${t}.png`);
+    for (const t of [...Object.values(GROUND_TILES), ...Object.values(WALL_TILES)]) scene.load.image(t, `${SPRITE_DIR}tiles/${t}.png`);
   },
 
   has(scene, key) {

@@ -23,6 +23,7 @@
 | `lookAhead` | `on` (true/false) | 룩어헤드 켜기/끄기 |
 | `camZoom` | `zoom` (배율), `ms`, `ease` (Phaser 이징 이름, 기본 `Sine.easeInOut`) | 줌 인/아웃. 원래대로는 `zoom: 1` |
 | `camPan` | `to`, `ms` (900), `hold` (초, 0.8), `back` (true) | 목표로 패닝하고 `hold`초 머문 뒤 주인공에게 돌아옵니다. `back: false`면 그대로 둡니다. |
+| `camFocus` | `x`(지점 · 배우), `offset`, `dy`(바닥에서 위로), `zoom` (1.4), `inSec` (0.6), `hold` (0.8), `outSec` (0.5) | 한 곳을 가운데로 확대해 들여다본 뒤 원래 자리 · 배율로 돌아옵니다 (P-3 편지). 방 밖은 보이지 않게 카메라 경계 안에서만. |
 | `camTilt` | `y` (px, 음수 = 위를 더 보여줌), `ms` | 위아래 틸트 |
 | `camReset` | `ms` | 줌 1배, 틸트 0, 다시 따라가기 |
 | `shake` | `level`: `weak` / `mid` / `strong`, `dir`: `both` / `v` / `h` | 흔들림 3단계. 위에서 내리꽂는 충격은 `dir: "v"`로 세로만 흔듭니다. 예전 대본의 `strength: "strong"`도 받습니다. |
@@ -247,6 +248,8 @@
 | `propOff` | `id`, `fade` | 소품 치우기 |
 | `propMove` | `id`, `x`/`to`, `y`·`dy`·`ground`, `angle`, `seconds`, `ease` | 소품 옮기기 (떨어지는 삿갓, 쓰러지는 기둥) |
 | `propTint` | `id`, `color`, `alpha`, `seconds` | 소품 색 바꾸기 (꽃이 재가 됨, 꽃잎이 시듦) |
+| `propShine` | `id`, `seconds` (0.7), `band` (폭 비율 0.12), `alpha` | 빛이 소품 위를 왼쪽 → 오른쪽으로 한 번 훑고 지나감 (칼 획득: 칼날). 화면 고정 소품(`screen`)은 카메라 줌을 받지 않는다 |
+| `talkStop` | `on` (true) | 이 장면의 말풍선 대화 동안 아카네를 멈춰 세운다: 말하는 사람 왼쪽 70px 에 서서 그 사람을 보고, 걷던 인물도 멈춰 아카네를 본다. 대사가 끝나면 다시 조작 (P-5 마을) |
 | `act` | `actor`, `name`, `anim`, `loop`, `seconds`, `wait` | 동작. 애니메이션이 있으면 재생, 없으면 머리 위에 `(동작 이름)` |
 | `emoteHold` | `actor`, `kind`, `on` | 머리 위 아이콘을 계속 (심부름 중 바구니). 아이콘 종류에 `palm`(손바닥), `basket`(바구니) 추가 |
 | `tremble` | `actor`, `times` | 그림을 2px 씩 떨기 (손이 떨림) |

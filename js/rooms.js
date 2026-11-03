@@ -65,6 +65,12 @@ const Rooms = {
       L.ground.push({ x: r.x0 - 40, y: 0, w: 40, h: 900 }, { x: r.x0 + r.w, y: 0, w: 40, h: 900 });
     }
     for (const g of L.legacy.extraGround) L.ground.push({ ...g, x: R.mapX(g.x) });
+    // 방의 담 (연습장 점프 연습): 돌담 타일로 그리고, 판정과 그림이 정확히 같은 사각형. slip: 윗면에 설 수 없음
+    for (const r of this.list) {
+      for (const w of r.c.walls || []) {
+        L.ground.push({ x: r.x0 + this.imgX(r, w.x), y: ROOM_FLOOR_Y - w.h, w: w.w, h: w.h, wall: true, slip: !!w.slip, id: w.id });
+      }
+    }
     const mapList = (arr, keys) => arr.map((d) => {
       const o = { ...d };
       for (const k of keys) if (o[k] != null) o[k] = R.mapX(o[k]);
@@ -72,6 +78,12 @@ const Rooms = {
     });
     L.npcs = mapList(L.legacy.npcs, ['x']);
     L.enemies = mapList(L.legacy.enemies, ['x', 'minX', 'maxX']);
+    // 방 설정에서 적(허수아비) 자리를 그림 px 로 덮어쓰기: enemies { 묶음: [x, …] } (담과 겹치지 않게)
+    for (const r of this.list) {
+      for (const [group, xs] of Object.entries(r.c.enemies || {})) {
+        L.enemies.filter((e) => e.group === group).forEach((e, i) => { if (xs[i] != null) e.x = r.x0 + this.imgX(r, xs[i]); });
+      }
+    }
     L.trees = mapList(L.legacy.trees, ['x']);
     L.decorTrees = this.list.filter((r) => r.c.tree).map((r) => ({
       id: r.c.tree.id, x: r.x0 + this.imgX(r, r.c.tree.x), y: ROOM_FLOOR_Y, scale: r.c.tree.scale, hidden: true,
@@ -168,6 +180,15 @@ const RoomRuntime = {
   // 아카네가 있는 방이 바뀌었으면 카메라 경계 · 기본 줌 · 환경음 · 출구 빛
   update(scene) {
     const p = scene.player;
+    // 윗면에 설 수 없는 담: 위에 올라서면 가까운 쪽 옆으로 미끄러져 떨어진다
+    if (p.body.blocked.down) {
+      for (const w of LEVEL.ground) {
+        if (!w.slip || Math.abs(p.body.bottom - w.y) > 3 || p.body.right <= w.x || p.body.left >= w.x + w.w) continue;
+        const left = p.body.center.x < w.x + w.w / 2;
+        p.body.x = left ? w.x - p.body.width - 1 : w.x + w.w + 1;
+        p.body.setVelocityY(60);
+      }
+    }
     const r = Rooms.at(p.body.center.x);
     if (r && r !== Rooms.current) this.enter(scene, r);
     if (!r || scene.roomBusy || scene.story.running || p.dead) return;
@@ -237,20 +258,34 @@ const RoomRuntime = {
     this.enter(scene, to);
     scene.cameras.main.centerOn(p.body.center.x, ROOM_FLOOR_Y - 120);
     await new Promise((res) => scene.time.delayedCall(150, res));
+    // 이 방의 장면 (아직 안 본 것): 검은 화면인 채로 시작해 인물 · 소품을 먼저 세우고, 장면의 roomIn 에서 밝아진다
+    // (방이 보인 뒤에 인물이 갑자기 나타나지 않게. 예: P-6 나그네는 처음부터 바위 위에 앉아 있다)
+    const scenes = (to.c.scenes || []).filter((id) => !scene.story.played(id));
+    if (scenes.length) {
+      p.scripted = null;
+      p.body.setVelocityX(0);
+      scene.roomBusy = false;
+      scene.story.roomRevealNext = true;
+      scene.story.playEntries(scenes).then(() => {
+        if (to.c.then === 'nextChapter') scene.goToChapter(scene.storyMap.next);
+        this.refreshExits(scene);
+      });
+      // 안전장치: 장면이 roomIn 없이 끝나거나 멈춰도 2초 뒤엔 밝게
+      scene.time.delayedCall(2000, () => {
+        if (scene.story.roomRevealNext || scene.story.roomReveal) {
+          scene.story.roomRevealNext = false;
+          scene.story.roomReveal = false;
+          if (!scene.story.faded) this.fade(scene, 0, 250);
+        }
+      });
+      return;
+    }
     CineSound.sfx('step', { volume: 0.25 });
     p.body.setVelocityX(dir * 120);
     await this.fade(scene, 0, 250);
     p.scripted = null;
     p.body.setVelocityX(0);
     scene.roomBusy = false;
-    // 이 방의 장면 (아직 안 본 것)
-    const scenes = (to.c.scenes || []).filter((id) => !scene.story.played(id));
-    if (scenes.length) {
-      scene.story.playEntries(scenes).then(() => {
-        if (to.c.then === 'nextChapter') scene.goToChapter(scene.storyMap.next);
-        this.refreshExits(scene);
-      });
-    }
   },
 
   fade(scene, to, ms) {

@@ -44,6 +44,18 @@ class GameScene extends Phaser.Scene {
     for (const r of L.ground) {
       const rect = this.add.rectangle(r.x + r.w / 2, r.y + r.h / 2, r.w, r.h, COLORS.ground);
       this.ground.add(rect);
+      if (r.wall) {
+        // 방의 담: 판정 사각형과 똑같은 자리에 돌담 타일 + 밝은 위쪽 윤곽 (배경 위에서 눈에 띄게)
+        rect.setVisible(false);
+        if (Sprites.has(this, WALL_TILES.fill)) this.add.tileSprite(r.x, r.y, r.w, r.h, WALL_TILES.fill).setOrigin(0).setDepth(2);
+        else this.add.rectangle(r.x, r.y, r.w, r.h, 0x6a6460).setOrigin(0).setDepth(2);
+        if (Sprites.has(this, WALL_TILES.top)) this.add.tileSprite(r.x, r.y, r.w, Math.min(32, r.h), WALL_TILES.top).setOrigin(0).setDepth(2.1);
+        const g = this.add.graphics().setDepth(2.2);
+        g.lineStyle(2, 0x1a1418, 1).strokeRect(r.x, r.y, r.w, r.h);   // 어두운 테두리
+        g.fillStyle(0xf3e6c8, 1).fillRect(r.x, r.y, r.w, 2);           // 위쪽 밝은 윤곽
+        g.fillStyle(0xf3e6c8, 0.45).fillRect(r.x, r.y + 2, 2, r.h - 2); // 왼쪽 옅은 빛
+        continue;
+      }
       if (tiled || L.paintedFloor) {
         rect.setVisible(false);
         // 배경 그림에 바닥(마루 · 흙 · 돌길)이 그려져 있는 맵은 판정만 두고 돌 타일은 그리지 않는다

@@ -263,6 +263,26 @@ class Cinematics {
     return this.sleep(ms);
   }
 
+  // 한 곳 들여다보기 (P-3 편지): x(+offset), 바닥에서 dy 위를 가운데로 zoom 배 (inSec 초 이동) → hold 초 머묾 →
+  // outSec 초 동안 원래 자리 · 배율로. 카메라 경계(방 밖은 안 보임) 안에서만 움직인다
+  async focus({ x, offset = 0, dy = 0, y, zoom = 1.4, inSec = 0.6, hold = 0.8, outSec = 0.5 } = {}) {
+    const cam = this.scene.cameras.main;
+    const pt = this.pointOf(x);
+    if (!pt) return;
+    const tx = pt.x + offset;
+    const ty = y ?? ((LEVEL.rooms ? ROOM_FLOOR_Y : pt.y) - dy);
+    const prev = { x: cam.midPoint.x, y: cam.midPoint.y, z: cam.zoom, following: this.following };
+    cam.stopFollow();
+    this.following = false;
+    cam.zoomTo(zoom * (this.baseZoom || 1), inSec * 1000, 'Sine.easeInOut', true);
+    cam.pan(tx, ty, inSec * 1000, 'Sine.easeInOut', true);
+    await this.sleep((inSec + hold) * 1000);
+    cam.zoomTo(prev.z, outSec * 1000, 'Sine.easeInOut', true);
+    cam.pan(prev.x, prev.y, outSec * 1000, 'Sine.easeInOut', true);
+    await this.sleep(outSec * 1000);
+    if (prev.following) this.follow();
+  }
+
   // target: 'player' | NPC id | { x, y } | x(숫자). hold 초 동안 머문 뒤 back 이면 주인공에게 돌아온다
   async pan(target, { ms = 900, hold = 0.8, back = true, ease = 'Sine.easeInOut' } = {}) {
     const s = this.scene;
@@ -772,6 +792,7 @@ class Cinematics {
         return this.pan(to, opts);
       }
       case 'camTilt': return this.tilt(c.y ?? 0, skip ? 0 : c.ms ?? 700);
+      case 'camFocus': return skip ? null : this.focus(c);
       case 'camReset': this.resetCamera(c.ms); return null;
       case 'lookAhead': this.lookAheadOn = c.on !== false; return null;
       case 'hitStop': if (!skip) this.hitStop(c.seconds); return null;
