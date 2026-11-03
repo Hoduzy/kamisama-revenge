@@ -241,7 +241,8 @@ window.TUNING = {
   // </bgfloor>
 
   // 대화 카메라: 대화창 대사가 이어지는 동안 확대 · 말하는 사람들을 대화창 위 공간 가운데(화면 y = screenY)로. ms = 들어가고 나오는 시간
-  dialogueCam: { zoom: 1.25, screenY: 290, ms: 400 },
+  // screenY: 대화창(아래 136px)과 위쪽 레터박스(32px)를 뺀 남은 화면의 가운데 = (32 + 404) / 2
+  dialogueCam: { zoom: 1.25, screenY: 218, ms: 400 },
 
   // 대화
   dialogue: {

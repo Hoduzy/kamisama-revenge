@@ -9,11 +9,12 @@ window.game = new Phaser.Game({
   backgroundColor: '#1b1b1b',
   pixelArt: true,    // 도트가 뭉개지지 않게 (Nearest Neighbor)
   roundPixels: true,
-  // 배율은 PixelFont.attachScale 이 정수배로 맞춘다 (FIT 은 1.37배 같은 배율이 나와 글자가 흐려짐)
+  // 창(100vw × 100dvh) 안에서 16:9 를 유지하며 가능한 한 크게, 가운데. 남는 부분은 검정 (style.css 의 body)
   scale: {
-    mode: Phaser.Scale.NONE,
-    zoom: PixelFont.fitZoom(),
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
   },
   physics: {
     default: 'arcade',
@@ -28,6 +29,9 @@ window.game = new Phaser.Game({
   },
   scene: [BootScene, GameScene],
 });
-PixelFont.attachScale(window.game);
+// 전체 화면이 켜지고 꺼질 때 · 화면을 돌렸을 때 크기를 다시 잰다
+for (const ev of ['fullscreenchange', 'webkitfullscreenchange', 'orientationchange']) {
+  document.addEventListener(ev, () => setTimeout(() => window.game.scale.refresh(), 60));
+}
 PixelFont.watchArrows();
 });

@@ -230,6 +230,8 @@ class StoryPlayer {
     if (letterbox ?? this.modeLetterbox) {
       UI.letterbox(!ctl, this.skipping);
       this.cinema = !ctl;
+    } else if (ctl) {
+      UI.letterbox(false, this.skipping); // 조작 가능한 장면에서는 레터박스 없음
     }
     this.lock(!ctl || this.cinema || !!this.faded);
     this.dialogue.setControllable(ctl);
@@ -272,7 +274,7 @@ class StoryPlayer {
     for (let i = 0; i < list.length; i++) {
       if (this.stopped) return;
       const c = list[i];
-      // 대화 카메라: 대사(대화창)가 이어지는 동안 1.25배 확대해 말하는 사람들을 대화창 위 공간 가운데로. 대사 아닌 연출이 오면 원래대로
+      // 대화 카메라: 대사(대화창)가 이어지는 동안 1.25배 확대해 말하는 사람들을 대화창이 가리지 않는 위쪽 공간 가운데로 (방 밖은 보이지 않게 카메라 경계 안에서만). 대사 아닌 연출이 오면 원래대로
       if (['say', 'think'].includes(c.cmd)) this.dialogueCam(c);
       else if (!DIALOGUE_CAM_KEEP.includes(c.cmd)) this.dialogueCamOff();
       await this.exec(c, sc);
@@ -386,7 +388,8 @@ class StoryPlayer {
         break;
       }
       case 'letterbox':
-        UI.letterbox(c.on, skip);
+        // 조작 가능한 장면에서는 띠를 그리지 않는다 (조작 잠금은 그대로)
+        UI.letterbox(!!c.on && !this.ctl, skip);
         this.cinema = !!c.on;
         // 조작 가능 컷신이라도 레터박스가 있는 동안은 조작 잠금
         if (this.ctl) this.lock(!!c.on);

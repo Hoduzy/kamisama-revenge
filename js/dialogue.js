@@ -1,12 +1,16 @@
 // 대화창 (HTML 레이어 #ui 안). 에도 시대풍: 대화창 틀(ui_dialogue_frame) + 붉은 이름표(ui_nameplate), 둘 다 9-slice.
 // 나타날 때 붓으로 칠하듯 왼쪽 → 오른쪽으로 드러난다(style.css 의 brush-reveal).
-// 패널 위로 크게 튀어나온 초상화(말하는 쪽 왼/오른쪽, 안 말하는 쪽은 어둡게).
+// 초상화는 대화창 안쪽의 정사각형 칸(같은 틀 장식)에 통째로 들어간다. 말하는 사람이 왼쪽이면 칸이 왼쪽, 오른쪽이면 오른쪽,
+// 글자는 칸 반대편에서 시작하고 이름표는 글자 시작점 바로 위(대화창 윗선에 걸침). 초상화가 없으면 칸 없이 글자가 전체 폭.
 // 한 줄씩 보여 주는 방식: open() → line(명령) 을 await → close(). 컷신 엔진(js/story-player.js)이 부른다.
 //   say   : 초상화 + 이름표 + 대사
 //   think : 아카네 속마음. 초상화 반투명, 글자 회색
 //   voice : 초상화·이름표 없이 글자만. style pink(하루) / goldTremble(하쿠야, 떨리는 금색) / plain
 // 넘기기: Space / J / Enter / 화면 탭, 길게 누르면 장면 전체 건너뛰기 (조작 가능 컷신은 Enter·탭, 또는 자동으로 넘어감).
+// 넘기기 안내는 화면 오른쪽 위 구석에, 게임을 처음 켠 뒤 대사 3개 동안만 (그 뒤로는 일시정지 → 조작 안내).
 // 인물 설정(data/story/characters.json): sprite(도트 초상화 시트 + 표정), image, color. 둘 다 없으면 실루엣(js/portraits.js)
+const KEY_HINT_STORE = 'kamisama-keyhint';
+const KEY_HINT_LINES = 3;
 
 class DialogueBox {
   constructor(scene) {
@@ -17,25 +21,28 @@ class DialogueBox {
       root = document.createElement('div');
       root.id = 'dialogue';
       root.innerHTML = `
-        <div class="dlg-portrait left"></div>
-        <div class="dlg-portrait right"></div>
         <div class="dlg-panel">
-          <div class="dlg-hint"></div>
+          <div class="dlg-face"><div class="dlg-portrait"></div></div>
           <div class="dlg-text"></div>
           <div class="dlg-next">▼</div>
         </div>
         <div class="dlg-name"></div>`;
       document.getElementById('ui').append(root);
       // 틀(ui_dialogue_frame)·이름표(ui_nameplate) 9-slice. 이름표는 패널 밖이라 패널의 붓 마스크에 잘리지 않는다
-      UI.nine(root.querySelector('.dlg-panel'), 'ui_dialogue_frame', 0.66);
-      UI.nine(root.querySelector('.dlg-name'), 'ui_nameplate', 0.5);
+      UI.nine(root.querySelector('.dlg-panel'), 'ui_dialogue_frame', 0.4);
+      UI.nine(root.querySelector('.dlg-name'), 'ui_nameplate', 0.35);
+      // 초상화 칸: 대화창과 같은 틀 장식 (얇게. 귀퉁이가 칸에 맞게 가로세로 두께를 비슷하게)
+      const face = root.querySelector('.dlg-face');
+      UI.nine(face, 'ui_dialogue_frame', 0.2);
+      face.style.borderLeftWidth = face.style.borderRightWidth = '9px';
     }
     this.root = root;
-    this.portraits = { left: root.querySelector('.dlg-portrait.left'), right: root.querySelector('.dlg-portrait.right') };
+    this.faceEl = root.querySelector('.dlg-face');
+    this.portraitEl = root.querySelector('.dlg-portrait');
     this.nameEl = root.querySelector('.dlg-name');
     this.textEl = root.querySelector('.dlg-text');
     this.nextEl = root.querySelector('.dlg-next');
-    this.hintEl = root.querySelector('.dlg-hint');
+    this.hintEl = document.querySelector('#ui .dlg-keys');
     root.classList.remove('show', 'open');
     this.pending = null;
   }
@@ -44,11 +51,9 @@ class DialogueBox {
   open(characters, { controllable = false } = {}) {
     this.characters = characters || {};
     this.controllable = controllable;
-    this.sideSpeaker = { left: null, right: null };
-    for (const p of Object.values(this.portraits)) {
-      p.className = p.className.replace(/\b(speaking|filled|boxed|thinking|enter)\b/g, '').replace(/\s+/g, ' ').trim();
-      p.style.backgroundImage = '';
-    }
+    this.faceSpeaker = null;
+    this.root.classList.remove('has-face', 'face-left', 'face-right', 'thinking');
+    this.portraitEl.style.backgroundImage = '';
     this.textEl.innerHTML = '';
     this.nameEl.style.display = 'none';
     this.active = true;
@@ -60,7 +65,7 @@ class DialogueBox {
   setControllable(controllable) {
     this.controllable = controllable;
     const touch = TouchPad.mode === 'touch';
-    this.hintEl.textContent = controllable
+    if (this.hintEl) this.hintEl.textContent = controllable
       ? (touch ? '자동으로 넘어감 · 화면 탭 넘기기 · 길게 누르면 건너뛰기' : '자동으로 넘어감 · Enter 넘기기 · 길게 누르거나 Esc 1초 건너뛰기')
       : (touch ? '탭 넘기기 · 길게 누르면 건너뛰기' : 'Space 넘기기 · 길게 누르거나 Esc 1초 건너뛰기');
     this.root.classList.toggle('controllable', controllable);
@@ -70,9 +75,12 @@ class DialogueBox {
   // 대사가 없는 연출(자막, CG, 페이드 …) 동안은 대화창을 내린다
   hide() {
     this.root.classList.remove('show');
+    UI.root.classList.remove('dlg-up');
+    if (this.hintEl) this.hintEl.classList.remove('show');
   }
 
   show() {
+    UI.root.classList.add('dlg-up'); // 아래쪽 레터박스는 대화창이 떠 있는 동안 걷는다
     if (this.root.classList.contains('show')) return;
     this.root.classList.add('open');
     void this.root.offsetWidth;
@@ -85,16 +93,20 @@ class DialogueBox {
     this.resolvePending();
     document.body.classList.remove('in-dialogue');
     this.root.classList.remove('show');
+    UI.root.classList.remove('dlg-up');
+    if (this.hintEl) this.hintEl.classList.remove('show');
     setTimeout(() => { if (!this.active) this.root.classList.remove('open'); }, 250);
   }
 
-  // 초상화 그림: 도트 시트(표정) → image → 실루엣 + 이름 첫 글자(임시)
+  // 초상화 그림: 도트 시트(표정) → image → 실루엣 + 이름 첫 글자(임시). 칸 안쪽에 통째로 들어가게 줄인다
   portraitStyle(id, ch, face) {
     const f = ch.sprite && Sprites.face(ch.sprite, face);
     if (f && this.scene.textures.exists(f.key) && Sprites.sheet(f.key)) {
       const s = Sprites.sheet(f.key);
       const frame = f.frame;
-      const k = 1.5; // 도트 1칸 = 1.5px (예전 2.5 의 60%)
+      const iw = this.faceEl.clientWidth || 78;
+      const ih = this.faceEl.clientHeight || 80;
+      const k = Math.min(iw / s.frameWidth, ih / s.frameHeight);
       return {
         backgroundImage: `url(${SPRITE_DIR}${s.file})`,
         backgroundSize: `${s.frameWidth * s.frames * k}px ${s.frameHeight * k}px`,
@@ -105,7 +117,7 @@ class DialogueBox {
     }
     if (!ch.name && !ch.image) return null;
     const url = ch.image || Portraits.silhouette(id, ch);
-    return { boxed: true, backgroundImage: `url(${url})`, backgroundSize: '100% 100%', backgroundPosition: '0 0', width: '120px', height: '120px' };
+    return { backgroundImage: `url(${url})`, backgroundSize: '100% 100%', backgroundPosition: '0 0', width: '100%', height: '100%' };
   }
 
   // 한 줄 보여 주고, 넘길 때 끝나는 Promise
@@ -118,28 +130,25 @@ class DialogueBox {
     const ch = this.characters[c.speaker] || {};
     const kind = c.cmd; // say | think | voice
     const side = kind === 'voice' ? null : (c.side || (c.speaker === 'akane' ? 'left' : 'right'));
-    const showPortrait = side && c.portrait !== false;
-
-    if (showPortrait) {
-      const el = this.portraits[side];
-      const style = this.portraitStyle(c.speaker, ch, c.face);
-      if (style) {
-        const changed = this.sideSpeaker[side] !== c.speaker;
-        const { boxed, ...css } = style;
-        Object.assign(el.style, css);
-        el.classList.add('filled');
-        el.classList.toggle('boxed', !!boxed); // 아직 도트 그림이 없는 임시 초상화는 금색 액자에
-        if (changed) {
-          el.classList.remove('enter');
-          void el.offsetWidth;
-          el.classList.add('enter'); // 새 사람이면 옆에서 미끄러져 들어옴
-        }
-        this.sideSpeaker[side] = c.speaker;
+    // 칸 안에 초상화 (말하는 쪽으로 칸이 옮겨 가고, 글자는 반대편에서). 그림이 없으면 칸 없이 전체 폭
+    const style = side && c.portrait !== false ? this.portraitStyle(c.speaker, ch, c.face) : null;
+    const R = this.root.classList;
+    R.toggle('has-face', !!style);
+    R.toggle('face-left', !!style && side === 'left');
+    R.toggle('face-right', !!style && side === 'right');
+    R.toggle('thinking', kind === 'think'); // 속마음: 초상화 반투명
+    if (style) {
+      const el = this.portraitEl;
+      Object.assign(el.style, style);
+      const key = c.speaker + side;
+      if (this.faceSpeaker !== key) {
+        el.classList.remove('enter');
+        void el.offsetWidth;
+        el.classList.add('enter'); // 새 사람이면 살짝 밝아지며 나타남
       }
-    }
-    for (const [s, el] of Object.entries(this.portraits)) {
-      el.classList.toggle('speaking', s === side && showPortrait);
-      el.classList.toggle('thinking', s === side && kind === 'think');
+      this.faceSpeaker = key;
+    } else {
+      this.faceSpeaker = null;
     }
 
     // 이름표: 목소리는 이름 없이 글자만
@@ -161,11 +170,24 @@ class DialogueBox {
       this.textEl.append(span);
       return span;
     });
+    this.keyHint();
     this.shown = 0;
     this.wait = 0;
     this.readTimer = 0;
     this.nextEl.classList.remove('on');
     return new Promise((resolve) => { this.pending = resolve; });
+  }
+
+  // 넘기기 안내: 게임을 처음 켠 뒤 대화창 대사 3개 동안만 화면 오른쪽 위 구석에
+  keyHint() {
+    if (!this.hintEl) return;
+    let n = 0;
+    try { n = +localStorage.getItem(KEY_HINT_STORE) || 0; } catch (e) { n = DialogueBox.hintCount || 0; }
+    const on = n < KEY_HINT_LINES;
+    this.hintEl.classList.toggle('show', on);
+    if (!on) return;
+    DialogueBox.hintCount = n + 1;
+    try { localStorage.setItem(KEY_HINT_STORE, String(n + 1)); } catch (e) { /* 저장 못 하면 이번 실행 동안만 센다 */ }
   }
 
   bubbleLine(c, a) {

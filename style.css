@@ -11,7 +11,7 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #1b1b1b;
+  background: #000;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
@@ -29,9 +29,24 @@ html, body {
 * { font-weight: normal !important; font-style: normal !important; }
 button, input, select, textarea { font-family: inherit; }
 
+/* 캔버스는 창 안에서 16:9 를 유지하며 가능한 한 크게 (Phaser Scale.FIT, 가운데). 남는 부분은 검정 */
 #game {
   position: fixed;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  background: #000;
+}
+
+/* 세로로 들면 안내 (터치 기기만) */
+#rotate-msg {
+  display: none; position: fixed; inset: 0; z-index: 1000; background: #000;
+  align-items: center; justify-content: center; color: #f5e6c8; font: 32px var(--font); text-align: center;
+}
+@media (orientation: portrait) and (pointer: coarse) {
+  #rotate-msg { display: flex; }
 }
 
 #touch-controls {
@@ -160,6 +175,23 @@ body.in-dialogue #touch-controls .pad {
 .hud-tr .debug.on { display: block; }
 .hud-tr .debug { display: none; margin-top: 2px; font-size: 16px; color: #4ade80; }
 /* 일시정지: 둥근 메달 + 두 줄 */
+.hud-tr { display: flex; align-items: flex-start; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+.hud-tr .debug { flex-basis: 100%; }
+/* 전체 화면: 같은 메달 + 네 귀퉁이 꺾쇠 (켜져 있으면 안쪽으로 꺾임) */
+.fs-btn {
+  pointer-events: auto; cursor: pointer; position: relative; width: 40px; height: 39px; padding: 0; border: 0;
+  background: url(assets/ui/ui_medallion.png) center / 100% 100% no-repeat; image-rendering: pixelated;
+}
+.fs-btn:active { background-image: url(assets/ui/ui_medallion_pressed.png); }
+.fs-btn i { position: absolute; width: 6px; height: 6px; border: 0 solid #f5e6c8; filter: drop-shadow(0 0 1px #000); }
+.fs-btn i:nth-child(1) { left: 11px; top: 11px; border-width: 2px 0 0 2px; }
+.fs-btn i:nth-child(2) { right: 11px; top: 11px; border-width: 2px 2px 0 0; }
+.fs-btn i:nth-child(3) { left: 11px; bottom: 11px; border-width: 0 0 2px 2px; }
+.fs-btn i:nth-child(4) { right: 11px; bottom: 11px; border-width: 0 2px 2px 0; }
+.fs-btn.on i:nth-child(1) { border-width: 0 2px 2px 0; }
+.fs-btn.on i:nth-child(2) { border-width: 0 0 2px 2px; }
+.fs-btn.on i:nth-child(3) { border-width: 2px 2px 0 0; }
+.fs-btn.on i:nth-child(4) { border-width: 2px 0 0 2px; }
 .pause-btn {
   pointer-events: auto; cursor: pointer; position: relative; width: 40px; height: 39px; padding: 0; border: 0;
   background: url(assets/ui/ui_medallion.png) center / 100% 100% no-repeat; image-rendering: pixelated;
@@ -205,20 +237,39 @@ body.in-dialogue #touch-controls .pad {
 #dialogue.open { display: block; }
 #dialogue.show { opacity: 1; }
 
-/* 틀: ui_dialogue_frame 9-slice (dialogue.js 가 UI.nine 으로 입힘). 안쪽 여백은 틀 두께 뒤에 */
+/* 틀: ui_dialogue_frame 9-slice (dialogue.js 가 UI.nine 으로 입힘, 틀 두께 위아래 16 · 양옆 29px).
+   전체 높이 128px = 화면 높이의 24% 아래, 화면 아래 끝에서 8px 띄움. 안쪽(틀 안) 높이 96px */
 .dlg-panel {
-  position: absolute; left: 28px; right: 28px; bottom: 10px; height: 117px; box-sizing: border-box; /* 20% 낮춤 */
-  padding: 8px 26px 4px; image-rendering: pixelated;
+  position: absolute; left: 28px; right: 28px; bottom: 8px; height: 128px; box-sizing: border-box;
+  padding: 0; image-rendering: pixelated;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
 }
-/* 이름표: ui_nameplate 9-slice. 글자는 붉은 판 위 */
+/* 초상화 칸: 안쪽 높이에 꽉 찬 정사각형 (96×96), 같은 틀 장식. 말하는 쪽(왼/오른쪽)으로 옮겨 간다 */
+.dlg-face {
+  position: absolute; top: 0; width: 96px; height: 96px; box-sizing: border-box; display: none;
+  image-rendering: pixelated; overflow: hidden;
+}
+#dialogue.has-face .dlg-face { display: block; }
+#dialogue.face-left .dlg-face { left: 0; }
+#dialogue.face-right .dlg-face { right: 0; }
+/* 글자 영역: 칸이 없으면 전체 폭, 있으면 칸 옆에서 시작해 그 폭 안에서 줄바꿈 */
+.dlg-text { position: absolute; left: 10px; right: 10px; top: 8px; bottom: 4px; overflow: hidden; }
+#dialogue.face-left .dlg-text { left: 110px; }
+#dialogue.face-right .dlg-text { right: 110px; }
+.dlg-next { position: absolute; right: 4px; bottom: 0; color: var(--gold); font-size: 16px; opacity: 0; }
+#dialogue.face-right .dlg-next { right: 106px; }
+/* 이름표: ui_nameplate 9-slice. 글자 영역 시작점 바로 위, 대화창 윗선(아래에서 136px)에 걸친다. 초상화 칸은 덮지 않는다 */
 .dlg-name {
-  position: absolute; left: 42px; bottom: 107px; height: 26px; min-width: 70px; box-sizing: content-box;
+  position: absolute; left: 59px; bottom: 114px; height: 26px; min-width: 70px; box-sizing: content-box;
   line-height: 26px; text-align: center; image-rendering: pixelated;
   font-family: var(--font-title); font-weight: 400; font-size: 16px; letter-spacing: 1px; color: #fdf0dc;
   text-shadow: 0 1px 2px #2a0008, 0 0 4px rgba(42, 0, 8, 0.8);
 }
-.dlg-hint { position: absolute; right: 6px; top: -2px; font-size: 16px; color: rgba(243, 238, 228, 0.45); }
+#dialogue.face-left .dlg-name { left: 161px; }
+/* 넘기기 안내: 화면 오른쪽 위 구석에 작게 (처음 대사 3개 동안만, dialogue.js keyHint) */
+#ui .dlg-keys { right: 14px; top: 54px; z-index: 56; font-size: 16px; color: rgba(243, 238, 228, 0.6); text-shadow: 0 0 3px #000, 0 1px 2px #000; opacity: 0; transition: opacity 0.3s; white-space: nowrap; }
+#ui.cinema .dlg-keys { top: 8px; }
+#ui .dlg-keys.show { opacity: 1; }
 
 /* 등장: 붓으로 칠하듯 왼쪽 → 오른쪽 (붓결이 남는 가장자리 마스크가 지나간다) */
 #dialogue.show .dlg-panel, #dialogue.show .dlg-name {
@@ -235,36 +286,27 @@ body.in-dialogue #touch-controls .pad {
 .dlg-text { font-family: var(--font-story); font-size: 16px; line-height: 24px; color: var(--ink); word-break: keep-all; }
 .dlg-text .h { visibility: hidden; }
 #dialogue.narration .dlg-text { font-style: italic; color: #cfc8da; text-align: center; padding-top: 6px; }
-.dlg-next { position: absolute; right: 4px; bottom: 0; color: var(--gold); font-size: 16px; opacity: 0; }
 .dlg-next.on { animation: dlg-blink 0.9s steps(2, jump-none) infinite; }
 @keyframes dlg-blink { 0% { opacity: 1; } 100% { opacity: 0; } }
 
-/* 초상화: 패널 위로 크게 튀어나옴. 아래쪽은 패널 뒤로 숨는다 */
+/* 초상화: 칸 안쪽 가운데에 통째로 (크기는 dialogue.js portraitStyle 이 칸에 맞춰 줄임) */
 .dlg-portrait {
-  position: absolute; bottom: 95px; display: none;
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   background-repeat: no-repeat; image-rendering: pixelated;
-  filter: brightness(0.35) saturate(0.5); transition: filter 0.2s ease;
 }
-.dlg-portrait.filled { display: block; }
-.dlg-portrait.left { left: -14px; }   /* 화면 가장자리에 붙여 가운데 인물을 가리지 않게 */
-.dlg-portrait.right { right: -14px; }
-.dlg-portrait.speaking { filter: brightness(1) drop-shadow(0 0 10px rgba(255, 158, 184, 0.35)); }
-/* 말하는 사람 초상화 하나만 (듣는 사람은 숨김) */
-.dlg-portrait.filled:not(.speaking) { display: none; }
-.dlg-portrait.left.enter { animation: portrait-in-left 0.22s ease-out; }
-.dlg-portrait.right.enter { animation: portrait-in-right 0.22s ease-out; }
-@keyframes portrait-in-left { from { transform: translateX(-36px); opacity: 0; } }
-@keyframes portrait-in-right { from { transform: translateX(36px); opacity: 0; } }
-/* 도트 그림이 아직 없는 인물의 임시 초상화: 금색 액자 */
-.dlg-portrait.boxed { bottom: 121px; border: 2px solid var(--gold); box-shadow: 0 0 0 4px var(--navy), 0 6px 16px rgba(0, 0, 0, 0.5); }
+.dlg-portrait.enter { animation: portrait-in 0.22s ease-out; }
+@keyframes portrait-in { from { opacity: 0; filter: brightness(1.8); } }
+#dialogue.thinking .dlg-portrait { opacity: 0.5; }
 
 /* ───────── 컷신 연출 (js/story-player.js) ───────── */
 #ui .fx-fade { inset: 0; background: #000; opacity: 0; transition-property: opacity; transition-timing-function: ease; z-index: 20; }
-/* 레터박스: 높이 고정, 화면 밖에서 미끄러져 들어온다 (시간은 TUNING.cine.letterboxSec) */
-#ui .fx-lb { left: 0; right: 0; height: 58px; background: #000; z-index: 21; transition: transform 0.4s cubic-bezier(0.3, 0.7, 0.3, 1); }
+/* 레터박스: 화면 높이의 6%, 화면 밖에서 미끄러져 들어온다 (시간은 TUNING.cine.letterboxSec) */
+#ui .fx-lb { left: 0; right: 0; height: 6%; background: #000; z-index: 21; transition: transform 0.4s cubic-bezier(0.3, 0.7, 0.3, 1); }
 #ui .fx-lb.top { top: 0; transform: translateY(-101%); }
 #ui .fx-lb.bottom { bottom: 0; transform: translateY(101%); }
 #ui .fx-lb.on { transform: none; }
+/* 대화창이 떠 있는 동안 아래쪽 띠는 걷고 위쪽만 */
+#ui.dlg-up .fx-lb.bottom.on { transform: translateY(101%); }
 #ui.cinema .hud-tr, #ui.cinema .boss, #ui.cinema .hud-skills, #ui.cinema .ctx-hints { opacity: 0; transition: opacity 0.3s; }
 body.in-dialogue #ui .hud-skills, body.in-dialogue #ui .ctx-hints { opacity: 0; }
 #dialogue { z-index: 35; }
@@ -385,7 +427,6 @@ body.dev-mode #ui .fx-notes, body.dev-mode #ui .fx-audio { display: block; }
 @keyframes tremble { 0% { transform: translate(0, 0); } 33% { transform: translate(0.6px, -0.5px); } 66% { transform: translate(-0.5px, 0.6px); } }
 .dlg-text.voice { text-align: center; padding-top: 4px; }
 .dlg-text.think { color: #a9a3b4; font-style: italic; }
-.dlg-portrait.thinking { opacity: 0.5; }
 #dialogue.controllable .dlg-panel { opacity: 0.92; }
 
 /* 말풍선 (타누키치 한마디) */

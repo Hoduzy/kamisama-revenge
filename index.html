@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="카미사마">
+  <meta name="theme-color" content="#000000">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="assets/icons/apple-touch-icon.png">
   <title>카미사마</title>
   <link rel="preload" href="assets/fonts/DungGeunMo.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
@@ -13,6 +18,8 @@
   <div id="game"></div>
   <!-- 글자 레이어: 대사·HUD 글자를 캔버스 위에 HTML 로 그린다 (js/ui.js) -->
   <div id="ui"></div>
+  <!-- 세로로 들었을 때 (터치 기기) -->
+  <div id="rotate-msg"><span>가로로 돌려 주세요</span></div>
 
   <!-- 터치 컨트롤 (터치 기기에서만 표시) -->
   <div id="touch-controls" aria-hidden="true">

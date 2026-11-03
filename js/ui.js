@@ -18,7 +18,7 @@ const UI = {
     this.root.style.height = GAME_HEIGHT + 'px';
     const sockets = (this.meta.ui_scabbard && this.meta.ui_scabbard.sockets) || [];
     this.root.innerHTML = `
-      <div class="hud-tr"><button type="button" class="pause-btn" tabindex="-1" aria-label="일시정지"><i></i><i></i></button><span class="debug">판정 표시 (H)</span></div>
+      <div class="hud-tr"><button type="button" class="fs-btn" tabindex="-1" aria-label="전체 화면"><i></i><i></i><i></i><i></i></button><button type="button" class="pause-btn" tabindex="-1" aria-label="일시정지"><i></i><i></i></button><span class="debug">판정 표시 (H)</span></div>
       <div class="boss"><div class="boss-name"></div><div class="boss-bar"><div class="boss-fill"></div></div></div>
       <div class="hud-skills">
         <div class="scabbard">${sockets.map(() => '<i class="sock"><span></span></i>').join('')}</div>
@@ -47,6 +47,7 @@ const UI = {
       <div class="fx-audio"></div>
       <div class="fx-notes"></div>
       <div class="fx-prompt"></div>
+      <div class="dlg-keys"></div>
       <div class="fx-skip"><svg viewBox="0 0 36 36"><circle class="bg" cx="18" cy="18" r="15"/><circle class="fg" cx="18" cy="18" r="15" pathLength="100"/></svg><span>건너뛰기</span></div>`;
     this.el = (sel) => this.root.querySelector(sel);
     // 비네트는 HUD 글자보다 아래에 깔리도록 맨 앞에 둔다
@@ -60,6 +61,17 @@ const UI = {
       e.stopPropagation();
       PauseMenu.open();
     });
+    // 전체 화면 버튼: 누르면 켜고, 다시 누르면 끈다. 이 기기에서 못 쓰면(아이폰 Safari · 홈 화면 앱) 숨김
+    const fs = this.el('.fs-btn');
+    if (!UI.fullscreenSupported()) fs.style.display = 'none';
+    fs.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      UI.toggleFullscreen();
+    });
+    const fsMark = () => fs.classList.toggle('on', !!UI.fullscreenElement());
+    document.addEventListener('fullscreenchange', fsMark);
+    document.addEventListener('webkitfullscreenchange', fsMark);
     document.addEventListener('inputmodechange', () => {
       if (this.promptText) this.prompt(this.promptText);
       this.refreshCtxHints();
@@ -70,6 +82,26 @@ const UI = {
     // 캔버스 위치가 정해진 뒤에도 한 번 더
     requestAnimationFrame(layout);
     setTimeout(layout, 300);
+  },
+
+  // ───────── 전체 화면 (Fullscreen API, iPad Safari 는 webkit 이름) ─────────
+  fullscreenSupported() {
+    const d = document.documentElement;
+    return !!(d.requestFullscreen || d.webkitRequestFullscreen);
+  },
+  fullscreenElement() {
+    return document.fullscreenElement || document.webkitFullscreenElement || null;
+  },
+  toggleFullscreen() {
+    const d = document.documentElement;
+    try {
+      if (this.fullscreenElement()) {
+        (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+      } else {
+        const r = (d.requestFullscreen || d.webkitRequestFullscreen).call(d);
+        if (r && r.catch) r.catch(() => {});
+      }
+    } catch (e) { /* 거절되면 그대로 */ }
   },
 
   layout() {
